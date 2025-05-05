@@ -1,0 +1,641 @@
+@import "tailwindcss";
+/* .dark{
+  @theme {
+    
+    --color-primary: #0256f5;
+  --color-db-primary: #e6f0fa;
+  --color-db-secondary: #000A2D;
+  
+  --font-abcRepro: "ABC Repro";
+  --font-Inter: "Inter";
+
+  
+} */
+/* } */
+@theme  {
+  --color-primary: #0256f5;
+  --color-db-primary: #01071c;
+  --color-db-secondary: #000a2d;
+  --color-primary-light: #6183e4;
+  /* --color-db-primary-light: #BACEFF;
+  --color-db-secondary-light: #B2B2FF; */
+  --color-db-primary-light: #F1F5F9;
+  --color-db-secondary-light: #F8FAFC;
+  --color-light-b: #273d8f;
+  --color-light-b2: #86A7FF;
+    --color-bg-slate:#000a2d
+
+  --font-abcRepro: "ABC Repro";
+  --font-Inter: "Inter";
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+.neon-button {
+  box-shadow: inset 0 0 20px rgba(0, 86, 245, 0.8), inset 0 0 30px rgba(0, 162, 255, 0.6), 0 0 20px rgba(0, 162, 255, 0.9);
+  transition: 0.3s;
+}
+
+.neon-button:hover {
+  box-shadow: inset 0 0 15px rgba(0, 162, 255, 1), inset 0 0 25px rgba(0, 162, 255, 0.8), 0 0 15px rgba(0, 162, 255, 1);
+}
+
+.blue-blur-circle {
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  background: rgba(0, 122, 255, 0.3);
+  filter: blur(100px);
+  border-radius: 50%;
+  top: 0%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+  .blue-blur-circle {
+    width: 300px; 
+    height: 500px;
+  }
+}
+
+
+@keyframes scroll-down {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes scroll-up {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.lock-container{
+  background-image: url(../src/assets/Images/dummyLockBg.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+/* loader css */
+.loader {
+  width: 50px;
+  padding: 8px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #2196F3;
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}
+/* *{
+  cursor:default;
+} */
+.infinite-scroll {
+  display: flex;
+  flex-direction: column;
+  animation-duration: 10s; /* Adjust speed */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.animate-scroll-down {
+  animation-name: scroll-down;
+}
+
+.animate-scroll-up {
+  animation-name: scroll-up;
+}
+
+.border-gradient {
+  border: 1.11px solid;
+  border-image-source: linear-gradient(113.83deg, #0009b3 0.45%, #02000e 100%);
+  border-image-slice: 1;
+  border-radius: 40px;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-calendar-dark {
+  overflow: hidden;
+  background: #01071c !important;
+  border: transparent !important;
+  width: 100% !important;
+}
+
+.custom-calendar {
+  overflow: hidden;
+  background: #6183e4 !important;
+  border: transparent !important;
+  width: 100% !important;
+}
+
+.custom-calendar-TJ {
+  overflow: hidden;
+  background: transparent !important;
+  border: transparent !important;
+  width: 100% !important;
+}
+
+.react-calendar__month-view__weekdays {
+  color: #d5d9e2 !important;
+}
+/* Change active date color */
+.react-calendar__tile--active {
+  background: #01071c !important;
+  color: white !important;
+}
+
+.react-calendar__tile {
+  margin: 0;
+  color: #d5d9e2 !important;
+}
+
+.react-calendar__tile--now {
+  background: #0256f5 !important;
+  color: white !important;
+}
+
+.react-calendar__month-view__weekdays,
+.react-calendar__month-view__days {
+  row-gap: 2px !important;
+}
+/* Highlight hover effect */
+.react-calendar__tile:hover {
+  background: #0009b2 !important;
+}
+
+/* Remove default border from navigation buttons */
+.react-calendar__navigation button {
+  color: #374151;
+  font-weight: bold;
+}
+
+/* Customizing the weekday labels */
+.react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  color: #6b7280;
+  font-weight: bold;
+}
+
+/* Styling the previous/next buttons */
+.react-calendar__navigation button:enabled:hover {
+  background: #eff6ff;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  background: #00114e !important;
+  color: white !important;
+}
+
+.current-date {
+  background-color: #0256f5 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.react-calendar__navigation__label,
+.react-calendar__navigation__arrow {
+  color: white !important;
+}
+
+.react-calendar__navigation__label:hover,
+.react-calendar__navigation__arrow:hover {
+  color: white !important;
+  background: transparent !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(100%); /* Makes the icon white */
+}
+
+.custom-shadow {
+  text-shadow: 0px 0px 0.34px 0px #b7a6ff, 0px 0px 0.67px 0px #b7a6ff, 0px 0px 2.35px 0px #b7a6ff, 0px 0px 4.7px 0px #011e7f, 0px 0px 8.06px 0px #011e7f, 0px 0px 14.11px 0px #011e7f;
+}
+
+button {
+  cursor: pointer;
+}
+
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  cursor: pointer;
+}
+
+.rdrDay,
+.rdrDateDisplayWrapper,
+.rdrDateInput {
+  background-color: var(--color-db-secondary) !important; /* Uses variable */
+  color: white !important; /* Uses variable */
+}
+
+.rdrCalendarWrapper {
+  background-color: var(--color-db-secondary) !important; /* Uses variable */
+  color: white !important; /* Uses variable */
+  width: 100% !important;
+}
+
+.rdrDayNumber span {
+  color: white !important; /* Uses variable */
+}
+
+.rdrMonthPicker select,
+.rdrYearPicker select {
+  background-color: var(--color-db-secondary) !important; /* Uses variable */
+  color: white !important; /* Uses variable */
+  border: 1px solid white !important; /* Uses variable */
+}
+
+/*chart menu bg color */
+
+.apexcharts-menu {
+  background: #01071c !important;  /* Set the menu background */
+  color: #ffffff !important;        /* Set the text color */
+  border: 1px solid #ffffff !important; /* Optional: Add a white border */
+}
+
+.apexcharts-menu-item {
+  color: #ffffff !important; /* Ensure menu items are white */
+}
+
+.apexcharts-menu-item:hover {
+  background: #0a0f2d !important; /* Darker hover effect */
+}
+
+.parent {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  gap: 8px;
+  width: 100%;
+  height: 100vh;
+}
+
+.div19 {
+  grid-column: span 3;
+  grid-row: span 4;
+}
+
+.div20 {
+  grid-column: span 3;
+  grid-row: span 4;
+  grid-column-start: 1;
+  grid-row-start: 5;
+  grid-column-end: 4;
+  grid-row-end: 9;
+}
+
+.div21 {
+  grid-column: span 3;
+  grid-row: span 4;
+  grid-column-start: 1;
+  grid-row-start: 9;
+  grid-column-end: 4; 
+  grid-row-end: 13;
+}
+
+.div22 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 4;
+  grid-row-start: 1;
+  grid-column-end: 7;
+  grid-row-end: 4;
+}
+
+.div23 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 4;
+  grid-row-start: 4;
+  grid-column-end: 7;
+  grid-row-end: 7;
+}
+
+.div24 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 4;
+  grid-row-start: 7;
+  grid-column-end: 7;
+  grid-row-end: 10;
+}
+
+.div25 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 4;
+  grid-row-start: 10;
+  grid-column-end: 7;
+  grid-row-end: 13;
+}
+
+.div26 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 7;
+  grid-row-start: 1;
+  grid-column-end:10;
+  grid-row-end: 4;
+}
+
+.div27 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 7;
+  grid-row-start: 4;
+  grid-column-end: 10;
+  grid-row-end: 7;
+}
+
+.div28 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 7;
+  grid-row-start: 7;
+  grid-column-end: 10;
+  grid-row-end: 10;
+}
+
+.div29 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 7;
+  grid-row-start: 10;
+  grid-column-end: 10;
+  grid-row-end: 13;
+}
+
+.div30 {
+  grid-column: span 3;
+  grid-row: span 2;
+  grid-column-start: 10;
+  grid-row-start: 1;
+  grid-column-end: 13;
+  grid-row-end: 3;
+}
+
+.div31 {
+  grid-column: span 3;
+  grid-row: span 2;
+  grid-column-start: 10;
+  grid-row-start: 3;
+  grid-column-end: 13;
+  grid-row-end: 5;
+}
+
+.div32 {
+  grid-column: span 3;
+  grid-row: span 2;
+  grid-column-start: 10;
+  grid-row-start: 5;
+  grid-column-end: 13;
+  grid-row-end: 7;
+}
+
+.div33 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 10;
+  grid-row-start: 7;
+  grid-column-end: 13;
+  grid-row-end: 10;
+}
+
+.div34 {
+  grid-column: span 3;
+  grid-row: span 3;
+  grid-column-start: 10;
+  grid-row-start: 10;
+  grid-column-end: 13;
+  grid-row-end: 13;
+}
+
+
+
+
+
+
+
+
+/* home page grid cards */
+
+
+.homeParent {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  grid-template-rows: repeat(9, 1fr); /* 9 equal rows */
+  gap: 8px;
+}
+
+/* Original grid item styles */
+.div1 {
+  grid-row: span 3 / span 3;
+}
+
+.div2 {
+  grid-row: span 3 / span 3;
+  grid-column-start: 1;
+  grid-row-start: 4;
+}
+
+.div3 {
+  grid-row: span 3 / span 3;
+  grid-column-start: 1;
+  grid-row-start: 7;
+}
+
+.div4 {
+  grid-row: span 3 / span 3;
+  grid-column-start: 2;
+  grid-row-start: 1;
+}
+
+.div5 {
+  grid-row: span 3 / span 3;
+  grid-column-start: 2;
+  grid-row-start: 4;
+}
+
+.div6 {
+  grid-row: span 3 / span 3;
+  grid-column-start: 2;
+  grid-row-start: 7;
+}
+
+.div7 {
+  grid-row: span 5 / span 5;
+  grid-column-start: 3;
+  grid-row-start: 1;
+}
+
+.div8 {
+  grid-row: span 2 / span 2;
+  grid-column-start: 3;
+  grid-row-start: 6;
+}
+
+.div9 {
+  grid-row: span 2 / span 2;
+  grid-column-start: 3;
+  grid-row-start: 8;
+}
+
+/* Medium screens (e.g., tablets, up to 768px) */
+@media (max-width: 768px) {
+  .homeParent {
+    grid-template-columns: repeat(2, 1fr); /* Reduce to 2 columns */
+    grid-template-rows: repeat(12, 1fr); /* Increase rows to accommodate stacking */
+  }
+
+  /* Adjust grid items */
+  .div1 {
+    grid-column-start: 1;
+    grid-row: span 1 / span 1;
+    grid-row-start: 1;
+  }
+
+  .div2 {
+    grid-column-start: 1;
+    grid-row: span 1 / span 1;
+    grid-row-start: 2;
+  }
+
+  .div3 {
+    grid-column-start: 1;
+    grid-row: span 1 / span 1;
+    grid-row-start:3;
+  }
+
+  .div4 {
+    grid-column-start: 2;
+    grid-row: span 1 / span 1;
+    grid-row-start: 1;
+  }
+
+  .div5 {
+    grid-column-start: 2;
+    grid-row: span 1 / span 1;
+    grid-row-start: 2;
+  }
+
+  .div6 {
+    grid-column-start: 2;
+    grid-row: span 1 / span 1;
+    grid-row-start: 3;
+  }
+
+  .div7 {
+    grid-column-start: 1;
+    grid-row: span 2 / span 2;
+    grid-row-start: 4;
+  }
+
+  .div8 {
+    grid-column-start: 2;
+    grid-row: span 1 / span 1;
+    grid-row-start: 4;
+  }
+
+  .div9 {
+    grid-column-start: 2;
+    grid-row: span 1/ span 1;
+    grid-row-start: 5;
+  }
+}
+
+/* Small screens (e.g., phones, up to 480px) */
+@media (max-width: 480px) {
+  .homeParent {
+    grid-template-columns: 1fr; /* Single column */
+    grid-template-rows: repeat(27, 1fr); /* Stack all items vertically */
+  }
+
+  /* Stack all items in one column */
+  .div1 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 1;
+  }
+
+  .div2 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 4;
+  }
+
+  .div3 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 7;
+  }
+
+  .div4 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 10;
+  }
+
+  .div5 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 13;
+  }
+
+  .div6 {
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-row-start: 16;
+  }
+
+  .div7 {
+    grid-column-start: 1;
+    grid-row: span 5 / span 5;
+    grid-row-start: 19;
+  }
+
+  .div8 {
+    grid-column-start: 1;
+    grid-row: span 2 / span 2;
+    grid-row-start: 24;
+  }
+
+  .div9 {
+    grid-column-start: 1;
+    grid-row: span 2 / span 2;
+    grid-row-start: 26;
+  }
+}
+      
+
+.tradingview-widget-copyright,.label-dzbd7lyV.top-dzbd7lyV{
+  display: none !important;
+}
