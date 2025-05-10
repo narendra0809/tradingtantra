@@ -178,7 +178,13 @@ const FiveDayBO = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                            {stock?.UNDERLYING_SYMBOL}
+                          <a
+                                target="_blank"
+                                href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=D`
+                                }
+                              >
+                                {stock?.UNDERLYING_SYMBOL}
+                              </a>
                           </td>
                           <td className="text-lg text-center">
                             <FcCandleSticks />

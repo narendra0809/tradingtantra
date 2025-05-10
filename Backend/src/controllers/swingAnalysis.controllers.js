@@ -20,162 +20,152 @@ const getFormattedISTDate = () => {
 };
 
 const processRangeBreakers = async (days, Model) => {
-  try {
-    const lookbackDays = days + 1;
+  const lookbackDays = days + 1; // Current day + lookback period
 
-    const tradingDays = await MarketDetailData.aggregate([
-      { $group: { _id: "$date" } },
-      { $sort: { _id: -1 } },
-      { $limit: lookbackDays }
-    ]);
+  // 1. Get the latest unique trading dates
+  const tradingDays = await MarketDetailData.aggregate([
+    { $group: { _id: "$date" } },
+    { $sort: { _id: -1 } },
+    { $limit: lookbackDays }
+  ]);
 
-    if (tradingDays.length < lookbackDays) {
-      return { 
-        success: false,
-        message: `Need at least ${days} trading days of historical data` 
-      };
+  if (tradingDays.length < lookbackDays) {
+    throw new Error(`Need at least ${days} trading days of data`);
+  }
+
+  const dates = tradingDays.map(d => d._id);
+  const currentDate = dates[0];
+  const previousDates = dates.slice(1); // Last `days` days
+
+  // 2. Fetch required market data
+  const marketData = await MarketDetailData.find(
+    { date: { $in: dates } },
+    {
+      securityId: 1,
+      "data.dayHigh": 1,
+      "data.dayLow": 1,
+      "data.dayClose": 1,
+      "data.latestTradedPrice": 1,
+      date: 1
     }
+  ).lean();
 
-    const dates = tradingDays.map(d => d._id);
-    const currentDate = dates[0];
-    const historicalDates = dates.slice(1);
+  // 3. Fetch stock metadata
+  const stocks = await StocksDetail.find(
+    {},
+    { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
+  );
+  const stockMap = new Map(stocks.map(stock => [stock.SECURITY_ID, stock]));
 
-    const marketData = await MarketDetailData.aggregate([
-      { $match: { date: { $in: dates } } },
-      { $project: {
-          securityId: 1,
-          date: 1,
-          dayHigh: { $arrayElemAt: ["$data.dayHigh", 0] },
-          dayLow: { $arrayElemAt: ["$data.dayLow", 0] },
-          dayClose: { $arrayElemAt: ["$data.dayClose", 0] },
-          latestPrice: { $arrayElemAt: ["$data.latestTradedPrice", 0] }
-      } }
-    ]);
+  // 4. Organize market data by securityId
+  const securityDataMap = new Map();
 
-    const stockMap = new Map();
-    (await StocksDetail.find({}, { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }))
-      .forEach(stock => stockMap.set(stock.SECURITY_ID, stock));
+  for (const entry of marketData) {
+    if (!entry.securityId || !Array.isArray(entry.data)) continue;
 
-    const securityData = new Map();
-    
-    marketData.forEach(entry => {
-      if (!securityData.has(entry.securityId)) {
-        securityData.set(entry.securityId, {
-          current: null,
-          historical: []
-        });
-      }
-      
-      const data = securityData.get(entry.securityId);
-      if (entry.date === currentDate) {
-        data.current = {
-          high: entry.dayHigh,
-          low: entry.dayLow,
-          close: entry.dayClose,
-          price: entry.latestPrice
-        };
-      } else {
-        data.historical.push({
-          high: entry.dayHigh,
-          low: entry.dayLow,
-          close: entry.dayClose
-        });
-      }
-    });
-
-    const bulkOps = [];
-    
-    for (const [securityId, data] of securityData) {
-      if (!data.current || data.historical.length !== days) continue;
-      
-      const stock = stockMap.get(securityId);
-      if (!stock) continue;
-
-      const historicalHighs = data.historical.map(d => d.high);
-      const historicalLows = data.historical.map(d => d.low);
-      const rangeHigh = Math.max(...historicalHighs);
-      const rangeLow = Math.min(...historicalLows);
-      const firstHistoricalClose = data.historical[0].close;
-
-      let breakoutType = null;
-      if (data.current.close > rangeHigh) {
-        breakoutType = "BULLISH";
-      } else if (data.current.close < rangeLow) {
-        breakoutType = "BEARISH";
-      }
-
-      if (!breakoutType) continue;
-
-      const percentageChange = ((data.current.price - firstHistoricalClose) / firstHistoricalClose) * 100;
-
-      bulkOps.push({
-        updateOne: {
-          filter: { securityId },
-          update: {
-            $set: {
-              securityId,
-              symbol: stock.UNDERLYING_SYMBOL,
-              symbolName: stock.SYMBOL_NAME,
-              breakoutType,
-              percentageChange: parseFloat(percentageChange.toFixed(2)),
-              currentHigh: data.current.high.toFixed(2),
-              currentLow: data.current.low.toFixed(2),
-              currentClose: data.current.close.toFixed(2),
-              rangeHigh: rangeHigh.toFixed(2),
-              rangeLow: rangeLow.toFixed(2),
-              timeframe: `${days}-day`,
-              timestamp: new Date()
-            }
-          },
-          upsert: true
-        }
+    if (!securityDataMap.has(entry.securityId)) {
+      securityDataMap.set(entry.securityId, {
+        current: null,
+        previous: Array(days).fill(null)
       });
     }
 
-    if (bulkOps.length > 0) {
-      await Model.bulkWrite(bulkOps);
+    const secData = securityDataMap.get(entry.securityId);
+    const dailyData = entry.data[0];
+
+    if (entry.date === currentDate) {
+      secData.current = dailyData;
+    } else {
+      const index = previousDates.indexOf(entry.date);
+      if (index !== -1) {
+        secData.previous[index] = dailyData;
+      }
     }
-
-    return { 
-      success: true,
-      count: bulkOps.length,
-      message: `Found ${bulkOps.length} ${days}-day range breakouts`,
-      date: currentDate
-    };
-
-  } catch (error) {
-    console.error(`${days}-day range breaker error:`, error);
-    return {
-      success: false,
-      message: `Failed to process ${days}-day range breakers`,
-      error: error.message
-    };
   }
+
+  // 5. Detect range breakouts and prepare bulk operations
+  const bulkOps = [];
+
+  for (const [securityId, data] of securityDataMap.entries()) {
+    const { current, previous } = data;
+    if (!current || previous.some(d => !d)) continue;
+
+    const stock = stockMap.get(securityId);
+    if (!stock) continue;
+
+    const {
+      dayHigh,
+      dayLow,
+      dayClose,
+      latestTradedPrice
+    } = current;
+
+    const previousHighs = previous.map(d => d.dayHigh);
+    const previousLows = previous.map(d => d.dayLow);
+    const baseClose = previous[0].dayClose;
+
+    const maxHigh = Math.max(...previousHighs);
+    const minLow = Math.min(...previousLows);
+
+    let type = null;
+    if (dayClose > maxHigh) type = "bullish";
+    else if (dayClose < minLow) type = "bearish";
+    if (!type) continue;
+
+    const pctChange = ((latestTradedPrice - baseClose) / baseClose) * 100;
+
+    bulkOps.push({
+      updateOne: {
+        filter: { securityId },
+        update: {
+          $set: {
+            percentageChange: parseFloat(pctChange.toFixed(2)),
+            todayHigh: dayHigh.toFixed(2),
+            todayLow: dayLow.toFixed(2),
+            todayLatestTradedPrice: latestTradedPrice.toFixed(2),
+            [days === 5 ? 'preFiveDaysHigh' : 'preTenDaysHigh']: maxHigh.toFixed(2),
+            [days === 5 ? 'preFiveDaysLow' : 'preTenDaysLow']: minLow.toFixed(2),
+            UNDERLYING_SYMBOL: stock.UNDERLYING_SYMBOL,
+            SYMBOL_NAME: stock.SYMBOL_NAME,
+            type,
+            timestamp: getFormattedISTDate()
+          }
+        },
+        upsert: true
+      }
+    });
+  }
+
+  // 6. Write to MongoDB if data available
+  if (bulkOps.length > 0) {
+    await Model.bulkWrite(bulkOps);
+  }
+
+  return { success: true, count: bulkOps.length };
 };
 
 const fiveDayRangeBreakers = async (req, res) => {
-  const result = await processRangeBreakers(5, FiveDayRangeBreakerModel);
-  
-  if (res) {
-    // Called as API route
-    return res.status(result.success ? 200 : 500).json(result);
+  try {
+    const result = await processRangeBreakers(5, FiveDayRangeBreakerModel);
+    return res ? res.json(result) : result;
+  } catch (error) {
+    console.error("5-day range breaker error:", error);
+    const response = { success: false, error: error.message };
+    return res ? res.status(500).json(response) : response;
   }
-  
-  // Called from job
-  return result;
 };
 
 const tenDayRangeBreakers = async (req, res) => {
-  const result = await processRangeBreakers(10, TenDayRangeBreakerModel);
-  
-  if (res) {
-    // Called as API route
-    return res.status(result.success ? 200 : 500).json(result);
+  try {
+    const result = await processRangeBreakers(10, TenDayRangeBreakerModel);
+    return res ? res.json(result) : result;
+  } catch (error) {
+    console.error("10-day range breaker error:", error);
+    const response = { success: false, error: error.message };
+    return res ? res.status(500).json(response) : response;
   }
-  
-  // Called from job
-  return result;
 };
+
 const dailyCandleReversal = async (req, res) => {
   try {
     // 1. Get last 3 trading days
@@ -186,8 +176,8 @@ const dailyCandleReversal = async (req, res) => {
     ]);
 
     if (tradingDays.length < 3) {
-      const response = { message: "Need at least 3 trading days" };
-      return res ? res.status(400).json(response) : response;
+      return res?.status(400).json({ message: "Need at least 3 trading days" }) || 
+             { message: "Need at least 3 trading days" };
     }
 
     const dates = tradingDays.map(d => d._id);
@@ -200,6 +190,7 @@ const dailyCandleReversal = async (req, res) => {
         securityId: 1,
         "data.dayOpen": 1,
         "data.dayClose": 1,
+        "data.latestTradedPrice": 1,
         date: 1
       }
     ).lean();
@@ -240,7 +231,7 @@ const dailyCandleReversal = async (req, res) => {
       if (!stock) continue;
       
       // Current candle values
-      const { dayOpen: currOpen, dayClose: currClose } = data.current;
+      const { dayOpen: currOpen, dayClose: currClose, latestTradedPrice: currPrice } = data.current;
       
       // Previous candle values
       const { dayOpen: prevOpen, dayClose: prevClose } = data.prev;
@@ -249,21 +240,18 @@ const dailyCandleReversal = async (req, res) => {
       const { dayClose: prevPrevClose } = data.prevPrev;
       
       // Skip if any invalid values
-      if ([currOpen, currClose, prevOpen, prevClose, prevPrevClose].some(v => v === undefined || v === 0)) continue;
-      
-      // Skip low-priced stocks
-      if (prevClose < 1 || prevPrevClose < 1) continue;
+      if ([prevClose, prevPrevClose, currPrice].some(v => v === undefined || v === 0)) continue;
 
       // Calculate percentage changes
       const prevCandleChange = ((prevClose - prevPrevClose) / prevPrevClose) * 100;
-      const currCandleChange = ((currClose - prevClose) / prevClose) * 100;
+      const currCandleChange = ((currPrice - prevClose) / prevClose) * 100;
       
       // Absolute values for comparison
       const absPrevChange = Math.abs(prevCandleChange);
       const absCurrChange = Math.abs(currCandleChange);
       
       // Minimum 2% movement in previous candle
-      if (absPrevChange < 2) continue;
+      if (absPrevChange < 1) continue;
       
       let trend = null;
       
@@ -314,7 +302,7 @@ const dailyCandleReversal = async (req, res) => {
       message: `Found ${bulkOps.length} reversal patterns`
     };
     
-    return res ? res.status(200).json(response) : response;
+    return res?.json(response) || response;
 
   } catch (error) {
     console.error("Daily reversal error:", error);
@@ -323,12 +311,12 @@ const dailyCandleReversal = async (req, res) => {
       message: "Internal server error",
       error: error.message 
     };
-    return res ? res.status(500).json(response) : response;
+    return res?.status(500).json(response) || response;
   }
 };
 const AIContraction = async (req, res) => {
   try {
-    // 1. Get last 7 trading days
+    // 1. Get last 7 trading days (for comparison)
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
@@ -336,25 +324,23 @@ const AIContraction = async (req, res) => {
     ]);
 
     if (tradingDays.length < 7) {
-      return res?.status(400).json({ 
-        success: false,
-        message: "Need at least 7 trading days" 
-      }) || { 
-        success: false,
-        message: "Need at least 7 trading days" 
-      };
+      return res?.status(400).json({ message: "Need at least 7 trading days" }) || 
+             { message: "Need at least 7 trading days" };
     }
 
     const dates = tradingDays.map(d => d._id);
     const currentDate = dates[0];
+    const previousDates = dates.slice(1);
 
-    // 2. Fetch market data with required fields
+    // 2. Fetch market data in single query
     const marketData = await MarketDetailData.find(
       { date: { $in: dates } },
       {
         securityId: 1,
         "data.dayOpen": 1,
         "data.dayClose": 1,
+        "data.dayHigh": 1,
+        "data.dayLow": 1,
         "data.latestTradedPrice": 1,
         date: 1
       }
@@ -367,7 +353,7 @@ const AIContraction = async (req, res) => {
     );
     const stockMap = new Map(stocks.map(s => [s.SECURITY_ID, s]));
 
-    // 4. Organize data by security and calculate candle bodies
+    // 4. Organize data by security and calculate candle sizes
     const securityData = new Map();
     
     marketData.forEach(entry => {
@@ -377,17 +363,24 @@ const AIContraction = async (req, res) => {
         });
       }
       
+      const data = securityData.get(entry.securityId);
       const candleData = entry.data[0];
-      securityData.get(entry.securityId).candles.push({
+      
+      data.candles.push({
         date: entry.date,
         open: candleData.dayOpen,
         close: candleData.dayClose,
+        high: candleData.dayHigh,
+        low: candleData.dayLow,
         latestPrice: candleData.latestTradedPrice,
-        bodySize: Math.abs(candleData.dayOpen - candleData.dayClose)
+        // Calculate candle body size (absolute difference between open and close)
+        bodySize: Math.abs(candleData.dayOpen - candleData.dayClose),
+        // Calculate total candle range (high - low)
+        totalRange: candleData.dayHigh - candleData.dayLow
       });
     });
 
-    // 5. Find contraction patterns (smallest body only)
+    // 5. Find contraction patterns
     const bulkOps = [];
     
     for (const [securityId, data] of securityData) {
@@ -404,12 +397,15 @@ const AIContraction = async (req, res) => {
       const currentCandle = sortedCandles[0];
       const previousCandles = sortedCandles.slice(1);
       
-      // Check if current candle has the smallest body
+      // Check if current candle is the smallest in both body size and total range
       const isSmallestBody = previousCandles.every(c => 
-        currentCandle.bodySize < c.bodySize
-      );
-
-      if (isSmallestBody) {
+        currentCandle.bodySize < c.bodySize);
+      
+      const isSmallestRange = previousCandles.every(c => 
+        currentCandle.totalRange < c.totalRange);
+      
+      // Only consider if both body and range are smallest
+      if (isSmallestBody && isSmallestRange) {
         const prevClose = sortedCandles[1].close;
         const percentageChange = 
           ((currentCandle.latestPrice - prevClose) / prevClose) * 100;
@@ -424,7 +420,7 @@ const AIContraction = async (req, res) => {
                 SYMBOL_NAME: stock.SYMBOL_NAME,
                 percentageChange: parseFloat(percentageChange.toFixed(2)),
                 currentBodySize: currentCandle.bodySize.toFixed(2),
-                currentRange: "0.00", 
+                currentRange: currentCandle.totalRange.toFixed(2),
                 timestamp: getFormattedISTDate()
               }
             },
@@ -442,8 +438,7 @@ const AIContraction = async (req, res) => {
     const response = { 
       success: true,
       count: bulkOps.length,
-      message: `Found ${bulkOps.length} stocks with smallest body today`,
-      date: currentDate
+      message: `Found ${bulkOps.length} contraction patterns`
     };
     
     return res?.json(response) || response;
@@ -460,15 +455,14 @@ const AIContraction = async (req, res) => {
 };
 
 const candleBreakoutBreakdown = async (req, res) => {
-  const response = {
+  let response = {
     success: false,
     message: "",
-    data: null,
-    count: 0
+    data: null
   };
 
   try {
-    // 1. Get last 5 trading days (reference day + 3 consolidation days + current day)
+    // Step 1: Get last 5 trading days
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
@@ -477,113 +471,117 @@ const candleBreakoutBreakdown = async (req, res) => {
 
     if (tradingDays.length < 5) {
       response.message = "Need at least 5 trading days of data";
-      return res?.status(400).json(response) || response;
+      return res ? res.status(400).json(response) : response;
     }
 
     const dates = tradingDays.map(d => d._id);
-    const [currentDate, prevDate1, prevDate2, prevDate3, refDate] = dates;
+    const [currentDate, day1Back, day2Back, day3Back, day4Back] = dates;
 
-    // 2. Fetch only closing prices for efficiency
+    // Step 2: Fetch OHLC data
     const marketData = await MarketDetailData.find(
       { date: { $in: dates } },
       {
         securityId: 1,
+        "data.dayOpen": 1,
+        "data.dayHigh": 1,
+        "data.dayLow": 1,
         "data.dayClose": 1,
-        date: 1
+        date: 1,
+        _id: 0
       }
     ).lean();
 
-    // 3. Get stock metadata
-    const stockMap = new Map();
-    (await StocksDetail.find({}, { 
-      SECURITY_ID: 1, 
-      UNDERLYING_SYMBOL: 1, 
-      SYMBOL_NAME: 1 
-    })).forEach(stock => {
-      stockMap.set(stock.SECURITY_ID, stock);
-    });
+    // Step 3: Get stock metadata
+    const stocks = await StocksDetail.find(
+      {},
+      { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
+    );
+    const stockMap = new Map(stocks.map(s => [s.SECURITY_ID, s]));
 
-    // 4. Organize data by security
-    const securityData = new Map();
-    marketData.forEach(entry => {
-      if (!securityData.has(entry.securityId)) {
-        securityData.set(entry.securityId, {});
+    // Step 4: Analyze
+    const analysisResults = [];
+
+    const securityData = marketData.reduce((acc, entry) => {
+      if (!acc[entry.securityId]) {
+        acc[entry.securityId] = {
+          stockInfo: stockMap.get(entry.securityId),
+          candles: {}
+        };
       }
-      securityData.get(entry.securityId)[entry.date] = entry.data[0].dayClose;
-    });
+      acc[entry.securityId].candles[entry.date] = entry.data[0];
+      return acc;
+    }, {});
 
-    // 5. Analyze for breakout/breakdown patterns
-    const results = [];
-    
-    for (const [securityId, closes] of securityData) {
-      // Skip if we don't have all 5 days of data
-      if (Object.keys(closes).length !== 5) continue;
+    for (const [securityId, data] of Object.entries(securityData)) {
+      const candles = data.candles;
 
-      const refClose = closes[refDate];
-      const upperBound = refClose * 1.02;  // 2% upper buffer
-      const lowerBound = refClose * 0.98;  // 2% lower buffer
+      if (Object.keys(candles).length !== 5) continue;
 
-      // Check if middle 3 days are within the 2% range
-      const consolidationDays = [prevDate3, prevDate2, prevDate1];
-      const isConsolidating = consolidationDays.every(date => {
-        const close = closes[date];
-        return close >= lowerBound && close <= upperBound;
+      const sortedDates = [day4Back, day3Back, day2Back, day1Back, currentDate];
+      const sortedCandles = sortedDates.map(date => ({
+        date,
+        ...candles[date]
+      }));
+
+      const refCandle = sortedCandles[0];
+      const refClose = refCandle.dayClose;
+      const upperBound = refClose * 1.02;
+      const lowerBound = refClose * 0.98;
+
+      const middleCandles = sortedCandles.slice(1, 4);
+      const allWithinRange = middleCandles.every(c => {
+        return c.dayClose >= lowerBound && c.dayClose <= upperBound;
       });
 
-      if (!isConsolidating) continue;
+      if (!allWithinRange) continue;
 
-      // Check current day for breakout/breakdown
-      const currentClose = closes[currentDate];
+      const currentCandle = sortedCandles[4];
       let trend = null;
-      
-      if (currentClose > upperBound) {
-        trend = "BULLISH";
-      } else if (currentClose < lowerBound) {
-        trend = "BEARISH";
-      }
+      if (currentCandle.dayClose > upperBound) trend = "BULLISH";
+      else if (currentCandle.dayClose < lowerBound) trend = "BEARISH";
 
       if (trend) {
-        const stock = stockMap.get(securityId);
-        const prevDayChange = ((currentClose - closes[prevDate1]) / closes[prevDate1] * 100);
-        const refChange = ((currentClose - refClose) / refClose * 100);
+        const fstPreviousDayChange = ((currentCandle.dayClose - sortedCandles[3].dayClose) / sortedCandles[3].dayClose * 100).toFixed(2);
+        const persentageChange = ((currentCandle.dayClose - refClose) / refClose * 100).toFixed(2);
 
-        results.push({
+        const payload = {
           securityId,
-          SYMBOL_NAME: stock?.SYMBOL_NAME || "Unknown",
-          UNDERLYING_SYMBOL: stock?.UNDERLYING_SYMBOL || "Unknown",
-          fstPreviousDayChange: parseFloat(prevDayChange.toFixed(2)),
-          persentageChange: parseFloat(refChange.toFixed(2)),
+          SYMBOL_NAME: data.stockInfo?.SYMBOL_NAME || "",
+          UNDERLYING_SYMBOL: data.stockInfo?.UNDERLYING_SYMBOL || "",
+          fstPreviousDayChange: parseFloat(fstPreviousDayChange),
+          persentageChange: parseFloat(persentageChange),
           trend,
           timestamp: new Date()
-        });
+        };
+
+        // ✅ UPSERT (update if exists, else insert)
+        await CandleBreakoutBreakdown.findOneAndUpdate(
+          { securityId },
+          payload,
+          { upsert: true, new: true }
+        );
+
+        analysisResults.push(payload);
       }
     }
 
-    // 6. Bulk upsert results
-    if (results.length > 0) {
-      const bulkOps = results.map(item => ({
-        updateOne: {
-          filter: { securityId: item.securityId },
-          update: { $set: item },
-          upsert: true
-        }
-      }));
-      await CandleBreakoutBreakdown.bulkWrite(bulkOps);
-    }
+    response = {
+      success: true,
+      count: analysisResults.length,
+      message: `Found ${analysisResults.length} breakout patterns`,
+      data: null
+    };
 
-    // 7. Prepare final response
-    response.success = true;
-    response.count = results.length;
-    response.message = `Found ${results.length} breakout patterns`;
-    response.data = results;
-
-    return res?.json(response) || response;
+    return res ? res.status(200).json(response) : response;
 
   } catch (error) {
-    console.error("Breakout detection error:", error);
-    response.message = "Internal server error";
-    response.error = error.message;
-    return res?.status(500).json(response) || response;
+    console.error("Candle breakout detection error:", error);
+    response = {
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    };
+    return res ? res.status(500).json(response) : response;
   }
 };
 

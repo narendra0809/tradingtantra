@@ -36,7 +36,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-              Market Depth
+              AI Market Depth
             </button>
           </div>
         </div>
@@ -83,7 +83,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-              Option Clock
+             AI Option Clock
             </button>
           </div>
         </div>
@@ -109,7 +109,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-              Customer Strategy
+            Smart Money Action
             </button>
           </div>
         </div>
@@ -159,7 +159,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-              Market Depth
+              Profit
             </button>
           </div>
         </div>
@@ -178,7 +178,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#70A1FE] text-white mt-4 py-2 rounded-md font-medium">
-              Index Mover
+              Index Depth
             </button>
           </div>
         </div>

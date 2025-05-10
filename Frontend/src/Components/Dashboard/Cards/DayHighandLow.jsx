@@ -153,7 +153,7 @@ const DayHigh = ({ data, loading, error, isSubscribed }) => {
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
                               target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
                             >
                               {stock?.stock?.UNDERLYING_SYMBOL}
                             </a>
@@ -339,7 +339,7 @@ const DayLow = ({ data, loading, error, isSubscribed }) => {
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
                               target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
                             >
                               {stock?.stock?.UNDERLYING_SYMBOL}
                             </a>

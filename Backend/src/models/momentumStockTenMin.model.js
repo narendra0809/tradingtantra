@@ -4,8 +4,8 @@ const momentumStockSchemaTenMin = new mongoose.Schema(
     securityId: { type: String, required: true, unique: true },
     symbol_name: { type: String, required: true },
     symbol: { type: String, required: true },
-    currentHigh: { type: Number, required: true },
-    currentLow: { type: Number, required: true },
+    currentOpen: { type: Number, required: true },
+    currentClose: { type: Number, required: true },
     previousHigh: { type: Number, required: true },
     previousLow: { type: Number, required: true },
     momentumType: {

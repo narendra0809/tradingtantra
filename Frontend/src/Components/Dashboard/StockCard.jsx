@@ -142,7 +142,7 @@ const StockCard = ({ title, data, loading, error }) => {
                         <td className="flex items-center font-medium text-xs gap-2 py-3">
                         <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
                             >
                             {stock?.UNDERLYING_SYMBOL}
                             </a>

@@ -5,9 +5,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const connection = {
-  host: process.env.REDIS_HOST,       // Redis server hostname from .env
-  port: process.env.REDIS_PORT,       // Redis server port from .env
-  password: process.env.REDIS_PASSWORD, // Redis server password from .env
+  host: process.env.REDIS_HOST, 
+  port: process.env.REDIS_PORT,      
+  password: process.env.REDIS_PASSWORD, 
 };
 
 // Create queues with the specified connection settings

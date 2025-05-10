@@ -8,9 +8,9 @@ const tenDayRangeBreakerSchema = new mongoose.Schema(
     todayHigh: { type: Number, required: true },
     todayLow: { type: Number, required: true },
     todayLatestTradedPrice: { type: Number, required: true },
-    preTenDaysHigh: { type: Number, required: true },
-    preTenDaysLow: { type: Number, required: true },
-    persentageChange: { type: Number, required: true },
+    preFiveDaysHigh: { type: Number, required: true },
+    preFiveDaysLow: { type: Number, required: true },
+    percentageChange: { type: Number, required: true },
     type: { type: String, enum: ["bullish", "bearish"], required: true },
     timestamp: {
       type: Date,
@@ -19,7 +19,6 @@ const tenDayRangeBreakerSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 const TenDayRangeBreakerModel = mongoose.model(
   "TenDayRangeBreakerModel",
   tenDayRangeBreakerSchema

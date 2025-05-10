@@ -340,7 +340,7 @@ const MarketDepthPage = () => {
     } else {
       interval = setInterval(() => {
         socket.emit("getMarketDepthData", { token });
-      }, 50000);
+      }, 30000);
     }
 
     let hasDataArrived = false;

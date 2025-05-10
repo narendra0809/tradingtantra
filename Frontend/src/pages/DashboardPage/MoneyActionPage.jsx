@@ -85,7 +85,7 @@ const MonryActionPage = () => {
   //     ],
   //   },
   //   {
-  //     title: "AI Swing Reversal (TF - Daily)",
+  //     title: "AI Swing Reversal (TF - 15M)",
   //     img: LomLongTerm,
   //     price: "purchased",
   //     stocks: [
@@ -110,7 +110,7 @@ const MonryActionPage = () => {
   //     ],
   //   },
   //   {
-  //     title: "AI Swing Reversal (TF - Daily)",
+  //     title: "AI Swing Reversal (TF - 15M)",
   //     img: LomLongTerm,
   //     price: "purchased",
   //     stocks: [
@@ -135,7 +135,7 @@ const MonryActionPage = () => {
   //     ],
   //   },
   //   {
-  //     title: "AI Swing Reversal (TF - Daily)",
+  //     title: "AI Swing Reversal (TF - 15M)",
   //     img: LomLongTerm,
   //     price: "purchased",
   //     stocks: [
@@ -281,7 +281,7 @@ const MonryActionPage = () => {
     } else {
       interval = setInterval(() => {
         socket.emit("getSmartMoneyActionData", { token });
-      }, 50000);
+      }, 30000);
     }
     let hasDataArrived = false;
 

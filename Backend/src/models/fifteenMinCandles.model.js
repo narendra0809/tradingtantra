@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const fiveMinCandlesSchema = new mongoose.Schema({
+const fifteenMinCandlesSchema = new mongoose.Schema({
   securityId: { type: String, required: true },
   timestamp: [String],
   open: [Number],
@@ -10,5 +10,5 @@ const fiveMinCandlesSchema = new mongoose.Schema({
   volume: [Number],
 });
 
-const FiveMinCandles = mongoose.model("FiveMinCandles", fiveMinCandlesSchema);
-export default FiveMinCandles;
+const FifteenMinCandles = mongoose.model("FifteenMinCandles", fifteenMinCandlesSchema);
+export default FifteenMinCandles;

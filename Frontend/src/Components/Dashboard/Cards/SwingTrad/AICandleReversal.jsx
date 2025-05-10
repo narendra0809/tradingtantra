@@ -6,7 +6,7 @@ import reversalRader from "../../../../assets/Images/Dashboard/AiSwingTradesPAge
 import { useEffect, useState } from "react";
 import Lock from "../../Lock";
 
-const AICandleReversal = ({ data, loading, error,isSubscribed }) => {
+const AICandleReversal = ({ data, loading, error, isSubscribed }) => {
   console.log(data, "data");
   const [sortedData, setSortedData] = useState([]);
   const [sortOrderChange, setSortOrderChange] = useState("desc");
@@ -114,111 +114,114 @@ const AICandleReversal = ({ data, loading, error,isSubscribed }) => {
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {
-                isSubscribed === 'false' ? <Lock/> : (
+                isSubscribed === 'false' ? <Lock /> : (
                   <table className="w-full">
-                {/* Table Header */}
-                <thead className="sticky top-0 dark:bg-db-secondary bg-db-secondary-light z-10">
-                  <tr className="dark:text-gray-300 text-gray-800">
-                    <th className="py-2 text-left" onClick={handleSortBySymbol}>
-                      Symbol{" "}
-                      <MdOutlineKeyboardArrowDown className="inline-flex" />
-                    </th>
-                    <th className="py-2 text-center">
-                      <MdOutlineKeyboardArrowDown />
-                    </th>
-                    <th
-                      className="py-2 text-center"
-                      onClick={handleSortByPercentageChange}
-                    >
-                      %{" "}
-                      <MdOutlineKeyboardArrowDown
-                        className={
-                          sortOrderChange === "desc"
-                            ? "rotate-180 inline-flex"
-                            : " inline-flex"
-                        }
-                      />
-                    </th>
-                    <th
-                      className="py-2 text-center "
-                      onClick={handleSortByDateTime}
-                    >
-                      Date{" "}
-                      <MdOutlineKeyboardArrowDown
-                        className={
-                          sortOrderDateTime === "desc"
-                            ? "rotate-180 inline-flex"
-                            : " inline-flex"
-                        }
-                      />
-                    </th>
-                    <th
-                      className="py-2 text-right cursor-pointer "
-                      onClick={handleSortByType}
-                    >
-                      <MdOutlineKeyboardArrowDown
-                        className={sortOrderType === "desc" ? "rotate-180" : ""}
-                      />
-                    </th>
-                  </tr>
-                  <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#000A2D] via-[#002ED0] to-[#000A2D]" />
-                </thead>
-
-                {/* Scrollable Table Body */}
-                <tbody>
-                  {loading && <Loader />}
-                  {error && <p>{error?.message || error?.response?.data}</p>}
-                  {sortedData.length > 0 ? (
-                    sortedData.map((stock, index) => (
-                      <tr key={index}>
-                        <td className="py-3 text-left text-sm font-semibold">
-                        <a
-                            target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}`}
-                            >
-                              {stock?.UNDERLYING_SYMBOL}
-                            </a>
-                        </td>
-                        <td className="text-lg text-center">
-                          <FcCandleSticks />
-                        </td>
-                        <td className="text-center">
-                          <span
-                            className={`${
-                              stock?.persentageChange >= 0
-                                ? "bg-green-600"
-                                : "bg-red-600"
-                            } px-2 py-1 text-xs rounded-full`}
-                          >
-                            {stock?.persentageChange}
-                            {/* {Number(stock?.percentageChange=0)?.toFixed(2)} */}
-                          </span>
-                        </td>
-                        <td className="text-xs text-center">
-                          {stock?.timestamp.split("T")[0]}
-                        </td>
-                        <td className="text-right text-sm">
-                          <span
-                            className={`px-2 py-[2px] rounded-3xl  text-white ${
-                              stock?.trend === "bearish"
-                                ? "bg-red-600"
-                                : "bg-green-600"
-                            }`}
-                          >
-                            {stock?.trend}
-                          </span>
-                        </td>
+                    {/* Table Header */}
+                    <thead className="sticky top-0 dark:bg-db-secondary bg-db-secondary-light z-10">
+                      <tr className="dark:text-gray-300 text-gray-800">
+                        <th className="py-2 text-left" onClick={handleSortBySymbol}>
+                          Symbol{" "}
+                          <MdOutlineKeyboardArrowDown className="inline-flex" />
+                        </th>
+                        <th className="py-2 text-center">
+                          <MdOutlineKeyboardArrowDown />
+                        </th>
+                        <th
+                          className="py-2 text-center"
+                          onClick={handleSortByPercentageChange}
+                        >
+                          %{" "}
+                          <MdOutlineKeyboardArrowDown
+                            className={
+                              sortOrderChange === "desc"
+                                ? "rotate-180 inline-flex"
+                                : " inline-flex"
+                            }
+                          />
+                        </th>
+                        <th
+                          className="py-2 text-center "
+                          onClick={handleSortByDateTime}
+                        >
+                          Date{" "}
+                          <MdOutlineKeyboardArrowDown
+                            className={
+                              sortOrderDateTime === "desc"
+                                ? "rotate-180 inline-flex"
+                                : " inline-flex"
+                            }
+                          />
+                        </th>
+                        <th
+                          className="py-2 text-right cursor-pointer "
+                          onClick={handleSortByType}
+                        >
+                          Trend{""}
+                          <MdOutlineKeyboardArrowDown
+                            className={sortOrderType === "desc" ? "rotate-180" : ""}
+                          />
+                        </th>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="text-center py-4">
-                        {!loading && !error ? "No data available" : ""}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                      <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#000A2D] via-[#002ED0] to-[#000A2D]" />
+                    </thead>
+
+                    {/* Scrollable Table Body */}
+                    <tbody>
+                      {loading && <Loader />}
+                      {error && <p>{error?.message || error?.response?.data}</p>}
+                      {sortedData.length > 0 ? (
+                        sortedData.map((stock, index) => (
+                          <tr key={index}>
+                            <td className="py-3 text-left text-sm font-semibold">
+                              <a
+                                target="_blank"
+                                href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=D`
+                                }
+                              >
+                                {stock?.UNDERLYING_SYMBOL}
+                              </a>
+                            </td>
+                            <td className="text-lg text-center">
+                              <FcCandleSticks />
+                            </td>
+                            <td className="text-center">
+                              <span
+                                className={`${stock?.persentageChange >= 0
+                                    ? "bg-green-600"
+                                    : "bg-red-600"
+                                  } px-2 py-1 text-xs rounded-full`}
+                              >
+                                {stock?.persentageChange}
+                                {/* {Number(stock?.percentageChange=0)?.toFixed(2)} */}
+                              </span>
+                            </td>
+                            <td className="text-xs text-center">
+                              {stock?.timestamp.split("T")[0]}
+                            </td>
+                            <td className="text-right text-sm">
+                              <span
+                                className={`px-2 py-[2px] rounded-3xl text-white ${stock?.trend?.toLowerCase() === "bearish"
+                                    ? "bg-red-600"
+                                    : stock?.trend?.toLowerCase() === "bullish"
+                                      ? "bg-green-600"
+                                      : "bg-gray-500"
+                                  }`}
+                              >
+                                {stock?.trend?.toUpperCase()}
+                              </span>
+
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="5" className="text-center py-4">
+                            {!loading && !error ? "No data available" : ""}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 )
               }
             </div>

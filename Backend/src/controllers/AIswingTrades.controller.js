@@ -16,7 +16,8 @@ const FiveDayBO = async (req, res) => {
         timestamp: 1,
         percentageChange: 1,
       }
-    ).lean();
+    ).sort({ timestamp: -1 }) // Newest first
+    .lean();
 
     if (!data) {
       res.status(404).json({ success: false, message: "No data found" });
@@ -42,9 +43,10 @@ const TenDayBO = async (req, res) => {
         UNDERLYING_SYMBOL: 1,
         type: 1,
         timestamp: 1,
-        persentageChange: 1,
+        percentageChange: 1,
       }
-    ).lean();
+    ).sort({ timestamp: -1 }) // Newest first
+      .lean();
 
     if (!data) {
       res.status(404).json({ success: false, message: "No data found" });
@@ -60,33 +62,8 @@ const TenDayBO = async (req, res) => {
   }
 };
 
-const AICandleReversal = async (req, res) => {
-  try {
-    const data = await DailyCandleReversalModel.find(
-      {},
-      {
-        _id: 0,
-        SYMBOL_NAME: 1,
-        UNDERLYING_SYMBOL: 1,
-        type: 1,
-        timestamp: 1,
-        persentageChange: 1,
-      }
-    );
 
-    if (!data) {
-      res.status(404).json({ success: false, message: "No data found" });
-    }
 
-    res.status(200).json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
-  }
-};
 
 
 const AICandleBreakers = async (req, res) => {
@@ -150,9 +127,10 @@ const AIContractionDB = async (req, res) => {
         _id: 0,
         SYMBOL_NAME: 1,
         UNDERLYING_SYMBOL: 1,
+        percentageChange:1,
         timestamp: 1,
       }
-    ).lean();
+    ).sort({ timestamp: -1 });
 
     if (!data) {
       res.status(404).json({ success: false, message: "No data found" });
@@ -167,7 +145,34 @@ const AIContractionDB = async (req, res) => {
     });
   }
 };
+const AICandleReversal = async (req, res) => {
+  try {
+    const data = await DailyCandleReversalModel.find(
+      {},
+      {
+        _id: 0,
+        SYMBOL_NAME: 1,
+        UNDERLYING_SYMBOL: 1,
+        type: 1,
+        timestamp: 1,
+        persentageChange: 1,
+        trend: 1,
+      }
+    ).sort({ timestamp: -1 }); // Sort by latest timestamp descending
 
+    if (!data || data.length === 0) {
+      return res.status(404).json({ success: false, message: "No data found" });
+    }
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 export {
   FiveDayBO,
   TenDayBO,

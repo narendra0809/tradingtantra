@@ -152,7 +152,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
                               target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
                             >
                               {stock?.stockSymbol}
                             </a>
@@ -337,7 +337,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
                               target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
                             >
                               {stock?.stockSymbol}
                             </a>{" "}

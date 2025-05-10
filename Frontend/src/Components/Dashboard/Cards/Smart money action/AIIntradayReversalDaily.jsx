@@ -92,7 +92,7 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
             />
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                AI Swing Reversal (TF - Daily)
+                AI Swing Reversal (TF - 15M)
                 <FcCandleSticks />
               </h2>
               <p className="dark:text-gray-400 text-sm flex items-center gap-2">
@@ -179,23 +179,23 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                          <a
-                            target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}`}
+                            <a
+                              target="_blank"
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=15`}
                             >
-                            {stock?.stockSymbol}
+                              {stock?.stockSymbol}
                             </a>
+
                           </td>
                           <td className="text-lg text-center">
                             <FcCandleSticks />
                           </td>
                           <td className="text-center">
                             <span
-                              className={`${
-                                stock?.percentageChange >= 0
+                              className={`${stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full`}
+                                } px-2 py-1 text-xs rounded-full`}
                             >
                               {Number(stock?.percentageChange)?.toFixed(2)}
                             </span>
@@ -205,11 +205,10 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                           </td>
                           <td className="text-right text-sm">
                             <span
-                              className={`px-2 py-[2px] rounded-3xl  text-white ${
-                                stock?.type === "Bullish Reversal"
+                              className={`px-2 py-[2px] rounded-3xl  text-white ${stock?.type === "Bullish Reversal"
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              }`}
+                                }`}
                             >
                               {stock?.type === "Bullish Reversal"
                                 ? "Bullish"

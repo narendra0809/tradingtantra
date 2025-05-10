@@ -1,10 +1,6 @@
 import cron from "node-cron";
 import MarketHoliday from "../models/holidays.model.js";
-import {
-  getData,
-  getDataForTenMin,
-  startWebSocket,
-} from "../controllers/liveMarketData.controller.js";
+
 import { fiveMinDataQueue, liveDataQueue, TenMinDataQueue } from "./Queues.js";
 
 // Helper to get IST time
@@ -42,22 +38,22 @@ const runMarketTask = async () => {
   const minutes = now.getMinutes();
 
   // Check if today is a holiday or outside market hours
-  // if (await checkHoliday()) {
-  //   console.log("Market Holiday or Weekend. Skipping execution.");
-  //   return;
-  // }
+  if (await checkHoliday()) {
+    console.log("Market Holiday or Weekend. Skipping execution.");
+    return;
+  }
 
-  // if (
-  //   hours < 9 ||
-  //   (hours === 9 && minutes < 15) ||
-  //   hours > 15 ||
-  //   (hours === 15 && minutes > 40)
-  // ) {
-  //   console.log(
-  //     "Outside market hours (9:15 AM - 3:40 PM IST). Skipping execution."
-  //   );
-  //   return;
-  // }
+  if (
+    hours < 9 ||
+    (hours === 9 && minutes < 10) ||
+    hours > 15 ||
+    (hours === 15 && minutes > 35)
+  ) {
+    console.log(
+      "Outside market hours (9:15 AM - 3:40 PM IST). Skipping execution."
+    );
+    return;
+  }
 
   try {
     console.log(`Running market task at ${now.toLocaleTimeString()}`);

@@ -86,4 +86,4 @@ async function keepOnlyLatestMarketData() {
 setInterval(() => {
   console.log(`[${new Date().toISOString()}] Running keepOnlyLatestMarketData`);
   keepOnlyLatestMarketData();
-}, 120 * 1000);
+}, 10 * 1000);

@@ -164,7 +164,7 @@ const AIMomentumCatcherTenMins = ({ data, loading, error ,isSubscribed }) => {
                         <td className="py-3 text-left text-sm font-semibold">
                         <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.symbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.symbol}&interval=10`}
                             >
                             {stock?.symbol}
                             </a>

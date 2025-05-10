@@ -71,7 +71,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
             <img src={meter} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                High Power Stocks <FcCandleSticks />
+               AI Large Cap Power Stocks <FcCandleSticks />
               </h2>
               <p className="dark:text-gray-400 text-sm flex items-center gap-2">
                 How to use{" "}
@@ -150,7 +150,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
                             >
                               {stock?.UNDERLYING_SYMBOL}
                             </a>

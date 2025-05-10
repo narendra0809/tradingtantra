@@ -80,9 +80,9 @@ const App = () => {
                   <Route path="market-depth" element={<MarketDepthPage />} />
                   <Route path="smart-action" element={<MonryActionPage />} />
                   <Route path="swing-trades" element={<AiSwingTradesPage />} />
-                  {/* <Route path="option-clock" element={<OptionClockPage />} /> */}
-                  {/* <Route path="option-data" element={<AIOptionDataPage />} /> */}
-                  {/* <Route path="index-depth" element={<IndexDepthPage />} /> */}
+                   <Route path="option-clock" element={<OptionClockPage />} /> 
+                   <Route path="option-data" element={<AIOptionDataPage />} /> 
+                  <Route path="index-depth" element={<IndexDepthPage />} /> 
                   <Route path="fii-dii" element={<FIIDIIPage />} />
                   <Route path="sector-depth" element={<AiSectorDepthPage />} />
                   <Route path="updates" element={<UpdatesPageDashboard />} />

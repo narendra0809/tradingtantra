@@ -180,7 +180,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                           <td className="py-3 text-left text-sm font-semibold">
                           <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}interval=D`}
                             >
                                {stock?.stockSymbol}
                             </a>
@@ -204,17 +204,14 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                             {stock?.timestamp.split("T")[0]}
                           </td>
                           <td className="text-right text-sm">
-                            <span
-                              className={`px-2 py-[2px] rounded-3xl  text-white ${
-                                stock?.type === "Breakout Bearish"
-                                  ? "bg-red-600"
-                                  : "bg-green-600"
-                              }`}
-                            >
-                              {stock?.type === "Breakout Bullish"
-                                ? "Bullish"
-                                : "Bearish"}
-                            </span>
+                          <span
+  className={`px-2 py-[2px] rounded-3xl text-white ${
+    stock?.type === "BEARISH" ? "bg-red-600" : "bg-green-600"
+  }`}
+>
+  {stock?.type?.toUpperCase()}
+</span>
+
                           </td>
                         </tr>
                       ))

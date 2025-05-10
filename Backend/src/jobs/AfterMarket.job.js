@@ -9,7 +9,7 @@ import {
 
 // Schedule after-market analysis at 3:32 PM IST, Monday-Friday
 const scheduleAfterMarketJob = cron.schedule(
-  "40 15 * * 1-5",
+  "35 15 * * 1-5",
   // "* * * * *",
   async () => {
     try {

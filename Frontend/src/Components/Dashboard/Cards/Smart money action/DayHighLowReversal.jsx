@@ -90,7 +90,7 @@ const DayHighLowReversal = ({ data, loading, error, isSubscribed }) => {
             />
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                AI DAY High/Low Reversal
+                AI DAY H/L Reversal(5 MIN TF)
                 <FcCandleSticks />
               </h2>
               <p className="dark:text-gray-400 text-sm flex items-center gap-2">
@@ -179,7 +179,7 @@ const DayHighLowReversal = ({ data, loading, error, isSubscribed }) => {
                           <td className="py-3 text-left text-sm font-semibold">
                           <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}interval=5`}
                             >
                             {stock?.stockSymbol}
                             </a>

@@ -90,7 +90,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
             />
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                AI 2 DAY H/L Break
+                AI 2 DAY H/L Break ( 5MIN TF)
                 <FcCandleSticks />
               </h2>
               <p className="dark:text-gray-400 text-sm flex items-center gap-2">
@@ -179,7 +179,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                           <td className="py-3 text-left text-sm font-semibold">
                           <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=5`}
                             >
                             {stock?.underlyingSymbol}
                             </a>
