@@ -2,7 +2,8 @@ import WebSocket from "ws";
 import connectDB from "../config/db.js";
 import StocksDetail from "../models/stocksDetail.model.js";
 import parseBinaryData from "../utils/parseBinaryData.js";
-import {fetchHistoricalData,
+import {
+  fetchHistoricalData,
 } from "../utils/fetchData.js";
 import DailyMomentumSignal from "../models/dailyMomentumSignal.model.js";
 import MarketDetailData from "../models/marketData.model.js";
@@ -16,7 +17,7 @@ import FiveMinCandles from "../models/fiveMinCandles.model.js";
 import TenMinCandles from "../models/tenMinCandles.model.js";
 import FifteenMinCandles from "../models/fifteenMinCandles.model.js";
 import IntradayReversalFiveMin from "../models/fiveMinMomentumSignal.model.js";
-import redis from "../config/redisClient.js"; 
+import redis from "../config/redisClient.js";
 const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 const CLIENT_ID = process.env.DHAN_CLIENT_ID;
 const WS_URL = `wss://api-feed.dhan.co?version=2&token=${ACCESS_TOKEN}&clientId=${CLIENT_ID}&authType=2`;
@@ -691,7 +692,7 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
         _id: 0,
       }
     )
-  .sort({ timestamp: -1 });
+      .sort({ timestamp: -1 });
 
     return {
       message: "Momentum stocks found and saved",
@@ -709,143 +710,143 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
 
 const AIMomentumCatcherTenMins = async (req, res) => {
   try {
-      // 1. Fetch stock metadata
-      const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBOL: 1, _id: 0 });
-      if (!stocks?.length) return { message: "No stocks data found" };
+    // 1. Fetch stock metadata
+    const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBOL: 1, _id: 0 });
+    if (!stocks?.length) return { message: "No stocks data found" };
 
-      // 2. Create stock mapping
-      const stockMap = new Map(stocks.map(entry => [
-          entry.SECURITY_ID, 
-          {
-              UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL,
-              SYMBOL_NAME: entry.SYMBOL_NAME
+    // 2. Create stock mapping
+    const stockMap = new Map(stocks.map(entry => [
+      entry.SECURITY_ID,
+      {
+        UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL,
+        SYMBOL_NAME: entry.SYMBOL_NAME
+      }
+    ]));
+    const securityIds = stocks.map(stock => stock.SECURITY_ID);
+
+    // 3. Get latest market data
+    const latestEntry = await MarketDetailData.findOne().sort({ date: -1 }).select("date");
+    if (!latestEntry) return { message: "No stock data available" };
+
+    const latestDate = latestEntry.date;
+    const [latestData, previousDayEntry] = await Promise.all([
+      MarketDetailData.find({ date: latestDate }),
+      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort({ date: -1 })
+    ]);
+
+    if (!latestData.length) return { message: "No stock data available for the latest date" };
+    if (!previousDayEntry) return { message: "No previous stock data available" };
+
+    // 4. Prepare price maps
+    const createPriceMap = (data, priceField) => new Map(
+      data.map(entry => [entry.securityId, entry.data?.[priceField]?.[0] || 0])
+    );
+    const latestDataMap = createPriceMap(latestData, 'latestTradedPrice');
+    const yesterdayMap = createPriceMap(await MarketDetailData.find({ date: previousDayEntry.date }), 'dayClose');
+
+    // 5. Convert 5-min to 10-min candles with strict pairing
+    const convertToStrictTenMinCandles = (fiveMinCandles) => {
+      const tenMinCandles = [];
+      const len = fiveMinCandles.length;
+
+      for (let i = 0; i < len - 1; i++) {
+        const c1 = fiveMinCandles[i];
+        const c2 = fiveMinCandles[i + 1];
+
+        const c1Min = c1.timestamp.getMinutes();
+        const c2Min = c2.timestamp.getMinutes();
+
+        if (c1Min % 10 === 5 && c2Min === c1Min + 5) {
+          tenMinCandles.push({
+            timestamp: c1.timestamp,
+            periodEnd: new Date(c1.timestamp.getTime() + 10 * 60 * 1000),
+            open: c1.open,
+            close: c2.close,
+            high: Math.max(c1.high, c2.high),
+            low: Math.min(c1.low, c2.low),
+            isComplete: true
+          });
+          i++; // Skip next
+        }
+      }
+
+      return tenMinCandles;
+    };
+
+
+    // 6. Process each security
+    const momentumStocks = [];
+    const tomorrowFormatted = new Date(latestDate);
+    tomorrowFormatted.setDate(tomorrowFormatted.getDate() + 1);
+
+    for (const securityId of securityIds) {
+      const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}-${tomorrowFormatted.toISOString().split("T")[0]}`;
+      const cachedData = await redis.get(redisKey);
+      if (!cachedData) continue;
+
+      const data = JSON.parse(cachedData);
+      if (!data?.high?.length || data.high.length < 4) continue;
+
+      // Prepare candle data
+      const candleData = data.timestamp.map((ts, i) => ({
+        timestamp: new Date(ts),
+        high: data.high[i],
+        low: data.low[i],
+        open: data.open[i],
+        close: data.close[i]
+      }));
+
+      const tenMinCandles = convertToStrictTenMinCandles(candleData);
+      if (tenMinCandles.length < 2) continue;
+
+      // Analyze last two 10-min periods
+      const current = tenMinCandles[tenMinCandles.length - 1];
+      const previous = tenMinCandles[tenMinCandles.length - 2];
+
+      const currentBody = Math.abs(current.close - current.open);
+      const previousRange = previous.high - previous.low;
+      const hasMomentum = currentBody >= previousRange * 2 && previousRange > 0.1;
+
+      if (hasMomentum) {
+        const stockInfo = stockMap.get(securityId) || {};
+        const pctChange = ((latestDataMap.get(securityId) - yesterdayMap.get(securityId)) / yesterdayMap.get(securityId)) * 100 || 0;
+
+        momentumStocks.push({
+          securityId,
+          symbol_name: stockInfo.SYMBOL_NAME || "Unknown",
+          symbol: stockInfo.UNDERLYING_SYMBOL || "Unknown",
+          previousHigh: previous.high,
+          previousLow: previous.low,
+          currentOpen: current.open,
+          currentClose: current.close,
+          momentumType: current.close > current.open ? "Bullish" : "Bearish",
+          priceChange: currentBody,
+          percentageChange: pctChange.toFixed(2),
+          timestamp: current.timestamp.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+          period: `${previous.timestamp.toLocaleTimeString()} - ${current.timestamp.toLocaleTimeString()}`
+        });
+      }
+    }
+
+    // 7. Save and return results
+    if (momentumStocks.length) {
+      await MomentumStockTenMin.bulkWrite(
+        momentumStocks.map(stock => ({
+          updateOne: {
+            filter: { securityId: stock.securityId },
+            update: { $set: stock },
+            upsert: true
           }
-      ]));
-      const securityIds = stocks.map(stock => stock.SECURITY_ID);
-
-      // 3. Get latest market data
-      const latestEntry = await MarketDetailData.findOne().sort({ date: -1 }).select("date");
-      if (!latestEntry) return { message: "No stock data available" };
-
-      const latestDate = latestEntry.date;
-      const [latestData, previousDayEntry] = await Promise.all([
-          MarketDetailData.find({ date: latestDate }),
-          MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort({ date: -1 })
-      ]);
-
-      if (!latestData.length) return { message: "No stock data available for the latest date" };
-      if (!previousDayEntry) return { message: "No previous stock data available" };
-
-      // 4. Prepare price maps
-      const createPriceMap = (data, priceField) => new Map(
-          data.map(entry => [entry.securityId, entry.data?.[priceField]?.[0] || 0])
+        }))
       );
-      const latestDataMap = createPriceMap(latestData, 'latestTradedPrice');
-      const yesterdayMap = createPriceMap(await MarketDetailData.find({ date: previousDayEntry.date }), 'dayClose');
+    }
 
-      // 5. Convert 5-min to 10-min candles with strict pairing
-      const convertToStrictTenMinCandles = (fiveMinCandles) => {
-          const tenMinCandles = [];
-          const len = fiveMinCandles.length;
-          
-          for (let i = 0; i < len - 1; i++) {
-              const c1 = fiveMinCandles[i];
-              const c2 = fiveMinCandles[i + 1];
-              
-              const c1Min = c1.timestamp.getMinutes();
-              const c2Min = c2.timestamp.getMinutes();
-              
-              if (c1Min % 10 === 5 && c2Min === c1Min + 5) {
-                  tenMinCandles.push({
-                      timestamp: c1.timestamp,
-                      periodEnd: new Date(c1.timestamp.getTime() + 10 * 60 * 1000),
-                      open: c1.open,
-                      close: c2.close,
-                      high: Math.max(c1.high, c2.high),
-                      low: Math.min(c1.low, c2.low),
-                      isComplete: true
-                  });
-                  i++; // Skip next
-              }
-          }
-      
-          return tenMinCandles;
-      };
-      
-
-      // 6. Process each security
-      const momentumStocks = [];
-      const tomorrowFormatted = new Date(latestDate);
-      tomorrowFormatted.setDate(tomorrowFormatted.getDate() + 1);
-
-      for (const securityId of securityIds) {
-          const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}-${tomorrowFormatted.toISOString().split("T")[0]}`;
-          const cachedData = await redis.get(redisKey);
-          if (!cachedData) continue;
-
-          const data = JSON.parse(cachedData);
-          if (!data?.high?.length || data.high.length < 4) continue;
-
-          // Prepare candle data
-          const candleData = data.timestamp.map((ts, i) => ({
-              timestamp: new Date(ts),
-              high: data.high[i],
-              low: data.low[i],
-              open: data.open[i],
-              close: data.close[i]
-          }));
-
-          const tenMinCandles = convertToStrictTenMinCandles(candleData);
-          if (tenMinCandles.length < 2) continue;
-
-          // Analyze last two 10-min periods
-          const current = tenMinCandles[tenMinCandles.length - 1];
-          const previous = tenMinCandles[tenMinCandles.length - 2];
-          
-          const currentBody = Math.abs(current.close - current.open);
-          const previousRange = previous.high - previous.low;
-          const hasMomentum = currentBody >= previousRange * 2 && previousRange > 0.1;
-          
-          if (hasMomentum) {
-              const stockInfo = stockMap.get(securityId) || {};
-              const pctChange = ((latestDataMap.get(securityId) - yesterdayMap.get(securityId)) / yesterdayMap.get(securityId)) * 100 || 0;
-              
-              momentumStocks.push({
-                  securityId,
-                  symbol_name: stockInfo.SYMBOL_NAME || "Unknown",
-                  symbol: stockInfo.UNDERLYING_SYMBOL || "Unknown",
-                  previousHigh: previous.high,
-                  previousLow: previous.low,
-                  currentOpen: current.open,
-                  currentClose: current.close,
-                  momentumType: current.close > current.open ? "Bullish" : "Bearish",
-                  priceChange: currentBody,
-                  percentageChange: pctChange.toFixed(2),
-                  timestamp: current.timestamp.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-                  period: `${previous.timestamp.toLocaleTimeString()} - ${current.timestamp.toLocaleTimeString()}`
-              });
-          }
-      }
-
-      // 7. Save and return results
-      if (momentumStocks.length) {
-          await MomentumStockTenMin.bulkWrite(
-              momentumStocks.map(stock => ({
-                  updateOne: {
-                      filter: { securityId: stock.securityId },
-                      update: { $set: stock },
-                      upsert: true
-                  }
-              }))
-          );
-      }
-
-      // return {
-      //     message: momentumStocks.length ? "Momentum stocks found" : "No momentum signals",
-      //     count: momentumStocks.length,
-      //     data: momentumStocks
-      // };
- const allMomentumStocks = await MomentumStockTenMin.find({});
+    // return {
+    //     message: momentumStocks.length ? "Momentum stocks found" : "No momentum signals",
+    //     count: momentumStocks.length,
+    //     data: momentumStocks
+    // };
+    const allMomentumStocks = await MomentumStockTenMin.find({});
     // console.log("All Momentum Stocks from 10-Min Collection:", allMomentumStocks);
 
     // 6. Return the data
@@ -855,11 +856,11 @@ const AIMomentumCatcherTenMins = async (req, res) => {
       data: allMomentumStocks
     };
   } catch (error) {
-      console.error("Error in AIMomentumCatcherTenMins:", error);
-      return {
-          message: "Internal server error",
-          error: error.message
-      };
+    console.error("Error in AIMomentumCatcherTenMins:", error);
+    return {
+      message: "Internal server error",
+      error: error.message
+    };
   }
 };
 const AIIntradayReversalFiveMins = async (req, res) => {
@@ -954,8 +955,8 @@ const AIIntradayReversalFiveMins = async (req, res) => {
 
       if (!data || !data.open || !data.close || data.open.length < 5) {
         // console.warn(`No sufficient data for Security 5min reversal ID: ${securityId}`);
- 
-      continue;
+
+        continue;
       }
       updatedData.push({
         securityId,
@@ -1039,7 +1040,7 @@ const AIIntradayReversalFiveMins = async (req, res) => {
       );
 
       if (allBullish && strictlyDecreasingBullish && isLatestBearish) {
-      //   console.log(`Bearish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
+        //   console.log(`Bearish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
         momentumSignals.push({
           type: "Bearish",
           securityId,
@@ -1059,7 +1060,7 @@ const AIIntradayReversalFiveMins = async (req, res) => {
       );
 
       if (allBearish && strictlyDecreasingBearish && isLatestBullish) {
-      //   console.log(`Bullish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
+        //   console.log(`Bullish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
         momentumSignals.push({
           type: "Bullish",
           securityId,
@@ -1114,7 +1115,7 @@ const AIIntradayReversalFiveMins = async (req, res) => {
     //   }
     // )
     //   .sort({ timestamp: -1 });
-      
+
 
     // if (fullData.length === 0) {
     //   return {
@@ -1123,8 +1124,8 @@ const AIIntradayReversalFiveMins = async (req, res) => {
     //   };
     // }
 
-   const allMomentumStocks = await IntradayReversalFiveMin.find({});
-   
+    const allMomentumStocks = await IntradayReversalFiveMin.find({});
+
 
     // Return the data
     return {
@@ -1226,14 +1227,14 @@ const AIIntradayReversalDaily = async (req, res) => {
       const cachedData = await redis.get(redisKey);
       if (cachedData) {
         data = JSON.parse(cachedData);
-      }else {
+      } else {
         // console.log(`Data for ${securityId} not found in Redis, fetching from database`);
-        data = await FifteenMinCandles.findOne({ securityId }).lean(); 
-      //  console.log(`Data fetched from database for ${securityId}:`, data);
-    } 
+        data = await FifteenMinCandles.findOne({ securityId }).lean();
+        //  console.log(`Data fetched from database for ${securityId}:`, data);
+      }
 
       if (!data || !data.open || !data.close || data.open.length < 5) {
-     
+
         continue;
       }
 
@@ -1319,7 +1320,7 @@ const AIIntradayReversalDaily = async (req, res) => {
       );
 
       if (allBullish && strictlyDecreasingBullish && isLatestBearish) {
-      //   console.log(`Bearish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
+        //   console.log(`Bearish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
         momentumSignals.push({
           type: "Bearish",
           securityId,
@@ -1339,7 +1340,7 @@ const AIIntradayReversalDaily = async (req, res) => {
       );
 
       if (allBearish && strictlyDecreasingBearish && isLatestBullish) {
-      //   console.log(`Bullish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
+        //   console.log(`Bullish Reversal for ${securityId}: prevReturns=${prevFourReturns}, latestReturn=${latestReturn}`);
         momentumSignals.push({
           type: "Bullish",
           securityId,
@@ -1643,13 +1644,13 @@ const DailyRangeBreakout = async (req, res) => {
     if (breakoutStocks.length > 0) {
       const bulkOps = breakoutStocks.map(signal => ({
         updateOne: {
-          filter: { 
-            securityId: signal.securityId, 
+          filter: {
+            securityId: signal.securityId,
             date: latestDate,
             type: signal.type
           },
-          update: { 
-            $set: signal 
+          update: {
+            $set: signal
           },
           upsert: true
         }
@@ -1660,17 +1661,17 @@ const DailyRangeBreakout = async (req, res) => {
         console.log(`Saved ${breakoutStocks.length} breakouts (${breakoutStocks.filter(b => b.type === 'Bullish').length} bullish, ${breakoutStocks.filter(b => b.type === 'Bearish').length} bearish)`);
       } catch (dbError) {
         console.error("Error saving breakouts:", dbError);
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: "Error saving to database",
-          error: dbError.message 
+          error: dbError.message
         });
       }
     }
 
     // Get all breakout signals for the latest date
     const fullData = await DailyRangeBreakouts.find(
-      { date: latestDate },
-      { _id: 0, __v: 0, updatedAt: 0, createdAt: 0 }
+      {},
+      { _id: 0, __v: 0, updatedAt: 0, createdAt: 0, }
     ).sort({ timestamp: -1 });
 
     return {
@@ -1694,7 +1695,7 @@ const DailyRangeBreakout = async (req, res) => {
   }
 };
 
-const DayHighLowReversal = async (req, res) => {
+const DayHighLowReversal = async () => {
   try {
     // Get the latest trading day
     const latestTradingDay = await MarketDetailData.aggregate([
@@ -1704,31 +1705,51 @@ const DayHighLowReversal = async (req, res) => {
     ]);
 
     if (!latestTradingDay || latestTradingDay.length === 0) {
-      return { message: "No trading data found" };
+      throw new Error("No trading data found");
     }
 
     const latestDate = latestTradingDay[0]._id;
-    const tomorrow = new Date(latestDate);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowFormatted = tomorrow.toISOString().split("T")[0];
 
-    // Fetch stock data for the latest trading day
-    const stockData = await MarketDetailData.find(
-      { date: latestDate },
-      {
-        securityId: 1,
-        "data.dayOpen": 1,
-        "data.dayClose": 1,
-        "data.dayHigh": 1,
-        "data.dayLow": 1,
-        "data.latestTradedPrice": 1,
-        date: 1,
-        _id: 0,
-      }
-    );
+    // Get the previous trading day
+    const previousTradingDay = await MarketDetailData.aggregate([
+      { $match: { date: { $lt: latestDate } } },
+      { $group: { _id: "$date" } },
+      { $sort: { _id: -1 } },
+      { $limit: 1 },
+    ]);
+
+    const previousDate = previousTradingDay[0]?._id;
+
+    // Fetch stock data for the latest and previous trading day
+    const [stockData, previousStockData] = await Promise.all([
+      MarketDetailData.find(
+        { date: latestDate },
+        {
+          securityId: 1,
+          "data.dayOpen": 1,
+          "data.dayClose": 1,
+          "data.dayHigh": 1,
+          "data.dayLow": 1,
+          "data.latestTradedPrice": 1,
+          date: 1,
+          _id: 0,
+        }
+      ),
+      previousDate
+        ? MarketDetailData.find(
+            { date: previousDate },
+            {
+              securityId: 1,
+              "data.dayClose": 1,
+              date: 1,
+              _id: 0,
+            }
+          )
+        : [],
+    ]);
 
     if (!stockData || stockData.length === 0) {
-      return { message: "No stock data found for the latest date" };
+      throw new Error("No stock data found for the latest date");
     }
 
     // Fetch stock details
@@ -1738,14 +1759,14 @@ const DayHighLowReversal = async (req, res) => {
     );
 
     if (!stockDetails) {
-      return { success: false, message: "No stocks info found" };
+      throw new Error("No stocks info found");
     }
 
     const stockDetailsMap = new Map();
     stockDetails.forEach((item) => {
       stockDetailsMap.set(item.SECURITY_ID, {
-        symbolName: item.SYMBOL_NAME,
-        underlyingSymbol: item.UNDERLYING_SYMBOL,
+        symbolName: item.SYMBOL_NAME || "N/A",
+        underlyingSymbol: item.UNDERLYING_SYMBOL || "N/A",
       });
     });
 
@@ -1754,116 +1775,150 @@ const DayHighLowReversal = async (req, res) => {
     stockData.forEach((item) => {
       stockDataMap.set(item.securityId, {
         securityId: item.securityId,
-        dayOpen: item.data?.dayOpen?.[0],
-        dayClose: item.data?.dayClose?.[0],
-        dayHigh: item.data?.dayHigh?.[0],
-        dayLow: item.data?.dayLow?.[0],
+        dayOpen: item.data?.dayOpen?.[0] || 0,
+        dayClose: item.data?.dayClose?.[0] || 0,
+        dayHigh: item.data?.dayHigh?.[0] || 0,
+        dayLow: item.data?.dayLow?.[0] || 0,
         date: item.date,
-        latestTradedPrice: item.data?.latestTradedPrice?.[0],
+        latestTradedPrice: item.data?.latestTradedPrice?.[0] || 0,
+      });
+    });
+
+    const previousStockDataMap = new Map();
+    previousStockData.forEach((item) => {
+      previousStockDataMap.set(item.securityId, {
+        dayClose: item.data?.dayClose?.[0] || 0,
       });
     });
 
     const responseData = [];
 
-    // Process each security for 5-minute candle data
+    // Process each security for the last 5-minute candle
     for (const securityId of securityIds) {
-     const cachedData = await redis.get(redisKey);
+      // Optional: Check if stock already has a reversal recorded for today
+      const existingReversal = await HighLowReversal.findOne({
+        securityId,
+        date: latestDate,
+      });
+      if (existingReversal) {
+        continue; // Skip if already recorded
+      }
+
+      const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}`;
+      let redisData;
+      const cachedData = await redis.get(redisKey);
       if (cachedData) {
         redisData = JSON.parse(cachedData);
       } else {
-        // Fallback to database
-        redisData = await FiveMinCandles.findOne({ securityId}).lean();
+        redisData = await FiveMinCandles.findOne({ securityId }).lean();
+      }
+
+      if (!redisData || !redisData.high || redisData.high.length === 0) {
+        console.warn(`No sufficient candle data for securityId: ${securityId}`);
+        continue;
       }
 
       const stockInfo = stockDataMap.get(securityId);
       const stocksDetail = stockDetailsMap.get(securityId);
+      const previousDayData = previousStockDataMap.get(securityId);
 
-      if (!stockInfo || !stocksDetail) {
+      if (!stockInfo || !stocksDetail || !stockInfo.dayHigh || !stockInfo.dayLow) {
         continue;
       }
 
       const dayHigh = stockInfo.dayHigh;
       const dayLow = stockInfo.dayLow;
-      const highThreshold = dayHigh * 0.995; // Within 0.5% of day high
-      const lowThreshold = dayLow * 1.005; // Within 0.5% of day low
+      const highThreshold = dayHigh * 0.9975; // Within 0.25% of day high
+      const lowThreshold = dayLow * 1.0025; // Within 0.25% of day low
+      const latestTradedPrice = stockInfo.latestTradedPrice;
+      const previousDayClose = previousDayData?.dayClose || 0;
+      const percentageChange =
+        latestTradedPrice && previousDayClose
+          ? ((latestTradedPrice - previousDayClose) / previousDayClose * 100).toFixed(2)
+          : 0;
 
-      // Check 5-minute candles for reversal patterns
-      for (let i = 0; i < redisData.high.length; i++) {
-        const candleOpen = redisData.open[i];
-        const candleClose = redisData.close[i];
-        const candleHigh = redisData.high[i];
-        const candleLow = redisData.low[i];
-        const candleTimestamp = redisData.timestamp[i];
+      // Get the last 5-minute candle
+      const lastIndex = redisData.high.length - 1;
+      const candleOpen = redisData.open[lastIndex];
+      const candleClose = redisData.close[lastIndex];
+      const candleHigh = redisData.high[lastIndex];
+      const candleLow = redisData.low[lastIndex];
+      const candleTimestamp = redisData.timestamp[lastIndex];
 
-        const isRedCandle = candleClose < candleOpen;
-        const isGreenCandle = candleClose > candleOpen;
+      const isRedCandle = candleOpen > candleClose; // Bearish
+      const isGreenCandle = candleOpen < candleClose; // Bullish
 
-        // Bearish reversal: Red candle near day high
-        if (candleHigh >= highThreshold && isRedCandle) {
-          responseData.push({
-            securityId,
-            ...stocksDetail,
-            reversalPrice: candleClose,
-            type: "Bearish",
-            dayHigh,
-            timestamp: candleTimestamp,
-            percentageFromHigh: ((dayHigh - candleClose) / dayHigh) * 100,
-          });
-          break; // Store only the first occurrence
-        }
-        // Bullish reversal: Green candle near day low
-        else if (candleLow <= lowThreshold && isGreenCandle) {
-          responseData.push({
-            securityId,
-            ...stocksDetail,
-            reversalPrice: candleClose,
-            type: "Bullish",
-            dayLow,
-            timestamp: candleTimestamp,
-            percentageFromLow: ((candleClose - dayLow) / dayLow) * 100,
-          });
-          break; // Store only the first occurrence
-        }
+      // Bearish reversal: Red candle near day high
+      if (candleHigh >= highThreshold && isRedCandle) {
+        responseData.push({
+          securityId,
+          symbolName: stocksDetail.symbolName,
+          underlyingSymbol: stocksDetail.underlyingSymbol,
+          type: "Bearish",
+          reversalPrice: candleClose,
+          dayHigh,
+          timestamp: candleTimestamp,
+          percentageChange: parseFloat(percentageChange),
+          date: latestDate,
+        });
+      }
+      // Bullish reversal: Green candle near day low
+      else if (candleLow <= lowThreshold && isGreenCandle) {
+        responseData.push({
+          securityId,
+          symbolName: stocksDetail.symbolName,
+          underlyingSymbol: stocksDetail.underlyingSymbol,
+          type: "Bullish",
+          reversalPrice: candleClose,
+          dayLow,
+          timestamp: candleTimestamp,
+          percentageChange: parseFloat(percentageChange),
+          date: latestDate,
+        });
       }
     }
 
     // Store results in database
-    const bulkOps = responseData.map((item) => ({
-      updateOne: {
-        filter: { securityId: item.securityId, date: latestDate },
-        update: { $set: { ...item, date: latestDate } },
-        upsert: true,
-      },
-    }));
-
-    await DayHighLowReversal.bulkWrite(bulkOps);
+    if (responseData.length > 0) {
+      const bulkOps = responseData.map((item) => ({
+        updateOne: {
+          filter: { securityId: item.securityId, date: latestDate, type: item.type },
+          update: { $set: item },
+          upsert: true,
+        },
+      }));
+      await HighLowReversal.bulkWrite(bulkOps);
+    }
 
     // Fetch final data
-    const data = await DayHighLowReversal.find(
-      { date: latestDate },
-      {
-        securityId: 1,
-        symbolName: 1,
-        underlyingSymbol: 1,
-        type: 1,
-        timestamp: 1,
-        reversalPrice: 1,
-        percentageFromHigh: 1,
-        percentageFromLow: 1,
-        _id: 0,
-      }
-    );
+    const data = await HighLowReversal.find(
+  {},
+  {
+    securityId: 1,
+    symbolName: 1,
+    underlyingSymbol: 1,
+    type: 1,
+    timestamp: 1,
+    reversalPrice: 1,
+    percentageChange: 1,
+    _id: 0,
+  }
+)
+.sort({ timestamp: -1 }) // Sort by timestamp descending
+.lean();
+
 
     return {
-      message: "Day High Low Reversal analysis complete",
+      message: responseData.length > 0 ? "Day High Low Reversal analysis complete" : "No reversals detected",
       data,
     };
   } catch (error) {
+    console.error("Error in DayHighLowReversal:", error);
     return { success: false, message: error.message };
   }
 };
 
-const twoDayHLBreak = async (req, res) => {
+const twoDayHLBreak = async () => {
   try {
     // Get the latest 3 unique trading days
     const uniqueTradingDays = await MarketDetailData.aggregate([
@@ -1873,13 +1928,10 @@ const twoDayHLBreak = async (req, res) => {
     ]);
 
     if (!uniqueTradingDays || uniqueTradingDays.length < 3) {
-      return { message: "Not enough historical data found" };
+      throw new Error("Not enough historical data found");
     }
 
     const latestDate = uniqueTradingDays[0]._id;
-    const tomorrow = new Date(latestDate);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowFormatted = tomorrow.toISOString().split("T")[0];
     const firstPrevTargetDate = uniqueTradingDays[1]._id;
     const secondPrevTargetDate = uniqueTradingDays[2]._id;
 
@@ -1890,11 +1942,11 @@ const twoDayHLBreak = async (req, res) => {
         {
           securityId: 1,
           "data.dayOpen": 1,
-          date: 1,
           "data.dayClose": 1,
           "data.dayHigh": 1,
           "data.dayLow": 1,
           "data.latestTradedPrice": 1,
+          date: 1,
           _id: 0,
         }
       ),
@@ -1903,32 +1955,31 @@ const twoDayHLBreak = async (req, res) => {
         {
           securityId: 1,
           "data.dayOpen": 1,
-          date: 1,
           "data.dayClose": 1,
           "data.dayHigh": 1,
           "data.dayLow": 1,
+          date: 1,
           _id: 0,
         }
       ),
     ]);
 
     if (!firstPrevStockData.length || !secondPrevStockData.length) {
-      return { message: "No stock data found for the selected dates" };
+      throw new Error("No stock data found for the selected dates");
     }
 
     // Create maps for stock data
-    const securityIds = [];
+    const securityIds = firstPrevStockData.map((item) => item.securityId);
     const firstPrevStockDataMap = new Map();
     firstPrevStockData.forEach((item) => {
-      securityIds.push(item.securityId);
       firstPrevStockDataMap.set(item.securityId, {
         securityId: item.securityId,
-        dayOpen: item.data?.dayOpen?.[0],
-        dayClose: item.data?.dayClose?.[0],
-        dayHigh: item.data?.dayHigh?.[0],
-        dayLow: item.data?.dayLow?.[0],
+        dayOpen: item.data?.dayOpen?.[0] || 0,
+        dayClose: item.data?.dayClose?.[0] || 0,
+        dayHigh: item.data?.dayHigh?.[0] || 0,
+        dayLow: item.data?.dayLow?.[0] || 0,
         date: item.date,
-        latestTradedPrice: item.data?.latestTradedPrice?.[0],
+        latestTradedPrice: item.data?.latestTradedPrice?.[0] || 0,
       });
     });
 
@@ -1936,10 +1987,10 @@ const twoDayHLBreak = async (req, res) => {
     secondPrevStockData.forEach((item) => {
       secondPrevStockDataMap.set(item.securityId, {
         securityId: item.securityId,
-        dayOpen: item.data?.dayOpen?.[0],
-        dayClose: item.data?.dayClose?.[0],
-        dayHigh: item.data?.dayHigh?.[0],
-        dayLow: item.data?.dayLow?.[0],
+        dayOpen: item.data?.dayOpen?.[0] || 0,
+        dayClose: item.data?.dayClose?.[0] || 0,
+        dayHigh: item.data?.dayHigh?.[0] || 0,
+        dayLow: item.data?.dayLow?.[0] || 0,
         date: item.date,
       });
     });
@@ -1952,8 +2003,8 @@ const twoDayHLBreak = async (req, res) => {
     const stockDetailsMap = new Map();
     stockDetails.forEach((item) => {
       stockDetailsMap.set(item.SECURITY_ID, {
-        symbolName: item.SYMBOL_NAME,
-        underlyingSymbol: item.UNDERLYING_SYMBOL,
+        symbolName: item.SYMBOL_NAME || "N/A",
+        underlyingSymbol: item.UNDERLYING_SYMBOL || "N/A",
       });
     });
 
@@ -1961,12 +2012,27 @@ const twoDayHLBreak = async (req, res) => {
 
     // Process each security
     for (const securityId of securityIds) {
+      // Check if stock already has a breakout recorded for today
+      const existingBreak = await TwoDayHighLowBreak.findOne({
+        securityId,
+        date: latestDate,
+      });
+      if (existingBreak) {
+        continue; // Skip if already recorded
+      }
+
+      const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}`;
+      let redisData;
       const cachedData = await redis.get(redisKey);
       if (cachedData) {
         redisData = JSON.parse(cachedData);
       } else {
-        // Fallback to database
-        redisData = await FiveMinCandles.findOne({ securityId}).lean();
+        redisData = await FiveMinCandles.findOne({ securityId }).lean();
+      }
+
+      if (!redisData || !redisData.high || redisData.high.length === 0) {
+        console.warn(`No sufficient candle data for securityId: ${securityId}`);
+        continue;
       }
 
       const firstPrevDayData = firstPrevStockDataMap.get(securityId);
@@ -1990,88 +2056,75 @@ const twoDayHLBreak = async (req, res) => {
       const highThreshold = maxHigh * 1.01; // 1% above max high
       const lowThreshold = minLow * 0.99; // 1% below min low
 
-      let breakRecorded = false;
-      let breakType = null;
-      let breakTimestamp = null;
-      let breakPrice = null;
-      let percentageChange = ((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose) * 100;
+      // Get the last 5-minute candle
+      const lastIndex = redisData.high.length - 1;
+      const candleHigh = redisData.high[lastIndex];
+      const candleLow = redisData.low[lastIndex];
+      const candleClose = redisData.close[lastIndex];
+      const candleTimestamp = redisData.timestamp[lastIndex];
 
-      // Check 5-min candles for breaks
-      for (let i = 0; i < redisData.high.length; i++) {
-        const candleHigh = redisData.high[i];
-        const candleLow = redisData.low[i];
-        const candleClose = redisData.close[i];
-        const candleTimestamp = redisData.timestamp[i];
-
-        if (breakRecorded) break; // Only record first break of the day
-
-        // Bullish break: high > threshold and close > threshold
-        if (candleHigh > highThreshold && candleClose > highThreshold) {
-          breakRecorded = true;
-          breakType = "Bullish";
-          breakTimestamp = candleTimestamp;
-          breakPrice = candleHigh;
-          responseData.push({
-            securityId,
-            ...stocksDetail,
-            breakPrice,
-            type: breakType,
-            maxHigh,
-            timestamp: breakTimestamp,
-            percentageChange,
-          });
-        }
-        // Bearish break: low < threshold and close < threshold
-        else if (candleLow < lowThreshold && candleClose < lowThreshold) {
-          breakRecorded = true;
-          breakType = "Bearish";
-          breakTimestamp = candleTimestamp;
-          breakPrice = candleLow;
-          responseData.push({
-            securityId,
-            ...stocksDetail,
-            breakPrice,
-            type: breakType,
-            minLow,
-            timestamp: breakTimestamp,
-            percentageChange,
-          });
-        }
+      // Bullish break: high > threshold and close > threshold
+      if (candleHigh > highThreshold && candleClose > highThreshold) {
+        responseData.push({
+          securityId,
+          symbolName: stocksDetail.symbolName,
+          underlyingSymbol: stocksDetail.underlyingSymbol,
+          type: "Bullish",
+          breakPrice: candleHigh,
+          maxHigh,
+          timestamp: candleTimestamp,
+          percentageChange: parseFloat(((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose * 100).toFixed(2)),
+          date: latestDate,
+        });
+      }
+      // Bearish break: low < threshold and close < threshold
+      else if (candleLow < lowThreshold && candleClose < lowThreshold) {
+        responseData.push({
+          securityId,
+          symbolName: stocksDetail.symbolName,
+          underlyingSymbol: stocksDetail.underlyingSymbol,
+          type: "Bearish",
+          breakPrice: candleLow,
+          minLow,
+          timestamp: candleTimestamp,
+          percentageChange: parseFloat(((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose * 100).toFixed(2)),
+          date: latestDate,
+        });
       }
     }
 
     // Store results in database
-    const bulkOps = responseData.map((item) => ({
-      updateOne: {
-        filter: { securityId: item.securityId, date: latestDate },
-        update: { $set: { ...item, date: latestDate } },
-        upsert: true,
-      },
-    }));
-
-    await TwoDayHighLowBreak.bulkWrite(bulkOps);
+    if (responseData.length > 0) {
+      const bulkOps = responseData.map((item) => ({
+        updateOne: {
+          filter: { securityId: item.securityId, date: latestDate, type: item.type },
+          update: { $set: item },
+          upsert: true,
+        },
+      }));
+      await TwoDayHighLowBreak.bulkWrite(bulkOps);
+    }
 
     // Fetch final data
-    const data = await TwoDayHighLowBreak.find(
-      { date: latestDate },
-      {
-        securityId: 1,
-        symbolName: 1,
-        underlyingSymbol: 1,
-        type: 1,
-        timestamp: 1,
-        percentageChange: 1,
-        breakPrice: 1,
-        _id: 0,
-      }
-    );
-    
+    const data = await TwoDayHighLowBreak.find({}, {
+  securityId: 1,
+  symbolName: 1,
+  underlyingSymbol: 1,
+  type: 1,
+  timestamp: 1,
+  breakPrice: 1,
+  percentageChange: 1,
+  _id: 0
+})
+.sort({ timestamp: -1 }) 
+.lean();
 
     return {
-      message: "Two Day High Low Break analysis complete",
+      message: responseData.length > 0 ? "Two Day High Low Break analysis complete" : "No breakouts detected",
       data,
     };
   } catch (error) {
+    console.error("Error in twoDayHLBreak:", error);
     return { success: false, message: error.message };
   }
 };
