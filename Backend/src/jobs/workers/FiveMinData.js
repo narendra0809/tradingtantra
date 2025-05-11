@@ -15,11 +15,10 @@ new Worker(
   async (job) => {
     try {
       const { fromDate, toDate } = job.data;
-      // console.log("running five min candle fetch....⛷️");
       await getData(fromDate, toDate);
     } catch (error) {
       console.log('error in five min worker', error.message);
     }
   },
-  { connection } // <-- Correct here
+  { connection }
 );

@@ -107,18 +107,18 @@ const Sidebar = () => {
                   path={"/dashboard/swing-trades"}
                   isSubscribed={isSubscribed}
                 />
-                {/* <NavItem
+                <NavItem
                   icon={AiOptionClock}
                   label="Option Clock"
                   isOpen={isOpen}
                   path={"/dashboard/option-clock"}
-                /> */}
-                {/* <NavItem
+                /> 
+                <NavItem
                   icon={AiOptionData}
                   label="AI Option Data"
                   isOpen={isOpen}
                   path={"/dashboard/option-data"}
-                /> */}
+                /> 
                 <NavItem
                   icon={FiiDii}
                   label="FII / DII Data"
@@ -126,12 +126,12 @@ const Sidebar = () => {
                   path={"/dashboard/fii-dii"}
                   isSubscribed={isSubscribed}
                 />
-                {/* <NavItem
+                <NavItem
                   icon={indexDepth}
                   label="Index Depth"
                   isOpen={isOpen}
                   path={"/dashboard/index-depth"}
-                /> */}
+                />
                 <NavItem
                   icon={tradingJournal}
                   label="Trading Journal"

@@ -6,18 +6,18 @@ import meter from "../../../assets/Images/Dashboard/marketdepthpage/meter.png";
 import Loader from "../../Loader";
 import Lock from "../Lock";
 
-const HighPowerStock = ({ data, loading, isSubscribed }) => {
+const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", error = null }) => {
   const [sortedData, setSortedData] = useState([]);
-  const [sortOrder, setSortOrder] = useState("desc"); // Ascending by default
+  const [sortOrder, setSortOrder] = useState("desc");
   const [sortOrderChange, setSortOrderChange] = useState("desc");
   const [sortOrderSymbol, setSortOrderSymbol] = useState("desc");
-  console.log(data, "wmhbusb");
+
   // Update sortedData whenever data changes
   useEffect(() => {
-    setSortedData(data);
+    setSortedData(Array.isArray(data) ? data : []);
   }, [data]);
 
-  // Function to sort data
+  // Function to sort data by turnover
   const handleSort = () => {
     if (!sortedData?.length) return;
 
@@ -28,17 +28,16 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
 
     setSortedData(sorted);
     setSortOrder(newOrder);
-
-    // console.log(sortedData);
   };
 
+  // Function to sort data by percentage change
   const handleSortByPercentageChange = () => {
     if (!sortedData?.length) return;
 
     const newOrder = sortOrderChange === "asc" ? "desc" : "asc";
     const sorted = [...sortedData].sort((a, b) => {
-      const numA = a.changePercentage;
-      const numB = b.changePercentage;
+      const numA = a.changePercentage || 0;
+      const numB = b.changePercentage || 0;
       return newOrder === "asc" ? numA - numB : numB - numA;
     });
 
@@ -46,6 +45,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
     setSortOrderChange(newOrder);
   };
 
+  // Function to sort data by symbol
   const handleSortBySymbol = () => {
     if (!sortedData?.length) return;
 
@@ -60,8 +60,6 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
     setSortOrderSymbol(newOrder);
   };
 
-  console.log(isSubscribed, "hp stocks");
-
   return (
     <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-db-primary-light rounded-lg p-2">
@@ -71,7 +69,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
             <img src={meter} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
               <h2 className="text-xl font-semibold flex items-center gap-2">
-               AI Large Cap Power Stocks <FcCandleSticks />
+                AI Large Cap Power Stocks <FcCandleSticks />
               </h2>
               <p className="dark:text-gray-400 text-sm flex items-center gap-2">
                 How to use{" "}
@@ -105,9 +103,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                       >
                         Symbol{" "}
                         <MdOutlineKeyboardArrowDown
-                          className={
-                            sortOrderSymbol === "desc" ? "rotate-180" : ""
-                          }
+                          className={sortOrderSymbol === "desc" ? "rotate-180" : ""}
                         />
                       </th>
                       <th className="py-2">
@@ -119,9 +115,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                       >
                         %{" "}
                         <MdOutlineKeyboardArrowDown
-                          className={
-                            sortOrderChange === "desc" ? "rotate-180" : ""
-                          }
+                          className={sortOrderChange === "desc" ? "rotate-180" : ""}
                         />
                       </th>
                       <th
@@ -140,16 +134,25 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                   </thead>
 
                   {/* Scrollable Table Body */}
-
-                  {loading && <Loader />}
-                  {/* {error && <p>{error}</p>} */}
                   <tbody>
-                    {sortedData?.length > 0 ? (
-                      sortedData.map((stock, index) => (
-                        <tr key={index}>
+                    {loading ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          <Loader />
+                        </td>
+                      </tr>
+                    ) : error ? (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          <p>{error}</p>
+                        </td>
+                      </tr>
+                    ) : sortedData?.length > 0 ? (
+                      sortedData.map((stock) => (
+                        <tr key={stock?.UNDERLYING_SYMBOL}>
                           <td className="flex items-center font-medium text-xs gap-2 py-3">
                             <a
-                            target="_blank"
+                              target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
                             >
                               {stock?.UNDERLYING_SYMBOL}
@@ -166,7 +169,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                                   : "bg-red-600"
                               } px-2 py-1 text-xs rounded-full`}
                             >
-                              {stock?.changePercentage}
+                              {stock?.changePercentage?.toFixed(2)}
                             </span>
                           </td>
                           <td className="text-right text-xs">
@@ -177,7 +180,7 @@ const HighPowerStock = ({ data, loading, isSubscribed }) => {
                     ) : (
                       <tr>
                         <td colSpan="4" className="text-center py-4">
-                          {!loading ? "No data availabel" : ""}
+                          No data available
                         </td>
                       </tr>
                     )}

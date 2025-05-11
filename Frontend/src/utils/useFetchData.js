@@ -36,7 +36,7 @@ const useFetchData = () => {
         });
       }
 
-      console.log(response.data, "response");
+      // console.log(response.data, "response");
       setData(response.data);
     } catch (error) {
       console.log(error, "errrorrr");

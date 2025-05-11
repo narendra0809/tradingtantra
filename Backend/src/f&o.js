@@ -55,6 +55,7 @@ export const stocksData = [
     SYMBOL_NAME: "ADANI ENTERPRISES LIMITED",
     SECTOR: ["METAL"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 1.36,
   },
   {
     SECURITY_ID: "3563",
@@ -71,6 +72,7 @@ export const stocksData = [
     SYMBOL_NAME: "ADANI PORT & SEZ LTD",
     SECTOR: null,
     INDEX: ["NIFTY 50", "SENSEX"],
+    WEIGHTAGE: 1.48,
   },
   {
     SECURITY_ID: "11703",
@@ -111,6 +113,7 @@ export const stocksData = [
     SYMBOL_NAME: "APOLLO HOSPITALS ENTER. L",
     SECTOR: null,
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 0.51,
   },
   {
     SECURITY_ID: "163",
@@ -135,6 +138,7 @@ export const stocksData = [
     SYMBOL_NAME: "ASIAN PAINTS LIMITED",
     SECTOR: null,
     INDEX: ["NIFTY 50", "SENSEX"],
+    WEIGHTAGE: 1.16,
   },
   {
     SECURITY_ID: "14418",
@@ -175,6 +179,7 @@ export const stocksData = [
     SYMBOL_NAME: "AXIS BANK LIMITED",
     SECTOR: ["BANK", "FIN SERV", "PVT BANK"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 1.89,
   },
   {
     SECURITY_ID: "16669",
@@ -183,6 +188,7 @@ export const stocksData = [
     SYMBOL_NAME: "BAJAJ AUTO LIMITED",
     SECTOR: ["AUTO"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 1.13,
   },
   {
     SECURITY_ID: "16675",
@@ -191,6 +197,7 @@ export const stocksData = [
     SYMBOL_NAME: "BAJAJ FINSERV LTD.",
     SECTOR: ["FIN SERV"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 1.62,
   },
   {
     SECURITY_ID: "317",
@@ -199,6 +206,7 @@ export const stocksData = [
     SYMBOL_NAME: "BAJAJ FINANCE LIMITED",
     SECTOR: ["FIN SERV"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 2.85,
   },
   {
     SECURITY_ID: "335",
@@ -263,6 +271,7 @@ export const stocksData = [
     SYMBOL_NAME: "BHARTI AIRTEL LIMITED",
     SECTOR: null,
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 5.84,
   },
   {
     SECURITY_ID: "438",
@@ -631,6 +640,7 @@ export const stocksData = [
     SYMBOL_NAME: "HDFC AMC LIMITED",
     SECTOR: ["FIN SERV"],
     INDEX: ["NIFTY MID"],
+    WEIGHTAGE:7.62,
   },
   {
     SECURITY_ID: "1333",
@@ -695,6 +705,7 @@ export const stocksData = [
     SYMBOL_NAME: "HINDUSTAN UNILEVER LTD.",
     SECTOR: ["FMCG"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 2.82,
   },
   {
     SECURITY_ID: "20825",
@@ -711,6 +722,7 @@ export const stocksData = [
     SYMBOL_NAME: "ICICI BANK LTD.",
     SECTOR: ["BANK", "FIN SERV", "PVT BANK"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 5.28,
   },
   {
     SECURITY_ID: "21770",
@@ -815,6 +827,7 @@ export const stocksData = [
     SYMBOL_NAME: "INFOSYS LIMITED",
     SECTOR: ["IT"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 3.24,
   },
   {
     SECURITY_ID: "1624",
@@ -863,6 +876,7 @@ export const stocksData = [
     SYMBOL_NAME: "ITC LTD",
     SECTOR: ["FMCG"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 2.78,
   },
   {
     SECURITY_ID: "6733",
@@ -1391,6 +1405,7 @@ export const stocksData = [
     SYMBOL_NAME: "RELIANCE INDUSTRIES LTD",
     SECTOR: ["ENERGY"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 9.95,
   },
   {
     SECURITY_ID: "2963",
@@ -1423,6 +1438,7 @@ export const stocksData = [
     SYMBOL_NAME: "STATE BANK OF INDIA",
     SECTOR: ["BANK", "FIN SERV", "PSU BANK"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 3.69,
   },
   {
     SECURITY_ID: "3103",
@@ -1575,6 +1591,7 @@ export const stocksData = [
     SYMBOL_NAME: "TATA CONSULTANCY SERV LT",
     SECTOR: ["IT"],
     INDEX: ["NIFTY 50"],
+    WEIGHTAGE: 6.44,
   },
   {
     SECURITY_ID: "13538",
@@ -1719,6 +1736,7 @@ export const stocksData = [
     SYMBOL_NAME: "ZOMATO LIMITED",
     SECTOR: null,
     INDEX: ["NIFTY 50", "SENSEX"],
+    WEIGHTAGE: 0.83,
   },
   {
     SECURITY_ID: "7929",
@@ -1729,4 +1747,3 @@ export const stocksData = [
     INDEX: null,
   },
 ];
-

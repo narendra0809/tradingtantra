@@ -64,67 +64,8 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
 };
 
 
-export const fetchDailyHistoricalData = async (
-  securityId,
-  fromDate,
-  toDate,
-  i
-) => {
-  try {
-    const response = await axios({
-      method: "POST",
-      url: `${baseUri}/charts/historical`,
-      headers: {
-        "access-token": accessToken,
-        "Content-Type": "application/json",
-      },
-      data: {
-        securityId,
-        exchangeSegment: "NSE_EQ",
-        instrument: "EQUITY",
-        expiryCode: 0,
-        fromDate: fromDate,
-        toDate: toDate,
-      },
-    });
-    console.log(" data for ", i + 1);
-    return response.data;
-  } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-    return null;
-  }
-};
 
-export const fetchHistoricalDataforTenMin = async (
-  securityId,
-  fromDate,
-  toDate,
-  i
-) => {
-  try {
-    const response = await axios({
-      method: "POST",
-      url: `${baseUri}/charts/intraday`,
-      headers: {
-        "access-token": accessToken,
-        "Content-Type": "application/json",
-      },
-      data: {
-        securityId,
-        exchangeSegment: "NSE_EQ",
-        instrument: "EQUITY",
-        interval: "5",
-        fromDate: fromDate,
-        toDate: toDate,
-      },
-    });
-    console.log(" data for", i + 1);
-    return response.data;
-  } catch (error) {
-    console.error("API Error:", error.response?.data || error.message);
-    return null;
-  }
-};
+
 
 export const calculateTurnover = (historicalData) => {
   if (!historicalData || typeof historicalData !== "object") {

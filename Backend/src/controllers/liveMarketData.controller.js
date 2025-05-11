@@ -374,13 +374,13 @@ const getData = async (fromDate, toDate) => {
       let data5 = await redis.get(redisKey5);
 
       if (data5) {
-        console.log(`🔁 [Redis] 5-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
+        // console.log(`🔁 [Redis] 5-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
         data5 = JSON.parse(data5);
       } else {
         // Fallback to database
         const dbData = await FiveMinCandles.findOne({ securityId: id }).lean();
         if (dbData) {
-          console.log(`🔁 [MongoDB] 5-min data fetched from database for ${id} (${i + 1}/${securityIds.length})`);
+          // console.log(`🔁 [MongoDB] 5-min data fetched from database for ${id} (${i + 1}/${securityIds.length})`);
           data5 = dbData;
           // Save to Redis
           await redis.set(redisKey5, JSON.stringify(data5), "EX", 120);
@@ -392,7 +392,7 @@ const getData = async (fromDate, toDate) => {
 
             // Save to Redis
             await redis.set(redisKey5, JSON.stringify(formatted5), "EX", 120);
-            console.log(`🌐 [API] 5-min data fetched & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
+            // console.log(`🌐 [API] 5-min data fetched & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
 
             // Save to MongoDB
             await saveToMongo(formatted5, 5);
@@ -410,13 +410,13 @@ const getData = async (fromDate, toDate) => {
       let data10 = await redis.get(redisKey10);
 
       if (data10) {
-        console.log(`🔁 [Redis] 10-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
+        // console.log(`🔁 [Redis] 10-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
       } else {
         const formatted10 = convertToTenMinCandles(data5);
         if (formatted10) {
           // Save to Redis
           await redis.set(redisKey10, JSON.stringify(formatted10), "EX", 240);
-          console.log(`🌐 [Redis] 10-min data generated & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
+          // console.log(`🌐 [Redis] 10-min data generated & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
 
           // Save to MongoDB
           await saveToMongo(formatted10, 10);
@@ -437,7 +437,7 @@ const getData = async (fromDate, toDate) => {
       let data15 = await redis.get(redisKey15);
 
       if (data15) {
-        console.log(`🔁 [Redis] 15-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
+        // console.log(`🔁 [Redis] 15-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
       } else {
         const rawData = await fetchHistoricalData(id, fromDate, toDate, i, "15");
         if (rawData) {
@@ -464,130 +464,130 @@ const getData = async (fromDate, toDate) => {
   }
 };
 
-const getDataForTenMin = async (fromDate, toDate) => {
-  const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
-  const securityIds = stocks.map((stock) =>
-    stock.SECURITY_ID.trim().toString()
-  );
+// const getDataForTenMin = async (fromDate, toDate) => {
+//   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
+//   const securityIds = stocks.map((stock) =>
+//     stock.SECURITY_ID.trim().toString()
+//   );
 
-  function convertToIST(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000);
-    return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-  }
+//   function convertToIST(unixTimestamp) {
+//     const date = new Date(unixTimestamp * 1000);
+//     return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+//   }
 
-  try {
-    const convertFiveToTenMinCandle = (fiveMinCandles) => {
-      const tenMinCandle = [];
+//   try {
+//     const convertFiveToTenMinCandle = (fiveMinCandles) => {
+//       const tenMinCandle = [];
 
-      const len = fiveMinCandles.open.length;
-      const isOdd = len % 2 !== 0;
-      const loopUntil = isOdd ? len - 1 : len;
+//       const len = fiveMinCandles.open.length;
+//       const isOdd = len % 2 !== 0;
+//       const loopUntil = isOdd ? len - 1 : len;
 
-      // Process full 10-min candles
-      for (let i = 0; i < loopUntil; i += 2) {
-        tenMinCandle.push({
-          open: fiveMinCandles.open[i],
-          close: fiveMinCandles.close[i + 1],
-          high: Math.max(fiveMinCandles.high[i], fiveMinCandles.high[i + 1]),
-          low: Math.min(fiveMinCandles.low[i], fiveMinCandles.low[i + 1]),
-          volume: fiveMinCandles.volume[i] + fiveMinCandles.volume[i + 1],
-          timestamp: fiveMinCandles.timestamp[i],
-        });
-      }
+//       // Process full 10-min candles
+//       for (let i = 0; i < loopUntil; i += 2) {
+//         tenMinCandle.push({
+//           open: fiveMinCandles.open[i],
+//           close: fiveMinCandles.close[i + 1],
+//           high: Math.max(fiveMinCandles.high[i], fiveMinCandles.high[i + 1]),
+//           low: Math.min(fiveMinCandles.low[i], fiveMinCandles.low[i + 1]),
+//           volume: fiveMinCandles.volume[i] + fiveMinCandles.volume[i + 1],
+//           timestamp: fiveMinCandles.timestamp[i],
+//         });
+//       }
 
-      // Handle last remaining 5-min candle as-is
-      if (isOdd) {
-        const i = len - 1;
-        tenMinCandle.push({
-          open: fiveMinCandles.open[i],
-          close: fiveMinCandles.close[i],
-          high: fiveMinCandles.high[i],
-          low: fiveMinCandles.low[i],
-          volume: fiveMinCandles.volume[i],
-          timestamp: fiveMinCandles.timestamp[i], // This should be "9/4/2025, 3:25:00 pm"
-        });
-      }
+//       // Handle last remaining 5-min candle as-is
+//       if (isOdd) {
+//         const i = len - 1;
+//         tenMinCandle.push({
+//           open: fiveMinCandles.open[i],
+//           close: fiveMinCandles.close[i],
+//           high: fiveMinCandles.high[i],
+//           low: fiveMinCandles.low[i],
+//           volume: fiveMinCandles.volume[i],
+//           timestamp: fiveMinCandles.timestamp[i], // This should be "9/4/2025, 3:25:00 pm"
+//         });
+//       }
 
-      return tenMinCandle;
-    };
+//       return tenMinCandle;
+//     };
 
-    const finalData = [];
+//     const finalData = [];
 
-    for (let i = 0; i < securityIds.length; i++) {
-      const securityId = securityIds[i];
-      const redisKey = `stockTenMinCandle:${securityId}:${fromDate}-${toDate}`;
+//     for (let i = 0; i < securityIds.length; i++) {
+//       const securityId = securityIds[i];
+//       const redisKey = `stockTenMinCandle:${securityId}:${fromDate}-${toDate}`;
 
-      let redisFormattedData;
+//       let redisFormattedData;
 
-      const cachedData = false; //await redis.get(redisKey);
-      if (cachedData) {
-        // console.log(`Fetched from Redis: ${securityId}`);
-        redisFormattedData = JSON.parse(cachedData);
-      } else {
-        const rawData = await fetchHistoricalData(
-          securityId,
-          fromDate,
-          toDate,
-          i
-        );
+//       const cachedData = false; //await redis.get(redisKey);
+//       if (cachedData) {
+//         // console.log(`Fetched from Redis: ${securityId}`);
+//         redisFormattedData = JSON.parse(cachedData);
+//       } else {
+//         const rawData = await fetchHistoricalData(
+//           securityId,
+//           fromDate,
+//           toDate,
+//           i
+//         );
 
-        if (!rawData || !rawData.timestamp?.length) {
-        //   console.warn(`No data for: ${securityId}`);
-          continue;
-        }
+//         if (!rawData || !rawData.timestamp?.length) {
+//         //   console.warn(`No data for: ${securityId}`);
+//           continue;
+//         }
 
-        const formattedData = {
-          open: rawData.open,
-          high: rawData.high,
-          low: rawData.low,
-          close: rawData.close,
-          volume: rawData.volume,
-          timestamp: rawData.timestamp.map(convertToIST),
-        };
+//         const formattedData = {
+//           open: rawData.open,
+//           high: rawData.high,
+//           low: rawData.low,
+//           close: rawData.close,
+//           volume: rawData.volume,
+//           timestamp: rawData.timestamp.map(convertToIST),
+//         };
 
-        const tenMinCandles = convertFiveToTenMinCandle(formattedData);
+//         const tenMinCandles = convertFiveToTenMinCandle(formattedData);
 
-        if (!tenMinCandles.length) continue;
+//         if (!tenMinCandles.length) continue;
 
-        // Get last 5 ten-min candles
-        const latest = tenMinCandles.slice(-5);
+//         // Get last 5 ten-min candles
+//         const latest = tenMinCandles.slice(-5);
 
-        redisFormattedData = {
-          open: latest.map((c) => c.open),
-          high: latest.map((c) => c.high),
-          low: latest.map((c) => c.low),
-          close: latest.map((c) => c.close),
-          volume: latest.map((c) => c.volume),
-          timestamp: latest.map((c) => c.timestamp),
-          securityId: securityId,
-        };
+//         redisFormattedData = {
+//           open: latest.map((c) => c.open),
+//           high: latest.map((c) => c.high),
+//           low: latest.map((c) => c.low),
+//           close: latest.map((c) => c.close),
+//           volume: latest.map((c) => c.volume),
+//           timestamp: latest.map((c) => c.timestamp),
+//           securityId: securityId,
+//         };
 
-        // Store in Redis in your required format
-        await redis.set(
-          redisKey,
-          JSON.stringify(redisFormattedData),
-          "EX",
-          600
-        );
-        // console.log(`Fetched from API and cached: ${securityId}`);
-      }
+//         // Store in Redis in your required format
+//         await redis.set(
+//           redisKey,
+//           JSON.stringify(redisFormattedData),
+//           "EX",
+//           600
+//         );
+//         // console.log(`Fetched from API and cached: ${securityId}`);
+//       }
 
-      finalData.push(redisFormattedData);
-      await delay(200);
-    }
+//       finalData.push(redisFormattedData);
+//       await delay(200);
+//     }
 
-    if (finalData.length > 0) {
-      console.log(`Formatted and cached data for ${finalData.length} stocks.`);
-      return finalData;
-    } else {
-      console.log("No valid data to return.");
-      return [];
-    }
-  } catch (error) {
-    console.error("Error in getDataForTenMin:", error.message);
-    return [];
-  }
-};
+//     if (finalData.length > 0) {
+//       // console.log(`Formatted and cached data for ${finalData.length} stocks.`);
+//       return finalData;
+//     } else {
+//       // console.log("No valid data to return.");
+//       return [];
+//     }
+//   } catch (error) {
+//     console.error("Error in getDataForTenMin:", error.message);
+//     return [];
+//   }
+// };
 
 
 function getFormattedTimestamp() {
@@ -2198,7 +2198,6 @@ const twoDayHLBreak = async (req, res) => {
 export {
   startWebSocket,
   getData,
-  getDataForTenMin,
   AIIntradayReversalFiveMins, //done with database👍socket  cross checked ✅
   AIMomentumCatcherFiveMins, //done with database👍socket   cross checked ✅
   AIMomentumCatcherTenMins, //done with database👍socket    cross checked ✅

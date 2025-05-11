@@ -130,46 +130,54 @@ export const PreviousVolume = ({ data, loading, error,isSubscribed }) => {
 
                 {/* Scrollable Table Body */}
                 <tbody>
-                  {loading && <Loader />}
-                  {error && <p>{error}</p>}
-                  {sortedData.length > 0 ? (
-                    sortedData.map((stock, index) => (
-                      <tr key={index}>
-                        <td className="flex items-center font-medium text-xs gap-2 py-3">
-                        <a
-                            target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
-                            >
-                              {stock?.stock?.UNDERLYING_SYMBOL}
-                            </a>
-                        </td>
-                        <td className="text-lg">
-                          <FcCandleSticks />
-                        </td>
-                        <td className="text-center">
-                          <span
-                            className={`${
-                              stock?.percentageChange >= 0
-                                ? "bg-green-600"
-                                : "bg-red-600"
-                            } px-2 py-1 text-xs rounded-full`}
-                          >
-                            {stock?.percentageChange?.toFixed(2)}
-                          </span>
-                        </td>
-                        <td className="text-right text-xs">
-                          {stock?.xElement.toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="text-center py-4">
-                        {!loading && !error ? "No data available" : ""}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
+  {loading ? (
+    <tr>
+      <td colSpan="4" className="text-center py-4">
+        <Loader />
+      </td>
+    </tr>
+  ) : error ? (
+    <tr>
+      <td colSpan="4" className="text-center py-4">
+        <p>{error}</p>
+      </td>
+    </tr>
+  ) : sortedData.length > 0 ? (
+    sortedData.map((stock, index) => (
+      <tr key={index}>
+        <td className="flex items-center font-medium text-xs gap-2 py-3">
+          <a
+            target="_blank"
+            href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
+          >
+            {stock?.stock?.UNDERLYING_SYMBOL}
+          </a>
+        </td>
+        <td  className="text-lg">
+          <FcCandleSticks />
+        </td>
+        <td className="text-center">
+          <span
+            className={`${
+              stock?.percentageChange >= 0 ? "bg-green-600" : "bg-red-600"
+            } px-2 py-1 text-xs rounded-full`}
+          >
+            {stock?.percentageChange?.toFixed(2)}
+          </span>
+        </td>
+        <td className="text-right text-xs">
+          {stock?.xElement.toFixed(2)}
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="4" className="text-center py-4">
+        No data available
+      </td>
+    </tr>
+  )}
+</tbody>
               </table>
               )
              }

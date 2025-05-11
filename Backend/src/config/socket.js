@@ -34,8 +34,8 @@ async function sendData(socket) {
     //     return;
     //   }
 
-    console.log("Fetching and sending stock data...");
-    console.log("-----------------------------------");
+    // console.log("Fetching and sending stock data...");
+    // console.log("-----------------------------------");
 
     const [
       response,
@@ -62,7 +62,7 @@ async function sendData(socket) {
     if (previousDaysVolumeResponse.status === "fulfilled")
       io.emit("previousDaysVolume", previousDaysVolumeResponse.value);
 
-    console.log("Data sent successfully... 👍");
+    // console.log("Data sent successfully... 👍");
   } catch (error) {
     console.error("Error sending data:", error);
   }
@@ -76,13 +76,13 @@ async function sendSectorData() {
     //     return;
     //   }
 
-    console.log("Fetching and sending sector stock data...");
+    // console.log("Fetching and sending sector stock data...");
 
     const [response] = await Promise.allSettled([sectorStockData()]);
 
     if (response.status === "fulfilled") io.emit("sectorScope", response.value);
 
-    console.log("Data sector sent successfully... 👍");
+    // console.log("Data sector sent successfully... 👍");
   } catch (error) {
     console.error("Error sending data:", error);
   }
@@ -96,7 +96,7 @@ async function sendSmartMoneyActionData() {
     //     return;
     //   }
 
-    console.log("Fetching and sending smart money action data stock...");
+    // console.log("Fetching and sending smart money action data stock...");
 
     const [
       twoDayHLBreakResponse,
@@ -146,7 +146,7 @@ async function sendSmartMoneyActionData() {
     if (AIIntradayReversalDailyResponse.status === "fulfilled")
       io.emit("AIIntradayReversalDaily", AIIntradayReversalDailyResponse.value);
 
-    console.log("Data sent successfully... 👍");
+    // console.log("Data sent successfully... 👍");
   } catch (error) {
     console.error("Error sending data:", error);
   }
@@ -154,7 +154,7 @@ async function sendSmartMoneyActionData() {
 
 async function sendSwingData() {
   try {
-    console.log("Fetching and sending swing  data...");
+    // console.log("Fetching and sending swing  data...");
 
     const [
       fiveDayRangeBreakersResponse,
@@ -181,7 +181,7 @@ async function sendSwingData() {
     if (DailyRangeBreakoutResponse.status === "fulfilled")
       io.emit("DailyRangeBreakout", DailyRangeBreakoutResponse.value);
 
-    console.log("Swing Data  successfully... 👍");
+    // console.log("Swing Data  successfully... 👍");
   } catch (error) {
     console.error("Error sending data:", error);
   }
@@ -199,30 +199,30 @@ const initializeServer = (server) => {
   io.use(checkSubscription);
  
   io.on("connection", async (socket) => {
-    console.log("a user connected", socket.id);
+    // console.log("a user connected", socket.id);
 
     socket.on("getMarketDepthData", async () => {
-      console.log("inside get data");
+      // console.log("inside get data");
       await sendData(socket);
 
       // console.log("user disconnected",socket.id);
     });
 
     socket.on("getSectorData", async () => {
-      console.log("inside get data");
+      // console.log("inside get data");
       await sendSectorData();
 
       // console.log("user disconnected",socket.id);
     });
 
     socket.on("getSmartMoneyActionData", async () => {
-      console.log("inside get data");
+      // console.log("inside get data");
       await sendSmartMoneyActionData();
 
       // console.log("user disconnected",socket.id);
     });
     socket.on("getSwingData", async () => {
-      console.log("inside get data");
+      // console.log("inside get data");
 
       await sendSwingData();
 

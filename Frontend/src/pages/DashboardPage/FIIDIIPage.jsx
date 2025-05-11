@@ -16,7 +16,7 @@ const FIIDIIPage = () => {
       const res = await axios.get(`${SERVER_URI}/fii-dii`);
       const data = res.data.resdata;
       setFiiDiiData(data);
-      console.log(FiiDiiData, "FiiDiiData");
+      // console.log(FiiDiiData, "FiiDiiData");
     } catch (error) {
       console.log(error);
     } finally {

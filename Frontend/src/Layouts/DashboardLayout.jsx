@@ -29,7 +29,7 @@ const DashboardLayout = () => {
   // ];
   const theme = useSelector((state) => state.theme.theme);
 
-  console.log(theme, "layout");
+  // console.log(theme, "layout");
   useEffect(() => {
     if (theme === "dark") {
       document.body.style.backgroundColor = "#02000E";

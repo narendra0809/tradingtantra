@@ -398,7 +398,7 @@ const getDataForTenMin = async (fromDate, toDate) => {
     }
 
     if (finalData.length > 0) {
-      console.log(`Formatted and cached data for ${finalData.length} stocks.`);
+      // console.log(`Formatted and cached data for ${finalData.length} stocks.`);
       return finalData;
     } else {
       console.log("No valid data to return.");
