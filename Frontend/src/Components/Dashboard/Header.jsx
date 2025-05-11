@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
+import { Link } from 'react-router-dom';
 import { IoIosNotifications } from "react-icons/io";
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png";
@@ -77,7 +78,8 @@ const Header = () => {
             transition={{ duration: 0.3 }}
             className="absolute"
           >
-            Go to Website
+            
+           <Link to="/">Go to Website</Link>
           </motion.span>
 
           <motion.span
@@ -86,7 +88,7 @@ const Header = () => {
             transition={{ duration: 0.3 }}
             className="absolute"
           >
-            Go to Website
+            <Link to="/">Go to Website</Link>
           </motion.span>
         </button>
 

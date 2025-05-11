@@ -2,68 +2,31 @@ import mongoose from "mongoose";
 
 const DailyRangeBreakoutSchema = new mongoose.Schema(
   {
-    securityId: {
-      type: String,
-      required: true,
-      index: true, // Index for faster lookups
-    },
     type: {
       type: String,
+      required: true,
       enum: ["Bullish", "Bearish"],
-      required: true,
     },
-    stockSymbol: {
-      type: String,
-      required: true,
-      default: "N/A",
-    },
-    stockName: {
-      type: String,
-      required: true,
-      default: "N/A",
-    },
-    lastTradePrice: {
-      type: String,
-      required: true,
-      default: 0,
-    },
-    previousClosePrice: {
-      type: String,
-      required: true,
-      default: 0,
-    },
-    percentageChange: {
-      type: String,
-      required: true,
-      default: 0,
-    },
-    rangeHigh: {
-      type: String,
-      required: false, // Optional, but useful for reference
-    },
-    rangeLow: {
-      type: String,
-      required: false, // Optional, but useful for reference
-    },
-    todayHigh: {
-      type: String,
-      required: false, // Optional, but useful for reference
-    },
-    todayLow: {
-      type: String,
-      required: false, // Optional, but useful for reference
-    },
-    timestamp: {
-      type: Date,
-      required: true,
-    },
+    securityId: { type: String, required: true },
+    stockSymbol: { type: String, required: true },
+    stockName: { type: String, required: true },
+    lastTradePrice: { type: Number, required: true },
+    previousClosePrice: { type: Number, required: true },
+    percentageChange: { type: String, required: true },
+    rangeHigh: { type: Number, required: true },
+    rangeLow: { type: Number, required: true },
+    todayHigh: { type: Number, required: true },
+    todayLow: { type: Number, required: true },
+    candleReturn: { type: String, required: true },
+    timestamp: { type: String, required: true },
+    breakoutTime: { type: String, required: true },
+    date: { type: String, required: true }, // Add the `date` field
   },
-  { timestamps: true } // Adds createdAt and updatedAt fields
+  { timestamps: true }
 );
 
-// Create the model
 const DailyRangeBreakouts = mongoose.model(
-  "DailyRangeBreakout",
+  "DailyRangeBreakouts",
   DailyRangeBreakoutSchema
 );
 

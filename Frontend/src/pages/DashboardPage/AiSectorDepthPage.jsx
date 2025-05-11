@@ -51,7 +51,7 @@ const AiSectorDepthPage = () => {
     } else {
       interval = setInterval(() => {
         socket.emit("getSectorData", { token });
-      }, 30000);
+      }, 45000);
     }
 
     // Define event handler

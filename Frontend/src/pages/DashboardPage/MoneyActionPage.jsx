@@ -67,7 +67,7 @@ const MonryActionPage = () => {
     } else {
       interval = setInterval(() => {
         socket.emit("getSmartMoneyActionData", { token });
-      }, 30000);
+      }, 45000);
     }
     let hasDataArrived = false;
 

@@ -184,7 +184,7 @@ async function startWebSocket() {
     console.log("🔄 WebSocket disconnected. Reconnecting...");
     isProcessingSave = false;
     receivedSecurityIds.clear();
-    setTimeout(startWebSocket, 2000);
+    setTimeout(startWebSocket, 4000);
   });
 }
 
@@ -399,7 +399,7 @@ const getData = async (fromDate, toDate) => {
 
             data5 = formatted5;
           } else {
-            console.warn(`⚠️ [API] No 5-min data for ${id}`);
+            // console.warn(`⚠️ [API] No 5-min data for ${id}`);
             continue;
           }
         }
@@ -464,153 +464,6 @@ const getData = async (fromDate, toDate) => {
   }
 };
 
-// const getDataForTenMin = async (fromDate, toDate) => {
-//   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
-//   const securityIds = stocks.map((stock) =>
-//     stock.SECURITY_ID.trim().toString()
-//   );
-
-//   function convertToIST(unixTimestamp) {
-//     const date = new Date(unixTimestamp * 1000);
-//     return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-//   }
-
-//   try {
-//     const convertFiveToTenMinCandle = (fiveMinCandles) => {
-//       const tenMinCandle = [];
-
-//       const len = fiveMinCandles.open.length;
-//       const isOdd = len % 2 !== 0;
-//       const loopUntil = isOdd ? len - 1 : len;
-
-//       // Process full 10-min candles
-//       for (let i = 0; i < loopUntil; i += 2) {
-//         tenMinCandle.push({
-//           open: fiveMinCandles.open[i],
-//           close: fiveMinCandles.close[i + 1],
-//           high: Math.max(fiveMinCandles.high[i], fiveMinCandles.high[i + 1]),
-//           low: Math.min(fiveMinCandles.low[i], fiveMinCandles.low[i + 1]),
-//           volume: fiveMinCandles.volume[i] + fiveMinCandles.volume[i + 1],
-//           timestamp: fiveMinCandles.timestamp[i],
-//         });
-//       }
-
-//       // Handle last remaining 5-min candle as-is
-//       if (isOdd) {
-//         const i = len - 1;
-//         tenMinCandle.push({
-//           open: fiveMinCandles.open[i],
-//           close: fiveMinCandles.close[i],
-//           high: fiveMinCandles.high[i],
-//           low: fiveMinCandles.low[i],
-//           volume: fiveMinCandles.volume[i],
-//           timestamp: fiveMinCandles.timestamp[i], // This should be "9/4/2025, 3:25:00 pm"
-//         });
-//       }
-
-//       return tenMinCandle;
-//     };
-
-//     const finalData = [];
-
-//     for (let i = 0; i < securityIds.length; i++) {
-//       const securityId = securityIds[i];
-//       const redisKey = `stockTenMinCandle:${securityId}:${fromDate}-${toDate}`;
-
-//       let redisFormattedData;
-
-//       const cachedData = false; //await redis.get(redisKey);
-//       if (cachedData) {
-//         // console.log(`Fetched from Redis: ${securityId}`);
-//         redisFormattedData = JSON.parse(cachedData);
-//       } else {
-//         const rawData = await fetchHistoricalData(
-//           securityId,
-//           fromDate,
-//           toDate,
-//           i
-//         );
-
-//         if (!rawData || !rawData.timestamp?.length) {
-//         //   console.warn(`No data for: ${securityId}`);
-//           continue;
-//         }
-
-//         const formattedData = {
-//           open: rawData.open,
-//           high: rawData.high,
-//           low: rawData.low,
-//           close: rawData.close,
-//           volume: rawData.volume,
-//           timestamp: rawData.timestamp.map(convertToIST),
-//         };
-
-//         const tenMinCandles = convertFiveToTenMinCandle(formattedData);
-
-//         if (!tenMinCandles.length) continue;
-
-//         // Get last 5 ten-min candles
-//         const latest = tenMinCandles.slice(-5);
-
-//         redisFormattedData = {
-//           open: latest.map((c) => c.open),
-//           high: latest.map((c) => c.high),
-//           low: latest.map((c) => c.low),
-//           close: latest.map((c) => c.close),
-//           volume: latest.map((c) => c.volume),
-//           timestamp: latest.map((c) => c.timestamp),
-//           securityId: securityId,
-//         };
-
-//         // Store in Redis in your required format
-//         await redis.set(
-//           redisKey,
-//           JSON.stringify(redisFormattedData),
-//           "EX",
-//           600
-//         );
-//         // console.log(`Fetched from API and cached: ${securityId}`);
-//       }
-
-//       finalData.push(redisFormattedData);
-//       await delay(200);
-//     }
-
-//     if (finalData.length > 0) {
-//       // console.log(`Formatted and cached data for ${finalData.length} stocks.`);
-//       return finalData;
-//     } else {
-//       // console.log("No valid data to return.");
-//       return [];
-//     }
-//   } catch (error) {
-//     console.error("Error in getDataForTenMin:", error.message);
-//     return [];
-//   }
-// };
-
-
-function getFormattedTimestamp() {
-  const now = new Date();
-
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-
-  let hours = now.getHours();
-  const rawMinutes = now.getMinutes();
-  const roundedMinutes = Math.floor(rawMinutes / 5) * 5;
-  const minutes = String(roundedMinutes).padStart(2, "0");
-
-  // Convert to 12-hour format
-  const period = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  if (hours === 0) hours = 12; // 0 should be 12 in 12-hour format
-
-  const formattedHours = String(hours).padStart(2, "0");
-
-  return `${year}-${month}-${day} ${formattedHours}:${minutes} ${period}`;
-}
 const AIMomentumCatcherFiveMins = async (req, res) => {
   try {
     const stocks = await StocksDetail.find(
@@ -697,7 +550,7 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
       }
 
       if (!data || !data.open || !data.close || data.open.length < 2) {
-        console.warn(`No sufficient data for Security 5minmoment ID: ${securityId}`);
+        // console.warn(`No sufficient data for Security 5minmoment ID: ${securityId}`);
         continue;
       }
 
@@ -987,12 +840,20 @@ const AIMomentumCatcherTenMins = async (req, res) => {
           );
       }
 
-      return {
-          message: momentumStocks.length ? "Momentum stocks found" : "No momentum signals",
-          count: momentumStocks.length,
-          data: momentumStocks
-      };
+      // return {
+      //     message: momentumStocks.length ? "Momentum stocks found" : "No momentum signals",
+      //     count: momentumStocks.length,
+      //     data: momentumStocks
+      // };
+ const allMomentumStocks = await MomentumStockTenMin.find({});
+    // console.log("All Momentum Stocks from 10-Min Collection:", allMomentumStocks);
 
+    // 6. Return the data
+    return {
+      message: "Momentum stocks fetched successfully",
+      count: allMomentumStocks.length,
+      data: allMomentumStocks
+    };
   } catch (error) {
       console.error("Error in AIMomentumCatcherTenMins:", error);
       return {
@@ -1088,14 +949,14 @@ const AIIntradayReversalFiveMins = async (req, res) => {
         data = JSON.parse(cachedData);
       } else {
         // Fallback to database
-        data = await FiveMinCandles.findOne({ securityId, date: latestDate }).lean();
+        data = await FiveMinCandles.findOne({ securityId }).lean();
       }
 
       if (!data || !data.open || !data.close || data.open.length < 5) {
-        console.warn(`No sufficient data for Security 5min reversal ID: ${securityId}`);
-        continue;
+        // console.warn(`No sufficient data for Security 5min reversal ID: ${securityId}`);
+ 
+      continue;
       }
-
       updatedData.push({
         securityId,
         timestamp: data.timestamp.slice(-5),
@@ -1242,29 +1103,34 @@ const AIIntradayReversalFiveMins = async (req, res) => {
       await Promise.all(savePromises);
     }
 
-    const fullData = await IntradayReversalFiveMin.find(
-      {},
-      {
-        _id: 0,
-        __v: 0,
-        lastTradePrice: 0,
-        previousClosePrice: 0,
-        updatedAt: 0,
-      }
-    )
-      .sort({ timestamp: -1 });
+    // const fullData = await IntradayReversalFiveMin.find(
+    //   {},
+    //   {
+    //     _id: 0,
+    //     __v: 0,
+    //     lastTradePrice: 0,
+    //     previousClosePrice: 0,
+    //     updatedAt: 0,
+    //   }
+    // )
+    //   .sort({ timestamp: -1 });
       
 
-    if (fullData.length === 0) {
-      return {
-        message: "No momentum signals detected",
-        data: [],
-      };
-    }
+    // if (fullData.length === 0) {
+    //   return {
+    //     message: "No momentum signals detected",
+    //     data: [],
+    //   };
+    // }
 
+   const allMomentumStocks = await IntradayReversalFiveMin.find({});
+   
+
+    // Return the data
     return {
-      message: "Momentum analysis complete",
-      data: fullData,
+      message: "Intraday reversal stocks fetched successfully",
+      count: allMomentumStocks.length,
+      data: allMomentumStocks,
     };
   } catch (error) {
     console.error("Error in AIIntradayReversalFiveMins:", error);
@@ -1360,10 +1226,14 @@ const AIIntradayReversalDaily = async (req, res) => {
       const cachedData = await redis.get(redisKey);
       if (cachedData) {
         data = JSON.parse(cachedData);
-      } 
+      }else {
+        // console.log(`Data for ${securityId} not found in Redis, fetching from database`);
+        data = await FifteenMinCandles.findOne({ securityId }).lean(); 
+      //  console.log(`Data fetched from database for ${securityId}:`, data);
+    } 
 
       if (!data || !data.open || !data.close || data.open.length < 5) {
-        console.warn(`No sufficient data for Security 15min reversal ID: ${securityId}`);
+     
         continue;
       }
 
@@ -1549,19 +1419,14 @@ const AIIntradayReversalDaily = async (req, res) => {
 const DailyRangeBreakout = async (req, res) => {
   try {
     // Helper function to format timestamp to Indian format
-    const formatIndianDateTime = (unixTimestamp) => {
-      const date = new Date(unixTimestamp * 1000);
-      return date.toLocaleString('en-IN', {
-        timeZone: 'Asia/Kolkata',
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      });
-    };
+    function validateAndFormatTimestamp(timestamp) {
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) {
+        console.error("Invalid timestamp:", timestamp);
+        return null;
+      }
+      return date.toISOString(); // Convert to ISO 8601 format
+    }
 
     // Get latest market date
     const latestEntry = await MarketDetailData.findOne()
@@ -1570,7 +1435,7 @@ const DailyRangeBreakout = async (req, res) => {
       .limit(1);
 
     if (!latestEntry) {
-      return { message: "No stock data available" };
+      return res.status(404).json({ message: "No stock data available" });
     }
 
     const latestDate = latestEntry.date;
@@ -1583,7 +1448,7 @@ const DailyRangeBreakout = async (req, res) => {
       .limit(1);
 
     if (!previousEntry) {
-      return { message: "No previous date available" };
+      return res.status(404).json({ message: "No previous date available" });
     }
 
     const previousDate = previousEntry.date;
@@ -1601,11 +1466,11 @@ const DailyRangeBreakout = async (req, res) => {
     ]);
 
     if (!latestData || latestData.length === 0) {
-      return { message: "No latest stock data available" };
+      return res.status(404).json({ message: "No latest stock data available" });
     }
 
     if (!previousData || previousData.length === 0) {
-      return { message: "No previous stock data available" };
+      return res.status(404).json({ message: "No previous stock data available" });
     }
 
     // Create maps for latest and previous day data
@@ -1631,7 +1496,7 @@ const DailyRangeBreakout = async (req, res) => {
     );
 
     if (!stocks || stocks.length === 0) {
-      return { message: "No stocks data found" };
+      return res.status(404).json({ message: "No stocks data found" });
     }
 
     const stockMap = new Map();
@@ -1654,7 +1519,7 @@ const DailyRangeBreakout = async (req, res) => {
         data = JSON.parse(cachedData);
       } else {
         // Fallback to database
-        data = await FiveMinCandles.findOne({ securityId, date: latestDate }).lean();
+        data = await FiveMinCandles.findOne({ securityId }).lean();
       }
 
       if (!data || !data.open || !data.close || data.high.length < 5) {
@@ -1679,7 +1544,7 @@ const DailyRangeBreakout = async (req, res) => {
     }
 
     if (updatedData.length === 0) {
-      return { message: "No candle data found" };
+      return res.status(404).json({ message: "No candle data found" });
     }
 
     // Analyze each security for breakout pattern
@@ -1728,7 +1593,7 @@ const DailyRangeBreakout = async (req, res) => {
         // Bullish breakout: 5th candle closes above first candle high
         if (latestClose > firstCandleHigh) {
           const candleReturn = ((latestClose - latestOpen) / latestOpen) * 100;
-          if (candleReturn >= 0.5) { // Ensure significant candle movement
+          if (candleReturn >= 0.5) {
             breakoutStocks.push({
               type: "Bullish",
               securityId,
@@ -1742,15 +1607,16 @@ const DailyRangeBreakout = async (req, res) => {
               todayHigh: latestHigh,
               todayLow: latestLow,
               candleReturn: candleReturn.toFixed(2),
-              timestamp: formatIndianDateTime(latestTimestamp),
-              breakoutTime: formatIndianDateTime(Math.floor(Date.now() / 1000)),
+              timestamp: latestTimestamp,
+              breakoutTime: validateAndFormatTimestamp(Math.floor(Date.now() / 1000)),
+              date: latestDate
             });
           }
         }
         // Bearish breakout: 5th candle closes below first candle low
         else if (latestClose < firstCandleLow) {
           const candleReturn = ((latestOpen - latestClose) / latestOpen) * 100;
-          if (candleReturn >= 0.5) { // Ensure significant candle movement
+          if (candleReturn >= 0.5) {
             breakoutStocks.push({
               type: "Bearish",
               securityId,
@@ -1764,37 +1630,48 @@ const DailyRangeBreakout = async (req, res) => {
               todayHigh: latestHigh,
               todayLow: latestLow,
               candleReturn: candleReturn.toFixed(2),
-              timestamp: formatIndianDateTime(latestTimestamp),
-              breakoutTime: formatIndianDateTime(Math.floor(Date.now() / 1000)),
+              timestamp: latestTimestamp,
+              breakoutTime: validateAndFormatTimestamp(Math.floor(Date.now() / 1000)),
+              date: latestDate
             });
           }
         }
       }
     }
 
-    // Save breakout signals to database
+    // Save ALL breakout signals to database (both bullish and bearish)
     if (breakoutStocks.length > 0) {
-      await Promise.all(
-        breakoutStocks.map(async (signal) => {
-          try {
-            await DailyRangeBreakouts.findOneAndUpdate(
-              { securityId: signal.securityId, date: latestDate },
-              { $set: { ...signal, date: latestDate } },
-              { upsert: true, new: true }
-            );
-          } catch (dbError) {
-            console.error(`Error saving ${signal.securityId}:`, dbError);
-          }
-        })
-      );
+      const bulkOps = breakoutStocks.map(signal => ({
+        updateOne: {
+          filter: { 
+            securityId: signal.securityId, 
+            date: latestDate,
+            type: signal.type
+          },
+          update: { 
+            $set: signal 
+          },
+          upsert: true
+        }
+      }));
+
+      try {
+        await DailyRangeBreakouts.bulkWrite(bulkOps);
+        console.log(`Saved ${breakoutStocks.length} breakouts (${breakoutStocks.filter(b => b.type === 'Bullish').length} bullish, ${breakoutStocks.filter(b => b.type === 'Bearish').length} bearish)`);
+      } catch (dbError) {
+        console.error("Error saving breakouts:", dbError);
+        return res.status(500).json({ 
+          message: "Error saving to database",
+          error: dbError.message 
+        });
+      }
     }
 
     // Get all breakout signals for the latest date
     const fullData = await DailyRangeBreakouts.find(
       { date: latestDate },
       { _id: 0, __v: 0, updatedAt: 0, createdAt: 0 }
-    )
-      .sort({ timestamp: -1 })
+    ).sort({ timestamp: -1 });
 
     return {
       message: breakoutStocks.length > 0
@@ -1802,13 +1679,18 @@ const DailyRangeBreakout = async (req, res) => {
         : "No breakout signals detected",
       data: fullData,
       currentBreakouts: breakoutStocks,
+      stats: {
+        total: breakoutStocks.length,
+        bullish: breakoutStocks.filter(b => b.type === 'Bullish').length,
+        bearish: breakoutStocks.filter(b => b.type === 'Bearish').length
+      }
     };
   } catch (error) {
     console.error("Error in DailyRangeBreakout:", error);
-    return {
+    return res.status(500).json({
       message: "Internal server error",
       error: error.message,
-    };
+    });
   }
 };
 
@@ -1885,13 +1767,12 @@ const DayHighLowReversal = async (req, res) => {
 
     // Process each security for 5-minute candle data
     for (const securityId of securityIds) {
-      const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}-${tomorrowFormatted}`;
-      const cachedData = await redis.get(redisKey);
-      let redisData = cachedData ? JSON.parse(cachedData) : null;
-
-      if (!redisData) {
-        console.warn(`No 5-min data found for Security ID: ${securityId}`);
-        continue;
+     const cachedData = await redis.get(redisKey);
+      if (cachedData) {
+        redisData = JSON.parse(cachedData);
+      } else {
+        // Fallback to database
+        redisData = await FiveMinCandles.findOne({ securityId}).lean();
       }
 
       const stockInfo = stockDataMap.get(securityId);
@@ -2080,13 +1961,12 @@ const twoDayHLBreak = async (req, res) => {
 
     // Process each security
     for (const securityId of securityIds) {
-      const redisKey = `stockFiveMinCandle:${securityId}:${latestDate}-${tomorrowFormatted}`;
       const cachedData = await redis.get(redisKey);
-      let redisData = cachedData ? JSON.parse(cachedData) : null;
-
-      if (!redisData) {
-        console.warn(`No 5-min data found for Security ID: ${securityId}`);
-        continue;
+      if (cachedData) {
+        redisData = JSON.parse(cachedData);
+      } else {
+        // Fallback to database
+        redisData = await FiveMinCandles.findOne({ securityId}).lean();
       }
 
       const firstPrevDayData = firstPrevStockDataMap.get(securityId);

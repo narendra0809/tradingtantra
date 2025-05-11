@@ -184,7 +184,7 @@ const DailyRangeBreakout = ({ data, loading, error,isSubscribed }) => {
                           </span>
                         </td>
                         <td className="text-xs text-center">
-                          {stock?.timestamp.slice(7, 25)}...
+                          {stock?.timestamp}
                         </td>
                         <td className="text-right text-sm"><span className={`px-2 py-[2px] rounded-3xl  text-white ${stock?.type === "Bearish" ? "bg-red-600" : "bg-green-600"}`}>{stock?.type}</span></td>
                       </tr>

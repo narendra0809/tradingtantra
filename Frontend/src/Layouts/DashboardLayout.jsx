@@ -9,25 +9,7 @@ import { TickerTape } from "react-ts-tradingview-widgets";
 import ScrollToTop from "../Components/Web/ScrollTop";
 import { tickerSymbol } from "../utils/tickerSymbol";
 const DashboardLayout = () => {
-  // const TickerTapeSymbol = [
-  //   { proName: "RELIANCE", description: "RELIANCE" },
-  //   { proName: "TCS", description: "TCS" },
-  //   { proName: "INFY", description: "INFOSYS" },
-  //   { proName: "HDFCBANK", description: "HDFC BANK" },
-  //   { proName: "ICICIBANK", description: "ICICI BANK" },
-  //   { proName: "SBIN", description: "SBI" },
-  //   { proName: "BHARTIARTL", description: "BHARTI AIRTEL" },
-  //   { proName: "HCLTECH", description: "HCL TECH" },
-  //   { proName: "LT", description: "L&T" },
-  //   { proName: "ITC", description: "ITC" },
-  //   { proName: "KOTAKBANK", description: "KOTAK BANK" },
-  //   { proName: "ASIANPAINT", description: "ASIAN PAINTS" },
-  //   { proName: "MARUTI", description: "MARUTI" },
-  //   { proName: "HINDUNILVR", description: "HINDUSTAN UNILEVER" },
-  //   { proName: "TITAN", description: "TITAN" },
-  //   { proName: "ULTRACEMCO", description: "ULTRATECH CEMENT" },
-  // ];
-  const theme = useSelector((state) => state.theme.theme);
+   const theme = useSelector((state) => state.theme.theme);
 
   // console.log(theme, "layout");
   useEffect(() => {

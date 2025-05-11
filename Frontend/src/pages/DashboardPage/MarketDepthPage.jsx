@@ -113,7 +113,7 @@ const MarketDepthPage = () => {
       interval = setInterval(() => {
         console.log("Emitting getMarketDepthData (interval)");
         socket.emit("getMarketDepthData", { token });
-      }, 30000);
+      }, 45000);
     }
 
     // Cleanup
