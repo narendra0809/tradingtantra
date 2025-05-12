@@ -592,7 +592,7 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
       );
       return {
         message: "No recent candle data found, returning existing momentum stocks",
-        updatedData: updatedDataFromDB.slice(0, 20),
+        updatedData: updatedDataFromDB.slice(0, 30),
       };
     }
 
@@ -665,6 +665,7 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
         momentumType: 1,
         timestamp: 1,
         percentageChange: 1,
+        updatedAt: -1,
         previousHigh: 1,
         previousLow: 1,
         previousOpen: 1,
@@ -674,7 +675,8 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
         _id: 0,
       }
     )
-      .sort({ timestamp: -1 });
+      .sort({ updatedAt: -1 }) // Ensure descending order by timestamp
+      .lean();
 
     return {
       message: "Momentum stocks found and saved",
@@ -828,14 +830,31 @@ const AIMomentumCatcherTenMins = async (req, res) => {
     //     count: momentumStocks.length,
     //     data: momentumStocks
     // };
-    const allMomentumStocks = await MomentumStockTenMin.find({});
-    // console.log("All Momentum Stocks from 10-Min Collection:", allMomentumStocks);
+    const allMomentumStocks = await MomentumStockTenMin.find(
+      {},
+      {
+        securityId: 1,
+        symbol_name: 1,
+        symbol: 1,
+        momentumType: 1,
+        timestamp: 1,
+        percentageChange: 1,
+        updatedAt: -1,
+        previousHigh: 1,
+        previousLow: 1,
+        currentOpen: 1,
+        currentClose: 1,
+        period: 1,
+        _id: 0,
+      }
+    )
+      .sort({ updatedAt: -1 }) // Sort by timestamp in descending order
+      .lean();
 
-    // 6. Return the data
     return {
       message: "Momentum stocks fetched successfully",
       count: allMomentumStocks.length,
-      data: allMomentumStocks
+      data: allMomentumStocks,
     };
   } catch (error) {
     console.error("Error in AIMomentumCatcherTenMins:", error);
@@ -1106,10 +1125,22 @@ const AIIntradayReversalFiveMins = async (req, res) => {
     //   };
     // }
 
-    const allMomentumStocks = await IntradayReversalFiveMin.find({});
+    const allMomentumStocks = await IntradayReversalFiveMin.find(
+      {},
+      {
+        securityId: 1,
+        stockSymbol: 1,
+        stockName: 1,
+        type: 1,
+        timestamp: 1,
+        updatedAt: -1,
+        overAllPercentageChange: 1,
+        _id: 0,
+      }
+    )
+      .sort({ updatedAt: -1 }) // Sort by timestamp in descending order
+      .lean();
 
-
-    // Return the data
     return {
       message: "Intraday reversal stocks fetched successfully",
       count: allMomentumStocks.length,
@@ -1367,24 +1398,19 @@ const AIIntradayReversalDaily = async (req, res) => {
     }
 
     const fullData = await DailyMomentumSignal.find(
-      {},
-      {
-        _id: 0,
-        __v: 0,
-        lastTradePrice: 0,
-        previousClosePrice: 0,
-        updatedAt: 0,
-        createdAt: 0,
-      }
-    )
-      .sort({ timestamp: -1 });
+  {},
+  {
+    _id: 0,
+    __v: 0,
+    lastTradePrice: 0,
+    previousClosePrice: 0,
+    createdAt: 0
+    // Removed timestamp
+  }
+)
+.sort({ updatedAt: -1 })
+.lean();
 
-    if (fullData.length === 0) {
-      return {
-        message: "No momentum signals detected",
-        data: [],
-      };
-    }
 
     return {
       message: "Momentum analysis complete",
@@ -1570,7 +1596,7 @@ const DailyRangeBreakout = async (req, res) => {
         );
       });
 
-      
+
 
       // Breakout logic
       if (areMiddleCandlesInRange) {
@@ -1601,7 +1627,7 @@ const DailyRangeBreakout = async (req, res) => {
               date: latestDate,
             });
           } else {
-            console.log(`[BreakoutSkip] ${securityId} Bullish breakout skipped: Insufficient candle return (${candleReturnBullish.toFixed(2)}% < 0.5%)`);
+            // console.log(`[BreakoutSkip] ${securityId} Bullish breakout skipped: Insufficient candle return (${candleReturnBullish.toFixed(2)}% < 0.5%)`);
           }
         }
         // Bearish breakout: 5th candle closes below first candle low
@@ -1669,7 +1695,12 @@ const DailyRangeBreakout = async (req, res) => {
     const fullData = await DailyRangeBreakouts.find(
       {},
       { _id: 0, __v: 0, updatedAt: 0, createdAt: 0 }
-    ).sort({ timestamp: -1 });
+    )
+      .sort({ timestamp: -1 }) // Already sorted
+      .lean();
+
+    // Sort currentBreakouts by timestamp in descending order
+    breakoutStocks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     return {
       message: breakoutStocks.length > 0 ? "Breakout analysis complete" : "No breakout signals detected",
@@ -1732,14 +1763,14 @@ const DayHighLowReversal = async () => {
       ),
       previousDate
         ? MarketDetailData.find(
-            { date: previousDate },
-            {
-              securityId: 1,
-              "data.dayClose": 1,
-              date: 1,
-              _id: 0,
-            }
-          )
+          { date: previousDate },
+          {
+            securityId: 1,
+            "data.dayClose": 1,
+            date: 1,
+            _id: 0,
+          }
+        )
         : [],
     ]);
 
@@ -1887,21 +1918,21 @@ const DayHighLowReversal = async () => {
 
     // Fetch final data
     const data = await HighLowReversal.find(
-  {},
-  {
-    securityId: 1,
-    symbolName: 1,
-    underlyingSymbol: 1,
-    type: 1,
-    timestamp: 1,
-    reversalPrice: 1,
-    percentageChange: 1,
-    _id: 0,
-  }
-)
-.sort({ timestamp: -1 }) // Sort by timestamp descending
-.lean();
-
+      {},
+      {
+        securityId: 1,
+        symbolName: 1,
+        underlyingSymbol: 1,
+        type: 1,
+        timestamp: 1,
+        reversalPrice: 1,
+        percentageChange: 1,
+        updatedAt: -1,
+        _id: 0,
+      }
+    )
+      .sort({ updatedAt: -1 }) // Already sorted by timestamp in descending order
+      .lean();
 
     return {
       message: responseData.length > 0 ? "Day High Low Reversal analysis complete" : "No reversals detected",
@@ -2101,18 +2132,22 @@ const twoDayHLBreak = async () => {
     }
 
     // Fetch final data
-    const data = await TwoDayHighLowBreak.find({}, {
-  securityId: 1,
-  symbolName: 1,
-  underlyingSymbol: 1,
-  type: 1,
-  timestamp: 1,
-  breakPrice: 1,
-  percentageChange: 1,
-  _id: 0
-})
-.sort({ timestamp: -1 }) 
-.lean();
+    const data = await TwoDayHighLowBreak.find(
+      {},
+      {
+        securityId: 1,
+        symbolName: 1,
+        underlyingSymbol: 1,
+        type: 1,
+        timestamp: 1,
+        breakPrice: 1,
+        percentageChange: 1,
+        updatedAt: -1,
+        _id: 0,
+      }
+    )
+      .sort({ updatedAt: -1 }) // Already sorted by timestamp in descending order
+      .lean();
 
     return {
       message: responseData.length > 0 ? "Two Day High Low Break analysis complete" : "No breakouts detected",
