@@ -6,7 +6,7 @@ import passport from "passport";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
 import http from "http";
-import cron from "node-cron"; // ✅ Make sure to install: npm install node-cron
+import cron from "node-cron"; 
 import "./delete.js";
 
 import "./src/config/passport.js";

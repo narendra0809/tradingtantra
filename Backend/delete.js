@@ -36,7 +36,7 @@ async function isMarketWorkingDay() {
   }
 }
 
-// ✅ Keep only latest entry in each document's `data` array
+
 async function keepOnlyLatestMarketData() {
   const localClient = new MongoClient(uri);
 
