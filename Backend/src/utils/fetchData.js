@@ -55,16 +55,17 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
       },
     });
 
-    console.log(`Fetched ${interval}-min data for ${i + 1}: ${securityId}`);
+   
     return response.data;
   } catch (error) {
-    console.error(`API Error (${interval}-min) for ${securityId}:`, error.response?.data || error.message);
+    console.error(`❌ [API] Error fetching ${interval}-min data for ${securityId}:`, {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     return null;
   }
 };
-
-
-
 
 
 export const calculateTurnover = (historicalData) => {

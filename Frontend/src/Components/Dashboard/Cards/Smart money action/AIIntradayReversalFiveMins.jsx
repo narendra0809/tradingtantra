@@ -179,7 +179,7 @@ const AIIntradayReversalFiveMins = ({ data, loading, error, isSubscribed }) => {
                           <td className="py-3 text-left text-sm font-semibold">
                           <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}interval=5`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
                             >
                             {stock?.stockSymbol}
                             </a>

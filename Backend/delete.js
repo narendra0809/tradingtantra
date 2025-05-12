@@ -1,29 +1,58 @@
 import { MongoClient } from 'mongodb';
+import cron from 'node-cron';
+import dotenv from 'dotenv';
 
-async function keepOnlyLatestMarketData() {
-  const uri = "mongodb://localhost:27017/";
-  const client = new MongoClient(uri);
+dotenv.config();
+
+const uri = process.env.DB_URI; // From .env
+const client = new MongoClient(uri);
+
+// ✅ Check if today is a working day (1st–5th and not weekend/holiday)
+async function isMarketWorkingDay() {
+  const today = new Date();
+  const date = today.getDate();
+  const day = today.getDay(); // 0 = Sunday, 6 = Saturday
+
+  if (date < 1 || date > 5 || day === 0 || day === 6) return false;
+
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
   try {
     await client.connect();
-    const database = client.db("tradingtantra");
-    const collection = database.collection("marketdetaildatas");
+    const db = client.db();
+    const holidays = db.collection('marketholidays');
+
+    const holiday = await holidays.findOne({
+      date: { $gte: startOfDay, $lte: endOfDay }
+    });
+
+    return !holiday;
+  } catch (err) {
+    console.error('🛑 Error checking holiday:', err);
+    return false;
+  } finally {
+    await client.close();
+  }
+}
+
+// ✅ Keep only latest entry in each document's `data` array
+async function keepOnlyLatestMarketData() {
+  const localClient = new MongoClient(uri);
+
+  try {
+    await localClient.connect();
+    const db = localClient.db();
+    const collection = db.collection('marketdetaildatas');
 
     const documents = await collection.find({}).toArray();
     const bulkOps = [];
-    let totalDocumentsProcessed = 0;
-    let totalDocumentsModified = 0;
 
     for (const doc of documents) {
-      if (!doc.data || !Array.isArray(doc.data) || doc.data.length === 0) {
-        continue;
-      }
+      if (!doc.data || !Array.isArray(doc.data) || doc.data.length === 0) continue;
 
-      totalDocumentsProcessed++;
-
-      // Keep only the latest entry by lastTradeTime
-      const latestEntry = doc.data.reduce((latest, current) =>
-        current.lastTradeTime > latest.lastTradeTime ? current : latest
+      const latestEntry = doc.data.reduce((latest, curr) =>
+        curr.lastTradeTime > latest.lastTradeTime ? curr : latest
       );
 
       if (doc.data.length > 1) {
@@ -36,54 +65,58 @@ async function keepOnlyLatestMarketData() {
             }
           }
         });
-        totalDocumentsModified++;
       }
 
-      // Execute in batches of 100
       if (bulkOps.length >= 100) {
         await collection.bulkWrite(bulkOps);
         bulkOps.length = 0;
-        console.log(`Processed ${totalDocumentsProcessed} documents, modified ${totalDocumentsModified}`);
       }
     }
 
-    // Final batch write
     if (bulkOps.length > 0) {
-      const result = await collection.bulkWrite(bulkOps);
-      console.log(`Final batch: Modified ${result.modifiedCount} documents`);
+      await collection.bulkWrite(bulkOps);
     }
 
-    // 👇 Enforce only latest 4320 documents
-    const totalCount = await collection.countDocuments();
+    // Delete older docs if exceeding limit
     const MAX_DOCS = 4320;
+    const total = await collection.countDocuments();
 
-    if (totalCount > MAX_DOCS) {
-      const docsToDelete = totalCount - MAX_DOCS;
-      const oldestDocs = await collection.find({})
-        .sort({ updatedAt: 1 })  // Sort by oldest updatedAt
-        .limit(docsToDelete)
+    if (total > MAX_DOCS) {
+      const excess = total - MAX_DOCS;
+
+      const toDelete = await collection.find({})
+        .sort({ updatedAt: 1 })
+        .limit(excess)
         .project({ _id: 1 })
         .toArray();
 
-      const idsToDelete = oldestDocs.map(doc => doc._id);
-      const deleteResult = await collection.deleteMany({ _id: { $in: idsToDelete } });
+      const ids = toDelete.map(doc => doc._id);
+      await collection.deleteMany({ _id: { $in: ids } });
 
-      console.log(`Deleted ${deleteResult.deletedCount} oldest documents to maintain max ${MAX_DOCS}`);
+      console.log(`🧹 Deleted ${excess} old docs`);
     }
 
-    console.log(`Process completed!`);
-    console.log(`Total documents processed: ${totalDocumentsProcessed}`);
-    console.log(`Total documents modified: ${totalDocumentsModified}`);
-
-  } catch (error) {
-    console.error("Error during processing:", error);
+    console.log('✅ keepOnlyLatestMarketData finished');
+  } catch (err) {
+    console.error('🛑 Error in keepOnlyLatestMarketData:', err);
   } finally {
-    await client.close();
+    await localClient.close();
   }
 }
 
-// Run every 2 minutes (adjust as needed)
-setInterval(() => {
-  console.log(`[${new Date().toISOString()}] Running keepOnlyLatestMarketData`);
-  keepOnlyLatestMarketData();
-}, 10 * 1000);
+// ⏰ CRON Job: Every 2 mins between 9:15 AM and 3:32 PM on working days
+cron.schedule('*/2 9-15 * * *', async () => {
+  const now = new Date();
+  const hr = now.getHours();
+  const min = now.getMinutes();
+
+  if ((hr === 9 && min < 15) || (hr === 15 && min > 32)) return;
+
+  const shouldRun = await isMarketWorkingDay();
+  if (shouldRun) {
+    console.log(`[${now.toLocaleTimeString()}] 🔁 Running job`);
+    await keepOnlyLatestMarketData();
+  } else {
+    console.log(`[${now.toLocaleTimeString()}] 🚫 Market closed or holiday`);
+  }
+});

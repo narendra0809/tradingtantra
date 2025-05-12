@@ -83,7 +83,7 @@ dotenv.config();
 //       //   toDate,
 //       //   i
 //       // );
-//       const redisKey = `stockFiveMinCandle:${securityIds[i]}:${fromDate}-${toDate}`;
+//       const redisKey = `stockfiveMinCandle:${securityIds[i]}:${fromDate}-${toDate}`;
 
 //       // Check Redis cache
 //       const cachedData = await redis.get(redisKey);
@@ -166,7 +166,7 @@ dotenv.config();
 //       //   toDate,
 //       //   i
 //       // );
-//       const redisKey = `stockTenMinCandle:${securityIds[i]}:${fromDate}-${toDate}`;
+//       const redisKey = `stocktenMinCandle:${securityIds[i]}:${fromDate}-${toDate}`;
 
 //       // Check Redis cache
 //       const cachedData = await redis.get(redisKey);

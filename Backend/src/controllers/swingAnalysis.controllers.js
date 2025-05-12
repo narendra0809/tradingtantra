@@ -44,7 +44,6 @@ const processRangeBreakers = async (days, Model) => {
       securityId: 1,
       "data.dayHigh": 1,
       "data.dayLow": 1,
-      "data.dayClose": 1,
       "data.latestTradedPrice": 1,
       date: 1
     }
@@ -96,23 +95,22 @@ const processRangeBreakers = async (days, Model) => {
     const {
       dayHigh,
       dayLow,
-      dayClose,
       latestTradedPrice
     } = current;
 
     const previousHighs = previous.map(d => d.dayHigh);
     const previousLows = previous.map(d => d.dayLow);
-    const baseClose = previous[0].dayClose;
+    const baseLatestPrice = previous[0].latestTradedPrice;
 
     const maxHigh = Math.max(...previousHighs);
     const minLow = Math.min(...previousLows);
 
     let type = null;
-    if (dayClose > maxHigh) type = "bullish";
-    else if (dayClose < minLow) type = "bearish";
+    if (latestTradedPrice > maxHigh) type = "bullish";
+    else if (latestTradedPrice < minLow) type = "bearish";
     if (!type) continue;
 
-    const pctChange = ((latestTradedPrice - baseClose) / baseClose) * 100;
+    const pctChange = ((latestTradedPrice - baseLatestPrice) / baseLatestPrice) * 100;
 
     bulkOps.push({
       updateOne: {
@@ -189,7 +187,6 @@ const dailyCandleReversal = async (req, res) => {
       {
         securityId: 1,
         "data.dayOpen": 1,
-        "data.dayClose": 1,
         "data.latestTradedPrice": 1,
         date: 1
       }
@@ -220,7 +217,7 @@ const dailyCandleReversal = async (req, res) => {
       else if (entry.date === prevPrevDate) data.prevPrev = entry.data[0];
     });
 
-    // 5. Detect reversals with strict conditions
+    // 5. Detect reversals with updated conditions
     const bulkOps = [];
     
     for (const [securityId, data] of securityData) {
@@ -231,42 +228,42 @@ const dailyCandleReversal = async (req, res) => {
       if (!stock) continue;
       
       // Current candle values
-      const { dayOpen: currOpen, dayClose: currClose, latestTradedPrice: currPrice } = data.current;
+      const { dayOpen: currOpen, latestTradedPrice: currPrice } = data.current;
       
       // Previous candle values
-      const { dayOpen: prevOpen, dayClose: prevClose } = data.prev;
+      const { dayOpen: prevOpen, latestTradedPrice: prevPrice } = data.prev;
       
       // Pre-previous candle values
-      const { dayClose: prevPrevClose } = data.prevPrev;
+      const { latestTradedPrice: prevPrevPrice } = data.prevPrev;
       
       // Skip if any invalid values
-      if ([prevClose, prevPrevClose, currPrice].some(v => v === undefined || v === 0)) continue;
+      if ([prevPrice, prevPrevPrice, currPrice].some(v => v === undefined || v === 0)) continue;
 
       // Calculate percentage changes
-      const prevCandleChange = ((prevClose - prevPrevClose) / prevPrevClose) * 100;
-      const currCandleChange = ((currPrice - prevClose) / prevClose) * 100;
+      const prevCandleChange = ((prevPrice - prevPrevPrice) / prevPrevPrice) * 100;
+      const currCandleChange = ((currPrice - prevPrice) / prevPrice) * 100;
       
       // Absolute values for comparison
       const absPrevChange = Math.abs(prevCandleChange);
       const absCurrChange = Math.abs(currCandleChange);
       
       // Minimum 2% movement in previous candle
-      if (absPrevChange < 1) continue;
+      if (absPrevChange < 2) continue;
       
       let trend = null;
       
       // Bullish Reversal Condition:
-      // 1. Previous candle was red (open > close)
-      // 2. Current candle is green (open < close)
-      // 3. Current green candle is ≥2x size of previous red candle
-      if (prevOpen > prevClose && currOpen < currClose && absCurrChange >= absPrevChange * 2) {
+      // 1. Previous candle was red (open > latestTradedPrice)
+      // 2. Current candle is green (open < latestTradedPrice)
+      // 3. Current candle change is ≥2x the previous candle change
+      if (prevOpen > prevPrice && currOpen < currPrice && absCurrChange >= absPrevChange * 2) {
         trend = "BULLISH";
       } 
       // Bearish Reversal Condition:
-      // 1. Previous candle was green (open < close)
-      // 2. Current candle is red (open > close)
-      // 3. Current red candle is ≥2x size of previous green candle
-      else if (prevOpen < prevClose && currOpen > currClose && absCurrChange >= absPrevChange * 2) {
+      // 1. Previous candle was green (open < latestTradedPrice)
+      // 2. Current candle is red (open > latestTradedPrice)
+      // 3. Current candle change is ≥2x the previous candle change
+      else if (prevOpen < prevPrice && currOpen > currPrice && absCurrChange >= absPrevChange * 2) {
         trend = "BEARISH";
       }
       

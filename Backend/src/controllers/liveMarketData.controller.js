@@ -208,71 +208,80 @@ const getData = async (fromDate, toDate) => {
   }
 
   function getLastNCompleteCandles(rawData, interval, n = 5) {
+    if (!rawData?.timestamp?.length) {
+      console.warn(`[CandleProcess] No timestamp data for interval ${interval}`);
+      return null;
+    }
+
     const timestampsIST = rawData.timestamp.map(convertToIST);
     const validIndexes = timestampsIST
       .map((time, index) => (isCandleComplete(time, interval) ? index : -1))
       .filter((index) => index !== -1);
 
-    const lastValidIndexes = validIndexes.slice(-n);
+    if (validIndexes.length < n) {
+      console.warn(`[CandleProcess] Insufficient valid candles for interval ${interval}: ${validIndexes.length}/${n}`);
+      const lastIndexes = Array.from({ length: Math.min(n, rawData.timestamp.length) }, (_, i) => rawData.timestamp.length - 1 - i).reverse();
+      return {
+        open: lastIndexes.map((i) => rawData.open[i] || 0),
+        high: lastIndexes.map((i) => rawData.high[i] || 0),
+        low: lastIndexes.map((i) => rawData.low[i] || 0),
+        close: lastIndexes.map((i) => rawData.close[i] || 0),
+        volume: lastIndexes.map((i) => rawData.volume[i] || 0),
+        timestamp: lastIndexes.map((i) => timestampsIST[i]),
+      };
+    }
 
+    const lastValidIndexes = validIndexes.slice(-n);
     return {
-      open: lastValidIndexes.map((i) => rawData.open[i]),
-      high: lastValidIndexes.map((i) => rawData.high[i]),
-      low: lastValidIndexes.map((i) => rawData.low[i]),
-      close: lastValidIndexes.map((i) => rawData.close[i]),
+      open: lastValidIndexes.map((i) => rawData.open[i] || 0),
+      high: lastValidIndexes.map((i) => rawData.high[i] || 0),
+      low: lastValidIndexes.map((i) => rawData.low[i] || 0),
+      close: lastValidIndexes.map((i) => rawData.close[i] || 0),
       volume: lastValidIndexes.map((i) => rawData.volume[i] || 0),
       timestamp: lastValidIndexes.map((i) => timestampsIST[i]),
     };
   }
 
   function convertToTenMinCandles(fiveMinData) {
-    if (fiveMinData.timestamp.length < 2) {
-      console.warn(`Insufficient 5-min candles for 10-min conversion: ${fiveMinData.securityId}`);
+    if (!fiveMinData?.timestamp?.length || fiveMinData.timestamp.length < 2) {
+      console.warn(`[TenMin] Insufficient 5-min candles for ${fiveMinData.securityId}: ${fiveMinData.timestamp?.length || 0}`);
       return null;
     }
 
     const tenMinCandles = [];
-
-    // Parse timestamps in the format "9/5/2025, 3:05:00 pm"
     const parseTimestamp = (ts) => {
-      const [datePart, timePart] = ts.split(', ');
-      const [day, month, year] = datePart.split('/');
-      const [time, period] = timePart.split(' ');
-      const [hours, minutes, seconds] = time.split(':');
+      const [datePart, timePart] = ts.split(", ");
+      const [day, month, year] = datePart.split("/");
+      const [time, period] = timePart.split(" ");
+      const [hours, minutes, seconds] = time.split(":");
 
       let hour = parseInt(hours);
-      if (period.toLowerCase() === 'pm' && hour !== 12) hour += 12;
-      if (period.toLowerCase() === 'am' && hour === 12) hour = 0;
+      if (period.toLowerCase() === "pm" && hour !== 12) hour += 12;
+      if (period.toLowerCase() === "am" && hour === 12) hour = 0;
 
       return new Date(year, month - 1, day, hour, minutes, seconds);
     };
 
     const timestamps = fiveMinData.timestamp.map(parseTimestamp);
 
-    // Validate chronological order
     for (let i = 1; i < timestamps.length; i++) {
       if (timestamps[i] <= timestamps[i - 1]) {
-        console.warn(`Non-chronological timestamps for ${fiveMinData.securityId}`);
+        console.warn(`[TenMin] Non-chronological timestamps for ${fiveMinData.securityId}`);
         return null;
       }
     }
 
-    // Check if the last candle is at 3:25 PM
     const lastTimestamp = timestamps[timestamps.length - 1];
     const lastHour = lastTimestamp.getHours();
     const lastMinute = lastTimestamp.getMinutes();
     const isLastCandle325 = lastHour === 15 && lastMinute === 25;
 
     if (isLastCandle325) {
-      console.log(`3:25 PM candle detected for ${fiveMinData.securityId}, treating as 10-min candle`);
-
-      // Merge the previous two candles (3:15 PM + 3:20 PM) if available
       if (timestamps.length >= 3) {
         const i1 = timestamps.length - 3; // 3:15 PM
         const i2 = timestamps.length - 2; // 3:20 PM
         if (
           i1 >= 0 &&
-          i2 < fiveMinData.timestamp.length &&
           timestamps[i1].getHours() === 15 &&
           timestamps[i1].getMinutes() === 15 &&
           timestamps[i2].getHours() === 15 &&
@@ -286,12 +295,8 @@ const getData = async (fromDate, toDate) => {
             low: Math.min(fiveMinData.low[i1], fiveMinData.low[i2]),
             volume: (fiveMinData.volume[i1] || 0) + (fiveMinData.volume[i2] || 0),
           });
-        } else {
-          console.warn(`Invalid indices or timestamps for 10-min merge (3:15+3:20) for ${fiveMinData.securityId}: [${i1}, ${i2}]`);
         }
       }
-
-      // Add the 3:25 PM candle as a standalone 10-minute candle
       tenMinCandles.push({
         timestamp: fiveMinData.timestamp[timestamps.length - 1],
         open: fiveMinData.open[timestamps.length - 1],
@@ -301,17 +306,13 @@ const getData = async (fromDate, toDate) => {
         volume: fiveMinData.volume[timestamps.length - 1] || 0,
       });
     } else {
-      // Merge pairs of 5-min candles, starting from the earliest pair
       for (let i = 0; i < timestamps.length - 1; i += 2) {
-        const i1 = i; // First candle of the pair
-        const i2 = i + 1; // Second candle of the pair
-        if (i2 >= fiveMinData.timestamp.length) {
-          break;
-        }
-        // Verify 5-minute interval between candles
+        const i1 = i;
+        const i2 = i + 1;
+        if (i2 >= fiveMinData.timestamp.length) break;
         const timeDiff = (timestamps[i2] - timestamps[i1]) / (1000 * 60);
         if (timeDiff !== 5) {
-          console.warn(`Invalid time interval between candles for ${fiveMinData.securityId}: ${timeDiff} minutes`);
+          console.warn(`[TenMin] Invalid interval for ${fiveMinData.securityId}: ${timeDiff}min`);
           continue;
         }
         tenMinCandles.push({
@@ -325,11 +326,9 @@ const getData = async (fromDate, toDate) => {
       }
     }
 
-    // Sort candles by timestamp in ascending order (earliest first) to match 5-min candle order
     tenMinCandles.sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
-
     if (tenMinCandles.length === 0) {
-      console.warn(`No 10-min candles generated for ${fiveMinData.securityId}`);
+      console.warn(`[TenMin] No 10-min candles generated for ${fiveMinData.securityId}`);
       return null;
     }
 
@@ -361,13 +360,17 @@ const getData = async (fromDate, toDate) => {
         },
         { upsert: true }
       );
-      console.log(`💾 [MongoDB] ${interval}-min data saved for ${formattedData.securityId}`);
     } catch (error) {
       console.error(`❌ [MongoDB] Error saving ${interval}-min data for ${formattedData.securityId}:`, error.message);
     }
   }
 
   try {
+    // Clear Redis cache to ensure fresh data
+    for (const id of securityIds) {
+      await redis.del(`stockFiveMinCandle:${id}:${fromDate}-${toDate}`);
+    }
+
     // === STEP 1: Process 5-Minute Candles ===
     for (let i = 0; i < securityIds.length; i++) {
       const id = securityIds[i];
@@ -375,34 +378,22 @@ const getData = async (fromDate, toDate) => {
       let data5 = await redis.get(redisKey5);
 
       if (data5) {
-        // console.log(`🔁 [Redis] 5-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
         data5 = JSON.parse(data5);
       } else {
-        // Fallback to database
-        const dbData = await FiveMinCandles.findOne({ securityId: id }).lean();
-        if (dbData) {
-          // console.log(`🔁 [MongoDB] 5-min data fetched from database for ${id} (${i + 1}/${securityIds.length})`);
-          data5 = dbData;
-          // Save to Redis
-          await redis.set(redisKey5, JSON.stringify(data5), "EX", 120);
-        } else {
-          const rawData = await fetchHistoricalData(id, fromDate, toDate, i, "5");
-          if (rawData) {
-            const formatted5 = getLastNCompleteCandles(rawData, 5);
-            formatted5.securityId = id;
-
-            // Save to Redis
-            await redis.set(redisKey5, JSON.stringify(formatted5), "EX", 120);
-            // console.log(`🌐 [API] 5-min data fetched & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
-
-            // Save to MongoDB
-            await saveToMongo(formatted5, 5);
-
-            data5 = formatted5;
-          } else {
-            // console.warn(`⚠️ [API] No 5-min data for ${id}`);
+        const rawData = await fetchHistoricalData(id, fromDate, toDate, i, "5");
+        if (rawData) {
+          const formatted5 = getLastNCompleteCandles(rawData, 5);
+          if (!formatted5) {
+            console.warn(`[CandleProcess] Failed to format 5-min candles for ${id}`);
             continue;
           }
+          formatted5.securityId = id;
+          await redis.set(redisKey5, JSON.stringify(formatted5), "EX", 120);
+          await saveToMongo(formatted5, 5);
+          data5 = formatted5;
+        } else {
+          console.warn(`⚠️ [API] No 5-min data for ${id}`);
+          continue;
         }
       }
 
@@ -410,26 +401,20 @@ const getData = async (fromDate, toDate) => {
       const redisKey10 = `stockTenMinCandle:${id}:${fromDate}-${toDate}`;
       let data10 = await redis.get(redisKey10);
 
-      if (data10) {
-        // console.log(`🔁 [Redis] 10-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
-      } else {
+      if (!data10) {
         const formatted10 = convertToTenMinCandles(data5);
         if (formatted10) {
-          // Save to Redis
           await redis.set(redisKey10, JSON.stringify(formatted10), "EX", 240);
-          // console.log(`🌐 [Redis] 10-min data generated & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
-
-          // Save to MongoDB
           await saveToMongo(formatted10, 10);
         } else {
-          console.warn(`⚠️ [Redis] No 10-min data generated for ${id}`);
+          console.warn(`⚠️ [TenMin] No 10-min data for ${id}`);
         }
       }
 
       await delay(200);
     }
 
-    console.log("✅ Completed all 5-minute and 10-minute candle data for all stocks.");
+    console.log("✅ Completed 5-minute and 10-minute candle data.");
 
     // === STEP 3: Process 15-Minute Candles ===
     for (let i = 0; i < securityIds.length; i++) {
@@ -437,29 +422,26 @@ const getData = async (fromDate, toDate) => {
       const redisKey15 = `stockFifteenMinCandle:${id}:${fromDate}-${toDate}`;
       let data15 = await redis.get(redisKey15);
 
-      if (data15) {
-        // console.log(`🔁 [Redis] 15-min data fetched from redis ${id} (${i + 1}/${securityIds.length})`);
-      } else {
+      if (!data15) {
         const rawData = await fetchHistoricalData(id, fromDate, toDate, i, "15");
         if (rawData) {
           const formatted15 = getLastNCompleteCandles(rawData, 15);
+          if (!formatted15) {
+            console.warn(`[CandleProcess] Failed to format 15-min candles for ${id}`);
+            continue;
+          }
           formatted15.securityId = id;
-
-          // Save to Redis
           await redis.set(redisKey15, JSON.stringify(formatted15), "EX", 300);
-          console.log(`🌐 [API] 15-min data fetched & stored in redis for ${id} (${i + 1}/${securityIds.length})`);
-
-          // Save to MongoDB
           await saveToMongo(formatted15, 15);
         } else {
           console.warn(`⚠️ [API] No 15-min data for ${id}`);
         }
       }
 
-      await delay(200); // Keep 200ms delay for 15-min candles
+      await delay(200);
     }
 
-    console.log("✅ Completed all 15-minute candle data for all stocks.");
+    console.log("✅ Completed 15-minute candle data.");
   } catch (error) {
     console.error("❌ Error in getData:", error.message);
   }
@@ -1524,7 +1506,7 @@ const DailyRangeBreakout = async (req, res) => {
       }
 
       if (!data || !data.open || !data.close || data.high.length < 5) {
-        console.warn(`No sufficient data for Securityrangebreak ID: ${securityId}`);
+        console.warn(`No sufficient data for Security ID: ${securityId}`);
         continue;
       }
 
@@ -1545,7 +1527,7 @@ const DailyRangeBreakout = async (req, res) => {
     }
 
     if (updatedData.length === 0) {
-      return res.status(404).json({ message: "No candle data found" });
+      return { message: "No candle data found" };
     }
 
     // Analyze each security for breakout pattern
@@ -1567,7 +1549,18 @@ const DailyRangeBreakout = async (req, res) => {
       const firstCandleHigh = highs[0];
       const firstCandleLow = lows[0];
 
-      // Check if candles 2-4 (indices 1-3) open and close within first candle's range
+      // 5th candle data (index 4)
+      const latestOpen = opens[4];
+      const latestClose = closes[4];
+      const latestHigh = highs[4];
+      const latestLow = lows[4];
+      const latestTimestamp = timestamps[4];
+
+      // Calculate 5th candle return
+      const candleReturnBullish = ((latestClose - latestOpen) / latestOpen) * 100;
+      const candleReturnBearish = ((latestOpen - latestClose) / latestOpen) * 100;
+
+      // Check middle candles range
       const areMiddleCandlesInRange = [1, 2, 3].every((i) => {
         return (
           opens[i] <= firstCandleHigh &&
@@ -1577,14 +1570,10 @@ const DailyRangeBreakout = async (req, res) => {
         );
       });
 
-      if (areMiddleCandlesInRange) {
-        // Latest (5th) candle data (index 4)
-        const latestHigh = highs[4];
-        const latestLow = lows[4];
-        const latestOpen = opens[4];
-        const latestClose = closes[4];
-        const latestTimestamp = timestamps[4];
+      
 
+      // Breakout logic
+      if (areMiddleCandlesInRange) {
         // Calculate percentage change
         const percentageChange =
           latestTradedPrice && previousDayClose
@@ -1593,8 +1582,7 @@ const DailyRangeBreakout = async (req, res) => {
 
         // Bullish breakout: 5th candle closes above first candle high
         if (latestClose > firstCandleHigh) {
-          const candleReturn = ((latestClose - latestOpen) / latestOpen) * 100;
-          if (candleReturn >= 0.5) {
+          if (candleReturnBullish >= 0.5) {
             breakoutStocks.push({
               type: "Bullish",
               securityId,
@@ -1607,17 +1595,18 @@ const DailyRangeBreakout = async (req, res) => {
               rangeLow: firstCandleLow,
               todayHigh: latestHigh,
               todayLow: latestLow,
-              candleReturn: candleReturn.toFixed(2),
+              candleReturn: candleReturnBullish.toFixed(2),
               timestamp: latestTimestamp,
               breakoutTime: validateAndFormatTimestamp(Math.floor(Date.now() / 1000)),
-              date: latestDate
+              date: latestDate,
             });
+          } else {
+            console.log(`[BreakoutSkip] ${securityId} Bullish breakout skipped: Insufficient candle return (${candleReturnBullish.toFixed(2)}% < 0.5%)`);
           }
         }
         // Bearish breakout: 5th candle closes below first candle low
         else if (latestClose < firstCandleLow) {
-          const candleReturn = ((latestOpen - latestClose) / latestOpen) * 100;
-          if (candleReturn >= 0.5) {
+          if (candleReturnBearish >= 0.5) {
             breakoutStocks.push({
               type: "Bearish",
               securityId,
@@ -1630,40 +1619,48 @@ const DailyRangeBreakout = async (req, res) => {
               rangeLow: firstCandleLow,
               todayHigh: latestHigh,
               todayLow: latestLow,
-              candleReturn: candleReturn.toFixed(2),
+              candleReturn: candleReturnBearish.toFixed(2),
               timestamp: latestTimestamp,
               breakoutTime: validateAndFormatTimestamp(Math.floor(Date.now() / 1000)),
-              date: latestDate
+              date: latestDate,
             });
+          } else {
+            // console.log(`[BreakoutSkip] ${securityId} Bearish breakout skipped: Insufficient candle return (${candleReturnBearish.toFixed(2)}% < 0.5%)`);
           }
         }
+      } else if (latestClose > firstCandleHigh || latestClose < firstCandleLow) {
+        // console.log(`[BreakoutSkip] ${securityId} Breakout skipped: Middle candles not in range`);
       }
     }
 
     // Save ALL breakout signals to database (both bullish and bearish)
     if (breakoutStocks.length > 0) {
-      const bulkOps = breakoutStocks.map(signal => ({
+      const bulkOps = breakoutStocks.map((signal) => ({
         updateOne: {
           filter: {
             securityId: signal.securityId,
             date: latestDate,
-            type: signal.type
+            type: signal.type,
           },
           update: {
-            $set: signal
+            $set: signal,
           },
-          upsert: true
-        }
+          upsert: true,
+        },
       }));
 
       try {
         await DailyRangeBreakouts.bulkWrite(bulkOps);
-        console.log(`Saved ${breakoutStocks.length} breakouts (${breakoutStocks.filter(b => b.type === 'Bullish').length} bullish, ${breakoutStocks.filter(b => b.type === 'Bearish').length} bearish)`);
+        // console.log(
+        //   `Saved ${breakoutStocks.length} breakouts (${breakoutStocks.filter((b) => b.type === "Bullish").length} bullish, ${
+        //     breakoutStocks.filter((b) => b.type === "Bearish").length
+        //   } bearish)`
+        // );
       } catch (dbError) {
         console.error("Error saving breakouts:", dbError);
         return res.status(500).json({
           message: "Error saving to database",
-          error: dbError.message
+          error: dbError.message,
         });
       }
     }
@@ -1671,20 +1668,18 @@ const DailyRangeBreakout = async (req, res) => {
     // Get all breakout signals for the latest date
     const fullData = await DailyRangeBreakouts.find(
       {},
-      { _id: 0, __v: 0, updatedAt: 0, createdAt: 0, }
+      { _id: 0, __v: 0, updatedAt: 0, createdAt: 0 }
     ).sort({ timestamp: -1 });
 
     return {
-      message: breakoutStocks.length > 0
-        ? "Breakout analysis complete"
-        : "No breakout signals detected",
+      message: breakoutStocks.length > 0 ? "Breakout analysis complete" : "No breakout signals detected",
       data: fullData,
       currentBreakouts: breakoutStocks,
       stats: {
         total: breakoutStocks.length,
-        bullish: breakoutStocks.filter(b => b.type === 'Bullish').length,
-        bearish: breakoutStocks.filter(b => b.type === 'Bearish').length
-      }
+        bullish: breakoutStocks.filter((b) => b.type === "Bullish").length,
+        bearish: breakoutStocks.filter((b) => b.type === "Bearish").length,
+      },
     };
   } catch (error) {
     console.error("Error in DailyRangeBreakout:", error);
