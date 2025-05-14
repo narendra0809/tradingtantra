@@ -92,31 +92,36 @@ const getStocksData = async () => {
     );
 
     // Step 6: Compute stock data with changes
-    const response = stocksData.map((stock) => {
-      const stockDetail = stockDetailsMap.get(stock.securityId) || {};
-      const previousStock = previousDayMap.get(stock.securityId);
-      const dayClose = previousStock?.data?.[0].dayClose;
-      const latestTradePrice = stock?.data?.[0].latestTradedPrice;
+ // Step 6: Compute stock data with changes
+const response = stocksData.map((stock) => {
+  const stockDetail = stockDetailsMap.get(stock.securityId) || {};
+  const previousStock = previousDayMap.get(stock.securityId);
 
-      // Change Percentage Calculation
-      const changePercentage =
-        dayClose && dayClose !== 0
-          ? parseFloat(
-              (((latestTradePrice - dayClose) / dayClose) * 100).toFixed(2)
-            )
-          : 0;
+  const todayLatestPrice = stock?.data?.[0]?.latestTradedPrice || 0;
+  const prevDayLatestPrice = previousStock?.data?.[0]?.latestTradedPrice || 0;
 
-      return {
-        SECURITY_ID: stock.securityId,
-        INDEX: stockDetail.INDEX || "N/A",
-        SECTOR: stockDetail.SECTOR || "N/A",
-        UNDERLYING_SYMBOL: stockDetail.UNDERLYING_SYMBOL || "N/A",
-        SYMBOL_NAME: stockDetail.SYMBOL_NAME || "N/A",
-        DISPLAY_NAME: stockDetail.DISPLAY_NAME || "N/A",
-        turnover: stock.turnover,
-        changePercentage,
-      };
-    });
+  // Change Percentage Calculation
+  const changePercentage =
+    prevDayLatestPrice && prevDayLatestPrice !== 0
+      ? parseFloat(
+          (((todayLatestPrice - prevDayLatestPrice) / prevDayLatestPrice) * 100).toFixed(2)
+        )
+      : 0;
+
+  return {
+    SECURITY_ID: stock.securityId,
+    INDEX: stockDetail.INDEX || "N/A",
+    SECTOR: stockDetail.SECTOR || "N/A",
+    UNDERLYING_SYMBOL: stockDetail.UNDERLYING_SYMBOL || "N/A",
+    SYMBOL_NAME: stockDetail.SYMBOL_NAME || "N/A",
+    DISPLAY_NAME: stockDetail.DISPLAY_NAME || "N/A",
+    turnover: stock.turnover,
+    previousDayPrice: prevDayLatestPrice,
+    currentPrice: todayLatestPrice,
+    changePercentage,
+  };
+});
+
 
     // Sort by turnover and return top 30 stocks
     const sortedData = response
@@ -136,57 +141,59 @@ const getStocksData = async () => {
 //this controller give data if today data not avail it return yesterday data
 const getTopGainersAndLosers = async (req, res) => {
   try {
-    // Step 1: Find the most recent available date
+    // Step 1: Find the most recent available date (today)
     const latestEntry = await MarketDetailData.findOne()
       .sort({ date: -1 }) // Get the latest date
       .select("date");
 
     if (!latestEntry) {
-      return { success: false, message: "No stock data available" };
+      return res.status(404).json({ success: false, message: "No stock data available" });
     }
 
     const latestDate = latestEntry.date;
 
-    // Step 2: Fetch all data for the latest available date
-    const latestData = await MarketDetailData.find({ date: latestDate });
-
-    if (latestData.length === 0) {
-      return {
-        success: false,
-        message: "No stock data available for the latest date",
-      };
-    }
-
-    // Step 3: Find the most recent previous available date
+    // Step 2: Find the previous trading day (yesterday)
     const previousDayEntry = await MarketDetailData.findOne(
       { date: { $lt: latestDate } },
       { date: 1 }
     ).sort({ date: -1 });
 
     if (!previousDayEntry) {
-      return { success: false, message: "No previous stock data available" };
+      return res.status(404).json({ success: false, message: "No previous stock data available" });
     }
 
     const previousDayDate = previousDayEntry.date;
 
-    // Fetch previous day's stock data
-    const yesterdayData = await MarketDetailData.find({
-      date: previousDayDate,
+    // Step 3: Fetch all data for both days in parallel
+    const [todayData, yesterdayData] = await Promise.all([
+      MarketDetailData.find({ date: latestDate }),
+      MarketDetailData.find({ date: previousDayDate })
+    ]);
+
+    if (todayData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No stock data available for the latest date"
+      });
+    }
+
+    if (yesterdayData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No stock data available for the previous date"
+      });
+    }
+
+    // Step 4: Create a map of yesterday's closing prices
+    const yesterdayCloseMap = new Map();
+    yesterdayData.forEach(entry => {
+      // Using data.dayClose[0] as per your schema example
+      const dayClose = entry.data?.latestTradedPrice?.[0] || 0;
+      yesterdayCloseMap.set(entry.securityId, dayClose);
     });
 
-    // Step 4: Map previous day's closing prices
-    const yesterdayMap = new Map();
-    yesterdayData.forEach((entry) => {
-      yesterdayMap.set(entry.securityId, entry.data?.dayClose[0] || 0);
-    });
-
-    const gainers = [];
-    const losers = [];
-
-    // Step 5: Get stock details
-    const stockIds = latestData.map((entry) => entry.securityId);
-    const stockDetailsMap = new Map();
-
+    // Step 5: Get stock details for all securities
+    const stockIds = todayData.map(entry => entry.securityId);
     const stockDetails = await StocksDetail.find(
       { SECURITY_ID: { $in: stockIds } },
       {
@@ -198,59 +205,78 @@ const getTopGainersAndLosers = async (req, res) => {
       }
     );
 
-    stockDetails.forEach((stock) => {
+    const stockDetailsMap = new Map();
+    stockDetails.forEach(stock => {
       stockDetailsMap.set(stock.SECURITY_ID, stock);
     });
 
-    // Step 6: Compute gainers & losers
-    latestData.forEach((todayEntry) => {
-      const prevClose = yesterdayMap.get(todayEntry.securityId);
-      if (!prevClose || prevClose === 0) return;
+    // Step 6: Calculate percentage changes
+    const gainers = [];
+    const losers = [];
 
-      const latestPrice = todayEntry.data?.latestTradedPrice[0] || 0;
+    todayData.forEach(todayEntry => {
+      const securityId = todayEntry.securityId;
+      const yesterdayClose = yesterdayCloseMap.get(securityId) || 0;
+      
+      // Skip if no yesterday data or yesterday close is 0
+      if (yesterdayClose === 0) return;
 
+      const latestPrice = todayEntry.data?.latestTradedPrice?.[0] || 0;
+      
+      // Skip if no latest price
       if (latestPrice === 0) return;
-      const percentageChange =
-        prevClose && prevClose !== 0
-          ? parseFloat(
-              (((latestPrice - prevClose) / prevClose) * 100).toFixed(2)
-            )
-          : 0;
-      const stockDetail = stockDetailsMap.get(todayEntry.securityId) || {};
-      const result = {
-        securityId: todayEntry.securityId,
+
+      // Calculate percentage change
+      const percentageChange = ((latestPrice - yesterdayClose) / yesterdayClose) * 100;
+      const roundedPercentage = parseFloat(percentageChange.toFixed(2));
+
+      const stockDetail = stockDetailsMap.get(securityId) || {};
+      
+      const stockInfo = {
+        securityId,
         stockSymbol: stockDetail.UNDERLYING_SYMBOL || "N/A",
         stockName: stockDetail.SYMBOL_NAME || "N/A",
         sector: stockDetail.SECTOR || "N/A",
         index: stockDetail.INDEX || "N/A",
         lastTradePrice: latestPrice,
-        previousClosePrice: prevClose,
-        percentageChange: percentageChange.toFixed(2),
+        previousClosePrice: yesterdayClose,
+        percentageChange: roundedPercentage,
         turnover: todayEntry.turnover,
-        xElement: todayEntry.xelement,
+        xElement: todayEntry.xelement
       };
 
       if (percentageChange > 0) {
-        gainers.push(result);
+        gainers.push(stockInfo);
       } else {
-        losers.push(result);
+        losers.push(stockInfo);
       }
     });
 
+    // Step 7: Sort and limit results
     gainers.sort((a, b) => b.percentageChange - a.percentageChange);
     losers.sort((a, b) => a.percentageChange - b.percentageChange);
 
+    // Return top 30 gainers and losers
     return {
       success: true,
+      date: latestDate,
+      previousDate: previousDayDate,
       topGainers: gainers.slice(0, 30),
       topLosers: losers.slice(0, 30),
+      stats: {
+        totalGainers: gainers.length,
+        totalLosers: losers.length,
+        highestGainer: gainers[0]?.percentageChange || 0,
+        highestLoser: losers[0]?.percentageChange || 0
+      }
     };
+
   } catch (error) {
     console.error("Error fetching top gainers & losers:", error);
     return {
       success: false,
       message: "Error fetching top gainers & losers",
-      error: error.message,
+      error: error.message
     };
   }
 };
@@ -292,7 +318,7 @@ const getDayHighBreak = async (req, res) => {
     });
     const yesterdayMap = new Map();
     previousDayData.forEach((entry) => {
-      yesterdayMap.set(entry.securityId, entry.data?.dayClose?.[0] || 0);
+      yesterdayMap.set(entry.securityId, entry.data?.latestTradedPrice?.[0] || 0);
     });
     const stocksDetail = await StocksDetail.find();
 
@@ -402,7 +428,7 @@ const getDayLowBreak = async (req, res) => {
     });
     const yesterdayMap = new Map();
     previousDayData.forEach((entry) => {
-      yesterdayMap.set(entry.securityId, entry.data?.dayClose[0] || 0);
+      yesterdayMap.set(entry.securityId, entry.data?.latestTradedPrice[0] || 0);
     });
     const stocksDetail = await StocksDetail.find();
 
@@ -580,16 +606,15 @@ const previousDaysVolume = async (socket) => {
     // console.log(todayData,'today')
     const combinedData = todayData.map(({ securityId, data }) => {
       const todayVolume = data?.volume?.[0] || 0;
-      // console.log(todayVolume,'today')
-      const latestTradedPrice = data?.latestTradedPrice?.[0] || 0;
+      const latestTradedPrice1 = data?.latestTradedPrice?.[0] || 0;
       const todayOpen = data?.dayOpen?.[0] || 0;
 
       const stock = stocksDetailsMap.get(securityId);
       const previousDayData = prevDayDataMap.get(securityId);
-      const previousDayClose = previousDayData?.data?.dayClose?.[0] || 0;
+      const previousDayClose = previousDayData?.data?.latestTradedPrice?.[0] || 0;
 
       const percentageChange = previousDayClose
-        ? ((latestTradedPrice - previousDayClose) / previousDayClose) * 100
+        ? ((latestTradedPrice1 - previousDayClose) / previousDayClose) * 100
         : 0;
 
       const volumeHistory = previousVolumesMap[securityId] || [];
@@ -677,7 +702,7 @@ const sectorStockData = async (req, res) => {
     // 4️⃣ Create a map of yesterday's closing prices
     const yesterdayMap = new Map();
     yesterdayData.forEach((entry) => {
-      yesterdayMap.set(entry.securityId, entry.data?.dayClose[0] || 0);
+      yesterdayMap.set(entry.securityId, entry.data?.latestTradedPrice[0] || 0);
     });
 
     // 5️⃣ Fetch stock details (sector, index, etc.)

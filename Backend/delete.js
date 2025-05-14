@@ -124,24 +124,16 @@ const runMarketCleanupJob = async () => {
   const min = now.getMinutes();
   const totalMinutes = hr * 60 + min;
 
-  // ✅ Only run between 9:15 AM (555 mins) and 6:00 PM (1080 mins)
-  if (totalMinutes < 555 || totalMinutes > 1080) {
-    console.log(`[${now.toLocaleTimeString()}] ⏳ Outside market time`);
-    return;
-  }
 
-  const shouldRun = await isMarketWorkingDay();
 
-  if (shouldRun) {
-    console.log(`[${now.toLocaleTimeString()}] ✅ Market Open - Running job`);
+
+
     await keepOnlyLatestMarketData();
-  } else {
-    console.log(`[${now.toLocaleTimeString()}] 🚫 Market closed or holiday`);
-  }
+  
 };
 
 // ✅ Scheduled job every minute between 9 AM to 6 PM, Monday to Friday
-cron.schedule('* 9-18 * * 1-5', runMarketCleanupJob);
+cron.schedule('*/2 * * * 1-5', runMarketCleanupJob);
 
 // ✅ Run manually when script starts (optional)
 runMarketCleanupJob();
