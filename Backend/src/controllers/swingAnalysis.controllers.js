@@ -371,7 +371,7 @@ const AIContraction = async (req, res) => {
         low: candleData.dayLow,
         latestPrice: candleData.latestTradedPrice,
         // Calculate candle body size (absolute difference between open and close)
-        bodySize: Math.abs(candleData.dayOpen - candleData.dayClose),
+        bodySize: Math.abs(candleData.dayOpen - candleData.latestTradedPrice),
         // Calculate total candle range (high - low)
         totalRange: candleData.dayHigh - candleData.dayLow
       });

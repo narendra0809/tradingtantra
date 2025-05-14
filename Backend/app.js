@@ -8,20 +8,17 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import cron from "node-cron"; 
 import "./delete.js";
-
 import "./src/config/passport.js";
-import { fetchAndSaveAllUnderlyings, isTradingHoliday, convertToIST } from "./chain.js";
-
+import optionChainJob from './src/jobs/optionChain.job.js';
+import {getOptionChainData} from './src/controllers/chain.controller.js';
+import { fetchAndSaveAllUnderlyings } from "./src/services/optionChain.service.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
-
 import { getSocketInstance, initializeServer } from "./src/config/socket.js";
-
-// Background jobs
 import "./src/jobs/workers/FiveMinData.js";
 import "./src/jobs/workers/LiveData.js";
 import "./src/jobs/liveMarket.job.js";
@@ -30,11 +27,8 @@ import "./src/jobs/holiday.job.js";
 import "./src/jobs/FiiDiiJob.js";
 
 dotenv.config();
-
 const app = express();
 const server = http.createServer(app);
-
-// Middleware
 app.use(morgan("dev"));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
@@ -63,52 +57,42 @@ app.use("/api", feedbackRoute);
 app.use("/api", isSubscribedRoute);
 app.use("/api", swingTradeRoutes);
 
-const cronExpressions = [
-  // '15-59/3 9 * * 1-5',   // 9:15 AM to 9:57 AM
-  // '0-59/3 10-14 * * 1-5', // 10:00 AM to 2:57 PM
-  // '0-30/3 15 * * 1-5',    // 3:00 PM to 3:30 PM
-  "*/3 * * * *" // Every minute for testing
-];
-
-async function runScheduledJob() {
+// Add this before the server starts
+app.get('/api/option-chain/trigger', async (req, res) => {
   try {
-    const now = new Date();
-    console.log(`Cron triggered at ${convertToIST(now)}`);
-    const isHoliday = await isTradingHoliday(now);
-    if (isHoliday) {
-      console.log(`Skipping chain data fetch at ${convertToIST(now)} due to NSE trading holiday`);
-      return;
-    }
-    await fetchAndSaveAllUnderlyings();
-    console.log(`Chain data fetch completed at ${convertToIST(now)}`);
+    console.log('Manually triggering option chain fetch...');
+    const result = await fetchAndSaveAllUnderlyings();
+    res.json({
+      success: true,
+      message: 'Option chain data fetched successfully',
+      data: result
+    });
   } catch (error) {
-    console.error(`Error in chain data fetch cron job at ${convertToIST(Date.now())}:`, error.message);
+    console.error('Manual trigger error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching option chain data',
+      error: error.message
+    });
   }
-}
-
-const startChainJob = () => {
-  console.log("Starting option chain cron job");
-  cronExpressions.forEach(expr => {
-    cron.schedule(expr, runScheduledJob, { timezone: 'Asia/Kolkata' });
-  });
-};
-
-// Register cron jobs
-cronExpressions.forEach(expr => {
-  cron.schedule(expr, runScheduledJob, { timezone: 'Asia/Kolkata' });
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 connectDB()
   .then(() => {
     server.listen(PORT, () => {
       console.log("Server started on port", PORT);
-      startChainJob();
+      optionChainJob.start();
     });
   })
   .catch((error) => {
     console.error("Failed to connect to DB", error);
   });
-
+process.on('SIGINT', () => {
+  optionChainJob.stop();
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
 export { app, server };

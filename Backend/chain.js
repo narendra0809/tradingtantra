@@ -34,12 +34,14 @@ const NiftyOptionChain = mongoose.model('NiftyOptionChain', optionChainSchema);
 const BankNiftyOptionChain = mongoose.model('BankNiftyOptionChain', optionChainSchema);
 const FinniftyOptionChain = mongoose.model('FinniftyOptionChain', optionChainSchema);
 const MidcpNiftyOptionChain = mongoose.model('MidcpNiftyOptionChain', optionChainSchema);
+const SensexOptionChain = mongoose.model('SensexOptionChain', optionChainSchema);
 
 const modelMap = {
   NIFTY: NiftyOptionChain,
   BANKNIFTY: BankNiftyOptionChain,
   FINNIFTY: FinniftyOptionChain,
   MIDCPNIFTY: MidcpNiftyOptionChain,
+  SENSEX: SensexOptionChain,
 };
 
 const config = {
@@ -52,6 +54,7 @@ const config = {
     { name: 'BANKNIFTY', scrip: 25, seg: 'IDX_I', stepSize: 100 },
     { name: 'FINNIFTY', scrip: 27, seg: 'IDX_I', stepSize: 50 },
     { name: 'MIDCPNIFTY', scrip: 442, seg: 'IDX_I', stepSize: 75 },
+    { name: 'SENSEX', scrip: 51, seg: 'IDX_I', stepSize: 100 },
   ],
 };
 
@@ -90,7 +93,7 @@ async function isTradingHoliday(date) {
     });
     return !!holiday;
   } catch (error) {
-    return false; // Assume not a holiday if query fails
+    return false;
   }
 }
 
@@ -99,43 +102,14 @@ function isMarketOpen() {
   const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
   const hours = ist.getHours();
   const minutes = ist.getMinutes();
-  const day = ist.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const day = ist.getDay();
   const currentTime = hours * 60 + minutes;
-  const startTime = 9 * 60 + 15; // 9:15 AM
-  const endTime = 15 * 60 + 30; // 3:30 PM
-  const isTradingDay = day >= 1 && day <= 5; // Monday to Friday
+  const startTime = 9 * 60 + 15;
+  const endTime = 24 * 60 + 30;
+  const isTradingDay = day >= 1 && day <= 5;
   const isWithinMarketHours = currentTime >= startTime && currentTime <= endTime;
   return isTradingDay && isWithinMarketHours;
-}
-
-function getNSEExpiries(underlyingName, currentDate) {
-  const expiries = [];
-  const date = new Date(currentDate);
-  if (underlyingName === 'NIFTY') {
-    // Weekly expiry: Next Thursday
-    const nextThursday = new Date(date);
-    nextThursday.setDate(date.getDate() + ((4 + 7 - date.getDay()) % 7 || 7));
-    expiries.push(nextThursday.toISOString().split('T')[0]);
-    // Monthly expiry: Last Thursday of current month
-    const lastThursdayThisMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    while (lastThursdayThisMonth.getDay() !== 4) {
-      lastThursdayThisMonth.setDate(lastThursdayThisMonth.getDate() - 1);
-    }
-    expiries.push(lastThursdayThisMonth.toISOString().split('T')[0]);
-  } else {
-    // Monthly expiries: Last Thursday of current and next month
-    const lastThursdayThisMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    while (lastThursdayThisMonth.getDay() !== 4) {
-      lastThursdayThisMonth.setDate(lastThursdayThisMonth.getDate() - 1);
-    }
-    expiries.push(lastThursdayThisMonth.toISOString().split('T')[0]);
-    const lastThursdayNextMonth = new Date(date.getFullYear(), date.getMonth() + 2, 0);
-    while (lastThursdayNextMonth.getDay() !== 4) {
-      lastThursdayNextMonth.setDate(lastThursdayNextMonth.getDate() - 1);
-    }
-    expiries.push(lastThursdayNextMonth.toISOString().split('T')[0]);
-  }
-  return expiries;
+  // return true;
 }
 
 async function fetchExpiryDates(underlyingScrip, underlyingSeg, underlyingName) {
@@ -151,39 +125,24 @@ async function fetchExpiryDates(underlyingScrip, underlyingSeg, underlyingName) 
         },
       }
     );
+    
     const { data } = response.data;
-    // console.log(`Expiry dates for ${underlyingName} (${underlyingScrip}:${underlyingSeg}):`, data); // Debug
     if (!data || !Array.isArray(data)) {
-      console.log(`No expiry dates for ${underlyingName}`); // Debug
+      console.log(`No expiry dates for ${underlyingName}`);
       return [];
     }
+
     const today = new Date();
     const futureExpiries = data
       .map((date) => new Date(date))
       .filter((date) => date >= today)
       .sort((a, b) => a - b)
       .map((date) => date.toISOString().split('T')[0]);
-    const targetExpiries = getNSEExpiries(underlyingName, today);
-    const selectedExpiries = futureExpiries.filter((expiry) => targetExpiries.includes(expiry));
-    console.log(`Selected expiries for ${underlyingName}:`, selectedExpiries); // Debug
-    if (selectedExpiries.length < (underlyingName === 'NIFTY' ? 2 : 2)) {
-      if (underlyingName === 'NIFTY') {
-        // Select next weekly and current monthly
-        const weekly = futureExpiries.find((exp) => new Date(exp) <= new Date(today.getFullYear(), today.getMonth() + 1, 0));
-        const monthly = futureExpiries.find((exp) => exp === '2025-05-29' || exp === '2025-06-26');
-        const fallback = [weekly, monthly].filter(Boolean).slice(0, 2);
-        // console.log(`Fallback expiries for NIFTY:`, fallback); // Debug
-        return fallback;
-      } else {
-        // Select two monthly expiries
-        const fallback = futureExpiries.filter((exp) => ['2025-05-29', '2025-06-26'].includes(exp)).slice(0, 2);
-        // console.log(`Fallback expiries for ${underlyingName}:`, fallback); // Debug
-        return fallback;
-      }
-    }
-    return selectedExpiries.slice(0, 2);
+
+    // Return the next 2 expiry dates
+    return futureExpiries.slice(0, 2);
   } catch (error) {
-    console.log(`Error fetching expiry dates for ${underlyingName}: ${error.message}`); // Debug
+    console.error(`Error fetching expiry dates for ${underlyingName}: ${error.message}`);
     return [];
   }
 }
@@ -191,7 +150,6 @@ async function fetchExpiryDates(underlyingScrip, underlyingSeg, underlyingName) 
 function generateStrikePrices(lastPrice, stepSize) {
   const roundedPrice = Math.round(lastPrice / stepSize) * stepSize;
   const strikePrices = [];
-  // 10 above, 10 below, 1 ATM (21 unique strikes)
   for (let i = -10; i <= 10; i++) {
     const strike = roundedPrice + i * stepSize;
     strikePrices.push(strike);
@@ -216,10 +174,12 @@ async function fetchOptionChainData(underlyingScrip, underlyingSeg, expiry, step
           },
         }
       );
+      
       const { data } = response.data;
       if (!data || !data.last_price || !data.oc) {
         return null;
       }
+
       const { strikePrices } = generateStrikePrices(data.last_price, stepSize);
       const strikeData = strikePrices.flatMap((strikePrice) => {
         const strikeStr = strikePrice.toFixed(6);
@@ -250,14 +210,15 @@ async function fetchOptionChainData(underlyingScrip, underlyingSeg, expiry, step
           },
         ];
       });
+
       return { lastPrice: data.last_price, strikeData };
     } catch (error) {
       if (error.response && error.response.status === 429 && attempt < retries) {
-        const backoff = Math.pow(2, attempt) * 5000; // 5s, 10s, 20s
+        const backoff = Math.pow(2, attempt) * 5000;
         await delay(backoff);
         continue;
       }
-      console.error(`Error fetching option chain for ${underlyingName} (${underlyingScrip}:${underlyingSeg}), expiry ${expiry}: ${error.message}`);
+      console.error(`Error fetching option chain for ${underlyingName}, expiry ${expiry}: ${error.message}`);
       return null;
     }
   }
@@ -271,8 +232,10 @@ async function saveOptionChainData(underlyingName, underlyingScrip, underlyingSe
     if (!Model) {
       return;
     }
+    
     const timestamp = convertToIST(Date.now());
     const fetchDate = new Date().toISOString().split('T')[0];
+    
     await Model.findOneAndUpdate(
       { underlyingName, timestamp, expiry, fetchDate },
       {
@@ -290,32 +253,44 @@ async function saveOptionChainData(underlyingName, underlyingScrip, underlyingSe
       },
       { upsert: true, new: true }
     );
-    console.log(`Option chain data saved for ${underlyingName}, expiry ${expiry} at ${timestamp}`);
+    
+    console.log(`Saved option chain for ${underlyingName}, expiry ${expiry}`);
   } catch (error) {
-    console.error(`Failed to save option chain data for ${underlyingName}: ${error.message}`);
+    console.error(`Failed to save option chain for ${underlyingName}: ${error.message}`);
   }
 }
 
 async function fetchAndSaveAllUnderlyings() {
   const today = new Date();
   if (await isTradingHoliday(today)) {
+    console.log('Market is closed today (holiday)');
     return;
   }
+  
   if (!isMarketOpen()) {
+    console.log('Market is currently closed');
     return;
   }
-  console.log(`Market is open, fetching option chain data at ${convertToIST(today)}`);
+
+  console.log(`Fetching option chain data at ${convertToIST(Date.now())}`);
+  
   for (const { name, scrip, seg, stepSize } of config.underlyings) {
-    const expiries = await fetchExpiryDates(scrip, seg, name);
-    if (!expiries.length) {
-      continue;
-    }
-    for (const expiry of expiries) {
-      const data = await fetchOptionChainData(scrip, seg, expiry, stepSize, name);
-      if (data) {
-        await saveOptionChainData(name, scrip, seg, expiry, data);
+    try {
+      const expiries = await fetchExpiryDates(scrip, seg, name);
+      if (!expiries.length) {
+        console.log(`No valid expiries found for ${name}`);
+        continue;
       }
-      await delay(6000); // Increased to avoid 429 errors
+
+      for (const expiry of expiries) {
+        const data = await fetchOptionChainData(scrip, seg, expiry, stepSize, name);
+        if (data) {
+          await saveOptionChainData(name, scrip, seg, expiry, data);
+        }
+        await delay(200);
+      }
+    } catch (error) {
+      console.error(`Error processing ${name}: ${error.message}`);
     }
   }
 }
@@ -326,8 +301,24 @@ export {
   BankNiftyOptionChain,
   FinniftyOptionChain,
   MidcpNiftyOptionChain,
+  SensexOptionChain,
   MarketHoliday,
   fetchAndSaveAllUnderlyings,
   isTradingHoliday,
   convertToIST,
 };
+// At the bottom of chain.js
+async function main() {
+  try {
+    await mongoose.connect(process.env.DB_URI);
+    console.log('Connected to MongoDB');
+    await fetchAndSaveAllUnderlyings();
+  } catch (error) {
+    console.error('Error in main execution:', error);
+  } finally {
+    await mongoose.disconnect();
+    process.exit(0);
+  }
+}
+
+main();
