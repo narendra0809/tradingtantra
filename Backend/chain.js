@@ -2,9 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import axios from 'axios';
 import mongoose from 'mongoose';
-import  MarketHoliday  from './src/models/holidays.model.js'; // Import MarketHoliday model
+import MarketHoliday from './src/models/holidays.model.js';
 
-// MongoDB Schema for Option Chain
 const optionChainSchema = new mongoose.Schema({
   underlyingName: { type: String, required: true },
   underlyingScrip: { type: Number, required: true },
@@ -17,38 +16,25 @@ const optionChainSchema = new mongoose.Schema({
     {
       strikePrice: { type: Number, required: true },
       optionType: { type: String, enum: ['CE', 'PE'], required: true },
-      greeks: {
-        delta: Number,
-        theta: Number,
-        gamma: Number,
-        vega: Number,
-      },
       impliedVolatility: Number,
       lastPrice: Number,
       oi: Number,
       previousClosePrice: Number,
       previousOi: Number,
       previousVolume: Number,
-      topAskPrice: Number,
-      topAskQuantity: Number,
-      topBidPrice: Number,
-      topBidQuantity: Number,
       volume: Number,
     },
   ],
   createdAt: { type: Date, default: Date.now },
 });
 
-// Create unique index for option chain data
-optionChainSchema.index({ underlyingName: 1, timestamp: 1, expiry: 1 }, { unique: true });
+optionChainSchema.index({ underlyingName: 1, timestamp: 1, expiry: 1, fetchDate: 1 }, { unique: true });
 
-// Define models
 const NiftyOptionChain = mongoose.model('NiftyOptionChain', optionChainSchema);
 const BankNiftyOptionChain = mongoose.model('BankNiftyOptionChain', optionChainSchema);
 const FinniftyOptionChain = mongoose.model('FinniftyOptionChain', optionChainSchema);
 const MidcpNiftyOptionChain = mongoose.model('MidcpNiftyOptionChain', optionChainSchema);
 
-// Map underlying names to models
 const modelMap = {
   NIFTY: NiftyOptionChain,
   BANKNIFTY: BankNiftyOptionChain,
@@ -56,7 +42,6 @@ const modelMap = {
   MIDCPNIFTY: MidcpNiftyOptionChain,
 };
 
-// Configuration
 const config = {
   optionChainUrl: 'https://api.dhan.co/v2/optionchain',
   expiryListUrl: 'https://api.dhan.co/v2/optionchain/expirylist',
@@ -70,10 +55,14 @@ const config = {
   ],
 };
 
-// Convert timestamp to MM/DD/YYYY, hh:mm:ss am/pm
 function convertToIST(unixTimestamp) {
   const date = new Date(unixTimestamp);
-  return date.toLocaleString('en-US', {
+  const minutes = date.getMinutes();
+  const roundedMinutes = Math.floor(minutes / 3) * 3;
+  date.setMinutes(roundedMinutes);
+  date.setSeconds(0);
+  date.setMilliseconds(0);
+  const formatted = date.toLocaleString('en-US', {
     timeZone: 'Asia/Kolkata',
     month: 'numeric',
     day: 'numeric',
@@ -83,68 +72,77 @@ function convertToIST(unixTimestamp) {
     second: 'numeric',
     hour12: true,
   }).replace(/,/, ', ');
+  return formatted;
 }
 
-// Delay function to pause execution
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Check if current date is a trading holiday
 async function isTradingHoliday(date) {
   try {
     const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
-
     const holiday = await MarketHoliday.findOne({
       date: { $gte: startOfDay, $lt: endOfDay },
       closed_exchanges: 'NSE',
     });
-
     return !!holiday;
   } catch (error) {
-    console.error(`Error checking trading holiday: ${error.message}`);
-    return false;
+    return false; // Assume not a holiday if query fails
   }
 }
 
-// Calculate NSE Expiry Dates Dynamically
+function isMarketOpen() {
+  const now = new Date();
+  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const hours = ist.getHours();
+  const minutes = ist.getMinutes();
+  const day = ist.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const currentTime = hours * 60 + minutes;
+  const startTime = 9 * 60 + 15; // 9:15 AM
+  const endTime = 15 * 60 + 30; // 3:30 PM
+  const isTradingDay = day >= 1 && day <= 5; // Monday to Friday
+  const isWithinMarketHours = currentTime >= startTime && currentTime <= endTime;
+  return isTradingDay && isWithinMarketHours;
+}
+
 function getNSEExpiries(underlyingName, currentDate) {
   const expiries = [];
   const date = new Date(currentDate);
-
   if (underlyingName === 'NIFTY') {
+    // Weekly expiry: Next Thursday
     const nextThursday = new Date(date);
     nextThursday.setDate(date.getDate() + ((4 + 7 - date.getDay()) % 7 || 7));
     expiries.push(nextThursday.toISOString().split('T')[0]);
-    const lastThursday = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    while (lastThursday.getDay() !== 4) {
-      lastThursday.setDate(lastThursday.getDate() - 1);
+    // Monthly expiry: Last Thursday of current month
+    const lastThursdayThisMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    while (lastThursdayThisMonth.getDay() !== 4) {
+      lastThursdayThisMonth.setDate(lastThursdayThisMonth.getDate() - 1);
     }
-    expiries.push(lastThursday.toISOString().split('T')[0]);
+    expiries.push(lastThursdayThisMonth.toISOString().split('T')[0]);
   } else {
-    for (let i = 0; i < 2; i++) {
-      const lastThursday = new Date(date.getFullYear(), date.getMonth() + i + 1, 0);
-      while (lastThursday.getDay() !== 4) {
-        lastThursday.setDate(lastThursday.getDate() - 1);
-      }
-      expiries.push(lastThursday.toISOString().split('T')[0]);
+    // Monthly expiries: Last Thursday of current and next month
+    const lastThursdayThisMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    while (lastThursdayThisMonth.getDay() !== 4) {
+      lastThursdayThisMonth.setDate(lastThursdayThisMonth.getDate() - 1);
     }
+    expiries.push(lastThursdayThisMonth.toISOString().split('T')[0]);
+    const lastThursdayNextMonth = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+    while (lastThursdayNextMonth.getDay() !== 4) {
+      lastThursdayNextMonth.setDate(lastThursdayNextMonth.getDate() - 1);
+    }
+    expiries.push(lastThursdayNextMonth.toISOString().split('T')[0]);
   }
-
   return expiries;
 }
 
-// Fetch Expiry Dates from Dhan API
 async function fetchExpiryDates(underlyingScrip, underlyingSeg, underlyingName) {
   try {
     const response = await axios.post(
       config.expiryListUrl,
-      {
-        UnderlyingScrip: underlyingScrip,
-        UnderlyingSeg: underlyingSeg,
-      },
+      { UnderlyingScrip: underlyingScrip, UnderlyingSeg: underlyingSeg },
       {
         headers: {
           'access-token': config.accessToken,
@@ -153,41 +151,47 @@ async function fetchExpiryDates(underlyingScrip, underlyingSeg, underlyingName) 
         },
       }
     );
-
     const { data } = response.data;
+    // console.log(`Expiry dates for ${underlyingName} (${underlyingScrip}:${underlyingSeg}):`, data); // Debug
     if (!data || !Array.isArray(data)) {
-      console.error(`No expiry dates received for ${underlyingScrip}:${underlyingSeg}`);
+      console.log(`No expiry dates for ${underlyingName}`); // Debug
       return [];
     }
-
     const today = new Date();
     const futureExpiries = data
       .map((date) => new Date(date))
       .filter((date) => date >= today)
       .sort((a, b) => a - b)
       .map((date) => date.toISOString().split('T')[0]);
-
     const targetExpiries = getNSEExpiries(underlyingName, today);
-    const selectedExpiries = futureExpiries.filter((expiry) =>
-      targetExpiries.includes(expiry)
-    );
-
-    if (selectedExpiries.length === 0) {
-      console.warn(`No matching expiry dates found for ${underlyingName}. Available expiries: ${futureExpiries.join(', ')}`);
-      return futureExpiries.slice(0, underlyingName === 'NIFTY' ? 2 : 2);
+    const selectedExpiries = futureExpiries.filter((expiry) => targetExpiries.includes(expiry));
+    console.log(`Selected expiries for ${underlyingName}:`, selectedExpiries); // Debug
+    if (selectedExpiries.length < (underlyingName === 'NIFTY' ? 2 : 2)) {
+      if (underlyingName === 'NIFTY') {
+        // Select next weekly and current monthly
+        const weekly = futureExpiries.find((exp) => new Date(exp) <= new Date(today.getFullYear(), today.getMonth() + 1, 0));
+        const monthly = futureExpiries.find((exp) => exp === '2025-05-29' || exp === '2025-06-26');
+        const fallback = [weekly, monthly].filter(Boolean).slice(0, 2);
+        // console.log(`Fallback expiries for NIFTY:`, fallback); // Debug
+        return fallback;
+      } else {
+        // Select two monthly expiries
+        const fallback = futureExpiries.filter((exp) => ['2025-05-29', '2025-06-26'].includes(exp)).slice(0, 2);
+        // console.log(`Fallback expiries for ${underlyingName}:`, fallback); // Debug
+        return fallback;
+      }
     }
-
-    return selectedExpiries;
+    return selectedExpiries.slice(0, 2);
   } catch (error) {
-    console.error(`Error fetching expiry dates for ${underlyingScrip}:${underlyingSeg}: ${error.message}`);
+    console.log(`Error fetching expiry dates for ${underlyingName}: ${error.message}`); // Debug
     return [];
   }
 }
 
-// Generate Rounded Strike Prices
 function generateStrikePrices(lastPrice, stepSize) {
-  const roundedPrice = Math.round(lastPrice / 100) * 100;
+  const roundedPrice = Math.round(lastPrice / stepSize) * stepSize;
   const strikePrices = [];
+  // 10 above, 10 below, 1 ATM (21 unique strikes)
   for (let i = -10; i <= 10; i++) {
     const strike = roundedPrice + i * stepSize;
     strikePrices.push(strike);
@@ -198,17 +202,12 @@ function generateStrikePrices(lastPrice, stepSize) {
   };
 }
 
-// Fetch Option Chain Data with Retry for 429 Errors
-async function fetchOptionChainData(underlyingScrip, underlyingSeg, expiry, stepSize, retries = 3) {
+async function fetchOptionChainData(underlyingScrip, underlyingSeg, expiry, stepSize, underlyingName, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const response = await axios.post(
         config.optionChainUrl,
-        {
-          UnderlyingScrip: underlyingScrip,
-          UnderlyingSeg: underlyingSeg,
-          Expiry: expiry,
-        },
+        { UnderlyingScrip: underlyingScrip, UnderlyingSeg: underlyingSeg, Expiry: expiry },
         {
           headers: {
             'access-token': config.accessToken,
@@ -217,124 +216,110 @@ async function fetchOptionChainData(underlyingScrip, underlyingSeg, expiry, step
           },
         }
       );
-
       const { data } = response.data;
       if (!data || !data.last_price || !data.oc) {
-        console.error(`Invalid option chain data for ${underlyingScrip}:${underlyingSeg}`);
         return null;
       }
-
       const { strikePrices } = generateStrikePrices(data.last_price, stepSize);
-
-      const strikeData = Object.keys(data.oc)
-        .filter((strike) => strikePrices.includes(parseFloat(strike)))
-        .flatMap((strike) => {
-          const strikePrice = parseFloat(strike);
-          const ceData = data.oc[strike].ce || {};
-          const peData = data.oc[strike].pe || {};
-          return [
-            {
-              strikePrice,
-              optionType: 'CE',
-              impliedVolatility: ceData.implied_volatility,
-              lastPrice: ceData.last_price,
-              oi: ceData.oi,
-              previousClosePrice: ceData.previous_close_price,
-              previousOi: ceData.previous_oi,
-              previousVolume: ceData.previous_volume,
-              volume: ceData.volume,
-            },
-            {
-              strikePrice,
-              optionType: 'PE',
-              impliedVolatility: peData.implied_volatility,
-              lastPrice: peData.last_price,
-              oi: peData.oi,
-              previousClosePrice: peData.previous_close_price,
-              previousOi: ceData.previous_oi,
-              previousVolume: ceData.previous_volume,
-              volume: ceData.volume,
-            },
-          ];
-        });
-
-      return {
-        lastPrice: data.last_price,
-        strikeData,
-      };
+      const strikeData = strikePrices.flatMap((strikePrice) => {
+        const strikeStr = strikePrice.toFixed(6);
+        const ceData = data.oc[strikeStr]?.ce || {};
+        const peData = data.oc[strikeStr]?.pe || {};
+        return [
+          {
+            strikePrice,
+            optionType: 'CE',
+            impliedVolatility: ceData.implied_volatility || 0,
+            lastPrice: ceData.last_price || 0,
+            oi: ceData.oi || 0,
+            previousClosePrice: ceData.previous_close_price || 0,
+            previousOi: ceData.previous_oi || 0,
+            previousVolume: ceData.previous_volume || 0,
+            volume: ceData.volume || 0,
+          },
+          {
+            strikePrice,
+            optionType: 'PE',
+            impliedVolatility: peData.implied_volatility || 0,
+            lastPrice: peData.last_price || 0,
+            oi: peData.oi || 0,
+            previousClosePrice: peData.previous_close_price || 0,
+            previousOi: peData.previous_oi || 0,
+            previousVolume: peData.previous_volume || 0,
+            volume: peData.volume || 0,
+          },
+        ];
+      });
+      return { lastPrice: data.last_price, strikeData };
     } catch (error) {
       if (error.response && error.response.status === 429 && attempt < retries) {
-        // console.warn(`Rate limit hit for ${underlyingScrip}:${underlyingSeg}, retrying (${attempt}/${retries}) after 5 seconds...`);
-        await delay(5000);
+        const backoff = Math.pow(2, attempt) * 5000; // 5s, 10s, 20s
+        await delay(backoff);
         continue;
       }
-      console.error(`Error fetching option chain data for ${underlyingScrip}:${underlyingSeg}: ${error.message}`);
+      console.error(`Error fetching option chain for ${underlyingName} (${underlyingScrip}:${underlyingSeg}), expiry ${expiry}: ${error.message}`);
       return null;
     }
   }
   return null;
 }
 
-// Save or Update Option Chain Data in MongoDB
 async function saveOptionChainData(underlyingName, underlyingScrip, underlyingSeg, expiry, data) {
   if (!data) return;
-
   try {
     const Model = modelMap[underlyingName];
     if (!Model) {
-      console.error(`No model found for ${underlyingName}`);
       return;
     }
-
     const timestamp = convertToIST(Date.now());
     const fetchDate = new Date().toISOString().split('T')[0];
-
     await Model.findOneAndUpdate(
-      { underlyingName, timestamp, expiry },
+      { underlyingName, timestamp, expiry, fetchDate },
       {
-        underlyingName,
-        underlyingScrip,
-        underlyingSeg,
-        expiry,
-        fetchDate,
-        timestamp,
-        lastPrice: data.lastPrice,
-        strikeData: data.strikeData,
-        createdAt: new Date(),
+        $set: {
+          underlyingName,
+          underlyingScrip,
+          underlyingSeg,
+          expiry,
+          fetchDate,
+          timestamp,
+          lastPrice: data.lastPrice,
+          strikeData: data.strikeData,
+          updatedAt: new Date(),
+        },
       },
       { upsert: true, new: true }
     );
-
-    // console.log(`Option chain data saved/updated for ${underlyingName} with expiry ${expiry} at ${timestamp}`);
+    console.log(`Option chain data saved for ${underlyingName}, expiry ${expiry} at ${timestamp}`);
   } catch (error) {
-    console.error(`Error saving option chain data for ${underlyingName}: ${error.message}`);
+    console.error(`Failed to save option chain data for ${underlyingName}: ${error.message}`);
   }
 }
 
-// Fetch and Save Data for All Underlyings
 async function fetchAndSaveAllUnderlyings() {
+  const today = new Date();
+  if (await isTradingHoliday(today)) {
+    return;
+  }
+  if (!isMarketOpen()) {
+    return;
+  }
+  console.log(`Market is open, fetching option chain data at ${convertToIST(today)}`);
   for (const { name, scrip, seg, stepSize } of config.underlyings) {
     const expiries = await fetchExpiryDates(scrip, seg, name);
     if (!expiries.length) {
-      console.warn(`Skipping ${name} due to no valid expiry dates`);
       continue;
     }
-
     for (const expiry of expiries) {
-      // console.log(`Fetching data for ${name} with expiry ${expiry}`);
-      const data = await fetchOptionChainData(scrip, seg, expiry, stepSize);
+      const data = await fetchOptionChainData(scrip, seg, expiry, stepSize, name);
       if (data) {
-        const { roundedPrice, strikePrices } = generateStrikePrices(data.lastPrice, stepSize);
-        // console.log(`Index: ${name}, Expiry: ${expiry}, Last Price: ${data.lastPrice}, Rounded Price: ${roundedPrice}`);
-        // console.log(`Strike Prices: ${strikePrices.join(', ')}`);
         await saveOptionChainData(name, scrip, seg, expiry, data);
       }
-      await delay(300);
+      await delay(6000); // Increased to avoid 429 errors
     }
   }
 }
 
-// Export necessary components
 export {
   optionChainSchema,
   NiftyOptionChain,

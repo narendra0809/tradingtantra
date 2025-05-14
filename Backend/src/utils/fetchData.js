@@ -34,10 +34,12 @@ export const fetchData = async (url, method, requestData = null) => {
     return { data: null, error: error.message };
   }
 };
-
-
 export const fetchHistoricalData = async (securityId, fromDate, toDate, i, interval = "5") => {
   try {
+    const formattedFromDate = fromDate.replace("T", " ").slice(0, 19);
+    const formattedToDate = toDate.replace("T", " ").slice(0, 19);
+
+
     const response = await axios({
       method: "POST",
       url: `${baseUri}/charts/intraday`,
@@ -50,23 +52,35 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
         exchangeSegment: "NSE_EQ",
         instrument: "EQUITY",
         interval: interval,
-        fromDate,
-        toDate,
+        oi: false,
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
       },
     });
 
-   
+    
+    if (!response.data || !response.data.timestamp || response.data.timestamp.length === 0) {
+      console.warn(`[API] Invalid or empty data for ${securityId} (${interval}-min)`);
+      return null;
+    }
+
+    // Validate that data is from the expected date range
+    const firstTimestamp = response.data.timestamp[0];
+    const lastTimestamp = response.data.timestamp[response.data.timestamp.length - 1];
+    const firstDate = new Date(firstTimestamp * 1000).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+    const lastDate = new Date(lastTimestamp * 1000).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+    
+    if (!firstDate.includes("14/5/2025") && !firstDate.includes("13/5/2025")) {
+      console.warn(`[API] Data for ${securityId} (${interval}-min) has unexpected start date: ${firstDate}`);
+      return null;
+    }
+
     return response.data;
   } catch (error) {
-    console.error(`❌ [API] Error fetching ${interval}-min data for ${securityId}:`, {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    });
+    console.error(`[API] Error (${interval}-min) for ${securityId}:`, error.response?.data || error.message);
     return null;
   }
 };
-
 
 export const calculateTurnover = (historicalData) => {
   if (!historicalData || typeof historicalData !== "object") {

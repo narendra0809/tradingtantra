@@ -7,6 +7,7 @@ const tenMinCandlesSchema = new mongoose.Schema({
     high: [Number],
     low: [Number],
     close: [Number],
+
 });
 
 const TenMinCandles = mongoose.model("TenMinCandles", tenMinCandlesSchema);

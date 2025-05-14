@@ -63,38 +63,40 @@ app.use("/api", feedbackRoute);
 app.use("/api", isSubscribedRoute);
 app.use("/api", swingTradeRoutes);
 
-// Chain Job - Scheduled every 3 minutes during market hours (9:15am to 3:30pm IST)
-const startChainJob = () => {
-  cron.schedule(
-    "*/3 9-15 * * 1-5", // Every 3 mins from 9 AM to 3 PM, Mon-Fri
-    async () => {
-      const now = new Date();
+const cronExpressions = [
+  // '15-59/3 9 * * 1-5',   // 9:15 AM to 9:57 AM
+  // '0-59/3 10-14 * * 1-5', // 10:00 AM to 2:57 PM
+  // '0-30/3 15 * * 1-5',    // 3:00 PM to 3:30 PM
+  "*/3 * * * *" // Every minute for testing
+];
 
-      // Check if within 9:15 AM to 3:30 PM
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const isWithinMarketTime =
-        (hours === 9 && minutes >= 15) ||
-        (hours > 9 && hours < 15) ||
-        (hours === 15 && minutes <= 30);
-
-      if (!isWithinMarketTime) return;
-
-      const isHoliday = await isTradingHoliday(now);
-      if (isHoliday) {
-        console.log(`Skipping chain data fetch at ${convertToIST(now)} due to NSE trading holiday`);
-        return;
-      }
-
-      console.log(`Scheduled chain data fetch at ${convertToIST(now)}`);
-      await fetchAndSaveAllUnderlyings();
-      console.log("Scheduled chain data fetch completed");
-    },
-    {
-      timezone: "Asia/Kolkata",
+async function runScheduledJob() {
+  try {
+    const now = new Date();
+    console.log(`Cron triggered at ${convertToIST(now)}`);
+    const isHoliday = await isTradingHoliday(now);
+    if (isHoliday) {
+      console.log(`Skipping chain data fetch at ${convertToIST(now)} due to NSE trading holiday`);
+      return;
     }
-  );
+    await fetchAndSaveAllUnderlyings();
+    console.log(`Chain data fetch completed at ${convertToIST(now)}`);
+  } catch (error) {
+    console.error(`Error in chain data fetch cron job at ${convertToIST(Date.now())}:`, error.message);
+  }
+}
+
+const startChainJob = () => {
+  console.log("Starting option chain cron job");
+  cronExpressions.forEach(expr => {
+    cron.schedule(expr, runScheduledJob, { timezone: 'Asia/Kolkata' });
+  });
 };
+
+// Register cron jobs
+cronExpressions.forEach(expr => {
+  cron.schedule(expr, runScheduledJob, { timezone: 'Asia/Kolkata' });
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;
@@ -102,7 +104,7 @@ connectDB()
   .then(() => {
     server.listen(PORT, () => {
       console.log("Server started on port", PORT);
-      startChainJob(); // ✅ Start the chain job after server is up
+      startChainJob();
     });
   })
   .catch((error) => {
