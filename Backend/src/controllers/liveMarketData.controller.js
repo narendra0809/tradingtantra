@@ -335,62 +335,51 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   return tenMinCandles;
 };
 
-const getData = async (fromDate, toDate) => {
+const getData = async () => {
   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
   const securityIds = stocks.map((stock) => stock.SECURITY_ID.trim().toString());
 
-  //console.log(`[Main] Starting getData with fromDate: ${fromDate}, toDate: ${toDate}`);
-
-  let normalizedFromDate = fromDate;
-  let normalizedToDate = toDate;
-
-  if (!fromDate.includes(" ")) {
-    normalizedFromDate = fromDate.includes("T") ? fromDate : `${fromDate} 09:30:00`;
-   // console.log(`[Main] Normalized fromDate to ${normalizedFromDate}`);
-  }
-  if (!toDate.includes(" ")) {
-    normalizedToDate = toDate.includes("T") ? toDate : `${toDate} 15:30:00`;
-    //console.log(`[Main] Normalized toDate to ${normalizedToDate}`);
-  }
-
-  normalizedFromDate = normalizedFromDate.replace("T", " ");
-  normalizedToDate = normalizedToDate.replace("T", " ");
+  console.log(`[Main] Starting getData`);
 
   try {
+    // Get current date and time (May 15, 2025, assuming it's a trading day)
+    const currentTime = new Date(); // Current date and time in IST
+    const currentDateStr = currentTime.toISOString().slice(0, 10); // e.g., "2025-05-15"
+    const toDate = `${currentDateStr} 15:30:00`; // Set toDate to end of trading day
+    const normalizedToDate = toDate;
+
+    // Get previous trading day for fromDate
+    const prevTradingDay = await getPreviousTradingDay(currentTime);
+    const prevDateStr = prevTradingDay.toISOString().slice(0, 10); // e.g., "2025-05-14"
+    const fromDate = `${prevDateStr} 09:30:00`; // Set fromDate to start of previous trading day
+    const normalizedFromDate = fromDate;
+
+    console.log(`[Main] fromDate: ${normalizedFromDate}, toDate: ${normalizedToDate}`);
+
     // Validate date range
     const fromDateObj = new Date(normalizedFromDate.replace(" ", "T") + "+05:30");
     const toDateObj = new Date(normalizedToDate.replace(" ", "T") + "+05:30");
     const tradingStart = new Date(`${normalizedFromDate.split(" ")[0]}T09:15:00+05:30`);
-    const tradingEnd = new Date(`${normalizedFromDate.split(" ")[0]}T15:30:00+05:30`);
-
-
+    const tradingEnd = new Date(`${normalizedToDate.split(" ")[0]}T15:30:00+05:30`);
 
     if (fromDateObj < tradingStart || toDateObj > tradingEnd) {
       console.warn(`[Validation] Date range ${normalizedFromDate} to ${normalizedToDate} is outside NSE trading hours`);
       throw new Error("Date range outside NSE trading hours");
     }
 
-    const toDateStr = toDateObj.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
-    if (!toDateStr.includes("14/5/2025")) {
-      console.warn(`[Validation] toDate must be 14/5/2025, got ${toDateStr}`);
-      throw new Error("Invalid toDate");
-    }
-
-    // Get current time and format it
-    const currentTime = new Date(); // 5:40 PM IST, May 14, 2025
+    // Format current time
     const formattedCurrentTime = formatTimestamp(Math.floor(currentTime.getTime() / 1000));
-   
 
-    // Get previous trading day
-    const prevTradingDay = await getPreviousTradingDay(toDateObj);
-    const prevDateStr = prevTradingDay.toISOString().slice(0, 10).replace(/-/g, "-");
-    const prevFromDate = `${prevDateStr} 09:30:00`;
-    const prevToDate = `${prevDateStr} 15:30:00`;
+    // Get previous trading day for historical data (if needed)
+    const prevTradingDayForFetch = await getPreviousTradingDay(toDateObj);
+    const prevDateStrForFetch = prevTradingDayForFetch.toISOString().slice(0, 10).replace(/-/g, "-");
+    const prevFromDate = `${prevDateStrForFetch} 09:30:00`;
+    const prevToDate = `${prevDateStrForFetch} 15:30:00`;
 
     // Process 5-Minute and 10-Minute Candles
     for (let i = 0; i < securityIds.length; i++) {
       const id = securityIds[i];
-      //console.log(`[Main] Processing 5-min and 10-min candles for ${id} (${i + 1}/${securityIds.length})`);
+      console.log(`[Main] Processing 5-min and 10-min candles for ${id} (${i + 1}/${securityIds.length})`);
 
       let allCandles = [];
       let completeCandles = [];
@@ -398,7 +387,7 @@ const getData = async (fromDate, toDate) => {
       // Fetch today's 5-minute data
       let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "5");
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        //console.log(`[API] Raw 5-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
+        console.log(`[API] Raw 5-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
         allCandles.push(...rawData.timestamp.map((ts, idx) => ({
           timestamp: ts,
           open: rawData.open[idx],
@@ -416,7 +405,7 @@ const getData = async (fromDate, toDate) => {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
         const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
         if (minuteDiff < 5) {
-         // console.log(`[Main] Skipping incomplete 5-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
+          console.log(`[Main] Skipping incomplete 5-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
           allCandles.pop();
         }
       }
@@ -425,10 +414,10 @@ const getData = async (fromDate, toDate) => {
 
       // If fewer than 12 complete candles, fetch previous day's data
       if (completeCandles.length < 12) {
-        //console.log(`[Main] Only ${completeCandles.length} complete 5-min candles for ${id}, fetching previous day`);
+        console.log(`[Main] Only ${completeCandles.length} complete 5-min candles for ${id}, fetching previous day`);
         rawData = await fetchHistoricalData(id, prevFromDate, prevToDate, i, "5");
         if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-          //console.log(`[API] Raw 5-min data for ${id} (previous day, ${rawData.timestamp.length} candles)`);
+          console.log(`[API] Raw 5-min data for ${id} (previous day, ${rawData.timestamp.length} candles)`);
           allCandles.unshift(...rawData.timestamp.map((ts, idx) => ({
             timestamp: ts,
             open: rawData.open[idx],
@@ -454,7 +443,7 @@ const getData = async (fromDate, toDate) => {
           close: completeCandles.map((c) => c.close),
         };
 
-        //console.log(`[API] Formatted 5-min data for ${id} (last 12 candles, ending at ${formattedData.timestamp[11]})`);
+        console.log(`[API] Formatted 5-min data for ${id} (last 12 candles, ending at ${formattedData.timestamp[11]})`);
 
         try {
           await FiveMinCandles.updateOne(
@@ -487,7 +476,7 @@ const getData = async (fromDate, toDate) => {
             close: tenMinCandles.map((c) => c.close),
           };
 
-          //console.log(`[Merge] Formatted 10-min data for ${id} (last 5 candles, ending at ${formattedTenMinData.timestamp[4]})`);
+          console.log(`[Merge] Formatted 10-min data for ${id} (last 5 candles, ending at ${formattedTenMinData.timestamp[4]})`);
 
           try {
             await TenMinCandles.updateOne(
@@ -518,7 +507,7 @@ const getData = async (fromDate, toDate) => {
     // Process 15-Minute Candles
     for (let i = 0; i < securityIds.length; i++) {
       const id = securityIds[i];
-     // console.log(`[Main] Processing 15-min candles for ${id} (${i + 1}/${securityIds.length})`);
+      console.log(`[Main] Processing 15-min candles for ${id} (${i + 1}/${securityIds.length})`);
 
       let allCandles = [];
       let completeCandles = [];
@@ -526,7 +515,7 @@ const getData = async (fromDate, toDate) => {
       // Fetch today's 15-minute data
       let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "15");
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        //console.log(`[API] Raw 15-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
+        console.log(`[API] Raw 15-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
         allCandles.push(...rawData.timestamp.map((ts, idx) => ({
           timestamp: ts,
           open: rawData.open[idx],
@@ -544,7 +533,7 @@ const getData = async (fromDate, toDate) => {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
         const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
         if (minuteDiff < 15) {
-          //console.log(`[Main] Skipping incomplete 15-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
+          console.log(`[Main] Skipping incomplete 15-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
           allCandles.pop();
         }
       }
@@ -553,10 +542,10 @@ const getData = async (fromDate, toDate) => {
 
       // If fewer than 5 complete candles, fetch previous day's data
       if (completeCandles.length < 5) {
-        //console.log(`[Main] Only ${completeCandles.length} complete 15-min candles for ${id}, fetching previous day`);
+        console.log(`[Main] Only ${completeCandles.length} complete 15-min candles for ${id}, fetching previous day`);
         rawData = await fetchHistoricalData(id, prevFromDate, prevToDate, i, "15");
         if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-          //console.log(`[API] Raw 15-min data for ${id} (previous day, ${rawData.timestamp.length} candles)`);
+          console.log(`[API] Raw 15-min data for ${id} (previous day, ${rawData.timestamp.length} candles)`);
           allCandles.unshift(...rawData.timestamp.map((ts, idx) => ({
             timestamp: ts,
             open: rawData.open[idx],
@@ -582,7 +571,7 @@ const getData = async (fromDate, toDate) => {
           close: completeCandles.map((c) => c.close),
         };
 
-        //console.log(`[API] Formatted 15-min data for ${id} (last 5 candles, ending at ${formattedData.timestamp[4]})`);
+        console.log(`[API] Formatted 15-min data for ${id} (last 5 candles, ending at ${formattedData.timestamp[4]})`);
 
         try {
           await FifteenMinCandles.updateOne(
