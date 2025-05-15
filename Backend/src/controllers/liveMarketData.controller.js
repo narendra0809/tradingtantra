@@ -189,6 +189,7 @@ async function startWebSocket() {
     setTimeout(startWebSocket, 4000);
   });
 }
+// Format timestamp (unchanged)
 const formatTimestamp = (unixTimestamp) => {
   const date = new Date(unixTimestamp * 1000);
   const options = {
@@ -205,21 +206,19 @@ const formatTimestamp = (unixTimestamp) => {
     .toLocaleString("en-IN", options)
     .replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [AP]M)/, "$1/$2/$3, $4")
     .toLowerCase();
- 
   return formatted;
 };
 
-// Calculate minute difference between two timestamps
+// Calculate minute difference (unchanged)
 const getMinuteDifference = (currentTime, candleTimestamp) => {
   const current = new Date(currentTime);
   const candle = new Date(candleTimestamp * 1000);
   const diffMs = current - candle;
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  
   return diffMinutes;
 };
 
-// Get previous trading day, skipping weekends and holidays
+// Get previous trading day (unchanged)
 const getPreviousTradingDay = async (date) => {
   let prevDay = new Date(date);
   prevDay.setDate(prevDay.getDate() - 1);
@@ -242,7 +241,7 @@ const getPreviousTradingDay = async (date) => {
   }
 };
 
-// Helper function to merge 5-minute candles into 10-minute candles
+// Updated: Helper function to merge 5-minute candles into 10-minute candles
 const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   let tenMinCandles = [];
   let allFiveMinCandles = [...fiveMinCandles];
@@ -260,64 +259,63 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
   }
 
+  // Sort candles by timestamp
+  allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+
+  // Check for gaps in 5-minute candles
+  for (let i = 1; i < allFiveMinCandles.length; i++) {
+    const prevCandle = allFiveMinCandles[i - 1];
+    const currCandle = allFiveMinCandles[i];
+    const prevDate = new Date(prevCandle.timestamp * 1000);
+    const currDate = new Date(currCandle.timestamp * 1000);
+    const timeDiffMinutes = (currDate - prevDate) / (1000 * 60);
+    if (timeDiffMinutes > 5) {
+      console.error(`[Merge] Invalid gap for ${securityId} between ${formatTimestamp(prevCandle.timestamp)} and ${formatTimestamp(currCandle.timestamp)}: ${timeDiffMinutes} minutes`);
+      return null; // Abort merging if gaps exist
+    }
+  }
+
   // Check if the last 5-minute candle is complete
   if (allFiveMinCandles.length > 0) {
     const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
-    const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
-    if (minuteDiff < 5) {
-
+    const lastCandleDate = new Date(lastCandleTimestamp * 1000);
+    const expectedNextCandle = new Date(lastCandleDate.getTime() + 5 * 60 * 1000);
+    const timeToNextCandle = (expectedNextCandle - currentTime) / (1000 * 60);
+    if (timeToNextCandle > 0) {
+      console.log(`[Merge] Last 5-min candle for ${securityId} at ${formatTimestamp(lastCandleTimestamp)} is incomplete (next candle expected at ${expectedNextCandle.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })})`);
       allFiveMinCandles.pop();
     }
   }
 
-  // Sort candles by timestamp to ensure chronological order
-  allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+  // Ensure enough candles for merging
+  if (allFiveMinCandles.length < 10) {
+    console.warn(`[Merge] Insufficient 5-min candles for ${securityId} to form 5 10-min candles: ${allFiveMinCandles.length}/10`);
+    return null;
+  }
 
   // Merge candles for 10-minute intervals (:15+:20, :25+:30, :35+:40, :45+:50, :55+:00)
   for (let i = 0; i < allFiveMinCandles.length - 1; i++) {
     const firstCandle = allFiveMinCandles[i];
-    const firstCandleDate = new Date(formatTimestamp(firstCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
+    const firstCandleDate = new Date(firstCandle.timestamp * 1000);
     const firstMinutes = firstCandleDate.getMinutes();
 
-    // Check if first candle is at :15, :25, :35, :45, or :55
     if ([15, 25, 35, 45, 55].includes(firstMinutes)) {
       const secondCandle = allFiveMinCandles[i + 1];
       if (secondCandle) {
-        const secondCandleDate = new Date(formatTimestamp(secondCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
+        const secondCandleDate = new Date(secondCandle.timestamp * 1000);
         const timeDiffMinutes = (secondCandleDate - firstCandleDate) / (1000 * 60);
 
-        // Ensure second candle is exactly 5 minutes later
         if (timeDiffMinutes === 5) {
           tenMinCandles.push({
             timestamp: firstCandle.timestamp,
             open: firstCandle.open,
             high: Math.max(firstCandle.high, secondCandle.high),
-            low: Math.min(firstCandle.low, secondCandle.high),
+            low: Math.min(firstCandle.low, secondCandle.low),
             close: secondCandle.close,
           });
-
-          i++; // Skip the second candle since it's used
+          i++; // Skip the second candle
         }
       }
-    }
-  }
-
-  // Handle the last complete candle as a standalone 10-minute candle
-  if (allFiveMinCandles.length > 0) {
-    const lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
-    const lastCandleDate = new Date(formatTimestamp(lastCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
-    const lastMinutes = lastCandleDate.getMinutes();
-
-    // Add last candle as standalone if complete and not already merged
-    if (!tenMinCandles.some(c => c.timestamp === lastCandle.timestamp)) {
-      tenMinCandles.push({
-        timestamp: lastCandle.timestamp,
-        open: lastCandle.open,
-        high: lastCandle.high,
-        low: lastCandle.low,
-        close: lastCandle.close,
-      });
-      //console.log(`[Merge] Added standalone 10-min candle for ${securityId} at ${formatTimestamp(lastCandle.timestamp)}`);
     }
   }
 
@@ -335,6 +333,7 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   return tenMinCandles;
 };
 
+// Updated: Main function to fetch and process data
 const getData = async () => {
   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
   const securityIds = stocks.map((stock) => stock.SECURITY_ID.trim().toString());
@@ -342,16 +341,16 @@ const getData = async () => {
   console.log(`[Main] Starting getData`);
 
   try {
-    // Get current date and time (May 15, 2025, assuming it's a trading day)
-    const currentTime = new Date(); // Current date and time in IST
-    const currentDateStr = currentTime.toISOString().slice(0, 10); // e.g., "2025-05-15"
-    const toDate = `${currentDateStr} 15:30:00`; // Set toDate to end of trading day
+    // Get current date and time (3:01 PM IST, May 15, 2025)
+    const currentTime = new Date();
+    const currentDateStr = currentTime.toISOString().slice(0, 10); // "2025-05-15"
+    const toDate = `${currentDateStr} 15:30:00`; // End of trading day
     const normalizedToDate = toDate;
 
     // Get previous trading day for fromDate
     const prevTradingDay = await getPreviousTradingDay(currentTime);
     const prevDateStr = prevTradingDay.toISOString().slice(0, 10); // e.g., "2025-05-14"
-    const fromDate = `${prevDateStr} 09:30:00`; // Set fromDate to start of previous trading day
+    const fromDate = `${prevDateStr} 09:15:00`; // Start of previous trading day
     const normalizedFromDate = fromDate;
 
     console.log(`[Main] fromDate: ${normalizedFromDate}, toDate: ${normalizedToDate}`);
@@ -370,10 +369,10 @@ const getData = async () => {
     // Format current time
     const formattedCurrentTime = formatTimestamp(Math.floor(currentTime.getTime() / 1000));
 
-    // Get previous trading day for historical data (if needed)
-    const prevTradingDayForFetch = await getPreviousTradingDay(toDateObj);
-    const prevDateStrForFetch = prevTradingDayForFetch.toISOString().slice(0, 10).replace(/-/g, "-");
-    const prevFromDate = `${prevDateStrForFetch} 09:30:00`;
+    // Get previous trading day for historical data
+    const prevTradingDayForFetch = await getPreviousTradingDay(new Date(currentDateStr));
+    const prevDateStrForFetch = prevTradingDayForFetch.toISOString().slice(0, 10);
+    const prevFromDate = `${prevDateStrForFetch} 09:15:00`;
     const prevToDate = `${prevDateStrForFetch} 15:30:00`;
 
     // Process 5-Minute and 10-Minute Candles
@@ -384,10 +383,14 @@ const getData = async () => {
       let allCandles = [];
       let completeCandles = [];
 
-      // Fetch today's 5-minute data
+      // Clear existing data to avoid stale entries
+      await FiveMinCandles.deleteOne({ securityId: id });
+      await TenMinCandles.deleteOne({ securityId: id });
+
+      // Fetch 5-minute data
       let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "5");
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        console.log(`[API] Raw 5-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
+        console.log(`[API] Raw 5-min data for ${id} (${rawData.timestamp.length} candles)`);
         allCandles.push(...rawData.timestamp.map((ts, idx) => ({
           timestamp: ts,
           open: rawData.open[idx],
@@ -395,16 +398,30 @@ const getData = async () => {
           low: rawData.low[idx],
           close: rawData.close[idx],
         })));
+
+        // Validate candle continuity
+        for (let j = 1; j < allCandles.length; j++) {
+          const prevCandle = allCandles[j - 1];
+          const currCandle = allCandles[j];
+          const timeDiffMinutes = (currCandle.timestamp - prevCandle.timestamp) / 60;
+          if (timeDiffMinutes > 5) {
+            console.error(`[API] Invalid gap in 5-min data for ${id} between ${formatTimestamp(prevCandle.timestamp)} and ${formatTimestamp(currCandle.timestamp)}: ${timeDiffMinutes} minutes`);
+            allCandles = []; // Discard data
+            break;
+          }
+        }
       } else {
-        console.warn(`[API] No valid 5-min data for ${id} (today)`);
+        console.warn(`[API] No valid 5-min data for ${id}`);
         continue;
       }
 
-      // Check if last candle is complete (≥ 5 minutes difference)
+      // Check completeness of last candle
       if (allCandles.length > 0) {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
-        const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
-        if (minuteDiff < 5) {
+        const lastCandleDate = new Date(lastCandleTimestamp * 1000);
+        const expectedNextCandle = new Date(lastCandleDate.getTime() + 5 * 60 * 1000);
+        const timeToNextCandle = (expectedNextCandle - currentTime) / (1000 * 60);
+        if (timeToNextCandle > 0) {
           console.log(`[Main] Skipping incomplete 5-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
           allCandles.pop();
         }
@@ -425,6 +442,18 @@ const getData = async () => {
             low: rawData.low[idx],
             close: rawData.close[idx],
           })));
+
+          // Validate continuity again
+          for (let j = 1; j < allCandles.length; j++) {
+            const prevCandle = allCandles[j - 1];
+            const currCandle = allCandles[j];
+            const timeDiffMinutes = (currCandle.timestamp - prevCandle.timestamp) / 60;
+            if (timeDiffMinutes > 5) {
+              console.error(`[API] Invalid gap in 5-min data for ${id} (previous day) between ${formatTimestamp(prevCandle.timestamp)} and ${formatTimestamp(currCandle.timestamp)}: ${timeDiffMinutes} minutes`);
+              allCandles = [];
+              break;
+            }
+          }
           completeCandles = allCandles;
         } else {
           console.warn(`[API] No valid 5-min data for ${id} (previous day)`);
@@ -496,12 +525,14 @@ const getData = async () => {
           } catch (error) {
             console.error(`[MongoDB] Error saving 10-min data for ${id}:`, error.message);
           }
+        } else {
+          console.warn(`[Main] Failed to generate 10-min candles for ${id}`);
         }
       } else {
         console.warn(`[Main] Insufficient complete 5-min candles for ${id}: ${completeCandles.length}/12`);
       }
 
-      await delay(300);
+      await delay(500);
     }
 
     // Process 15-Minute Candles
@@ -512,10 +543,13 @@ const getData = async () => {
       let allCandles = [];
       let completeCandles = [];
 
-      // Fetch today's 15-minute data
+      // Clear existing data
+      await FifteenMinCandles.deleteOne({ securityId: id });
+
+      // Fetch 15-minute data
       let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "15");
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        console.log(`[API] Raw 15-min data for ${id} (today, ${rawData.timestamp.length} candles)`);
+        console.log(`[API] Raw 15-min data for ${id} (${rawData.timestamp.length} candles)`);
         allCandles.push(...rawData.timestamp.map((ts, idx) => ({
           timestamp: ts,
           open: rawData.open[idx],
@@ -523,16 +557,30 @@ const getData = async () => {
           low: rawData.low[idx],
           close: rawData.close[idx],
         })));
+
+        // Validate continuity
+        for (let j = 1; j < allCandles.length; j++) {
+          const prevCandle = allCandles[j - 1];
+          const currCandle = allCandles[j];
+          const timeDiffMinutes = (currCandle.timestamp - prevCandle.timestamp) / 60;
+          if (timeDiffMinutes > 15) {
+            console.error(`[API] Invalid gap in 15-min data for ${id} between ${formatTimestamp(prevCandle.timestamp)} and ${formatTimestamp(currCandle.timestamp)}: ${timeDiffMinutes} minutes`);
+            allCandles = [];
+            break;
+          }
+        }
       } else {
-        console.warn(`[API] No valid 15-min data for ${id} (today)`);
+        console.warn(`[API] No valid 15-min data for ${id}`);
         continue;
       }
 
-      // Check if last candle is complete (≥ 15 minutes difference)
+      // Check completeness of last candle
       if (allCandles.length > 0) {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
-        const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
-        if (minuteDiff < 15) {
+        const lastCandleDate = new Date(lastCandleTimestamp * 1000);
+        const expectedNextCandle = new Date(lastCandleDate.getTime() + 15 * 60 * 1000);
+        const timeToNextCandle = (expectedNextCandle - currentTime) / (1000 * 60);
+        if (timeToNextCandle > 0) {
           console.log(`[Main] Skipping incomplete 15-min candle for ${id}: ${formatTimestamp(lastCandleTimestamp)}`);
           allCandles.pop();
         }
@@ -553,6 +601,18 @@ const getData = async () => {
             low: rawData.low[idx],
             close: rawData.close[idx],
           })));
+
+          // Validate continuity
+          for (let j = 1; j < allCandles.length; j++) {
+            const prevCandle = allCandles[j - 1];
+            const currCandle = allCandles[j];
+            const timeDiffMinutes = (currCandle.timestamp - prevCandle.timestamp) / 60;
+            if (timeDiffMinutes > 15) {
+              console.error(`[API] Invalid gap in 15-min data for ${id} (previous day) between ${formatTimestamp(prevCandle.timestamp)} and ${formatTimestamp(currCandle.timestamp)}: ${timeDiffMinutes} minutes`);
+              allCandles = [];
+              break;
+            }
+          }
           completeCandles = allCandles;
         } else {
           console.warn(`[API] No valid 15-min data for ${id} (previous day)`);
@@ -896,14 +956,7 @@ const AIMomentumCatcherTenMins = async (req, res) => {
         timestamp: data.timestamp[data.timestamp.length - 2],
       };
 
-      // Verify timestamps (3:15 PM and 3:25 PM)
-      if (
-        lastCandle.timestamp !== "14/05/2025, 03:25:00 pm" ||
-        secondLastCandle.timestamp !== "14/05/2025, 03:15:00 pm"
-      ) {
-        console.warn(`Invalid candle timestamps for Security ID: ${securityId}`);
-        continue;
-      }
+      
 
       // Analyze last two 10-min periods
       const currentBody = Math.abs(lastCandle.close - lastCandle.open);
