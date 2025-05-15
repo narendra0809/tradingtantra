@@ -12,18 +12,19 @@ const DailyRangeBreakoutSchema = new mongoose.Schema(
     stockName: { type: String, required: true },
     lastTradePrice: { type: Number, required: true },
     percentageChange: { type: String, required: true },
-    firstCandleLow: { type: Number, required: true },  // Fixed typo
-    firstCandleHigh: { type: Number, required: true }, // Fixed typo
-    currentCandleClose: { type: Number, required: true }, // Fixed typo
-    firstCandleRange: { type: String, required: true }, // Fixed typo
+    firstCandleLow: { type: Number, required: true },
+    firstCandleHigh: { type: Number, required: true },
+    currentCandleClose: { type: Number, required: true },
+    firstCandleRange: { type: String, required: true },
     timestamp: { type: String, required: true },
+    date: { type: Date, required: true }, // Added date field
   },
   { timestamps: true }
 );
 
-const DailyRangeBreakouts = mongoose.model(
-  "DailyRangeBreakouts",
-  DailyRangeBreakoutSchema
-);
+// Create an index for efficient querying and to avoid duplicates
+DailyRangeBreakoutSchema.index({ securityId: 1, date: 1, type: 1 }, { unique: true });
+
+const DailyRangeBreakouts = mongoose.model("DailyRangeBreakouts", DailyRangeBreakoutSchema);
 
 export default DailyRangeBreakouts;
