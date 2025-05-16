@@ -17,6 +17,7 @@ import stocksRoutes from "./src/routes/stock.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
+import compression from "compression";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
 import { getSocketInstance, initializeServer } from "./src/config/socket.js";
 import "./src/jobs/workers/FiveMinData.js";
@@ -25,7 +26,7 @@ import "./src/jobs/liveMarket.job.js";
 import "./src/jobs/AfterMarket.job.js";
 import "./src/jobs/holiday.job.js";
 import "./src/jobs/FiiDiiJob.js";
-
+import optionClockRoutes from "./src/routes/optionClock.js";
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
@@ -49,13 +50,14 @@ app.use(
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
+app.use(compression());
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api", stocksRoutes);
 app.use("/api", feedbackRoute);
 app.use("/api", isSubscribedRoute);
 app.use("/api", swingTradeRoutes);
+app.use("/api", optionClockRoutes);
 
 // Add this before the server starts
 app.get('/api/option-chain/trigger', async (req, res) => {

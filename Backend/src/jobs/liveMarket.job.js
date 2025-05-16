@@ -56,7 +56,7 @@ const runMarketTask = async () => {
     hours < 9 ||
     (hours === 9 && minutes < 15) ||
     hours > 15 ||
-    (hours === 15 && minutes > 30)
+    (hours === 15 && minutes > 35)
   ) {
     console.log(`[${now.toISO()}] Outside market hours (9:15–3:30). Skipping.`);
     return;
@@ -106,7 +106,7 @@ const initializeTask = async () => {
     hours < 9 ||
     (hours === 9 && minutes < 15) ||
     hours > 15 ||
-    (hours === 15 && minutes > 30)
+    (hours === 15 && minutes > 35)
   ) {
     console.log(`[${now.toISO()}] Startup: Outside market hours. Skipping.`);
     return;

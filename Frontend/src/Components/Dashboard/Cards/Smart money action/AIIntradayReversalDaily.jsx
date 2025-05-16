@@ -205,15 +205,15 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                           </td>
                           <td className="text-right text-sm">
                             <span
-                              className={`px-2 py-[2px] rounded-3xl  text-white ${stock?.type === "Bullish Reversal"
-                                  ? "bg-green-600"
-                                  : "bg-red-600"
-                                }`}
-                            >
-                              {stock?.type === "Bullish Reversal"
-                                ? "Bullish"
-                                : "Bearish"}
-                            </span>
+  className={`px-2 py-[2px] rounded-3xl text-white ${
+    stock?.type?.toLowerCase().includes("bullish")
+      ? "bg-green-600"
+      : "bg-red-600"
+  }`}
+>
+  {stock?.type}
+</span>
+
                           </td>
                         </tr>
                       ))

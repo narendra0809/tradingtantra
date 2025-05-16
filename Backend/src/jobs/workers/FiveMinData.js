@@ -23,7 +23,7 @@ const isMarketTime = () => {
     hour < 9 ||
     (hour === 9 && minute < 15) ||
     hour > 15 ||
-    (hour === 15 && minute > 30)
+    (hour === 15 && minute > 40)
   ) {
     return false;
   }

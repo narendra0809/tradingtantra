@@ -39,7 +39,6 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
     const formattedFromDate = fromDate.replace("T", " ").slice(0, 19);
     const formattedToDate = toDate.replace("T", " ").slice(0, 19);
 
-
     const response = await axios({
       method: "POST",
       url: `${baseUri}/charts/intraday`,
@@ -58,7 +57,6 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
       },
     });
 
-    
     if (!response.data || !response.data.timestamp || response.data.timestamp.length === 0) {
       console.warn(`[API] Invalid or empty data for ${securityId} (${interval}-min)`);
       return null;
@@ -69,9 +67,11 @@ export const fetchHistoricalData = async (securityId, fromDate, toDate, i, inter
     const lastTimestamp = response.data.timestamp[response.data.timestamp.length - 1];
     const firstDate = new Date(firstTimestamp * 1000).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
     const lastDate = new Date(lastTimestamp * 1000).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
-    
-    if (!firstDate.includes("14/5/2025") && !firstDate.includes("13/5/2025")) {
-      console.warn(`[API] Data for ${securityId} (${interval}-min) has unexpected start date: ${firstDate}`);
+    const expectedFromDate = new Date(fromDate).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+    const expectedToDate = new Date(toDate).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
+
+    if (!firstDate.includes(expectedFromDate.split("/")[2]) && !lastDate.includes(expectedToDate.split("/")[2])) {
+      console.warn(`[API] Data for ${securityId} (${interval}-min) has unexpected date range: ${firstDate} to ${lastDate}`);
       return null;
     }
 
