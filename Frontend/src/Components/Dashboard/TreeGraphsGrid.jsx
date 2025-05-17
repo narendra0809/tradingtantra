@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
-import TreemapChart from "./TreemapChart";
-import Loader from "../Loader";
+import React, { useEffect, useState, Suspense } from "react";
+
+// Lazy load components
+const TreemapChart = React.lazy(() => import("./TreemapChart"));
+const Loader = React.lazy(() => import("../Loader"));
 
 const TreeGrpahsGrid = ({ data, loading }) => {
   const graphTitles = [
@@ -29,46 +31,31 @@ const TreeGrpahsGrid = ({ data, loading }) => {
     setSectorWiseData(data.sectorWiseData);
   }, [data]);
 
-  // console.log("sec....", sectorWiseData);
-
   return (
     <>
       <div className="lg:block hidden">
         <div className="parent  ">
-          {Object.entries(sectorWiseData || {}).map(
-            ([sector, values], index) => (
-              <div
-                key={index}
-                className={`${
-                  graphTitles[index % graphTitles.length]?.class
-                } w-full h-full mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
-              >
-                <div className="w-full flex flex-col dark:bg-db-primary bg-db-secondary-light rounded-md overflow-hidden">
-                  <h1 className="text-base px-2.5">{sector}</h1>
-                  <div className="flex-grow w-full">
-                    {loading ? <Loader /> : <TreemapChart data={values.slice(0, 10)} />}
+          <Suspense fallback={<div>Loading...</div>}>
+            {Object.entries(sectorWiseData || {}).map(
+              ([sector, values], index) => (
+                <div
+                  key={index}
+                  className={`${
+                    graphTitles[index % graphTitles.length]?.class
+                  } w-full h-full mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
+                >
+                  <div className="w-full flex flex-col dark:bg-db-primary bg-db-secondary-light rounded-md overflow-hidden">
+                    <h1 className="text-base px-2.5">{sector}</h1>
+                    <div className="flex-grow w-full">
+                      {loading ? <Loader /> : <TreemapChart data={values.slice(0, 10)} />}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          )}
+              )
+            )}
+          </Suspense>
         </div>{" "}
       </div>
-      {/* <div className="lg:hidden  flex flex-col   ">
-        {graphTitles.map((graphTitle, index) => (
-          <div
-            key={index}
-            className={` w-full sm:h-[400px] h-[300px]  mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
-          >
-            <div className=" w-full  flex flex-col dark:bg-db-primary bg-db-secondary-light rounded-md overflow-hidden ">
-              <h1 className="text-base px-2.5 "> {graphTitle.title} </h1>
-              <div className="flex-grow w-full">
-                <TreemapChart data={sectorWiseData} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div> */}
     </>
   );
 };

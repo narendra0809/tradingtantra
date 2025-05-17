@@ -94,12 +94,12 @@ const getAddedTrade = async (req, res) => {
       { __v: 0, _id: 0, userID: 0 }
     ).lean();
 
-    if (!trades || trades.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: `No trades found where entryDate >= ${fromDate} and exitDate <= ${toDate}`,
-      });
-    }
+    // if (!trades || trades.length === 0) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: `No trades found where entryDate >= ${fromDate} and exitDate <= ${toDate}`,
+    //   });
+    // }
 
     let totalPL = 0;
     let totalTrade = trades.length;
