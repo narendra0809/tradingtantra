@@ -253,7 +253,7 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
   }
 
-  // Check if the last 5-minute candle is complete
+  // Check if last candle is complete
   if (allFiveMinCandles.length > 0) {
     const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
@@ -262,61 +262,50 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     }
   }
 
-  // Sort candles by timestamp to ensure chronological order
+  // Sort candles by timestamp
   allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
 
-  // Determine if the last candle is at 15:25
+  // Check if last candle is 15:25
   let isLastCandle1525 = false;
   let lastCandle = null;
   if (allFiveMinCandles.length > 0) {
     lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
-    const lastCandleDate = new Date(formatTimestamp(lastCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
+    const lastCandleDate = new Date(lastCandle.timestamp * 1000);
     const lastHours = lastCandleDate.getHours();
     const lastMinutes = lastCandleDate.getMinutes();
     isLastCandle1525 = lastHours === 15 && lastMinutes === 25;
   }
 
-  // Merge specific 5-minute candles into 10-minute candles
+  // Merge 5-minute candles into 10-minute candles (odd + even minutes)
   for (let i = 0; i < allFiveMinCandles.length - 1; i++) {
     const firstCandle = allFiveMinCandles[i];
     const secondCandle = allFiveMinCandles[i + 1];
-    
+
     if (secondCandle) {
-      const firstCandleDate = new Date(formatTimestamp(firstCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
-      const secondCandleDate = new Date(formatTimestamp(secondCandle.timestamp).replace(/(\d+)\/(\d+)\/(\d+), (\d+:\d+:\d+ [ap]m)/, "$3-$2-$1 $4"));
-      const firstHours = firstCandleDate.getHours();
+      const firstCandleDate = new Date(firstCandle.timestamp * 1000);
+      const secondCandleDate = new Date(secondCandle.timestamp * 1000);
       const firstMinutes = firstCandleDate.getMinutes();
+      const secondMinutes = secondCandleDate.getMinutes();
       const timeDiffMinutes = (secondCandleDate - firstCandleDate) / (1000 * 60);
 
-      // Check for specific pairing intervals (14:35+14:40, 14:45+14:50, 14:55+15:00, 15:05+15:10, 15:15+15:20)
-      const validPairs = [
-        { first: { hour: 14, minute: 35 }, second: { hour: 14, minute: 40 } },
-        { first: { hour: 14, minute: 45 }, second: { hour: 14, minute: 50 } },
-        { first: { hour: 14, minute: 55 }, second: { hour: 15, minute: 0 } },
-        { first: { hour: 15, minute: 5 }, second: { hour: 15, minute: 10 } },
-        { first: { hour: 15, minute: 15 }, second: { hour: 15, minute: 20 } }
-      ];
+      // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
+      const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
+      const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
 
-      const isValidPair = validPairs.some(pair => 
-        firstHours === pair.first.hour && firstMinutes === pair.first.minute &&
-        secondCandleDate.getHours() === pair.second.hour && secondCandleDate.getMinutes() === pair.second.minute
-      );
-
-      // Ensure second candle is exactly 5 minutes later and matches a valid pair
-      if (timeDiffMinutes === 5 && isValidPair) {
+      if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
         tenMinCandles.push({
-          timestamp: firstCandle.timestamp, // Use first candle's timestamp (e.g., 14:35, 14:45)
+          timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
           open: firstCandle.open,
           high: Math.max(firstCandle.high, secondCandle.high),
           low: Math.min(firstCandle.low, secondCandle.low),
           close: secondCandle.close,
         });
-        i++; // Skip the second candle since it's used
+        i++; // Skip second candle
       }
     }
   }
 
-  // Add the last candle as a single 10-minute candle if it's at 15:25
+  // Add 15:25 as standalone 10-minute candle
   if (isLastCandle1525) {
     tenMinCandles.push({
       timestamp: lastCandle.timestamp,
@@ -327,13 +316,12 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     });
   }
 
-  // Sort 10-minute candles by timestamp
+  // Sort by timestamp
   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
 
-  // Take the last 5 complete 10-minute candles
+  // Return last 5 complete 10-minute candles
   if (tenMinCandles.length >= 5) {
-    tenMinCandles = tenMinCandles.slice(-5);
-    return tenMinCandles;
+    return tenMinCandles.slice(-5);
   } else {
     return null;
   }

@@ -52,15 +52,15 @@ const runMarketTask = async () => {
     return;
   }
 
-  if (
-    hours < 9 ||
-    (hours === 9 && minutes < 15) ||
-    hours > 15 ||
-    (hours === 15 && minutes > 35)
-  ) {
-    console.log(`[${now.toISO()}] Outside market hours (9:15–3:30). Skipping.`);
-    return;
-  }
+  // if (
+  //   hours < 9 ||
+  //   (hours === 9 && minutes < 15) ||
+  //   hours > 15 ||
+  //   (hours === 15 && minutes > 35)
+  // ) {
+  //   console.log(`[${now.toISO()}] Outside market hours (9:15–3:30). Skipping.`);
+  //   return;
+  // }
 
   try {
     const fromDate = now.minus({ days: 1 }).toISODate();
@@ -102,20 +102,20 @@ const initializeTask = async () => {
     return;
   }
 
-  if (
-    hours < 9 ||
-    (hours === 9 && minutes < 15) ||
-    hours > 15 ||
-    (hours === 15 && minutes > 35)
-  ) {
-    console.log(`[${now.toISO()}] Startup: Outside market hours. Skipping.`);
-    return;
-  }
+  // if (
+  //   hours < 9 ||
+  //   (hours === 9 && minutes < 15) ||
+  //   hours > 15 ||
+  //   (hours === 15 && minutes > 35)
+  // ) {
+  //   console.log(`[${now.toISO()}] Startup: Outside market hours. Skipping.`);
+  //   return;
+  // }
 
   await runMarketTask();
 };
 
-cron.schedule("*/2 9-15 * * 1-5", runMarketTask, {
+cron.schedule("*/2 9-20 * * 1-5", runMarketTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
