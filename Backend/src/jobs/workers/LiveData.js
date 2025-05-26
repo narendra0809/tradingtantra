@@ -1,8 +1,6 @@
-// worker/liveDataWorker.js
 import { Worker } from "bullmq";
 import { startWebSocket } from "../../controllers/liveMarketData.controller.js";
 import dotenv from "dotenv";
-import { DateTime } from "luxon";
 
 dotenv.config();
 
@@ -12,49 +10,30 @@ const connection = {
   password: process.env.REDIS_PASSWORD,
 };
 
-// Function to check if current time is within 9:15 AM to 3:30 PM IST
-const isMarketTime = () => {
-  const now = DateTime.now().setZone("Asia/Kolkata");
-  const hour = now.hour;
-  const minute = now.minute;
+function isWithinTradingHours() {
+  const now = new Date();
+  const start = new Date();
+  const end = new Date();
 
-  // Return true if time is between 9:15 and 15:30
-  if (
-    hour < 9 ||
-    (hour === 9 && minute < 15) ||
-    hour > 15 ||
-    (hour === 15 && minute > 30)
-  ) {
-    return false;
-  }
-  return true;
-};
+  start.setHours(9, 15, 0);   // 9:15 AM
+  end.setHours(15, 35, 0);    // 3:35 PM
 
-const liveDataWorker = new Worker(
-  "liveData",
-  async (job) => {
+  return now >= start && now <= end;
+}
+
+new Worker(
+  'liveData',
+  async () => {
     try {
-      console.log(`[LiveData Worker] Received job:`, job.data);
-
-      if (!isMarketTime()) {
-        console.log(`[LiveData Worker] Skipping job. Outside market hours.`);
-        return;
+      if (isWithinTradingHours()) {
+        console.log("⛷️ Running live data fetch within market hours...");
+        await startWebSocket();
+      } else {
+        console.log("🕘 Outside market hours. Skipping data fetch.");
       }
-
-      await startWebSocket();
-      console.log(`[LiveData Worker] WebSocket started successfully.`);
     } catch (error) {
-      console.error(`[LiveData Worker] Error:`, error.message);
-      throw error;
+      console.log('❌ Error in live worker:', error);
     }
   },
   { connection }
 );
-
-liveDataWorker.on("failed", (job, err) => {
-  console.error(`[LiveData Worker] Job ${job.id} failed:`, err.message);
-});
-
-liveDataWorker.on("completed", (job) => {
-  console.log(`[LiveData Worker] Job ${job.id} completed successfully.`);
-});

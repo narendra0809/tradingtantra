@@ -115,7 +115,7 @@ const initializeTask = async () => {
   await runMarketTask();
 };
 
-cron.schedule("*/2 9-20 * * 1-5", runMarketTask, {
+cron.schedule("*/2 9-15 * * 1-5", runMarketTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
