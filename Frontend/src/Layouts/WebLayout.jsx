@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Header from "../Components/Web/Header";
 import { Outlet } from "react-router-dom";
 import Footer from "../Components/Web/Footer";
@@ -13,7 +13,7 @@ const WebLayout = () => {
 
   return (
     <>
-  <StockCarousel/>
+      <StockCarousel />
       <Header />
       <main className="w-full px-[5%] cursor-default">
         <Outlet />

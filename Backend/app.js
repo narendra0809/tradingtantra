@@ -6,11 +6,11 @@ import passport from "passport";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
 import http from "http";
-import cron from "node-cron"; 
+import cron from "node-cron";
 import "./delete.js";
 import "./src/config/passport.js";
-import optionChainJob from './src/jobs/optionChain.job.js';
-import {getOptionChainData} from './src/controllers/chain.controller.js';
+import optionChainJob from "./src/jobs/optionChain.job.js";
+import { getOptionChainData } from "./src/controllers/chain.controller.js";
 import { fetchAndSaveAllUnderlyings } from "./src/services/optionChain.service.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
@@ -39,7 +39,11 @@ initializeServer(server);
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173", "https://tradingtantra.in"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://tradingtantra.in",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -60,21 +64,21 @@ app.use("/api", swingTradeRoutes);
 app.use("/api", optionClockRoutes);
 
 // Add this before the server starts
-app.get('/api/option-chain/trigger', async (req, res) => {
+app.get("/api/option-chain/trigger", async (req, res) => {
   try {
-    console.log('Manually triggering option chain fetch...');
+    console.log("Manually triggering option chain fetch...");
     const result = await fetchAndSaveAllUnderlyings();
     res.json({
       success: true,
-      message: 'Option chain data fetched successfully',
-      data: result
+      message: "Option chain data fetched successfully",
+      data: result,
     });
   } catch (error) {
-    console.error('Manual trigger error:', error);
+    console.error("Manual trigger error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching option chain data',
-      error: error.message
+      message: "Error fetching option chain data",
+      error: error.message,
     });
   }
 });
@@ -90,10 +94,10 @@ connectDB()
   .catch((error) => {
     console.error("Failed to connect to DB", error);
   });
-process.on('SIGINT', () => {
+process.on("SIGINT", () => {
   optionChainJob.stop();
   server.close(() => {
-    console.log('Server closed');
+    console.log("Server closed");
     process.exit(0);
   });
 });

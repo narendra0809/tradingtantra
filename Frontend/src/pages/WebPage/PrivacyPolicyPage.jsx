@@ -1,13 +1,9 @@
-import React from "react";
+import CustomHeroImage from "../../Components/CustomHeroImage";
 
 const PrivacyPolicyPage = () => {
   return (
     <>
-      <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-        <div className="blue-blur-circle"></div>
-
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold">Privacy Policy</h1>
-      </div>
+      <CustomHeroImage title="Privacy Policy" />
 
       <section className="font-abcRepro space-y-10 mt-40">
         {/* THE AGREEMENT */}
@@ -15,25 +11,27 @@ const PrivacyPolicyPage = () => {
           <h2 className="font-bold md:text-3xl text-xl ">THE AGREEMENT</h2>
           <p className="font-light md:text-xl text-lg ">
             The use of this website and services on this website provided by
-            TradeFinder (hereinafter referred to as "Owner" ) are subject to the
-            following Terms & Conditions (hereinafter the "Terms of Service" ),
-            all parts and sub-parts of which are specifically incorporated by
-            reference here together with the Privacy Policy. Following are the
-            Terms of Service governing your use of https://tradefinder.in/ (the
-            "Website" ), all pages on the Website, and any services provided by
-            or on this Website ("Services").
+            TradeFinder (hereinafter referred to as &quot;Owner &quot; ) are
+            subject to the following Terms & Conditions (hereinafter the
+            &quot;Terms of Service &quot; ), all parts and sub-parts of which
+            are specifically incorporated by reference here together with the
+            Privacy Policy. Following are the Terms of Service governing your
+            use of https://tradefinder.in/ (the &quot;Website &quot; ), all
+            pages on the Website, and any services provided by or on this
+            Website (&quot;Services&quot;).
           </p>
           <p className="font-light md:text-xl text-lg ">
             By accessing either directly or through a hyperlink, the Website,
-            and/or purchasing something from us, you engage in our "Service" and
-            agree to be bound by the Terms of Service including those additional
-            terms and conditions and policies referenced herein and/or available
-            by hyperlink. These Terms of Service apply to all users of the site,
-            including without limitation vendors, buyers, customers, merchants,
-            browsers, and/or contributors of content. You acknowledge and agree
-            that the Website may use your personal information in the manner
-            described in our Privacy Policy which sets forth how information
-            collected about you is collected, used, and stored.
+            and/or purchasing something from us, you engage in our &quot;Service
+            &quot; and agree to be bound by the Terms of Service including those
+            additional terms and conditions and policies referenced herein
+            and/or available by hyperlink. These Terms of Service apply to all
+            users of the site, including without limitation vendors, buyers,
+            customers, merchants, browsers, and/or contributors of content. You
+            acknowledge and agree that the Website may use your personal
+            information in the manner described in our Privacy Policy which sets
+            forth how information collected about you is collected, used, and
+            stored.
           </p>
         </div>
 
@@ -58,9 +56,9 @@ const PrivacyPolicyPage = () => {
                 be referred to throughout these Terms of Service with
                 second-person pronouns such as You, Your, Yours, or as User or
                 Client. For the purpose of these Terms of Service, the term
-                "User" or "you" shall mean any natural or legal person who is
-                accessing the Website. The term '"Your" shall be construed
-                accordingly.
+                &quot;User&quot; or &quot;you&quot; shall mean any natural or
+                legal person who is accessing the Website. The term &quot;Your
+                &quot; shall be construed accordingly.
               </li>
               <li className="text-[#C6C6C6] text-base">
                 Parties: Collectively, the parties to these Terms of Service
@@ -71,7 +69,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 2 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">2. ASSENT & ACCEPTANCE</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            2. ASSENT & ACCEPTANCE
+          </h2>
           <p className="font-light md:text-xl text-lg  ">
             By using the Website, You warrant that You have read and reviewed
             these Terms of Service and that You agree to be bound by it. If You
@@ -116,19 +116,21 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 5 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">5. LICENSE TO USE WEBSITE</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            5. LICENSE TO USE WEBSITE
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may provide You with certain information as a result of
             Your use of the Website or Services. Such information may include
             but is not limited to, documentation, data, or information developed
             by the Owner, and other materials which may assist in Your use of
-            the Website or Services ("Owner Materials"). Subject to these Terms
-            of Service, the Owner grants You a non-exclusive, limited,
-            non-transferable, and revocable license to use the Owner Materials
-            solely in connection with Your use of the Website and Services. The
-            Owner Materials may not be used for any other purpose and this
-            license terminates upon Your cessation of use of the Website or
-            Services or at the termination of these Terms of Service.
+            the Website or Services ( &quot;Owner Materials&quot;). Subject to
+            these Terms of Service, the Owner grants You a non-exclusive,
+            limited, non-transferable, and revocable license to use the Owner
+            Materials solely in connection with Your use of the Website and
+            Services. The Owner Materials may not be used for any other purpose
+            and this license terminates upon Your cessation of use of the
+            Website or Services or at the termination of these Terms of Service.
           </p>
           <p className="font-light md:text-xl text-lg ">
             You agree not to collect the contact information of other Users from
@@ -145,24 +147,28 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 6 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">6. INTELLECTUAL PROPERTY</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            6. INTELLECTUAL PROPERTY
+          </h2>
           <p className="font-thin md:text-xl text-lg ">
             You agree that the Website and all Services provided by the Owner
             are the property of the Owner, including all copyrights, trademarks,
-            trade secrets, patents, and other intellectual property ("Owner
-            IP"). You agree that the Owner owns all rights, title, and interest
-            in and to the Owner IP and that You will not use the Owner IP for
-            any unlawful or infringing purpose. You agree not to reproduce or
-            distribute the Owner IP in any way, including electronically or via
-            registration of any new trademarks, trade names, service marks, or
-            Uniform Resource Locators (URLs), without express written permission
-            from the Owner.
+            trade secrets, patents, and other intellectual property (&quot;Owner
+            IP&quot;). You agree that the Owner owns all rights, title, and
+            interest in and to the Owner IP and that You will not use the Owner
+            IP for any unlawful or infringing purpose. You agree not to
+            reproduce or distribute the Owner IP in any way, including
+            electronically or via registration of any new trademarks, trade
+            names, service marks, or Uniform Resource Locators (URLs), without
+            express written permission from the Owner.
           </p>
         </div>
 
         {/* point 7 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">7. USER OBLIGATIONS</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            7. USER OBLIGATIONS
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             As a user of the Website or Services, You may be asked to register
             with Us. When You do so, You will choose a user identifier, which
@@ -194,12 +200,12 @@ const PrivacyPolicyPage = () => {
             Should You register for any of the paid Services on this website or
             purchase any product or service on this website, You agree to pay Us
             the specific monetary amounts required for that product or those
-            Services. These monetary amounts ("Fees") will be described to You
-            during Your account registration and/or confirmation process. The
-            final amount required for payment will be shown to You immediately
-            prior to purchase. Payment for any ongoing Services is billed
-            automatically until You notify Us that You would like to terminate
-            Your access to the Services.
+            Services. These monetary amounts (&quot;Fees&quot;) will be
+            described to You during Your account registration and/or
+            confirmation process. The final amount required for payment will be
+            shown to You immediately prior to purchase. Payment for any ongoing
+            Services is billed automatically until You notify Us that You would
+            like to terminate Your access to the Services.
           </p>
 
           <p className="font-light md:text-xl text-lg ">
@@ -225,7 +231,7 @@ const PrivacyPolicyPage = () => {
             <ol className="list-decimal pl-10">
               <li className="text-[#C6C6C6] text-base">
                 To harass, abuse, or threaten others or otherwise violate any
-                person's legal rights;
+                person&apos;s legal rights;
               </li>
               <li className="text-[#C6C6C6] text-base">
                 To violate any intellectual property rights of the Owner or any
@@ -267,7 +273,7 @@ const PrivacyPolicyPage = () => {
                 acts;
               </li>
               <li className="text-[#C6C6C6] text-base">
-                to infringe on any third party's intellectual property or
+                to infringe on any third party&apos;s intellectual property or
                 proprietary rights, or rights of publicity or privacy, whether
                 knowingly or unknowingly;
               </li>
@@ -299,8 +305,8 @@ const PrivacyPolicyPage = () => {
               </li>
               <li className="text-[#C6C6C6] text-base">
                 to damage, disable, overburden, or impair the Website or any
-                other party's use of the Website; (j) to spam, phish, pharm,
-                pretext, spider, crawl, or scrape;
+                other party&apos;s use of the Website; (j) to spam, phish,
+                pharm, pretext, spider, crawl, or scrape;
               </li>
               <li className="text-[#C6C6C6] text-base">
                 for any obscene or immoral purpose; or
@@ -328,8 +334,8 @@ const PrivacyPolicyPage = () => {
               regulations concerning your use of the Website and further agree
               that you will not transmit any information, data, text, files,
               links, software, chats, communication or other materials that are
-              abusive, invasive of another's privacy, harassing, defamatory,
-              vulgar, obscene, unlawful, false, misleading, harmful,
+              abusive, invasive of another&apos;s privacy, harassing,
+              defamatory, vulgar, obscene, unlawful, false, misleading, harmful,
               threatening, hateful or racially or otherwise objectionable,
               including without limitation material of any kind or nature that
               encourages conduct that could constitute a criminal offence, give
@@ -341,7 +347,7 @@ const PrivacyPolicyPage = () => {
               We may, but have no obligation to, monitor, edit or remove content
               that we determine in our sole discretion are unlawful, offensive,
               threatening, libellous, defamatory, pornographic, obscene or
-              otherwise objectionable or violates any party's intellectual
+              otherwise objectionable or violates any party&apos;s intellectual
               property or these Terms of Service.
             </p>
             <p className="text-[#C6C6C6] text-base">
@@ -428,7 +434,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 13 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">13. ASSUMPTION OF RISK</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            13. ASSUMPTION OF RISK
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Website and Services are provided for communication purposes
             only. You acknowledge and agree that any information posted on Our
@@ -442,7 +450,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 14 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">14. SALE OF GOODS/SERVICES</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            14. SALE OF GOODS/SERVICES
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may sell goods or services or allow third parties to sell
             goods or services on the Website. The Owner undertakes to be as
@@ -515,11 +525,13 @@ const PrivacyPolicyPage = () => {
 
         {/* point 17 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">17. INDEMNIFICATION</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            17. INDEMNIFICATION
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             You agree to defend and indemnify the Owner and any of its
             affiliates (if applicable) and hold Us harmless against any and all
-            legal claims and demands, including reasonable attorney's fees,
+            legal claims and demands, including reasonable attorney&apos;s fees,
             which may arise from or relate to Your use or misuse of the Website
             or Services, Your breach of these Terms of Service, or Your conduct
             or actions. You agree that the Owner shall be able to select its own
@@ -532,9 +544,9 @@ const PrivacyPolicyPage = () => {
           <h2 className="font-bold md:text-3xl text-xl ">18. SPAM POLICY</h2>
           <p className="font-light md:text-xl text-lg ">
             You are strictly prohibited from using the Website or any of the
-            Owner's Services for illegal spam activities, including gathering
-            email addresses and personal information from others or sending any
-            mass commercial emails.
+            Owner&apos;s Services for illegal spam activities, including
+            gathering email addresses and personal information from others or
+            sending any mass commercial emails.
           </p>
         </div>
         {/* point 19 */}
@@ -551,7 +563,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 20 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">20. MODIFICATION & VARIATION</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            20. MODIFICATION & VARIATION
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may, from time to time and at any time without notice to
             You, modify these Terms of Service. You agree that the Owner has the
@@ -592,7 +606,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 21 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">21. ENTIRE AGREEMENT</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            21. ENTIRE AGREEMENT
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             This Agreement constitutes the entire understanding between the
             Parties with respect to any and all use of this Website. This
@@ -603,7 +619,9 @@ const PrivacyPolicyPage = () => {
         </div>
         {/* point 22 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">22. SERVICE INTERRUPTIONS</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            22. SERVICE INTERRUPTIONS
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may need to interrupt Your access to the Website to
             perform maintenance or emergency services on a scheduled or
@@ -641,12 +659,12 @@ const PrivacyPolicyPage = () => {
           <p className="font-light md:text-xl text-lg ">
             You agree that Your use of the Website and Services is at Your sole
             and exclusive risk and that any Services provided by Us are on an
-            'As Is' basis. The Owner hereby expressly disclaims any and all
-            express or implied warranties of any kind, including, but not
-            limited to the implied warranty of fitness for a particular purpose
-            and the implied warranty of merchantability. The Owner makes no
-            warranties that the Website or Services will meet Your needs or that
-            the Website or Services will be uninterrupted, error-free, or
+            &apos;As Is&apos; basis. The Owner hereby expressly disclaims any
+            and all express or implied warranties of any kind, including, but
+            not limited to the implied warranty of fitness for a particular
+            purpose and the implied warranty of merchantability. The Owner makes
+            no warranties that the Website or Services will meet Your needs or
+            that the Website or Services will be uninterrupted, error-free, or
             secure. The Owner also makes no warranties as to the reliability or
             accuracy of any information on the Website or obtained through the
             Services. You agree that any damage that may occur to You, through
@@ -656,17 +674,17 @@ const PrivacyPolicyPage = () => {
           </p>
           <p className="font-light md:text-xl text-lg ">
             All information, software, products, services, and related graphics
-            provided on this site are 'as is' and 'as available' basis without
-            warranty of any kind, either expressed or implied. The Website
-            disclaims all warranties, expressed or implied including, without
-            limitation, all implied warranties of merchantability, fitness for a
-            particular purpose, title, and non-infringement or arising from a
-            course of dealing, usage, or trade practice. We makes no
-            representation about the suitability of the information, software,
-            products, and services contained on this Website for any purpose,
-            and the inclusion or offering of any products or services on this
-            Website does not constitute any endorsement or recommendation of
-            such products or services.
+            provided on this site are &apos;as is&apos; and &apos;as
+            available&apos; basis without warranty of any kind, either expressed
+            or implied. The Website disclaims all warranties, expressed or
+            implied including, without limitation, all implied warranties of
+            merchantability, fitness for a particular purpose, title, and
+            non-infringement or arising from a course of dealing, usage, or
+            trade practice. We makes no representation about the suitability of
+            the information, software, products, and services contained on this
+            Website for any purpose, and the inclusion or offering of any
+            products or services on this Website does not constitute any
+            endorsement or recommendation of such products or services.
           </p>
           <p className="font-light md:text-xl text-lg ">
             The Website makes no warranty that the use of the Website will be
@@ -751,7 +769,7 @@ const PrivacyPolicyPage = () => {
             You specifically agree that the Website is not responsible or liable
             for any threatening, defamatory, obscene, offensive, or illegal
             content or conduct of any other party or any infringement of
-            another's rights, including intellectual property rights. You
+            another&apos;s rights, including intellectual property rights. You
             specifically agree that the Website is not responsible for any
             content sent using and/or included on the Website by any third
             party.
@@ -798,7 +816,7 @@ const PrivacyPolicyPage = () => {
             limitation, disclosure of passwords to third parties. By using the
             Website, you agree to defend, indemnify, and hold harmless the
             indemnified parties from any and all liability regarding your use of
-            the site or participation in any site's activities. If you are
+            the site or participation in any site&apos;s activities. If you are
             dissatisfied with the Website, or the Services or any portion
             thereof, or do not agree with these terms, your only recourse and
             exclusive remedy shall be to stop using the site.
@@ -807,7 +825,9 @@ const PrivacyPolicyPage = () => {
 
         {/* point 25 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">25. LIMITATION ON LIABILITY</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            25. LIMITATION ON LIABILITY
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner is not liable for any damage that may occur to You as a
             result of Your use of the Website or Services, to the fullest extent
@@ -823,7 +843,9 @@ const PrivacyPolicyPage = () => {
 
         {/* point 26 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">26. GENERAL PROVISIONS:</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            26. GENERAL PROVISIONS:
+          </h2>
           <div className="space-y-4">
             <ol className="list-decimal pl-10">
               <li className="text-[#C6C6C6] text-base">
@@ -910,20 +932,21 @@ const PrivacyPolicyPage = () => {
             <p className="font-normal text-2xl"></p>
             <ul className="list-disc">
               <li className=" text-base">
-                Warning: "Investment in securities market are subject to market
-                risks. Read all the related documents carefully before
-                investing."
+                Warning: &quot;Investment in securities market are subject to
+                market risks. Read all the related documents carefully before
+                investing.&quot;
               </li>
               <li className=" text-base">
                 Market Risks refer to partial or permanent loss on your
                 investments in certain market conditions.
               </li>
               <li className=" text-base">
-                "The securities quoted are for illustration only and are not
-                recommendatory."
+                &quot;The securities quoted are for illustration only and are
+                not recommendatory.&quot;
               </li>
               <li className=" text-base">
-                "Past performance is not indicative of future results."
+                &quot;Past performance is not indicative of future
+                results.&quot;
               </li>
               <li className=" text-base">
                 Details provided in any social media platforms are for
@@ -938,7 +961,9 @@ const PrivacyPolicyPage = () => {
         {/* Changes to Disclaimer */}
 
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">Changes to Disclaimer</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            Changes to Disclaimer
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             We reserve the right to modify or update this disclaimer at any time
             without notice. Your continued use of this website/platform

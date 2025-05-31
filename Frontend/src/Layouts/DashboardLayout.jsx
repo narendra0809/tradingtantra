@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Sidebar from "../Components/Dashboard/Sidebar";
 import { Outlet } from "react-router-dom";
 import Header from "../Components/Dashboard/Header";
@@ -9,7 +9,7 @@ import { TickerTape } from "react-ts-tradingview-widgets";
 import ScrollToTop from "../Components/Web/ScrollTop";
 import { tickerSymbol } from "../utils/tickerSymbol";
 const DashboardLayout = () => {
-   const theme = useSelector((state) => state.theme.theme);
+  const theme = useSelector((state) => state.theme.theme);
 
   // console.log(theme, "layout");
   useEffect(() => {

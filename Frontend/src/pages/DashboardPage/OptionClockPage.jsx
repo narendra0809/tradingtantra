@@ -1,15 +1,242 @@
-import React from "react";
 import { GoDotFill } from "react-icons/go";
 import TimeRangeSlider from "../../Components/Dashboard/TimeRangeSlider";
 import OiClockChart from "../../Components/Dashboard/OiClockChart";
 import { FcCandleSticks } from "react-icons/fc";
 import OiClockChartTwo from "../../Components/Dashboard/OiClockChartTwo";
 import OiClockChartThree from "../../Components/Dashboard/OiClockChartThree";
+import useFetchData from "../../utils/useFetchData";
+import { useEffect, useState } from "react";
+import {
+  convertTo12HourFormat,
+  getPreviousDate,
+  parseTime,
+} from "../../utils/utils";
+import { lotSize } from "../../constants/constants";
+
 const OptionClockPage = () => {
+  const { fetchData } = useFetchData();
+  const [allIndexData, setAllIndexData] = useState({
+    Nifty50: { data: [], expiries: [] },
+    BankNifty: { data: [], expiries: [] },
+    FinNifty: { data: [], expiries: [] },
+    Midcap: { data: [], expiries: [] },
+    Sensex: { data: [], expiries: [] },
+  });
+  const [selectedIndex, setSelectedIndex] = useState("Nifty50");
+  const [selectedExpiry, setSelectedExpiry] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [totalOiChanges, setTotalOiChanges] = useState({});
+  const [totalOi, setTotalOi] = useState({});
+  const [currData, setCurrData] = useState([]);
+
+  const fetchIndexData = async (index) => {
+    try {
+      const response = await fetchData(
+        `option-data/underlying?underlyingName=${index}`,
+        "GET"
+      );
+      return {
+        data: response.data || [],
+        expiries: response.data.expiries || [],
+      };
+    } catch (error) {
+      console.error(`Error fetching ${index} data:`, error);
+      return { data: [], expiries: [] };
+    }
+  };
+
+  const handleExpiryChange = (e) => {
+    setSelectedExpiry(e.target.value);
+  };
+
+  const fetchAllIndexData = async () => {
+    try {
+      setLoading(true);
+      const indexes = [
+        "NIFTY",
+        "BANKNIFTY",
+        "FINNIFTY",
+        "MIDCPNIFTY",
+        "SENSEX",
+      ];
+
+      const results = await Promise.all(indexes.map(fetchIndexData));
+
+      const newIndexes = [
+        "Nifty50",
+        "BankNifty",
+        "FinNifty",
+        "Midcap",
+        "Sensex",
+      ];
+      const newData = {};
+      newIndexes.forEach((index, i) => {
+        newData[index] = results[i].data;
+      });
+
+      setAllIndexData(newData);
+      if (newData.Nifty50.expiries.length > 0) {
+        setSelectedExpiry(newData.Nifty50.expiries[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching index data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllIndexData();
+  }, []);
+
+  const handleIndexChange = (e) => {
+    const index = e.target.value;
+    setSelectedIndex(index);
+    if (allIndexData[index]?.expiries.length > 0) {
+      setSelectedExpiry(allIndexData[index].expiries[0]);
+    }
+  };
+  const currentExpiries = allIndexData[selectedIndex]?.expiries || [];
+
+  const getDataByIndexAndExpiry = (range) => {
+    if (!range || !selectedExpiry || !allIndexData[selectedIndex]?.data) {
+      console.error("Missing required parameters");
+      return;
+    }
+    let totalOiCE = 0;
+    let totalOiPE = 0;
+    try {
+      const startTime = convertTo12HourFormat(range.split("-")[0]);
+      const endTime = convertTo12HourFormat(range.split("-")[1]);
+      let filteredData = allIndexData[selectedIndex].data.filter((data) => {
+        const expectedExpiry = data.expiry;
+        const date = data.timestamp.split(",")[0].trim();
+        const timestamp = data.timestamp.split(",")[1].trim();
+        if (expectedExpiry !== selectedExpiry) return false;
+        let currDate = new Date();
+        const dayNum = currDate.getDay();
+        if (dayNum === 6 || dayNum === 7) {
+          currDate = getPreviousDate(currDate);
+        }
+        const formatter = new Intl.DateTimeFormat("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        });
+        const formattedDate = formatter.format(currDate).slice(1);
+        if (date !== formattedDate) return false;
+        const { totalOiCE: totalCE, totalOiPE: totalPE } = getTotalOi(data);
+        totalOiCE = totalOiCE + totalCE;
+        totalOiPE = totalOiPE + totalPE;
+        return timestamp === startTime || timestamp === endTime;
+      });
+      filteredData = filteredData.sort(
+        (a, b) =>
+          parseTime(a.timestamp.split(",")[1].trim()) -
+          parseTime(b.timestamp.split(",")[1].trim())
+      );
+      const processedData = processData(filteredData[0], filteredData[1]);
+      setTotalOiChanges(getTotalOIChange(processedData));
+      setTotalOi({
+        totalOiCE: totalOiCE / lotSize[selectedIndex],
+        totalOiPE: totalOiPE / lotSize[selectedIndex],
+      });
+      console.log("After dividing : ", totalOiCE / lotSize[selectedIndex]);
+      setCurrData(processedData.length > 0 ? processedData : []);
+    } catch (error) {
+      console.log("Error in filerting data  :", error);
+      setCurrData([]);
+    }
+  };
+
+  const getTotalOi = (data) => {
+    let totalOiCE = 0;
+    let totalOiPE = 0;
+    data.strikeData.forEach((strike) => {
+      if (strike.optionType === "CE") {
+        totalOiCE = totalOiCE + strike.oi;
+      } else {
+        totalOiPE = totalOiPE + strike.oi;
+      }
+    });
+    return { totalOiCE, totalOiPE };
+  };
+
+  const getTotalOIChange = (processedData) => {
+    let TotalOiChangeCE = 0;
+    let TotalOiChangePE = 0;
+    processedData.forEach((data) => {
+      TotalOiChangeCE += data.oiChangeCE;
+      TotalOiChangePE += data.oiChangePE;
+    });
+    return { TotalOiChangeCE, TotalOiChangePE };
+  };
+
+  const processData = (startTime, endTime) => {
+    if (!startTime || !endTime) return [];
+
+    const createStrikeMap = (data) => {
+      const map = {};
+      data.strikeData.forEach((strike) => {
+        const key = `${strike.strikePrice}-${strike.optionType}`;
+        map[key] = strike;
+      });
+      return map;
+    };
+
+    const startTimeMap = createStrikeMap(startTime);
+    const endTimeMap = createStrikeMap(endTime);
+
+    const mergedMap = new Map();
+
+    const allKeys = new Set([
+      ...Object.keys(startTimeMap),
+      ...Object.keys(endTimeMap),
+    ]);
+    allKeys.forEach((key) => {
+      const [strikePrice, optionType] = key.split("-");
+      const price = parseFloat(strikePrice);
+
+      const morning = startTimeMap[key];
+      const evening = endTimeMap[key];
+
+      if (!morning || !evening) return;
+
+      const oiChange = (evening.oi - morning.oi) / lotSize[selectedIndex];
+      const priceChange = evening.lastPrice - morning.lastPrice;
+
+      const mapKey = price;
+      if (!mergedMap.has(mapKey)) {
+        mergedMap.set(mapKey, {
+          strikePrice: price,
+          oiChangeCE: 0,
+          oiChangePE: 0,
+          priceChangeCE: 0,
+          priceChangePE: 0,
+        });
+      }
+
+      const existing = mergedMap.get(mapKey);
+
+      if (optionType === "CE") {
+        existing.oiChangeCE = oiChange;
+        existing.priceChangeCE = priceChange;
+      } else {
+        existing.oiChangePE = oiChange;
+        existing.priceChangePE = priceChange;
+      }
+
+      mergedMap.set(mapKey, existing);
+    });
+
+    return Array.from(mergedMap.values()).sort(
+      (a, b) => a.strikePrice - b.strikePrice
+    );
+  };
+
   return (
     <>
       {/* sector depth section */}
-
       <section className="mt-5 flex md:justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4">
         <div className="flex gap-4 items-center">
           <h1 className="text-3xl font-bold">Sector Depth</h1>
@@ -22,17 +249,22 @@ const OptionClockPage = () => {
         <div className="flex gap-4">
           <div className="relative border border-[#0E5FF6] w-fit rounded-lg px-4 py-2 ">
             <label className="text-sm">Index:</label>
-            <select id="index" className="bg-transparent focus:outline-none">
+            <select
+              onChange={handleIndexChange}
+              id="index"
+              className="bg-transparent focus:outline-none"
+              value={selectedIndex}
+            >
               <option className="dark:bg-[#000A2D]" value="Nifty50">
                 Nifty50
               </option>
               <option className="dark:bg-[#000A2D]" value="BankNifty">
                 BankNifty
               </option>
-              <option className="dark:bg-[#000A2D]" value="BankNifty">
+              <option className="dark:bg-[#000A2D]" value="FinNifty">
                 FinNifty
               </option>
-              <option className="dark:bg-[#000A2D]" value="BankNifty">
+              <option className="dark:bg-[#000A2D]" value="Midcap">
                 Midcap
               </option>
               <option className="dark:bg-[#000A2D]" value="Sensex">
@@ -41,15 +273,23 @@ const OptionClockPage = () => {
             </select>
           </div>
 
-          <div className="relative border border-[#0E5FF6] w-fit rounded-lg px-4 py-2  ">
+          <div className="relative border border-[#0E5FF6] w-fit rounded-lg px-4 py-2">
             <label className="text-sm">Expiry:</label>
-            <select id="expiry" className="bg-transparent focus:outline-none">
-              <option className="dark:bg-[#000A2D]" value="Feb-06">
-                Feb-06
-              </option>
-              <option className="dark:bg-[#000A2D]" value="Feb-27">
-                Feb-27
-              </option>
+            <select
+              id="expiry"
+              className="bg-transparent focus:outline-none"
+              value={selectedExpiry}
+              onChange={handleExpiryChange}
+            >
+              {currentExpiries.map((expiry) => (
+                <option
+                  key={expiry}
+                  className="dark:bg-[#000A2D]"
+                  value={expiry}
+                >
+                  {expiry}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -57,7 +297,7 @@ const OptionClockPage = () => {
 
       {/* time range slider section */}
       <section>
-        <TimeRangeSlider />
+        <TimeRangeSlider getDataByIndexAndExpiry={getDataByIndexAndExpiry} />
       </section>
 
       {/* oi clock charts section*/}
@@ -72,12 +312,12 @@ const OptionClockPage = () => {
             </div>
 
             <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <OiClockChart />
+              <OiClockChart data={currData} />
             </div>
           </div>
 
           <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="  h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+            <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
               <div className="dark:bg-db-secondary bg-db-primary-light rounded-lg p-3">
                 <div className="flex items-center gap-2">
                   <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
@@ -85,12 +325,12 @@ const OptionClockPage = () => {
                     <FcCandleSticks />
                   </span>
                 </div>
-                <OiClockChartTwo />
+                <OiClockChartTwo data={totalOiChanges} />
               </div>
             </div>
 
-            <div className=" h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <div className="dark:bg-db-secondary bg-db-primary-light px-3 rounded-lg h-full  ">
+            <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+              <div className="dark:bg-db-secondary bg-db-primary-light px-3 rounded-lg h-full">
                 <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
                   <div className="flex gap-2 items-center text-xl">
                     <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
@@ -106,7 +346,7 @@ const OptionClockPage = () => {
                     <p>Bears Total OI</p>
                   </div>
                 </div>
-                <OiClockChartThree />
+                <OiClockChartThree data={totalOi} />
               </div>
             </div>
           </div>

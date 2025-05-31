@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
@@ -7,8 +8,6 @@ import { useEffect, useState } from "react";
 import Lock from "../../Lock";
 
 const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
- 
-
   const [sortedData, setSortedData] = useState([]);
   const [sortOrderChange, setSortOrderChange] = useState("desc");
   const [sortOrderType, setSortOrderType] = useState("desc");
@@ -163,7 +162,9 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                       >
                         <MdOutlineKeyboardArrowDown
                           className={
-                            sortOrderType === "desc" ? "rotate-180" : ""
+                            sortOrderType === "desc"
+                              ? "rotate-180 inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
@@ -185,17 +186,17 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                             >
                               {stock?.stockSymbol}
                             </a>
-
                           </td>
                           <td className="text-lg text-center">
                             <FcCandleSticks />
                           </td>
                           <td className="text-center">
                             <span
-                              className={`${stock?.percentageChange >= 0
+                              className={`${
+                                stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                                } px-2 py-1 text-xs rounded-full`}
+                              } px-2 py-1 text-xs rounded-full`}
                             >
                               {Number(stock?.percentageChange)?.toFixed(2)}
                             </span>
@@ -205,15 +206,14 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                           </td>
                           <td className="text-right text-sm">
                             <span
-  className={`px-2 py-[2px] rounded-3xl text-white ${
-    stock?.type?.toLowerCase().includes("bullish")
-      ? "bg-green-600"
-      : "bg-red-600"
-  }`}
->
-  {stock?.type}
-</span>
-
+                              className={`px-2 py-[2px] rounded-3xl text-white ${
+                                stock?.type?.toLowerCase().includes("bullish")
+                                  ? "bg-green-600"
+                                  : "bg-red-600"
+                              }`}
+                            >
+                              {stock?.type}
+                            </span>
                           </td>
                         </tr>
                       ))

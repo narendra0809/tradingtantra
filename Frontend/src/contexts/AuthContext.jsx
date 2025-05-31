@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 // import { createContext, useContext, useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { jwtDecode } from "jwt-decode";
@@ -76,10 +77,6 @@
 
 // export const useAuth = () => useContext(AuthContext);
 
-
-
-
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -133,7 +130,11 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${SERVER_URI}/auth/logout`, {}, { withCredentials: true });
+      await axios.post(
+        `${SERVER_URI}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
     } catch (error) {
       console.error("Error logging out:", error);
     }

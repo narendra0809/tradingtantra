@@ -1,4 +1,3 @@
-import React from "react";
 import marketDepth from "../../assets/Images/Dashboard/homepage/marketDepth.png";
 import customStrategy from "../../assets/Images/Dashboard/homepage/customer-strategy.png";
 import sectorDepth from "../../assets/Images/Dashboard/homepage/sector-depth.png";
@@ -13,8 +12,8 @@ const HomePageGridLayout = () => {
     <div className="dark:bg-db-primary min-h-screen  py-10">
       <h1 className=" text-2xl font-bold mb-6">Indian Markets</h1>
 
-      <div class="homeParent">
-        <div class="div1 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg  ">
+      <div className="homeParent">
+        <div className="div1 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg  ">
           <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start justify-between   space-x-3">
               <div className="flex items-center gap-3">
@@ -83,7 +82,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-             AI Option Clock
+              AI Option Clock
             </button>
           </div>
         </div>
@@ -109,7 +108,7 @@ const HomePageGridLayout = () => {
               </div>
             </div>
             <button className="w-full bg-[#0256F5] text-white mt-4 py-2 rounded-md font-medium">
-            Smart Money Action
+              Smart Money Action
             </button>
           </div>
         </div>

@@ -162,7 +162,9 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                       >
                         <MdOutlineKeyboardArrowDown
                           className={
-                            sortOrderType === "desc" ? "rotate-180" : ""
+                            sortOrderType === "desc"
+                              ? "rotate-180 inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
@@ -178,11 +180,11 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                          <a
-                            target="_blank"
+                            <a
+                              target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=D`}
                             >
-                               {stock?.stockSymbol}
+                              {stock?.stockSymbol}
                             </a>
                           </td>
                           <td className="text-lg text-center">
@@ -204,14 +206,15 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                             {stock?.timestamp.split("T")[0]}
                           </td>
                           <td className="text-right text-sm">
-                          <span
-  className={`px-2 py-[2px] rounded-3xl text-white ${
-    stock?.type === "BEARISH" ? "bg-red-600" : "bg-green-600"
-  }`}
->
-  {stock?.type?.toUpperCase()}
-</span>
-
+                            <span
+                              className={`px-2 py-[2px] rounded-3xl text-white ${
+                                stock?.type === "BEARISH"
+                                  ? "bg-red-600"
+                                  : "bg-green-600"
+                              }`}
+                            >
+                              {stock?.type?.toUpperCase()}
+                            </span>
                           </td>
                         </tr>
                       ))

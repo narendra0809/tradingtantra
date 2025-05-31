@@ -91,8 +91,8 @@ const logIn = async (req, res) => {
 
     if (!subscribed) {
       isSubscribed = false;
-    }else{
-      isSubscribed = true
+    } else {
+      isSubscribed = true;
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
@@ -117,7 +117,7 @@ const logIn = async (req, res) => {
           id: user._id,
           email: user.email,
           displayName: user.displayName,
-          isSubscribed
+          isSubscribed,
         },
       });
   } catch (error) {

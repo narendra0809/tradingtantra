@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState, Suspense } from "react";
 
 // Lazy load components
 const TreemapChart = React.lazy(() => import("./TreemapChart"));
 const Loader = React.lazy(() => import("../Loader"));
 
-const TreeGrpahsGrid = ({ data, loading }) => {
+const TreeGraphsGrid = ({ data, loading }) => {
   const graphTitles = [
     { title: "Energy", class: "div19" },
     { title: "Auto", class: "div20" },
@@ -25,7 +26,7 @@ const TreeGrpahsGrid = ({ data, loading }) => {
   ];
 
   const [sectorWiseData, setSectorWiseData] = useState([]);
-  console.log('data in grapg ',data)
+  console.log("data in grapg ", data);
 
   useEffect(() => {
     setSectorWiseData(data.sectorWiseData);
@@ -33,8 +34,8 @@ const TreeGrpahsGrid = ({ data, loading }) => {
 
   return (
     <>
-      <div className="lg:block hidden">
-        <div className="parent  ">
+      <div className="lg:block">
+        <div className="parent">
           <Suspense fallback={<div>Loading...</div>}>
             {Object.entries(sectorWiseData || {}).map(
               ([sector, values], index) => (
@@ -47,7 +48,11 @@ const TreeGrpahsGrid = ({ data, loading }) => {
                   <div className="w-full flex flex-col dark:bg-db-primary bg-db-secondary-light rounded-md overflow-hidden">
                     <h1 className="text-base px-2.5">{sector}</h1>
                     <div className="flex-grow w-full">
-                      {loading ? <Loader /> : <TreemapChart data={values.slice(0, 10)} />}
+                      {loading ? (
+                        <Loader />
+                      ) : (
+                        <TreemapChart data={values.slice(0, 10)} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -60,4 +65,4 @@ const TreeGrpahsGrid = ({ data, loading }) => {
   );
 };
 
-export default TreeGrpahsGrid;
+export default TreeGraphsGrid;

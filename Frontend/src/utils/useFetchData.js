@@ -38,6 +38,7 @@ const useFetchData = () => {
 
       // console.log(response.data, "response");
       setData(response.data);
+      return response;
     } catch (error) {
       console.log(error, "errrorrr");
       if (error.message === "Network Error") {

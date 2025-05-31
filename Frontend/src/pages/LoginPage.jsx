@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
 import { useAuth } from "../contexts/AuthContext";
-import Cookies from "js-cookie";  
-
+import Cookies from "js-cookie";
 
 const LoginPage = () => {
   const SERVER_URI = import.meta.env.VITE_SERVER_URI;
@@ -30,11 +29,9 @@ const LoginPage = () => {
   useEffect(() => {
     if (data?.success) {
       login(data.token);
-      Cookies.set("isSubscribed",data?.user?.isSubscribed,{expires: 1});
+      Cookies.set("isSubscribed", data?.user?.isSubscribed, { expires: 1 });
       navigate("/dashboard");
     }
-     
- 
   }, [data]);
 
   const handleGoolgleLogin = async () => {
@@ -115,7 +112,7 @@ const LoginPage = () => {
         </div> */}
 
         <div className="flex gap-1 items-center justify-center mt-2">
-          <p className="text-gray-600">Don't have an Account?</p>
+          <p className="text-gray-600">Don&apos;t have an Account?</p>
           <Link to="/signup">
             <span className="text-[#2196F3] underline font-semibold">
               Register
@@ -127,10 +124,4 @@ const LoginPage = () => {
   );
 };
 
-
-
-
 export default LoginPage;
-
-
- 

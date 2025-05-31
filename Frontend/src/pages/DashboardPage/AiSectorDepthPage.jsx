@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
 import TreemapChart from "../../Components/Dashboard/TreemapChart";
 import AISectorChart from "../../Components/Dashboard/AISectorChart";
 import StockCard from "../../Components/Dashboard/StockCard";
-import TreeGrpahsGrid from "../../Components/Dashboard/TreeGraphsGrid";
+import TreeGraphsGrid from "../../Components/Dashboard/TreeGraphsGrid";
 import { io } from "socket.io-client";
 import Loader from "../../Components/Loader";
 import Lock from "../../Components/Dashboard/Lock";
@@ -13,7 +13,7 @@ import Lock from "../../Components/Dashboard/Lock";
 import Cookies from "js-cookie";
 const AiSectorDepthPage = () => {
   const SOCKET_URI = import.meta.env.VITE_SOCKET_URI;
- const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const socket = io(`${SOCKET_URI}`, {
     auth: { token },
     transports: ["websocket"],
@@ -66,18 +66,20 @@ const AiSectorDepthPage = () => {
 
     socket.on("connect_error", (err) => {
       console.warn("Socket Connection Error:", err.message);
-      
+
       if (err.message.includes("Subscription required")) {
-          alert("⚠️ Subscription Required: Please subscribe to access this feature.");
+        alert(
+          "⚠️ Subscription Required: Please subscribe to access this feature."
+        );
       }
-  })  
+    });
     // Attach event listener
     socket.on("sectorScope", handleSectorScope);
 
     return () => {
       // Cleanup: Remove event listener and clear timeout
       socket.off("sectorScope", handleSectorScope);
-      socket.off('connect_error')
+      socket.off("connect_error");
       // clearTimeout(timeout);
       clearInterval(interval);
     };
@@ -101,13 +103,12 @@ const AiSectorDepthPage = () => {
             </span>
           </div>
 
-          
           {isSubscribed === "false" ? (
             <div className="w-full h-[300px]">
               <Lock />
             </div>
           ) : (
-            <>{loading ? <Loader /> : <TreeGrpahsGrid data={data} />}</>
+            <>{loading ? <Loader /> : <TreeGraphsGrid data={data} />}</>
           )}
         </div>
       </section>

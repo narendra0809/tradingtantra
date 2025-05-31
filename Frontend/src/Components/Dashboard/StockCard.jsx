@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
@@ -114,11 +115,12 @@ const StockCard = ({ title, data, loading, error }) => {
                         }
                       />
                     </th>
-                    <th
-                      className="text-right py-2 cursor-pointer"
-                      onClick={handleSortByPercentageDifference}
-                    >
-                      <span className="flex justify-center items-center">
+                    <th className="text-right py-2 cursor-pointer">
+                      <span
+                        title="xElement"
+                        className="flex items-center justify-end"
+                        onClick={handleSortByPercentageDifference}
+                      >
                         xElem{" "}
                         <MdOutlineKeyboardArrowDown
                           className={
@@ -140,12 +142,12 @@ const StockCard = ({ title, data, loading, error }) => {
                       <tr key={index}>
                         {/* {console.log(stock?.xElement)} */}
                         <td className="flex items-center font-medium text-xs gap-2 py-3">
-                        <a
+                          <a
                             target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
-                            >
+                            href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
+                          >
                             {stock?.UNDERLYING_SYMBOL}
-                            </a>
+                          </a>
                         </td>
                         <td className="text-lg">
                           <FcCandleSticks />

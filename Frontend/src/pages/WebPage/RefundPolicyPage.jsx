@@ -1,15 +1,12 @@
-import React from "react";
 import image1 from "../../assets/Images/RefundPolicyImg1.png";
 import image2 from "../../assets/Images/RefundPolicyImg2.png";
 import image3 from "../../assets/Images/RefundPolicyImg3.png";
+import CustomHeroImage from "../../Components/CustomHeroImage";
+
 const RefundPolicyPage = () => {
   return (
     <>
-     <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-        <div className="blue-blur-circle"></div>
-
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold">Refund Policy</h1>
-      </div>
+      <CustomHeroImage title="Refund Policy" />
       <h1 className="md:text-2xl text-xl font-bold font-abcRepro text-wrap lg:w-[60%] md:w-[90%] w-full text-center lg:leading-10 mx-auto ">
         Thank you for choosing{" "}
         <span className="text-primary"> TradingTantra.in. </span> an AI-powered
@@ -54,7 +51,9 @@ const RefundPolicyPage = () => {
             <p className="text-base font-light mt-4">
               Refunds will only be considered in the following circumstances:
             </p>
-            <p className="text-base font-light">If you were charged incorrectly due to a system error.</p>
+            <p className="text-base font-light">
+              If you were charged incorrectly due to a system error.
+            </p>
           </div>
         </div>
         <div className="flex flex-col items-center lg:w-[40%] md:w-1/2 w-full">

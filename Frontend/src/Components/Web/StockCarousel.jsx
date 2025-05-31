@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 
 const stocks = [
@@ -36,7 +35,7 @@ const StockCarousel = () => {
         transition={{
           repeat: Infinity,
           ease: "linear",
-          duration:50,
+          duration: 50,
         }}
       >
         {tickerData.map((stock, index) => (

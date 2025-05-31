@@ -1,4 +1,3 @@
-import React from "react";
 import AiStar from "../../assets/Images/AiIntegrationImg.png";
 import AiStock from "../../assets/Images/AiIntegrationStartImg.svg";
 import DoorImg from "../../assets/Images/DoorImg.svg";
@@ -11,21 +10,10 @@ import { LuLogIn } from "react-icons/lu";
 import AiPowerdCard from "../../Components/Web/AiPowerdCards";
 import BenefitCards from "../../Components/Web/BenefitCards";
 import TestimonialsCarousel from "../../Components/Web/TestimonialsCarousel";
+import { Features } from "../../constants/constants";
+import { useNavigate } from "react-router-dom";
 const HomePage = () => {
-  const Features = [
-    "Market Depth",
-    "Custom Strategy",
-    "Sector Depth",
-    "Ai Swing Trades",
-    "Option Clock",
-    "FII / DII Data",
-    "Index Depth",
-    "Trading Journal",
-    "learn From Us",
-    "Over Strategy",
-    "Financial Calender",
-    "Calculator",
-  ];
+  const navigate = useNavigate();
   return (
     <>
       {/* hero section */}
@@ -64,10 +52,21 @@ const HomePage = () => {
         </div>
 
         <div className="flex items-center justify-center sm:mt-20 mt-10 gap-4 ">
-          <button className="sm:text-xl text-sm bg-primary flex items-center gap-2 rounded-3xl px-3 py-2">
+          <button
+            className="sm:text-xl text-sm bg-primary flex items-center gap-2 rounded-3xl px-3 py-2"
+            onClick={() => {
+              const section = document.getElementById("buy-now-section");
+              if (section) {
+                section.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
             <PiFireSimpleFill /> Buy Now
           </button>
-          <button className="sm:text-xl text-sm  flex items-center gap-2 rounded-3xl px-3 py-2 bg-[#0256F533] text-white border border-[#0A7CFF33] backdrop-blur-lg">
+          <button
+            onClick={() => navigate("/login")}
+            className="sm:text-xl text-sm  flex items-center gap-2 rounded-3xl px-3 py-2 bg-[#0256F533] text-white border border-[#0A7CFF33] backdrop-blur-lg"
+          >
             <LuLogIn /> Login
           </button>
         </div>
@@ -100,7 +99,10 @@ const HomePage = () => {
       </div>
 
       {/* crystal plan */}
-      <div className="font-abcRepro flex flex-col items-center justify-center mt-40">
+      <div
+        className="font-abcRepro flex flex-col items-center justify-center mt-40"
+        id="buy-now-section"
+      >
         <h2 className="md:text-4xl text-2xl  font-bold mb-10">
           Trust,Trade,Win,Boom
         </h2>
@@ -150,8 +152,8 @@ const HomePage = () => {
           Unlock Everything with Tutorial Videos
         </h2>
         <div className="grid md:grid-cols-3 grid-cols-2  gap-y-5 md:gap-x-10 gap-x-3 lg:w-3/4 md:w-[90%] w-full  mx-auto xl:ml-67 ml-5 mt-10">
-          {Features.map((item, index) => (
-            <div className="flex items-center gap-4">
+          {Features.map((item) => (
+            <div key={item} className="flex items-center gap-4">
               <img src={done} className="sm:w-6 w-4 sm:h-6 h-4 " />
               <p className="md:text-base sm:text-sm text-xs font-light">
                 {item}

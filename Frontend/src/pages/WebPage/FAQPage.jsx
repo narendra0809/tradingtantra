@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
-import { FaPlus, FaMinus } from "react-icons/fa6";
+import { useState, useRef, useEffect } from "react";
 
 import { IoTriangle } from "react-icons/io5";
+import CustomHeroImage from "../../Components/CustomHeroImage";
+import { faqs } from "../../constants/constants";
 const FAQPage = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const contentRefs = useRef([]);
@@ -10,83 +11,13 @@ const FAQPage = () => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
-  const faqs = [
-    {
-      question: "1. What is TradeFinder?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "2. Who can use TradeFinder?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "3. How do I sign up for TradeFinder?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "4. What kind of trading strategies does TradeFinder support?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question:
-        "5. Does TradeFinder offer educational resources for beginners?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question:
-        "6. Can I integrate my existing brokerage account with TradeFinder?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question:
-        "7. How does TradeFinder differentiate itself from other trading platforms?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "8. What kind of customer support does TradeFinder offer?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question:
-        "9. Are there any additional costs or fees for using TradeFinder?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "10. How can I update or cancel my subscription?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "11. Is TradeFinder available on mobile devices?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-    {
-      question: "12. Can I access TradeFinder from multiple devices?",
-      answer:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem unde corporis perferendis velit quasi culpa hic qui, fuga laboriosam pariatur doloribus accusamus! Placeat recusandae, similique eos odio vero delectus hic ab labore magni est.",
-    },
-  ];
-
   useEffect(() => {
     contentRefs.current = contentRefs.current.slice(0, faqs.length);
-  }, [faqs]);
+  }, []);
 
   return (
     <>
-      <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold">FAQ</h1>
-      </div>
+      <CustomHeroImage title="FAQ" />
       <div className="w-full mx-auto ">
         {faqs.map((faq, index) => (
           <div

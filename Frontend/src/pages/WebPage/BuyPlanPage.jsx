@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import lock from "../../assets/Images/lock.svg";
 import play from "../../assets/Images/play.svg";
@@ -66,7 +66,7 @@ const BuyPlanPage = () => {
   const handleCountryChange = (event) => {
     setSelectedCountry(event.target.value);
     setSelectedState("");
-    setCountryCode(""); 
+    setCountryCode("");
   };
 
   const handleStateChange = (event) => {
@@ -75,9 +75,11 @@ const BuyPlanPage = () => {
 
   return (
     <>
-         <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
+      <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
         <div className="blue-blur-circle"></div>
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold ">Buy Plan</h1>
+        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold ">
+          Buy Plan
+        </h1>
       </div>
 
       <div className="xl:w-[70%] md:w-[90%] w-full mx-auto bg-[#01071C] md:px-8 px-4 md:py-8 py-4 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] flex sm:flex-row flex-col items-start gap-5 ">
@@ -146,7 +148,9 @@ const BuyPlanPage = () => {
                 </select>
 
                 <div className="w-full flex items-center gap-2">
-                  <p className="px-2 w-[15%] text-center py-2 bg-[#000A2D] rounded-lg">{countryCode||"+91"}</p>
+                  <p className="px-2 w-[15%] text-center py-2 bg-[#000A2D] rounded-lg">
+                    {countryCode || "+91"}
+                  </p>
                   <input
                     type="number"
                     placeholder="Whatsapp Number*"
@@ -171,7 +175,9 @@ const BuyPlanPage = () => {
 
         {/* Payment Information */}
         <div className="sm:w-[40%] w-full bg-[#72A3FD] rounded-2xl  p-5">
-          <h5 className="text-primary font-bold text-xl">Payment Information</h5>
+          <h5 className="text-primary font-bold text-xl">
+            Payment Information
+          </h5>
 
           <div className="w-full flex justify-between items-center text-black text-sm font-thin md:mt-10 mt-5 ">
             <p>Amount</p>
@@ -188,24 +194,34 @@ const BuyPlanPage = () => {
           <div className="flex flex-col  md:space-y-5 space-y-2 text-black md:my-10 my-5">
             <div className="flex items-center gap-3">
               <img src={lock} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">Get Instant Access Now</p>
+              <p className="md:text-base text-sm font-normal">
+                Get Instant Access Now
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <img src={doc} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">Watch Tutorials Inside</p>
+              <p className="md:text-base text-sm font-normal">
+                Watch Tutorials Inside
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <img src={play} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">View All Strategies</p>
+              <p className="md:text-base text-sm font-normal">
+                View All Strategies
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <img src={shild} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">Prepare For Tomorrow</p>
+              <p className="md:text-base text-sm font-normal">
+                Prepare For Tomorrow
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-black">
             <input type="checkbox" className="w-4 h-4" name="TandC" />
-            <label htmlFor="TandC" className="md:text-xl text-xs">I agree with terms & Condition</label>
+            <label htmlFor="TandC" className="md:text-xl text-xs">
+              I agree with terms & Condition
+            </label>
           </div>
           <img src={pay} alt="" className="w-4/5 cursor-pointer mt-5 mx-auto" />
         </div>

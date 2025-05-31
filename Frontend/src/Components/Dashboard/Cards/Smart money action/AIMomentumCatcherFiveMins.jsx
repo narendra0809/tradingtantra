@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
@@ -143,7 +144,7 @@ const AIMomentumCatcherFiveMins = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                       <th
-                        className="py-2 text-center "
+                        className="py-2 text-center"
                         onClick={handleSortByDateTime}
                       >
                         Date Time{" "}
@@ -151,17 +152,19 @@ const AIMomentumCatcherFiveMins = ({ data, loading, error, isSubscribed }) => {
                           className={
                             sortOrderDateTime === "desc"
                               ? "rotate-180 inline-flex"
-                              : " inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
                       <th
-                        className="py-2 text-right cursor-pointer "
+                        className="py-2 text-right cursor-pointer"
                         onClick={handleSortByType}
                       >
                         <MdOutlineKeyboardArrowDown
                           className={
-                            sortOrderType === "desc" ? "rotate-180" : ""
+                            sortOrderType === "desc"
+                              ? "rotate-180 inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
@@ -177,11 +180,11 @@ const AIMomentumCatcherFiveMins = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                          <a
-                            target="_blank"
+                            <a
+                              target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.symbol}&interval=5`}
                             >
-                            {stock?.symbol}
+                              {stock?.symbol}
                             </a>
                           </td>
                           <td className="text-lg text-center">

@@ -161,7 +161,9 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                       >
                         <MdOutlineKeyboardArrowDown
                           className={
-                            sortOrderType === "desc" ? "rotate-180" : ""
+                            sortOrderType === "desc"
+                              ? "rotate-180 inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
@@ -177,11 +179,11 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                          <a
-                            target="_blank"
+                            <a
+                              target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=D`}
                             >
-                            {stock?.underlyingSymbol}
+                              {stock?.underlyingSymbol}
                             </a>
                           </td>
                           <td className="text-lg text-center">

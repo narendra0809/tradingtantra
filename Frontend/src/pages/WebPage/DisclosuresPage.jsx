@@ -1,13 +1,9 @@
-import React from "react";
+import CustomHeroImage from "../../Components/CustomHeroImage";
 
 const DisclosuresPage = () => {
   return (
     <>
-     <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-        <div className="blue-blur-circle"></div>
-
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold">Refund Policy</h1>
-      </div>
+      <CustomHeroImage title="Refund Policy" />
       <h1 className="md:text-2xl sm:text-xl text-lg sm:font-bold font-semibold font-abcRepro text-wrap md:w-[90%] w-full text-center md:leading-10 mx-auto ">
         Welcome to <span className="text-primary"> TradingTantra.in. </span>Your
         privacy is important to us, and we are committed to protecting your
@@ -28,11 +24,13 @@ const DisclosuresPage = () => {
             <ul className="list-disc pl-10">
               <li className="text-[#C6C6C6] text-base">
                 {" "}
-                Name, email address, and contact details (if you register an account or subscribe to our services).
+                Name, email address, and contact details (if you register an
+                account or subscribe to our services).
               </li>
               <li className="text-[#C6C6C6] text-base">
                 {" "}
-                Payment details (processed securely through third-party payment gateways; we do not store your payment information).
+                Payment details (processed securely through third-party payment
+                gateways; we do not store your payment information).
               </li>
             </ul>
           </div>
@@ -138,7 +136,7 @@ const DisclosuresPage = () => {
               </li>
               <li className="text-[#C6C6C6] text-base">
                 Opt-Out: You can unsubscribe from marketing emails anytime by
-                clicking the "unsubscribe" link.
+                clicking the &quot;unsubscribe&quot; link.
               </li>
               <li className="text-[#C6C6C6] text-base">
                 Data Deletion: You may request the deletion of your account and
@@ -172,12 +170,12 @@ const DisclosuresPage = () => {
             Should You register for any of the paid Services on this website or
             purchase any product or service on this website, You agree to pay Us
             the specific monetary amounts required for that product or those
-            Services. These monetary amounts ("Fees") will be described to You
-            during Your account registration and/or confirmation process. The
-            final amount required for payment will be shown to You immediately
-            prior to purchase. Payment for any ongoing Services is billed
-            automatically until You notify Us that You would like to terminate
-            Your access to the Services.
+            Services. These monetary amounts (&quot;Fees&quot;) will be
+            described to You during Your account registration and/or
+            confirmation process. The final amount required for payment will be
+            shown to You immediately prior to purchase. Payment for any ongoing
+            Services is billed automatically until You notify Us that You would
+            like to terminate Your access to the Services.
           </p>
           <p className="font-light text-xl">
             We reserve the right to refuse service or refuse to sell the
@@ -202,7 +200,7 @@ const DisclosuresPage = () => {
             <ul className="list-disc pl-10">
               <li className="text-[#C6C6C6] text-base">
                 To harass, abuse, or threaten others or otherwise violate any
-                person's legal rights;
+                person&apos;s legal rights;
               </li>
               <li className="text-[#C6C6C6] text-base">
                 To violate any intellectual property rights of the Owner or any
@@ -230,7 +228,6 @@ const DisclosuresPage = () => {
                 To unlawfully gather information about others.
               </li>
             </ul>
-           
           </div>
           <div className="space-y-5">
             <p className="font-normal text-2xl">
@@ -245,7 +242,7 @@ const DisclosuresPage = () => {
                 acts;
               </li>
               <li className="text-[#C6C6C6] text-base">
-                to infringe on any third party's intellectual property or
+                to infringe on any third party&apos;s intellectual property or
                 proprietary rights, or rights of publicity or privacy, whether
                 knowingly or unknowingly;
               </li>
@@ -277,8 +274,8 @@ const DisclosuresPage = () => {
               </li>
               <li className="text-[#C6C6C6] text-base">
                 to damage, disable, overburden, or impair the Website or any
-                other party's use of the Website; (j) to spam, phish, pharm,
-                pretext, spider, crawl, or scrape;
+                other party&apos;s use of the Website; (j) to spam, phish,
+                pharm, pretext, spider, crawl, or scrape;
               </li>
               <li className="text-[#C6C6C6] text-base">
                 for any obscene or immoral purpose; or
@@ -302,26 +299,43 @@ const DisclosuresPage = () => {
               </li>
             </ul>
             <p className="text-[#C6C6C6] text-base">
-            You agree to comply with all applicable laws, statutes, and regulations concerning your use of the Website and further agree that you will not transmit any information, data, text, files, links, software, chats, communication or other materials that are abusive, invasive of another's privacy, harassing, defamatory, vulgar, obscene, unlawful, false, misleading, harmful, threatening, hateful or racially or otherwise objectionable, including without limitation material of any kind or nature that encourages conduct that could constitute a criminal offence, give rise to civil liability or otherwise violate any applicable local, state, provincial, national, or international law or regulation, or encourage the use of controlled substances.
-              </p>
+              You agree to comply with all applicable laws, statutes, and
+              regulations concerning your use of the Website and further agree
+              that you will not transmit any information, data, text, files,
+              links, software, chats, communication or other materials that are
+              abusive, invasive of another&apos;s privacy, harassing,
+              defamatory, vulgar, obscene, unlawful, false, misleading, harmful,
+              threatening, hateful or racially or otherwise objectionable,
+              including without limitation material of any kind or nature that
+              encourages conduct that could constitute a criminal offence, give
+              rise to civil liability or otherwise violate any applicable local,
+              state, provincial, national, or international law or regulation,
+              or encourage the use of controlled substances.
+            </p>
           </div>
         </div>
 
         {/* point 11 */}
         <div className="space-y-5">
-          <h2 className="font-bold text-3xl">11. AFFILIATE MARKETING & ADVERTISING</h2>
+          <h2 className="font-bold text-3xl">
+            11. AFFILIATE MARKETING & ADVERTISING
+          </h2>
           <p className="font-light text-xl">
-          The Owner, through the Website and Services, may engage in affiliate marketing whereby the Owner receives a commission on or percentage of the sale of goods or services on or through the Website. The Owner may also accept advertising and sponsorships from commercial businesses or receive other forms of advertising compensation.
+            The Owner, through the Website and Services, may engage in affiliate
+            marketing whereby the Owner receives a commission on or percentage
+            of the sale of goods or services on or through the Website. The
+            Owner may also accept advertising and sponsorships from commercial
+            businesses or receive other forms of advertising compensation.
           </p>
-          
         </div>
         {/* point 12 */}
         <div className="space-y-5">
           <h2 className="font-bold text-3xl">12. DATA LOSS</h2>
           <p className="font-light text-xl">
-          The Owner does not accept responsibility for the security of Your account or content. You agree that Your use of the Website or Services is at Your own risk.
+            The Owner does not accept responsibility for the security of Your
+            account or content. You agree that Your use of the Website or
+            Services is at Your own risk.
           </p>
-          
         </div>
       </section>
     </>

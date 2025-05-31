@@ -1,12 +1,10 @@
-import React from "react";
+/* eslint-disable react/no-unescaped-entities */
+import CustomHeroImage from "../../Components/CustomHeroImage";
 
 const TermsAndConditionPage = () => {
   return (
     <>
-    <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-
-        <h1 className="md:text-6xl text-2xl font-abcRepro font-bold">Terms & Conditions</h1>
-      </div>
+      <CustomHeroImage title="Terms & Conditions" />
 
       <section className="font-abcRepro space-y-10 mt-40">
         {/* THE AGREEMENT */}
@@ -70,7 +68,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 2 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">2. ASSENT & ACCEPTANCE</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            2. ASSENT & ACCEPTANCE
+          </h2>
           <p className="font-light md:text-xl text-lg  ">
             By using the Website, You warrant that You have read and reviewed
             these Terms of Service and that You agree to be bound by it. If You
@@ -115,7 +115,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 5 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">5. LICENSE TO USE WEBSITE</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            5. LICENSE TO USE WEBSITE
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may provide You with certain information as a result of
             Your use of the Website or Services. Such information may include
@@ -144,7 +146,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 6 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">6. INTELLECTUAL PROPERTY</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            6. INTELLECTUAL PROPERTY
+          </h2>
           <p className="font-thin md:text-xl text-lg ">
             You agree that the Website and all Services provided by the Owner
             are the property of the Owner, including all copyrights, trademarks,
@@ -161,7 +165,9 @@ const TermsAndConditionPage = () => {
 
         {/* point 7 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">7. USER OBLIGATIONS</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            7. USER OBLIGATIONS
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             As a user of the Website or Services, You may be asked to register
             with Us. When You do so, You will choose a user identifier, which
@@ -427,7 +433,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 13 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">13. ASSUMPTION OF RISK</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            13. ASSUMPTION OF RISK
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Website and Services are provided for communication purposes
             only. You acknowledge and agree that any information posted on Our
@@ -441,7 +449,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 14 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">14. SALE OF GOODS/SERVICES</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            14. SALE OF GOODS/SERVICES
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may sell goods or services or allow third parties to sell
             goods or services on the Website. The Owner undertakes to be as
@@ -514,7 +524,9 @@ const TermsAndConditionPage = () => {
 
         {/* point 17 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">17. INDEMNIFICATION</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            17. INDEMNIFICATION
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             You agree to defend and indemnify the Owner and any of its
             affiliates (if applicable) and hold Us harmless against any and all
@@ -550,7 +562,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 20 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">20. MODIFICATION & VARIATION</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            20. MODIFICATION & VARIATION
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may, from time to time and at any time without notice to
             You, modify these Terms of Service. You agree that the Owner has the
@@ -591,7 +605,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 21 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">21. ENTIRE AGREEMENT</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            21. ENTIRE AGREEMENT
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             This Agreement constitutes the entire understanding between the
             Parties with respect to any and all use of this Website. This
@@ -602,7 +618,9 @@ const TermsAndConditionPage = () => {
         </div>
         {/* point 22 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">22. SERVICE INTERRUPTIONS</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            22. SERVICE INTERRUPTIONS
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner may need to interrupt Your access to the Website to
             perform maintenance or emergency services on a scheduled or
@@ -806,7 +824,9 @@ const TermsAndConditionPage = () => {
 
         {/* point 25 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">25. LIMITATION ON LIABILITY</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            25. LIMITATION ON LIABILITY
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             The Owner is not liable for any damage that may occur to You as a
             result of Your use of the Website or Services, to the fullest extent
@@ -822,7 +842,9 @@ const TermsAndConditionPage = () => {
 
         {/* point 26 */}
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">26. GENERAL PROVISIONS:</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            26. GENERAL PROVISIONS:
+          </h2>
           <div className="space-y-4">
             <ol className="list-decimal pl-10">
               <li className="text-[#C6C6C6] text-base">
@@ -937,7 +959,9 @@ const TermsAndConditionPage = () => {
         {/* Changes to Disclaimer */}
 
         <div className="space-y-5">
-          <h2 className="font-bold md:text-3xl text-xl ">Changes to Disclaimer</h2>
+          <h2 className="font-bold md:text-3xl text-xl ">
+            Changes to Disclaimer
+          </h2>
           <p className="font-light md:text-xl text-lg ">
             We reserve the right to modify or update this disclaimer at any time
             without notice. Your continued use of this website/platform

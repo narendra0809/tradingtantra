@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import { IoIosNotifications } from "react-icons/io";
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png";
@@ -78,8 +78,7 @@ const Header = () => {
             transition={{ duration: 0.3 }}
             className="absolute"
           >
-            
-           <Link to="/">Go to Website</Link>
+            <Link to="/">Go to Website</Link>
           </motion.span>
 
           <motion.span
@@ -103,15 +102,15 @@ const Header = () => {
       </div>
 
       <div className="w-1/2 flex justify-end gap-5 items-center">
-        <div className="dark:bg-db-secondary bg-transparent border dark:border-[#0256F5] border-white px-2 py-2 rounded-lg hidden sm:flex">
+        {/* <div className="dark:bg-db-secondary bg-transparent border dark:border-[#0256F5] border-white px-2 py-2 rounded-lg hidden sm:flex">
           <input
             type="text"
             className="outline-none border-none bg-transparent text-white"
           />
           <FaSearch className="text-xl text-white" />
-        </div>
+        </div> */}
 
-        <div
+        {/* <div
           onClick={() => {
             themeToggler();
           }}
@@ -128,7 +127,7 @@ const Header = () => {
               <img src={lightThemeIcon} className="w-5 h-5 text-yellow-500" />
             )}
           </div>
-        </div>
+        </div> */}
 
         <IoIosNotifications className="text-white text-3xl" />
 

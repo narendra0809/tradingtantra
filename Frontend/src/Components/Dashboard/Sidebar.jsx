@@ -28,7 +28,7 @@ const Sidebar = () => {
   const [isSubscribed, setIsSubscribed] = useState(null);
 
   useEffect(() => {
-    const Subscribed =Cookies.get("isSubscribed");
+    const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed);
   }, []);
 
@@ -112,13 +112,13 @@ const Sidebar = () => {
                   label="Option Clock"
                   isOpen={isOpen}
                   path={"/dashboard/option-clock"}
-                /> 
+                />
                 <NavItem
                   icon={AiOptionData}
                   label="AI Option Data"
                   isOpen={isOpen}
                   path={"/dashboard/option-data"}
-                /> 
+                />
                 <NavItem
                   icon={FiiDii}
                   label="FII / DII Data"

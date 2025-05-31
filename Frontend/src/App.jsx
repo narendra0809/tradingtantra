@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import HomePage from "./pages/WebPage/HomePage";
 import UpdatesPage from "./pages/WebPage/UpdatesPage";
@@ -40,6 +40,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoutes";
+import Testimonials from "./pages/WebPage/Testimonial";
 
 const App = () => {
   return (
@@ -68,6 +69,7 @@ const App = () => {
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/renew-plan" element={<RenewPlanPage />} />
                 <Route path="/buy-plan" element={<BuyPlanPage />} />
+                <Route path="/testimonial" element={<Testimonials />} />
               </Route>
 
               {/* ----------------------------ALL PROTECTED ROUTE--------------------------------------- */}
@@ -80,9 +82,9 @@ const App = () => {
                   <Route path="market-depth" element={<MarketDepthPage />} />
                   <Route path="smart-action" element={<MonryActionPage />} />
                   <Route path="swing-trades" element={<AiSwingTradesPage />} />
-                   <Route path="option-clock" element={<OptionClockPage />} /> 
-                   <Route path="option-data" element={<AIOptionDataPage />} /> 
-                  <Route path="index-depth" element={<IndexDepthPage />} /> 
+                  <Route path="option-clock" element={<OptionClockPage />} />
+                  <Route path="option-data" element={<AIOptionDataPage />} />
+                  <Route path="index-depth" element={<IndexDepthPage />} />
                   <Route path="fii-dii" element={<FIIDIIPage />} />
                   <Route path="sector-depth" element={<AiSectorDepthPage />} />
                   <Route path="updates" element={<UpdatesPageDashboard />} />

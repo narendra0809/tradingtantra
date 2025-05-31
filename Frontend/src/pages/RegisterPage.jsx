@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
 
 const RegisterPage = () => {
@@ -10,8 +10,8 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
   });
-   const [passworderror, setPasswordError] = useState('');
-  const navigate = useNavigate();
+  const [passworderror, setPasswordError] = useState("");
+  // const navigate = useNavigate();
 
   const { data, loading, error, fetchData } = useFetchData();
   const handleChange = (e) => {
@@ -29,7 +29,7 @@ const RegisterPage = () => {
 
     await fetchData("auth/signup", "POST", FormData);
 
-console.log(error)
+    console.log(error);
     console.log(data, ",wdkjebkdbs");
   };
 
@@ -140,8 +140,11 @@ console.log(error)
             />
           </div>
 
-          {passworderror && <p className="text-red-500 mb-1">{passworderror}</p>}
-          {error && <p className="text-red-500 mb-1">{error}</p>}{error && (
+          {passworderror && (
+            <p className="text-red-500 mb-1">{passworderror}</p>
+          )}
+          {error && <p className="text-red-500 mb-1">{error}</p>}
+          {error && (
             <p className="text-red-500 text-sm mb-2">
               {error?.data?.error || error?.message || error?.data?.message}
             </p>
@@ -152,7 +155,7 @@ console.log(error)
           >
             Register
           </button>
-{/* 
+          {/* 
           <button className="bg-[#2196F3] text-white rounded-lg py-2 text-lg font-semibold hover:bg-[#348dd6] transition duration-300 ease-in-out mt-2">
             Google Signup
           </button> */}

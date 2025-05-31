@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
@@ -161,7 +162,9 @@ const AIIntradayReversalFiveMins = ({ data, loading, error, isSubscribed }) => {
                       >
                         <MdOutlineKeyboardArrowDown
                           className={
-                            sortOrderType === "desc" ? "rotate-180" : ""
+                            sortOrderType === "desc"
+                              ? "rotate-180 inline-flex"
+                              : "inline-flex"
                           }
                         />
                       </th>
@@ -177,11 +180,11 @@ const AIIntradayReversalFiveMins = ({ data, loading, error, isSubscribed }) => {
                       sortedData.map((stock, index) => (
                         <tr key={index}>
                           <td className="py-3 text-left text-sm font-semibold">
-                          <a
-                            target="_blank"
+                            <a
+                              target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
                             >
-                            {stock?.stockSymbol}
+                              {stock?.stockSymbol}
                             </a>
                           </td>
                           <td className="text-lg text-center">
@@ -204,16 +207,15 @@ const AIIntradayReversalFiveMins = ({ data, loading, error, isSubscribed }) => {
                             {stock?.timestamp}
                           </td>
                           <td className="text-right text-sm">
-                           <span
-  className={`px-2 py-[2px] rounded-3xl text-white ${
-    stock?.type?.toLowerCase().includes("bullish")
-      ? "bg-green-600"
-      : "bg-red-600"
-  }`}
->
-  {stock?.type}
-</span>
-
+                            <span
+                              className={`px-2 py-[2px] rounded-3xl text-white ${
+                                stock?.type?.toLowerCase().includes("bullish")
+                                  ? "bg-green-600"
+                                  : "bg-red-600"
+                              }`}
+                            >
+                              {stock?.type}
+                            </span>
                           </td>
                         </tr>
                       ))

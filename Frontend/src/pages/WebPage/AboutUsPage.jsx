@@ -1,26 +1,13 @@
-import React from "react";
-import AboutUsImg from "../../assets/Images/AboutUsImg.png"
+/* eslint-disable react/prop-types */
+import AboutUsImg from "../../assets/Images/AboutUsImg.png";
+import CustomHeroImage from "../../Components/CustomHeroImage";
+import { aboutListData } from "../../constants/constants";
 const AboutUsPage = () => {
-
-  const aboutListData =[
-    {title:"About Trading Tantra: Empowering Your Trading Journey",
-      desc:"Innovation is the heartbeat of TradeFinder. We continuously explore new frontiers in trading technology, ensuring that our users are always at the forefront of market trends. Our commitment to innovation keeps our platform dynamic, relevant, and powerful.",
-    },
-    {title:"Why Choose TradeFinder: A Platform That Understands You",
-      desc:"TradeFinder is not just a tool; it's a reflection of our users aspirations, challenges, and successes. We've created a platform that understands and adapts to your needs, helping you navigate the markets with confidence and clarity. Choosing TradeFinder means choosing a partner that empowers, educates, and elevates your trading experience.",
-    },
-    {title:"Join Us: Be Part of the TradeFinder Revolution",
-      desc:"As we continue to redefine the trading landscape, we invite you to join us on this exciting journey. Be a part of the TradeFinder revolution and experience trading like never before. It's time to turn your trading aspirations into achievements. Welcome to TradeFinder - where every trader is a priority, and every trade, a possibility.",
-    },
-  ]
   return (
     <>
-      <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-        <div className="blue-blur-circle"></div>
+      <CustomHeroImage title="About Us" />
 
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold">About Us</h1>
-      </div>
-      <div className="grid md:grid-cols-2 grid-cols-1 gap-10 font-abcRepro  ">
+      <div className="grid md:grid-cols-2 grid-cols-1 gap-10 font-abcRepro">
         <img src={AboutUsImg} className="rounded-2xl" />
         <div className="space-y-4">
           <h3 className="font-bold md:text-4xl text-xl text-wrap tracking-wide md:leading-15">
@@ -56,7 +43,7 @@ const AboutUsPage = () => {
       </div>
 
       <h1 className="text-3xl font-bold font-abcRepro my-20">
-        With TradingTantra you can do the following types of trading - 
+        With TradingTantra you can do the following types of trading -
       </h1>
 
       <div className="flex items-center lg:justify-between justify-center flex-wrap font-abcRepro  lg:w-4/5 w-full  mx-auto mb-10 gap-5">
@@ -78,16 +65,15 @@ const AboutUsPage = () => {
       </div>
 
       <div className="space-y-5 mt-20">
-
-        {aboutListData.map((list,index)=>(
-          <AboutList key={index} list={list}/>
+        {aboutListData.map((list) => (
+          <AboutList key={list.id} list={list} />
         ))}
       </div>
     </>
   );
 };
 
-const AboutList = ({list}) => (
+const AboutList = ({ list }) => (
   <div className="bg-[#01071C] w-full md:mx-10 mx-0 border-l-2 border-l-primary p-5 font-abcRepro space-y-2">
     <h1 className="md:text-2xl text-xl font-bold ">{list.title}</h1>
     <p className="md:text-base text-sm font-light">{list.desc}</p>
