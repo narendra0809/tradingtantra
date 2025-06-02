@@ -41,6 +41,10 @@ import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import Testimonials from "./pages/WebPage/Testimonial";
+import ForgetPassword from "./pages/ForgetPassword";
+import ResetPassword from "./pages/ResetPassword";
+import PasswordChanged from "./pages/PasswordChanged";
+import OTPModal from "./pages/OTPModal";
 
 const App = () => {
   return (
@@ -52,6 +56,10 @@ const App = () => {
             <Routes>
               <Route path="login" element={<LoginPage />} />
               <Route path="signup" element={<RegisterPage />} />
+              <Route path="forget-password" element={<ForgetPassword />} />
+              <Route path="reset-password" element={<ResetPassword />} />
+              <Route path="password-changed" element={<PasswordChanged />} />
+              <Route path="opt-modal" element={<OTPModal />} />
               <Route path="/" element={<WebLayout />}>
                 <Route index element={<HomePage />} />
 

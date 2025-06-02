@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import {
-  convertToIST,
   formateDate,
   getCurrentFetchDate,
   getPreviousDate,
@@ -49,49 +48,65 @@ export async function saveOptionChainData(
       throw new Error("MongoDB not connected!");
     }
 
-    const Model = modelMap[underlyingName];
-    if (!Model) {
-      throw new Error(`Model not found for ${underlyingName}`);
-    }
+    // const Model = modelMap[underlyingName];
+    // if (!Model) {
+    //   throw new Error(`Model not found for ${underlyingName}`);
+    // }
 
-    const timestamp = convertToIST(Date.now());
-    const previousTimestamp = "5/30/2025,  9:48:00 AM";
+    // const timestamp = convertToIST(Date.now());
+    // const previousTimestamp = "5/30/2025,  9:48:00 AM";
+    // const previousFetchDate = getPrevousFetchDate();
+    // const currentFetchDate = getCurrentFetchDate();
+
+    const Model = modelMap[underlyingName];
+    if (!Model) return;
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    const daysBack = dayOfWeek === 1 ? 3 : 1;
+
+    const referenceDate = getPreviousDate(now, daysBack);
+    const timestamp = "6/2/2025,  3:00:00 PM";
+    const oldTimestamp = timestamp.split(",");
+    oldTimestamp[0] = formateDate(referenceDate);
+    const previousTimestamp = oldTimestamp.join(",");
     const previousFetchDate = getPrevousFetchDate();
     const currentFetchDate = getCurrentFetchDate();
 
-    console.log("Querying for:", {
-      underlyingName,
-      previousTimestamp,
-      expiry,
-      previousFetchDate,
-    });
+    console.log("Previous TimeStamp : ", previousTimestamp);
 
-    const updatedDoc = await Model.findOneAndUpdate(
-      {
-        underlyingName,
-        timestamp: previousTimestamp,
-        expiry,
-        fetchDate: previousFetchDate,
-      },
-      {
-        $set: {
-          underlyingName,
-          underlyingScrip,
-          underlyingSeg,
-          expiry,
-          fetchDate: currentFetchDate,
-          timestamp,
-          lastPrice: 1000,
-          strikeData: [],
-          updatedAt: new Date(),
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    );
-    console.log("Updated Doc :", updatedDoc);
+    const [existingDoc] = await Model.find({
+      underlyingName,
+      timestamp,
+      expiry,
+    });
+    console.log(existingDoc);
+
+    // if (existingDoc) {
+    //   const updatedDoc = await Model.findOneAndUpdate(
+    //     {
+    //       _id: existingDoc._id,
+    //     },
+    //     {
+    //       $set: {
+    //         underlyingName,
+    //         underlyingScrip,
+    //         underlyingSeg,
+    //         expiry,
+    //         fetchDate: currentFetchDate,
+    //         timestamp,
+    //         lastPrice: 1000,
+    //         strikeData: [],
+    //         updatedAt: new Date(),
+    //       },
+    //     },
+    //     {
+    //       upsert: true,
+    //       new: true,
+    //     }
+    //   );
+    //   console.log("Updated Doc :", updatedDoc);
+    // }
     console.log(
       `Successfully updated option chain for ${underlyingName}, expiry ${expiry}`
     );
@@ -103,3 +118,15 @@ export async function saveOptionChainData(
 }
 
 saveOptionChainData("BANKNIFTY", 24, "asdsad", "2025-06-26");
+
+// const now = new Date();
+// const dayOfWeek = now.getDay();
+
+// const daysBack = dayOfWeek === 1 ? 3 : 1;
+
+// const referenceDate = getPreviousDate(now, daysBack);
+// const timestamp = convertToIST(Date.now());
+// const oldTimestamp = timestamp.split(",");
+// oldTimestamp[0] = formateDate(referenceDate);
+// const previousTimestamp = oldTimestamp.join(",");
+// console.log(previousTimestamp);

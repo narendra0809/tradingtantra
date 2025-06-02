@@ -1,21 +1,20 @@
-import React from "react";
 import { FiUser, FiMail, FiCamera } from "react-icons/fi";
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import { PowerOffIcon } from "lucide-react";
 import ProfileHeader from "../../Components/Dashboard/ProfileHeader";
 
 const MyProfilePage = () => {
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-    }
-  };
+  // const handleImageUpload = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     setImage(URL.createObjectURL(file));
+  //   }
+  // };
   return (
     <>
-    <div className="mt-10">
-        <ProfileHeader/>
-    </div>
+      <div className="mt-10">
+        <ProfileHeader />
+      </div>
       <div className="max-w-xl mx-auto p-6 dark:bg-db-primary bg-db-primary-light   rounded-xl mt-16 ">
         {/* Header */}
         <div className="mb-6">
@@ -41,7 +40,9 @@ const MyProfilePage = () => {
           {/* First Name */}
           <div className="md:flex justify-between block">
             <div>
-              <label className="text-sm dark:text-gray-400 text-gray-700 ">First Name</label>
+              <label className="text-sm dark:text-gray-400 text-gray-700 ">
+                First Name
+              </label>
               <div className="flex items-center dark:bg-[#151B2D]  border   bg-transparent  dark:border-transparent  p-2 rounded-md mt-1">
                 <FiUser className="text-gray-500 ml-2" />
                 <input
@@ -53,7 +54,9 @@ const MyProfilePage = () => {
             </div>
 
             <div>
-              <label className="text-sm dark:text-gray-400 text-gray-700 ">Last Name</label>
+              <label className="text-sm dark:text-gray-400 text-gray-700 ">
+                Last Name
+              </label>
               <div className="flex items-center dark:bg-[#151B2D] bg-transparent border dark:border-transparent  p-2 rounded-md mt-1">
                 <FiUser className="text-gray-500 ml-2" />
                 <input
@@ -67,7 +70,9 @@ const MyProfilePage = () => {
 
           {/* Email */}
           <div>
-            <label className="text-sm dark:text-gray-400 text-gray-700 ">Email Address</label>
+            <label className="text-sm dark:text-gray-400 text-gray-700 ">
+              Email Address
+            </label>
             <div className="flex items-center dark:bg-[#151B2D] bg-transparent border dark:border-transparent  p-2 rounded-md mt-1">
               <FiMail className="text-gray-500 ml-2" />
               <input
@@ -81,7 +86,9 @@ const MyProfilePage = () => {
           {/* Profile Photo Upload */}
           <div className="flex gap-6">
             <div>
-              <label className="text-sm dark:text-gray-400 text-gray-700 ">Photo</label>
+              <label className="text-sm dark:text-gray-400 text-gray-700 ">
+                Photo
+              </label>
               <div>
                 <img
                   src={user}
@@ -102,7 +109,7 @@ const MyProfilePage = () => {
                     Click to upload
                     <input
                       type="file"
-                      onChange={handleImageUpload}
+                      // onChange={handleImageUpload}
                       className="hidden"
                     />
                   </label>{" "}

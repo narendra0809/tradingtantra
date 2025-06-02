@@ -1,6 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import facebook from "../assets/Images/logos/facebook.png";
+import google from "../assets/Images/logos/google.png";
+import apple from "../assets/Images/logos/apple.png";
+import { Link, useNavigate } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
+import WrapperPage from "./WrapperPage";
+import WrapperHeader from "./WrapperHeader";
+import { useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const RegisterPage = () => {
   const [FormData, setFormData] = useState({
@@ -10,167 +18,218 @@ const RegisterPage = () => {
     password: "",
     confirmPassword: "",
   });
-  const [passworderror, setPasswordError] = useState("");
-  // const navigate = useNavigate();
 
-  const { data, loading, error, fetchData } = useFetchData();
+  const [showPasswords, setShowPasswords] = useState({
+    password: false,
+    confirmPassword: false,
+  });
+
+  const [formErrors, setFormErrors] = useState({});
+
+  const navigate = useNavigate();
+
+  const { data, error, fetchData } = useFetchData();
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
     setFormData({ ...FormData, [name]: value });
+    if (name === "confirmPassword") {
+      name = "passNoMatch";
+    }
+    setFormErrors({ ...formErrors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (FormData.password !== FormData.confirmPassword) {
-      setPasswordError("Password not match.");
-      return passworderror;
+      setFormErrors({ ...formErrors, passNoMatch: "Password does not match" });
     }
 
     await fetchData("auth/signup", "POST", FormData);
-
-    console.log(error);
-    console.log(data, ",wdkjebkdbs");
   };
 
+  useEffect(() => {
+    if (data?.success) {
+      navigate("/login");
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (error.data) {
+      const newErrors = {};
+      error.data.errors.forEach((err) => {
+        newErrors[err.path] = err.msg;
+      });
+      setFormErrors({ ...formErrors, ...newErrors });
+    }
+  }, [error]);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 relative ">
-      {loading && (
-        <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-10">
-          <div className="loader"></div>
+    <WrapperPage>
+      <WrapperHeader title="Create an account" discription={null} />
+      <form className="flex flex-col mt-2" onSubmit={handleSubmit}>
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="name" className="block text-lg text-[#C7C7C7] mb-1">
+            First Name
+          </label>
+          <input
+            type="text"
+            name="firstname"
+            value={FormData.firstname}
+            onChange={handleChange}
+            placeholder="Enter your First Name"
+            id="name"
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+          />
+          {formErrors.firstname && (
+            <p className="text-red-400">{formErrors.firstname}</p>
+          )}
         </div>
-      )}
-      <div
-        className={`w-full max-w-md bg-gray-50 p-8 shadow-md rounded-md ${
-          loading ? "opacity-50" : "opacity-100"
-        }`}
-      >
-        <div className="border-b-[1px] pb-2">
-          <h2 className="font-bold text-center text-2xl text-gray-700">
-            Register
-          </h2>
-          <p className="text-center text-xs text-gray-500 font-semibold mt-1">
-            CREATE A NEW ACCOUNT
-          </p>
+
+        <div className="mb-4 flex flex-col">
+          <label className="block text-lg text-[#C7C7C7] mb-1">Last Name</label>
+
+          <input
+            type="text"
+            name="lastname"
+            value={FormData.lastname}
+            placeholder="Enter your Last Name"
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+          />
+          {formErrors.lastname && (
+            <p className="text-red-400">{formErrors.lastname}</p>
+          )}
         </div>
 
-        <form className="flex flex-col mt-2" onSubmit={handleSubmit}>
-          <div className="mb-4 flex md:flex-row flex-col w-full gap-2">
-            <div className="flex flex-col sm:w-1/2 w-full">
-              <label
-                htmlFor="name"
-                className="block text-lg text-gray-600 mb-1"
-              >
-                Firstname:
-              </label>
-              <input
-                type="text"
-                name="firstname"
-                value={FormData.firstname}
-                onChange={handleChange}
-                id="name"
-                placeholder="Firstname"
-                className=" w-full border-2 text-gray-800 outline-none border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
-              />
-            </div>
+        <div className="mb-4 flex flex-col">
+          <label htmlFor="email" className="block text-lg text-[#C7C7C7] mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your Email"
+            value={FormData.email}
+            onChange={handleChange}
+            id="email"
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+          />
+          {formErrors.email && (
+            <p className="text-red-400">{formErrors.email}</p>
+          )}
+        </div>
 
-            <div className="flex flex-col sm:w-1/2 w-full">
-              <label className="block text-lg text-gray-600 mb-1">
-                Lastname:
-              </label>
-
-              <input
-                type="text"
-                name="lastname"
-                value={FormData.lastname}
-                onChange={handleChange}
-                placeholder="Lastname"
-                className=" w-full border-2 text-gray-800 outline-none border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
-              />
-            </div>
-          </div>
-
-          <div className="mb-4 flex flex-col">
-            <label htmlFor="email" className="block text-lg text-gray-600 mb-1">
-              Email:
-            </label>
+        <div className="mb-4 flex flex-col">
+          <label
+            htmlFor="password"
+            className="block text-lg text-[#C7C7C7] mb-1"
+          >
+            Password
+          </label>
+          <div className="flex relative">
             <input
-              type="email"
-              name="email"
-              value={FormData.email}
-              onChange={handleChange}
-              id="email"
-              placeholder="Enter your email"
-              className="border-2 outline-none text-gray-800 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
-            />
-          </div>
-
-          <div className="mb-4 flex flex-col">
-            <label
-              htmlFor="password"
-              className="block text-lg text-gray-600 mb-1"
-            >
-              Password:
-            </label>
-            <input
-              type="password"
+              type={showPasswords.password ? "text" : "password"}
               name="password"
               value={FormData.password}
+              placeholder="Enter your Password"
               onChange={handleChange}
               id="password"
-              placeholder="Enter your password"
-              className="border-2 outline-none text-gray-800 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
+              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
             />
-          </div>
-          <div className="mb-4 flex flex-col">
-            <label
-              htmlFor="password"
-              className="block text-lg text-gray-600 mb-1"
+            <button
+              type="button"
+              onClick={() =>
+                setShowPasswords({
+                  ...showPasswords,
+                  password: !showPasswords.password,
+                })
+              }
             >
-              Confirm Password:
-            </label>
+              {showPasswords.password ? (
+                <EyeOff className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+              ) : (
+                <Eye className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+              )}
+            </button>
+          </div>
+          {formErrors.password && (
+            <p className="text-red-400">{formErrors.password}</p>
+          )}
+        </div>
+        <div className="mb-4 flex flex-col">
+          <label
+            htmlFor="password"
+            className="block text-lg text-[#C7C7C7] mb-1"
+          >
+            Confirm Password
+          </label>
+          <div className="flex relative">
             <input
-              type="password"
+              type={showPasswords.confirmPassword ? "text" : "password"}
               name="confirmPassword"
+              placeholder="Retype your Password"
               value={FormData.confirmPassword}
               onChange={handleChange}
               id="confrimPassword"
-              placeholder="Confirm your password"
-              className="border-2 outline-none text-gray-800 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
+              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
             />
+            <button
+              type="button"
+              onClick={() =>
+                setShowPasswords({
+                  ...showPasswords,
+                  confirmPassword: !showPasswords.confirmPassword,
+                })
+              }
+            >
+              {showPasswords.confirmPassword ? (
+                <EyeOff className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+              ) : (
+                <Eye className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+              )}
+            </button>
           </div>
-
-          {passworderror && (
-            <p className="text-red-500 mb-1">{passworderror}</p>
+          {formErrors.passNoMatch && (
+            <p className="text-red-400">{formErrors.passNoMatch}</p>
           )}
-          {error && <p className="text-red-500 mb-1">{error}</p>}
-          {error && (
-            <p className="text-red-500 text-sm mb-2">
-              {error?.data?.error || error?.message || error?.data?.message}
-            </p>
-          )}
-          <button
-            type="submit"
-            className="bg-[#2196F3] text-white rounded-lg py-2 text-lg font-semibold hover:bg-[#348dd6] transition duration-300 ease-in-out"
-          >
-            Register
-          </button>
-          {/* 
-          <button className="bg-[#2196F3] text-white rounded-lg py-2 text-lg font-semibold hover:bg-[#348dd6] transition duration-300 ease-in-out mt-2">
-            Google Signup
-          </button> */}
-        </form>
-
-        <div className="flex gap-1 items-center justify-center mt-2">
-          <p className="text-gray-600">Already have an Account?</p>
-          <Link to="/login">
-            <span className="text-[#2196F3] underline font-semibold">
-              Log In
-            </span>
-          </Link>
         </div>
+
+        <button
+          type="submit"
+          className="bg-[#052C89] mt-5 text-white rounded-lg py-2 text-lg font-semibold 
+            hover:bg-[#052C89] 
+            transition-all duration-300 ease-out 
+            transform hover:scale-105 
+            focus:outline-none focus:ring-2 focus:ring-[#0256F5] focus:ring-opacity-50"
+        >
+          Register
+        </button>
+      </form>
+      <div className="w-full flex items-center my-4">
+        <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        <span className="mx-4 text-gray-500">Or Login with</span>
+        <div className="flex-grow border-t border-[#E8ECF4]"></div>
       </div>
-    </div>
+      <div className="flex justify-between">
+        <button>
+          <img src={facebook} alt="" />
+        </button>
+        <button>
+          <img src={google} alt="" />
+        </button>
+        <button>
+          <img src={apple} alt="" />
+        </button>
+      </div>
+
+      <div className="flex gap-1 items-center justify-center mt-2">
+        <p className="text-[#C7C7C7]">Already have an Account?</p>
+        <Link to="/login">
+          <span className="text-[#6290FF] underline font-semibold">Log In</span>
+        </Link>
+      </div>
+    </WrapperPage>
   );
 };
 

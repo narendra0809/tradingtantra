@@ -6,7 +6,13 @@ import {
   MidcpNiftyOptionChain,
   SensexOptionChain,
 } from "../models/optionChain.model.js";
-import { convertToIST } from "../utils/dateUtils.js";
+import {
+  convertToIST,
+  formateDate,
+  getCurrentFetchDate,
+  getPreviousDate,
+  getPrevousFetchDate,
+} from "../utils/dateUtils.js";
 import config from "../config/optionChain.config.js";
 import { delay } from "../utils/dateUtils.js";
 const modelMap = {
@@ -125,19 +131,27 @@ export async function saveOptionChainData(
   try {
     const Model = modelMap[underlyingName];
     if (!Model) return;
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    const daysBack = dayOfWeek === 1 ? 3 : 1;
+
+    const referenceDate = getPreviousDate(now, daysBack);
     const timestamp = convertToIST(Date.now());
     const oldTimestamp = timestamp.split(",");
-    oldTimestamp[0] = formateDate(getPreviousDate(new Date()));
+    oldTimestamp[0] = formateDate(referenceDate);
     const previousTimestamp = oldTimestamp.join(",");
-    const previousFetchDate = getPrevousFetchDate();
     const currentFetchDate = getCurrentFetchDate();
 
-    await Model.findOneAndUpdate(
+    const [existingDoc] = await Model.find({
+      underlyingName,
+      timestamp: previousTimestamp,
+      expiry,
+    });
+
+    const updatedDoc = await Model.findOneAndUpdate(
       {
-        underlyingName,
-        timestamp: previousTimestamp,
-        expiry,
-        fetchDate: previousFetchDate,
+        _id: existingDoc._id,
       },
       {
         $set: {
@@ -147,8 +161,8 @@ export async function saveOptionChainData(
           expiry,
           fetchDate: currentFetchDate,
           timestamp,
-          lastPrice: 1000,
-          strikeData: [],
+          lastPrice: data.lastPrice,
+          strikeData: data.strikeData,
           updatedAt: new Date(),
         },
       },
@@ -157,6 +171,7 @@ export async function saveOptionChainData(
         new: true,
       }
     );
+    console.log("Updated Doc : ", updatedDoc);
 
     console.log(`Saved option chain for ${underlyingName}, expiry ${expiry}`);
   } catch (error) {

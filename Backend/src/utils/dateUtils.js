@@ -21,9 +21,9 @@ export function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const getPreviousDate = (today) => {
+export const getPreviousDate = (today, daysBack = 1) => {
   const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+  yesterday.setDate(today.getDate() - daysBack);
   return yesterday;
 };
 

@@ -5,13 +5,10 @@
 //   const { user } = useAuth();
 // //   console.log("user", user);
 
-
 //   return user ? <Outlet /> : <Navigate to="/login" replace />;
 // };
 
 // export default ProtectedRoute;
-
-
 
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -31,7 +28,11 @@ const ProtectedRoute = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  return user ? <Outlet /> : <Navigate to="/login" state={{ from: location }} replace />;
+  return user ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
 };
 
 export default ProtectedRoute;

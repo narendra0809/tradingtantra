@@ -1,29 +1,58 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
 import { useAuth } from "../contexts/AuthContext";
 import Cookies from "js-cookie";
 
+import WrapperHeader from "./WrapperHeader";
+import WrapperPage from "./WrapperPage";
+
 const LoginPage = () => {
-  const SERVER_URI = import.meta.env.VITE_SERVER_URI;
-  // const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
-  // const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { data, error, loading, fetchData } = useFetchData();
+  const { data, error, fetchData } = useFetchData();
   const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: "" });
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email is invalid";
+    }
+    if (!formData.password) {
+      errors.password = "Password is required";
+    }
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationErrors = validateForm();
+    setFormErrors(validationErrors);
 
-    // console.log(formData)
-
-    await fetchData("auth/login", "POST", formData);
+    if (Object.keys(validationErrors).length === 0) {
+      setIsSubmitting(true);
+      try {
+        await fetchData("auth/login", "POST", formData);
+      } catch (err) {
+        console.error("Login error:", err);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
   };
 
   useEffect(() => {
@@ -34,93 +63,103 @@ const LoginPage = () => {
     }
   }, [data]);
 
-  const handleGoolgleLogin = async () => {
-    window.location.href = `${SERVER_URI}/auth/google`;
-  };
+  useEffect(() => {
+    console.log(error);
+    if (error) {
+      if (error.data?.message === "User not Exist, please sign up") {
+        setFormErrors({
+          ...formErrors,
+          api: "User does not exist. Please sign up.",
+        });
+      } else if (error.data?.error === "Invalid credentials") {
+        setFormErrors({
+          ...formErrors,
+          api: "Wrong credentials. Please try again.",
+        });
+      }
+    }
+  }, [error]);
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100  ">
-      {loading && (
-        <div className="absolute inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-10">
-          <div className="loader"></div>
-        </div>
-      )}
-      <div
-        className={`w-full max-w-md bg-gray-50 p-8 shadow-md rounded-md ${
-          loading ? "opacity-50" : "opacity-100"
-        }`}
-      >
-        <div className="border-b-[1px] pb-2">
-          <h2 className="font-bold text-center text-2xl text-gray-700">
-            Login
-          </h2>
-          <p className="text-center text-xs text-gray-500 font-semibold mt-1">
-            ACCESS YOUR ACCOUNT
-          </p>
-        </div>
+    <WrapperPage>
+      <WrapperHeader
+        title="Welcome Back"
+        discription="Welcome back please enter your detials"
+      />
 
-        <form className="flex flex-col mt-2 " onSubmit={handleSubmit}>
-          <div className="mb-4 flex flex-col">
-            <label htmlFor="email" className="block text-lg text-gray-600 mb-1">
-              Email:
-            </label>
-            <input
-              required
-              value={setFormData.email}
-              onChange={handleChange}
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Enter your email"
-              className="border-2 outline-none text-gray-800 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
-            />
-          </div>
-
-          <div className="mb-2 flex flex-col">
-            <label
-              htmlFor="password"
-              className="block text-lg text-gray-600 mb-1"
-            >
-              Password:
-            </label>
-            <input
-              required
-              value={setFormData.password}
-              onChange={handleChange}
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter your password"
-              className="border-2 outline-none text-gray-800 border-gray-300 rounded-lg px-4 py-2 text-base focus:border-[#2196F3] focus:ring-4 focus:ring-[#2195f34f] transition duration-300 ease-in-out"
-            />
-          </div>
-
-          {error && (
-            <p className="text-red-500 text-sm mb-2">
-              {error?.data?.error || error?.message || error?.data?.message}
-            </p>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            placeholder="Enter your email"
+            required
+          />
+          {formErrors.email && (
+            <p className="mt-1 text-sm text-[#FF4242]">{formErrors.email}</p>
           )}
-          <button
-            type="submit"
-            className="bg-[#2196F3] text-white rounded-lg py-2 text-lg font-semibold hover:bg-[#348dd6] transition duration-300 ease-in-out"
-          >
-            Login
-          </button>
-        </form>
-
-        {/* <div className="mt-2">
-          <button className="bg-[#2196F3] text-white rounded-lg py-2 text-lg font-semibold hover:bg-[#348dd6] transition duration-300 ease-in-out w-full" onClick={handleGoolgleLogin}>Login with Google</button>
-        </div> */}
-
-        <div className="flex gap-1 items-center justify-center mt-2">
-          <p className="text-gray-600">Don&apos;t have an Account?</p>
-          <Link to="/signup">
-            <span className="text-[#2196F3] underline font-semibold">
-              Register
-            </span>
-          </Link>
         </div>
-      </div>
-    </div>
+
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium mb-1">
+            Password
+          </label>
+          <input
+            name="password"
+            type="password"
+            id="password"
+            onChange={handleChange}
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            placeholder="Enter your password"
+            required
+          />
+          {formErrors.password && (
+            <p className="mt-1 text-sm text-[#FF4242]">{formErrors.password}</p>
+          )}
+        </div>
+
+        {formErrors.api && (
+          <div className="p-3 bg-[#1F0000] border border-[#FF4242] rounded-lg">
+            <p className="text-sm text-[#FF4242]">{formErrors.api}</p>
+          </div>
+        )}
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => navigate("/forget-password")}
+            className="text-sm text-[#FF4242] hover:text-[#FF4242]"
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={`w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200 ${
+            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {isSubmitting ? "Signing In..." : "Sign In"}
+        </button>
+
+        <div className="text-center text-sm ">
+          Don&apos;t have an account?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/signup")}
+            className="text-[#6290FF] hover:text-[#6290FF] font-medium"
+          >
+            Sign Up
+          </button>
+        </div>
+      </form>
+    </WrapperPage>
   );
 };
 

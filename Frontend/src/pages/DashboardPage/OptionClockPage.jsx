@@ -25,6 +25,7 @@ const OptionClockPage = () => {
   const [selectedIndex, setSelectedIndex] = useState("Nifty50");
   const [selectedExpiry, setSelectedExpiry] = useState("");
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(true);
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
@@ -37,7 +38,7 @@ const OptionClockPage = () => {
       );
       return {
         data: response.data || [],
-        expiries: response.data.expiries || [],
+        expiries: response.data?.expiries || [],
       };
     } catch (error) {
       console.error(`Error fetching ${index} data:`, error);
@@ -59,7 +60,6 @@ const OptionClockPage = () => {
         "MIDCPNIFTY",
         "SENSEX",
       ];
-
       const results = await Promise.all(indexes.map(fetchIndexData));
 
       const newIndexes = [
@@ -70,13 +70,17 @@ const OptionClockPage = () => {
         "Sensex",
       ];
       const newData = {};
+
       newIndexes.forEach((index, i) => {
         newData[index] = results[i].data;
       });
 
       setAllIndexData(newData);
-      if (newData.Nifty50.expiries.length > 0) {
-        setSelectedExpiry(newData.Nifty50.expiries[0]);
+
+      // Set default expiry for Nifty50 if available
+      if (newData.Nifty50?.expiries?.length > 0) {
+        setSelectedExpiry(() => newData.Nifty50.expiries[0]);
+        getDataByIndexAndExpiry("15:03-15:09");
       }
     } catch (error) {
       console.error("Error fetching index data:", error);
@@ -86,23 +90,36 @@ const OptionClockPage = () => {
   };
 
   useEffect(() => {
-    fetchAllIndexData();
+    const initializeData = async () => {
+      await fetchAllIndexData();
+    };
+    initializeData();
   }, []);
+
+  useEffect(() => {
+    if (selectedExpiry) {
+      getDataByIndexAndExpiry("09:15-15:30");
+    }
+  }, [selectedExpiry, selectedIndex]);
 
   const handleIndexChange = (e) => {
     const index = e.target.value;
     setSelectedIndex(index);
-    if (allIndexData[index]?.expiries.length > 0) {
+    if (allIndexData[index]?.expiries?.length > 0) {
       setSelectedExpiry(allIndexData[index].expiries[0]);
     }
   };
+
   const currentExpiries = allIndexData[selectedIndex]?.expiries || [];
 
   const getDataByIndexAndExpiry = (range) => {
-    if (!range || !selectedExpiry || !allIndexData[selectedIndex]?.data) {
-      console.error("Missing required parameters");
+    if (!range || !allIndexData[selectedIndex]?.data) {
+      console.log("Missing parameters - waiting for data to load");
       return;
     }
+
+    setChartLoading(true);
+
     let totalOiCE = 0;
     let totalOiPE = 0;
     try {
@@ -112,40 +129,56 @@ const OptionClockPage = () => {
         const expectedExpiry = data.expiry;
         const date = data.timestamp.split(",")[0].trim();
         const timestamp = data.timestamp.split(",")[1].trim();
+
         if (expectedExpiry !== selectedExpiry) return false;
+
         let currDate = new Date();
         const dayNum = currDate.getDay();
-        if (dayNum === 6 || dayNum === 7) {
+        if (dayNum === 6) {
           currDate = getPreviousDate(currDate);
+        } else if (dayNum === 0) {
+          currDate = getPreviousDate(getPreviousDate(currDate));
         }
+
         const formatter = new Intl.DateTimeFormat("en-US", {
           month: "2-digit",
           day: "2-digit",
           year: "numeric",
         });
-        const formattedDate = formatter.format(currDate).slice(1);
+
+        let formattedDate = formatter.format(currDate).slice(1).split("/");
+        if (formattedDate[1].charAt(0) === "0") {
+          formattedDate[1] = formattedDate[1].charAt(1);
+        }
+        formattedDate = formattedDate.join("/");
+
         if (date !== formattedDate) return false;
+
         const { totalOiCE: totalCE, totalOiPE: totalPE } = getTotalOi(data);
         totalOiCE = totalOiCE + totalCE;
         totalOiPE = totalOiPE + totalPE;
+
         return timestamp === startTime || timestamp === endTime;
       });
+      console.log(filteredData);
       filteredData = filteredData.sort(
         (a, b) =>
           parseTime(a.timestamp.split(",")[1].trim()) -
           parseTime(b.timestamp.split(",")[1].trim())
       );
+
       const processedData = processData(filteredData[0], filteredData[1]);
       setTotalOiChanges(getTotalOIChange(processedData));
       setTotalOi({
         totalOiCE: totalOiCE / lotSize[selectedIndex],
         totalOiPE: totalOiPE / lotSize[selectedIndex],
       });
-      console.log("After dividing : ", totalOiCE / lotSize[selectedIndex]);
       setCurrData(processedData.length > 0 ? processedData : []);
     } catch (error) {
-      console.log("Error in filerting data  :", error);
+      console.log("Error in filtering data:", error);
       setCurrData([]);
+    } finally {
+      setChartLoading(false);
     }
   };
 
@@ -234,6 +267,14 @@ const OptionClockPage = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="ml-4 text-xl">Loading market data...</p>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* sector depth section */}
@@ -303,53 +344,62 @@ const OptionClockPage = () => {
       {/* oi clock charts section*/}
       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
         <div className="dark:bg-db-primary bg-db-primary-light rounded-lg p-3">
-          <div className="dark:bg-db-primary bg-db-primary-lightrounded-lg ">
-            <div className="flex items-center gap-2">
-              <h2 className="text-3xl font-bold ">OI Clock </h2>{" "}
-              <span>
-                <FcCandleSticks className="text-xl" />
-              </span>
+          {chartLoading ? (
+            <div className="flex justify-center items-center h-64">
+              {/* <LoadingSpinner /> */}
+              <p className="ml-4">Loading chart data...</p>
             </div>
-
-            <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <OiClockChart data={currData} />
-            </div>
-          </div>
-
-          <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <div className="dark:bg-db-secondary bg-db-primary-light rounded-lg p-3">
+          ) : (
+            <>
+              <div className="dark:bg-db-primary bg-db-primary-lightrounded-lg ">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
-                  <span className="text-xl">
-                    <FcCandleSticks />
+                  <h2 className="text-3xl font-bold ">OI Clock </h2>{" "}
+                  <span>
+                    <FcCandleSticks className="text-xl" />
                   </span>
                 </div>
-                <OiClockChartTwo data={totalOiChanges} />
+
+                <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                  <OiClockChart data={currData} />
+                </div>
               </div>
-            </div>
 
-            <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <div className="dark:bg-db-secondary bg-db-primary-light px-3 rounded-lg h-full">
-                <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
-                  <div className="flex gap-2 items-center text-xl">
-                    <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
-                    <span className="text-xl">
-                      <FcCandleSticks />
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2 ">
-                    <div className="h-5 w-5 rounded bg-[#0256F5]"></div>{" "}
-                    <p>Bulls Total OI</p>
-                    <div className="h-5 w-5 rounded bg-[#95025A] ml-3"></div>{" "}
-                    <p>Bears Total OI</p>
+              <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                  <div className="dark:bg-db-secondary bg-db-primary-light rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
+                      <span className="text-xl">
+                        <FcCandleSticks />
+                      </span>
+                    </div>
+                    <OiClockChartTwo data={totalOiChanges} />
                   </div>
                 </div>
-                <OiClockChartThree data={totalOi} />
+
+                <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                  <div className="dark:bg-db-secondary bg-db-primary-light px-3 rounded-lg h-full">
+                    <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
+                      <div className="flex gap-2 items-center text-xl">
+                        <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
+                        <span className="text-xl">
+                          <FcCandleSticks />
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2 ">
+                        <div className="h-5 w-5 rounded bg-[#0256F5]"></div>{" "}
+                        <p>Bulls Total OI</p>
+                        <div className="h-5 w-5 rounded bg-[#95025A] ml-3"></div>{" "}
+                        <p>Bears Total OI</p>
+                      </div>
+                    </div>
+                    <OiClockChartThree data={totalOi} />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </section>
     </>
