@@ -6,7 +6,12 @@ import meter from "../../../assets/Images/Dashboard/marketdepthpage/meter.png";
 import Loader from "../../Loader";
 import Lock from "../Lock";
 
-const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", error = null }) => {
+const HighPowerStock = ({
+  data = [],
+  loading = false,
+  isSubscribed = "false",
+  error = null,
+}) => {
   const [sortedData, setSortedData] = useState([]);
   const [sortOrder, setSortOrder] = useState("desc");
   const [sortOrderChange, setSortOrderChange] = useState("desc");
@@ -62,7 +67,7 @@ const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", er
 
   return (
     <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-db-primary-light rounded-lg p-2">
+      <div className="w-full h-full dark:bg-db-primary bg-db-primary rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -87,7 +92,7 @@ const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", er
 
         {/* Table Section */}
         <div className="bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-secondary-light p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-primary p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {isSubscribed === "false" ? (
@@ -95,7 +100,7 @@ const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", er
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-secondary-light z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-primary z-10">
                     <tr className="dark:text-gray-300 text-gray-800">
                       <th
                         className="flex justify-start items-center py-2"
@@ -103,7 +108,9 @@ const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", er
                       >
                         Symbol{" "}
                         <MdOutlineKeyboardArrowDown
-                          className={sortOrderSymbol === "desc" ? "rotate-180" : ""}
+                          className={
+                            sortOrderSymbol === "desc" ? "rotate-180" : ""
+                          }
                         />
                       </th>
                       <th className="py-2">
@@ -115,7 +122,9 @@ const HighPowerStock = ({ data = [], loading = false, isSubscribed = "false", er
                       >
                         %{" "}
                         <MdOutlineKeyboardArrowDown
-                          className={sortOrderChange === "desc" ? "rotate-180" : ""}
+                          className={
+                            sortOrderChange === "desc" ? "rotate-180" : ""
+                          }
                         />
                       </th>
                       <th

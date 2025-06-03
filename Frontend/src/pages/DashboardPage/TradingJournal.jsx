@@ -189,7 +189,7 @@ const TradingJournal = () => {
             {showAddTrade && (
               <div
                 ref={addTradeRef}
-                className="absolute top-15 -right-25 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-secondary-light p-7"
+                className="absolute top-15 -right-25 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-primary p-7"
               >
                 <div className="flex justify-between">
                   <h3 className="text-2xl font-medium">Add Trade :</h3>
@@ -216,7 +216,7 @@ const TradingJournal = () => {
                             dateRangeType === "short" ? "long" : "short"
                           )
                         }
-                        className="w-14 h-6 dark:bg-[#00114e] bg-primary-light rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
+                        className="w-14 h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
                       >
                         <div
                           className={`w-6 h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
@@ -240,7 +240,7 @@ const TradingJournal = () => {
                       value={formatDateForInput(tradeData.entryDate)}
                       onChange={(e) => handleTradeDateChange(e, "entryDate")}
                       onClick={() => handleInputClick(startInputRef)}
-                      className="dark:bg-[#00114E] bg-primary-light dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white rounded-sm px-3 py-1 w-[60%]"
+                      className="dark:bg-[#00114E] bg-db-primary dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white rounded-sm px-3 py-1 w-[60%]"
                     />
                   </div>
                   <div className="flex items-center mb-5 justify-between w-full">
@@ -251,7 +251,7 @@ const TradingJournal = () => {
                       value={formatDateForInput(tradeData.exitDate)}
                       onChange={(e) => handleTradeDateChange(e, "exitDate")}
                       onClick={() => handleInputClick(endInputRef)}
-                      className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white"
+                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white"
                     />
                   </div>
                   <div className="flex items-center mb-5 justify-between w-full">
@@ -260,7 +260,7 @@ const TradingJournal = () => {
                       name="symbol"
                       value={tradeData?.symbol}
                       onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
                       placeholder="Enter symbol/ticker"
                     >
                       {tickerSymbol.map((symbol, index) => (
@@ -277,7 +277,7 @@ const TradingJournal = () => {
                       name="entryPrice"
                       value={tradeData?.entryPrice}
                       onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
                       placeholder="Enter entry price"
                     />
                   </div>
@@ -288,7 +288,7 @@ const TradingJournal = () => {
                       name="exitPrice"
                       value={tradeData?.exitPrice}
                       onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
                       placeholder="Enter exit price"
                     />
                   </div>
@@ -299,7 +299,7 @@ const TradingJournal = () => {
                       name="quantity"
                       value={tradeData?.quantity}
                       onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] dark:placeholder:text-[#C9CFE5] placeholder:text-white bg-primary-light rounded-sm px-3 py-1 w-[60%]"
+                      className="dark:bg-[#00114E] dark:placeholder:text-[#C9CFE5] placeholder:text-white bg-db-primary rounded-sm px-3 py-1 w-[60%]"
                       placeholder="Enter quantity"
                     />
                   </div>
@@ -325,7 +325,7 @@ const TradingJournal = () => {
             {showDateRange && (
               <div
                 ref={dateRangeRef}
-                className="absolute top-15 right-5 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-secondary-light p-7 border dark:border-transparent border-white"
+                className="absolute top-15 right-5 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-primary p-7 border dark:border-transparent border-white"
               >
                 <div className="flex justify-between">
                   <h3 className="text-2xl font-medium">Select Date Range :</h3>
@@ -351,7 +351,7 @@ const TradingJournal = () => {
                           dateRangeType === "short" ? "long" : "short"
                         )
                       }
-                      className="w-14 h-6 dark:bg-[#00114e] bg-primary-light rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
+                      className="w-14 h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
                     >
                       <div
                         className={`w-6 h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
@@ -375,7 +375,7 @@ const TradingJournal = () => {
                     value={formatDateForInput(tempDates.startDate)}
                     onChange={(e) => handleDateChange(e, "start")}
                     onClick={() => handleInputClick(startInputRef)}
-                    className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%]"
+                    className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%]"
                   />
                 </div>
                 <div className="flex items-center w-full justify-between">
@@ -386,7 +386,7 @@ const TradingJournal = () => {
                     value={formatDateForInput(tempDates?.endDate)}
                     onChange={(e) => handleDateChange(e, "end")}
                     onClick={() => handleInputClick(endInputRef)}
-                    className="dark:bg-[#00114E] bg-primary-light rounded-sm px-3 py-1 w-[60%]"
+                    className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%]"
                   />
                 </div>
 
@@ -403,7 +403,7 @@ const TradingJournal = () => {
       </div>
 
       <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-        <div className="dark:bg-db-primary bg-db-primary-light rounded-md p-2.5">
+        <div className="dark:bg-db-primary bg-db-primary rounded-md p-2.5">
           <CalendarGrid
             setSelectedDate={setSelectedDate}
             selectedDateRange={[dateRange]}
@@ -412,7 +412,7 @@ const TradingJournal = () => {
 
           <div className="grid lg:grid-cols-3 grid-cols-1 gap-2.5 my-2.5">
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-db-secondary-light shadow-lg rounded-sm p-3 h-full">
+              <div className="dark:bg-db-secondary bg-db-primary shadow-lg rounded-sm p-3 h-full">
                 <Calendar
                   value={new Date(selectedYear, selectedMonthIndex, 1)}
                   locale="en-US"
@@ -429,7 +429,7 @@ const TradingJournal = () => {
             </section>
 
             <section className="lg:col-span-2 bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-db-secondary-light rounded-md p-2.5">
+              <div className="dark:bg-db-secondary bg-db-primary rounded-md p-2.5">
                 <h5 className="font-normal text-2xl text-center mb-6">
                   Statistics
                 </h5>
@@ -446,7 +446,7 @@ const TradingJournal = () => {
                   ].map((stat, index) => (
                     <div
                       key={stat}
-                      className={`dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-4 py-5 ${
+                      className={`dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-4 py-5 ${
                         index >= 4 ? "sm:col-span-2" : ""
                       }`}
                     >
@@ -482,7 +482,7 @@ const TradingJournal = () => {
 
           <div className="grid md:grid-cols-2 grid-cols-1 gap-2.5">
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-db-secondary-light rounded-md p-2.5">
+              <div className="dark:bg-db-secondary bg-db-primary rounded-md p-2.5">
                 <h5 className="font-normal text-2xl text-center mb-6">
                   Top Winner
                 </h5>
@@ -490,7 +490,7 @@ const TradingJournal = () => {
                   {data?.topWinnersLosers?.top3Winners.map((data, index) => (
                     <div
                       key={index}
-                      className="dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-4 py-5"
+                      className="dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-4 py-5"
                     >
                       <p className="text-sm">Winner</p>
                       <p>{data.symbol}</p>
@@ -501,7 +501,7 @@ const TradingJournal = () => {
             </section>
 
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-db-secondary-light rounded-md p-2.5">
+              <div className="dark:bg-db-secondary bg-db-primary rounded-md p-2.5">
                 <h5 className="font-normal text-2xl text-center mb-6">
                   Top Loser
                 </h5>
@@ -509,7 +509,7 @@ const TradingJournal = () => {
                   {data?.topWinnersLosers?.top3Losers.map((data, index) => (
                     <div
                       key={index}
-                      className="dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-4 py-5"
+                      className="dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-4 py-5"
                     >
                       <p className="text-sm">Loser</p>
                       <p>{data.symbol}</p>

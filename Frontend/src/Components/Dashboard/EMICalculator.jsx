@@ -27,8 +27,10 @@ const EMICalculator = ({ calculator }) => {
 
     const monthlyInterestRate = interest / 12 / 100;
     const numberOfPayments = duration * 12;
-    const EMI = 
-      (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) /
+    const EMI =
+      (loanAmount *
+        monthlyInterestRate *
+        Math.pow(1 + monthlyInterestRate, numberOfPayments)) /
       (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
     const total = EMI * numberOfPayments;
     const interestAmount = total - loanAmount;
@@ -80,110 +82,126 @@ const EMICalculator = ({ calculator }) => {
   };
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-light-b2 rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary rounded-md mt-10">
         <form className="space-y-6">
           <div className="grid grid-cols-2 gap-y-8">
-              <div className="flex flex-col space-y-[50px]">
-                <div className="flex flex-col space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-lg font-abcRepro font-light  ">
-                      Loan Amount*
-                    </label>
-                    <input
-                      type="number"
-                      value={loanAmount}
-                      onChange={(e) => setLoanAmount(Number(e.target.value))}
-                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary-light "
-                      min="100"
-                      max="10000"
-                      step="100"
-                    />
-                  </div>
+            <div className="flex flex-col space-y-[50px]">
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-lg font-abcRepro font-light  ">
+                    Loan Amount*
+                  </label>
                   <input
-                    type="range"
+                    type="number"
+                    value={loanAmount}
+                    onChange={(e) => setLoanAmount(Number(e.target.value))}
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary "
                     min="100"
                     max="10000"
                     step="100"
-                    value={loanAmount}
-                    onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="100"
+                  max="10000"
+                  step="100"
+                  value={loanAmount}
+                  onChange={(e) => setLoanAmount(Number(e.target.value))}
+                  className="w-full h-1 cursor-pointer"
+                />
+              </div>
 
-                {/* Expected Return Slider */}
-                <div className="flex flex-col space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-lg font-abcRepro font-light ">
-                      Rate Of Interest (p.a.) (%)*
-                    </label>
-                    <input
-                      type="number"
-                      value={interest}
-                      onChange={(e) => setInterest(Number(e.target.value))}
-                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary-light"
-                      min="1"
-                      max="40"
-                      step="0.1"
-                    />
-                  </div>
+              {/* Expected Return Slider */}
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-lg font-abcRepro font-light ">
+                    Rate Of Interest (p.a.) (%)*
+                  </label>
                   <input
-                    type="range"
+                    type="number"
+                    value={interest}
+                    onChange={(e) => setInterest(Number(e.target.value))}
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary"
                     min="1"
                     max="40"
                     step="0.1"
-                    value={interest}
-                    onChange={(e) => setInterest(Number(e.target.value))}
-                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="40"
+                  step="0.1"
+                  value={interest}
+                  onChange={(e) => setInterest(Number(e.target.value))}
+                  className="w-full h-1 cursor-pointer"
+                />
+              </div>
 
-                {/* Duration Slider */}
-                <div className="flex flex-col space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-lg font-abcRepro font-light ">
-                      Loan Tenure (Years) *
-                    </label>
-                    <input
-                      type="number"
-                      value={duration}
-                      onChange={(e) => setDuration(Number(e.target.value))}
-                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary-light"
-                      min="1"
-                      max="30"
-                      step="1"
-                    />
-                  </div>
+              {/* Duration Slider */}
+              <div className="flex flex-col space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-lg font-abcRepro font-light ">
+                    Loan Tenure (Years) *
+                  </label>
                   <input
-                    type="range"
+                    type="number"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary"
                     min="1"
                     max="30"
                     step="1"
-                    value={duration}
-                    onChange={(e) => setDuration(Number(e.target.value))}
-                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="30"
+                  step="1"
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value))}
+                  className="w-full h-1 cursor-pointer"
+                />
               </div>
-              
-            <div className="w-full"> <Doughnut data={chartData} options={chartOptions} width={"324px"}
-                height={"324px"}/></div>
+            </div>
+
+            <div className="w-full">
+              {" "}
+              <Doughnut
+                data={chartData}
+                options={chartOptions}
+                width={"324px"}
+                height={"324px"}
+              />
+            </div>
           </div>
 
           {/* Buttons */}
           <div className="flex justify-between items-center gap-10 mt-[82px]">
-            <button onClick={handleClear} className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5">
+            <button
+              onClick={handleClear}
+              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+            >
               Clear
             </button>
-            <button onClick={handleCalculate} className="bg-primary py-2 rounded-md w-4/5">
+            <button
+              onClick={handleCalculate}
+              className="bg-primary py-2 rounded-md w-4/5"
+            >
               Calculate
             </button>
           </div>
         </form>
       </div>
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-light-b2  rounded-md mt-5">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary  rounded-md mt-5">
         <div className="flex justify-between items-center">
           <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
-          <button onClick={handleClear} className="text-base font-abcRepro px-3 py-2 rounded-md bg-primary">
+          <button
+            onClick={handleClear}
+            className="text-base font-abcRepro px-3 py-2 rounded-md bg-primary"
+          >
             Reset
           </button>
         </div>
@@ -210,4 +228,4 @@ const EMICalculator = ({ calculator }) => {
   );
 };
 
-export default EMICalculator
+export default EMICalculator;

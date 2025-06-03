@@ -19,12 +19,7 @@ const isMarketTime = () => {
   const minute = now.minute;
 
   // Return true if time is between 9:15 and 15:30
-  if (
-    hour < 9 ||
-    (hour === 9 && minute < 15) ||
-    hour > 15 ||
-    (hour === 15 && minute > 40)
-  ) {
+  if ((hour <= 9 && minute < 15) || (hour >= 15 && minute > 40)) {
     return false;
   }
   return true;

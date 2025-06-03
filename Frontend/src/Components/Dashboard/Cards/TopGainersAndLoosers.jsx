@@ -17,7 +17,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
   useEffect(() => {
     setSortedData(data || []);
   }, [data]);
- 
+
   // Function to sort data
 
   const handleSort = () => {
@@ -62,7 +62,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
 
   return (
     <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-db-primary-light rounded-lg p-2">
+      <div className="w-full h-full dark:bg-db-primary bg-db-primary rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
 
         {/* Table Section */}
         <div className="bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-secondary-light p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-primary p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {isSubscribed === "false" ? (
@@ -99,7 +99,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-secondary-light z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-primary z-10">
                     <tr className="dark:text-gray-300 text-gray-800">
                       <th
                         className="flex justify-start items-center py-2"
@@ -143,55 +143,59 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                   </thead>
 
                   {/* Scrollable Table Body */}
-                 <tbody>
-  {loading && (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        <Loader />
-      </td>
-    </tr>
-  )}
-  {error && (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        {error}
-      </td>
-    </tr>
-  )}
-  {sortedData.length > 0 ? (
-    sortedData.map((stock, index) => (
-      <tr key={index}>
-        <td className="flex items-center font-medium text-xs gap-2 py-3">
-          <a
-            target="_blank"
-            href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-          >
-            {stock?.stockSymbol}
-          </a>
-        </td>
-        <td className="text-lg">
-          <FcCandleSticks />
-        </td>
-        <td className="text-center">
-          <span
-            className={`${
-              stock?.percentageChange >= 0 ? "bg-green-600" : "bg-red-600"
-            } px-2 py-1 text-xs rounded-full`}
-          >
-            {stock?.percentageChange}
-          </span>
-        </td>
-        <td className="text-right text-xs">{stock?.xElement?.toFixed(2)}</td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        {!loading && !error ? "No data available" : ""}
-      </td>
-    </tr>
-  )}
-</tbody>
+                  <tbody>
+                    {loading && (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          <Loader />
+                        </td>
+                      </tr>
+                    )}
+                    {error && (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          {error}
+                        </td>
+                      </tr>
+                    )}
+                    {sortedData.length > 0 ? (
+                      sortedData.map((stock, index) => (
+                        <tr key={index}>
+                          <td className="flex items-center font-medium text-xs gap-2 py-3">
+                            <a
+                              target="_blank"
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                            >
+                              {stock?.stockSymbol}
+                            </a>
+                          </td>
+                          <td className="text-lg">
+                            <FcCandleSticks />
+                          </td>
+                          <td className="text-center">
+                            <span
+                              className={`${
+                                stock?.percentageChange >= 0
+                                  ? "bg-green-600"
+                                  : "bg-red-600"
+                              } px-2 py-1 text-xs rounded-full`}
+                            >
+                              {stock?.percentageChange}
+                            </span>
+                          </td>
+                          <td className="text-right text-xs">
+                            {stock?.xElement?.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          {!loading && !error ? "No data available" : ""}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
                 </table>
               )}
             </div>
@@ -255,7 +259,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
 
   return (
     <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-db-primary-light rounded-lg p-2">
+      <div className="w-full h-full dark:bg-db-primary bg-db-primary rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -284,7 +288,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
 
         {/* Table Section */}
         <div className="bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-secondary-light p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-primary p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {isSubscribed === "false" ? (
@@ -292,7 +296,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-secondary-light z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-primary z-10">
                     <tr className="dark:text-gray-300 text-gray-800">
                       <th
                         className="flex justify-start items-center py-2"
@@ -336,55 +340,59 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                   </thead>
 
                   {/* Scrollable Table Body */}
-                 <tbody>
-  {loading && (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        <Loader />
-      </td>
-    </tr>
-  )}
-  {error && (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        {error}
-      </td>
-    </tr>
-  )}
-  {sortedData.length > 0 ? (
-    sortedData.map((stock, index) => (
-      <tr key={index}>
-        <td className="flex items-center font-medium text-xs gap-2 py-3">
-          <a
-            target="_blank"
-            href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-          >
-            {stock?.stockSymbol}
-          </a>
-        </td>
-        <td className="text-lg">
-          <FcCandleSticks />
-        </td>
-        <td className="text-center">
-          <span
-            className={`${
-              stock?.percentageChange >= 0 ? "bg-green-600" : "bg-red-600"
-            } px-2 py-1 text-xs rounded-full`}
-          >
-            {stock?.percentageChange}
-          </span>
-        </td>
-        <td className="text-right text-xs">{stock?.xElement?.toFixed(2)}</td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="4" className="text-center py-4">
-        {!loading && !error ? "No data available" : ""}
-      </td>
-    </tr>
-  )}
-</tbody>
+                  <tbody>
+                    {loading && (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          <Loader />
+                        </td>
+                      </tr>
+                    )}
+                    {error && (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          {error}
+                        </td>
+                      </tr>
+                    )}
+                    {sortedData.length > 0 ? (
+                      sortedData.map((stock, index) => (
+                        <tr key={index}>
+                          <td className="flex items-center font-medium text-xs gap-2 py-3">
+                            <a
+                              target="_blank"
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                            >
+                              {stock?.stockSymbol}
+                            </a>
+                          </td>
+                          <td className="text-lg">
+                            <FcCandleSticks />
+                          </td>
+                          <td className="text-center">
+                            <span
+                              className={`${
+                                stock?.percentageChange >= 0
+                                  ? "bg-green-600"
+                                  : "bg-red-600"
+                              } px-2 py-1 text-xs rounded-full`}
+                            >
+                              {stock?.percentageChange}
+                            </span>
+                          </td>
+                          <td className="text-right text-xs">
+                            {stock?.xElement?.toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="4" className="text-center py-4">
+                          {!loading && !error ? "No data available" : ""}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
                 </table>
               )}
             </div>

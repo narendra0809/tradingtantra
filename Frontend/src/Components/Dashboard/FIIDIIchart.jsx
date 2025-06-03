@@ -30,7 +30,7 @@ const CustomBarChart = ({ data, loading }) => {
         padding: "20px",
         borderRadius: "10px",
       }}
-      className="dark:bg-db-secondary bg-db-secondary-light"
+      className="dark:bg-db-secondary bg-db-primary"
     >
       <ResponsiveContainer width="100%" height="100%">
         <div>

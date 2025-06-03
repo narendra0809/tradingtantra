@@ -11,7 +11,7 @@ const FinancialCalendar = () => {
   const [toDate, setToDate] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [category, setCategory] = useState("Select Category");
-const theme =useSelector((state)=>state.theme.theme)
+  const theme = useSelector((state) => state.theme.theme);
   const categories = [
     "Corporate Actions",
     "Board Meeting",
@@ -271,21 +271,21 @@ const theme =useSelector((state)=>state.theme.theme)
   };
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-
-  
   return (
     <>
-        <h2 className="mt-5 text-3xl font-semibold ">Financial Calendar</h2>
+      <h2 className="mt-5 text-3xl font-semibold ">Financial Calendar</h2>
       <div className="w-full flex items-start lg:gap-y-0 gap-y-5 lg:flex-row flex-col my-5 ">
         {/* left section */}
         <section className="rounded-lg w-full lg:max-w-md   bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px  mr-5">
-          <div className="dark:bg-db-primary bg-db-primary-light w-full rounded-lg p-2.5 ">
-            <div className="flex flex-col items-center dark:bg-db-primary bg-db-primary-light shadow-lg rounded-sm w-full">
+          <div className="dark:bg-db-primary bg-db-primary w-full rounded-lg p-2.5 ">
+            <div className="flex flex-col items-center dark:bg-db-primary bg-db-primary shadow-lg rounded-sm w-full">
               <Calendar
                 onChange={setDate}
                 value={date}
                 locale="en-US"
-                className={`${theme==="dark"?"custom-calendar-dark": "custom-calendar"}`}
+                className={`${
+                  theme === "dark" ? "custom-calendar-dark" : "custom-calendar"
+                }`}
                 tileClassName={({ date }) => {
                   const day = date.getDay();
                   if (date.toDateString() === today.toDateString())
@@ -296,7 +296,7 @@ const theme =useSelector((state)=>state.theme.theme)
                 }}
               />
             </div>
-            <div className="grid grid-cols-3 dark:bg-db-secondary bg-primary-light mt-2.5 gap-y-2 p-4 ">
+            <div className="grid grid-cols-3 dark:bg-db-secondary bg-db-primary mt-2.5 gap-y-2 p-4 ">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[#FC5C5D]"></div>
                 <p className="text-xs">Corporate Actions</p>
@@ -334,11 +334,11 @@ const theme =useSelector((state)=>state.theme.theme)
         </section>{" "}
         {/* right section */}
         <section className="rounded-lg w-full  bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px ">
-          <div className="w-full dark:bg-db-primary bg-db-primary-light  p-5">
+          <div className="w-full dark:bg-db-primary bg-db-primary  p-5">
             <h3 className="font-medium text-2xl text-center">
               Event Date: 10 February, 2025
             </h3>
-            <div className="w-full dark:bg-db-primary bg-db-primary-light h-[340px] overflow-y-auto scrollbar-hidden">
+            <div className="w-full dark:bg-db-primary bg-db-primary h-[340px] overflow-y-auto scrollbar-hidden">
               <div className="flex flex-col gap-y-5 mt-8  ">
                 {eventData.map((event, index) => (
                   <div key={index} className="space-y-2 ">
@@ -346,7 +346,7 @@ const theme =useSelector((state)=>state.theme.theme)
                       {event.event}
                     </p>
 
-                    <div className=" w-full dark:bg-db-primary bg-db-secondary-light p-2 rounded-lg flex border border-[#0356F5] justify-between">
+                    <div className=" w-full dark:bg-db-primary bg-db-primary p-2 rounded-lg flex border border-[#0356F5] justify-between">
                       <div>
                         <p className="text-base font-normal">{event.company}</p>
                         <p className="text-[10px] font-light">
@@ -368,14 +368,14 @@ const theme =useSelector((state)=>state.theme.theme)
       </div>
       {/* date form */}
       <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-        <div className="dark:bg-db-primary bg-db-primary-light w-full p-5 rounded-md">
+        <div className="dark:bg-db-primary bg-db-primary w-full p-5 rounded-md">
           <h2 className="text-2xl font-medium mb-5">Calendar Events</h2>
-          <div className="dark:bg-db-secondary bg-db-secondary-light">
+          <div className="dark:bg-db-secondary bg-db-primary">
             <form className="grid grid-cols-2 p-5 gap-4 ">
               <div>
-                <label htmlFor="fromDate" >From Date</label>
+                <label htmlFor="fromDate">From Date</label>
                 <div
-                  className="w-full flex items-center justify-between dark:bg-db-primary bg-primary-light rounded-[10px] px-2 py-4"
+                  className="w-full flex items-center justify-between dark:bg-db-primary bg-db-primary rounded-[10px] px-2 py-4"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevents unnecessary event bubbling
                     document.getElementById("fromDateInput").showPicker();
@@ -391,9 +391,9 @@ const theme =useSelector((state)=>state.theme.theme)
                 </div>
               </div>
               <div>
-                <label htmlFor="toDate" >To Date</label>
+                <label htmlFor="toDate">To Date</label>
                 <div
-                  className="w-full flex items-center justify-between dark:bg-db-primary bg-primary-light rounded-[10px] px-2 py-4"
+                  className="w-full flex items-center justify-between dark:bg-db-primary bg-db-primary rounded-[10px] px-2 py-4"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevents unnecessary event bubbling
                     document.getElementById("toDateInput").showPicker();
@@ -409,15 +409,15 @@ const theme =useSelector((state)=>state.theme.theme)
                 </div>
               </div>
               <div className="relative">
-                <label htmlFor="category" >Category</label>
+                <label htmlFor="category">Category</label>
                 <div
-                  className="w-full flex items-center justify-between dark:bg-db-primary bg-primary-light  rounded-[10px] px-2 py-4 cursor-pointer"
+                  className="w-full flex items-center justify-between dark:bg-db-primary bg-db-primary  rounded-[10px] px-2 py-4 cursor-pointer"
                   onClick={() => setShowDropdown(!showDropdown)}
                 >
                   <span>{category}</span>
                 </div>
                 {showDropdown && (
-                  <ul className="absolute w-full dark:bg-db-primary bg-db-primary-light mt-1 rounded-lg shadow-lg z-10">
+                  <ul className="absolute w-full dark:bg-db-primary bg-db-primary mt-1 rounded-lg shadow-lg z-10">
                     {categories.map((item, index) => (
                       <li
                         key={index}
@@ -455,7 +455,7 @@ const theme =useSelector((state)=>state.theme.theme)
 
       {/* entries */}
       <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mt-5 rounded-md">
-        <div className="dark:bg-db-primary bg-db-primary-light w-full p-5 rounded-md">
+        <div className="dark:bg-db-primary bg-db-primary w-full p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between  mb-4">
             <h2 className="text-2xl font-light">
@@ -473,7 +473,7 @@ const theme =useSelector((state)=>state.theme.theme)
           </div>
 
           {/* Entries Table */}
-          <div className="dark:bg-db-secondary bg-primary-light rounded-md">
+          <div className="dark:bg-db-secondary bg-db-primary rounded-md">
             {/* Table Header */}
             <div className="w-full grid grid-cols-5 px-10 font-semibold   py-2">
               <p>Date</p>
@@ -501,7 +501,7 @@ const theme =useSelector((state)=>state.theme.theme)
           </div>
 
           {totalPages > 1 && (
-              <div className="flex justify-end mt-4 space-x-2">
+            <div className="flex justify-end mt-4 space-x-2">
               <button
                 onClick={handlePrevious}
                 disabled={currentPage === 1}
@@ -511,33 +511,33 @@ const theme =useSelector((state)=>state.theme.theme)
                     : " dark:text-[#71A2FE] text-primary"
                 }`}
               >
-               {"<"} Previous
+                {"<"} Previous
               </button>
-                {Array.from({ length: totalPages }, (_, i) => (
-                  <button
-                    key={i + 1}
-                    onClick={() => paginate(i + 1)}
-                    className={`px-5 py-1  rounded ${
-                      currentPage === i + 1
-                        ? "dark:bg-[#00114E] bg-primary-light "
-                        : "bg-transparent"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+              {Array.from({ length: totalPages }, (_, i) => (
                 <button
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                  className={` ${
-                    currentPage === totalPages
-                      ? " text-gray-500 cursor-not-allowed"
-                      : " dark:text-[#71A2FE] text-primary"
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`px-5 py-1  rounded ${
+                    currentPage === i + 1
+                      ? "dark:bg-[#00114E] bg-db-primary "
+                      : "bg-transparent"
                   }`}
                 >
-                  Next {">"}
+                  {i + 1}
                 </button>
-              </div>
+              ))}
+              <button
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+                className={` ${
+                  currentPage === totalPages
+                    ? " text-gray-500 cursor-not-allowed"
+                    : " dark:text-[#71A2FE] text-primary"
+                }`}
+              >
+                Next {">"}
+              </button>
+            </div>
           )}
         </div>
       </section>

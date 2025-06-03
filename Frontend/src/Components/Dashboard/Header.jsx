@@ -1,25 +1,23 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FaSearch } from "react-icons/fa";
+import { useEffect, useState, useRef } from "react";
+
 import { Link } from "react-router-dom";
 import { IoIosNotifications } from "react-icons/io";
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
-import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png";
-import darkThemeIcon from "../../assets/Images/Dashboard/HeaderImg/darkThemeIcon.png";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { setTheme } from "../../contexts/Redux/Slices/themeSlice";
+// import { setTheme } from "../../contexts/Redux/Slices/themeSlice";
 import logo from "../../assets/Images/logo.svg";
 import hamburger from "../../assets/Images/hamburger.svg";
 import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
 import myPlan from "../../assets/Images/Dashboard/HeaderImg/myPlan.svg";
 import myProfile from "../../assets/Images/Dashboard/HeaderImg/myProfile.svg";
 import feedBack from "../../assets/Images/Dashboard/HeaderImg/feedBack.svg";
-import logout from "../../assets/Images/Dashboard/HeaderImg/logout.svg";
+
 import { useAuth } from "../../contexts/AuthContext";
 
 const Header = () => {
   const [hovered, setHovered] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState("dark");
+  // const [isDarkMode, setIsDarkMode] = useState("dark");
   const [profileDropDown, setProfileDropDown] = useState(false);
   const dropdownRef = useRef(null); // Ref for the dropdown area
 
@@ -29,23 +27,23 @@ const Header = () => {
 
   const { logout } = useAuth();
 
-  const themeToggler = () => {
-    if (isDarkMode === "dark") {
-      setIsDarkMode("light");
-      dispatch(setTheme("light"));
-    } else {
-      setIsDarkMode("dark");
-      dispatch(setTheme("dark"));
-    }
-  };
+  // const themeToggler = () => {
+  //   if (isDarkMode === "dark") {
+  //     setIsDarkMode("light");
+  //     dispatch(setTheme("light"));
+  //   } else {
+  //     setIsDarkMode("dark");
+  //     dispatch(setTheme("dark"));
+  //   }
+  // };
 
-  useEffect(() => {
-    if (isDarkMode === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+  // useEffect(() => {
+  //   if (isDarkMode === "dark") {
+  //     document.documentElement.classList.add("dark");
+  //   } else {
+  //     document.documentElement.classList.remove("dark");
+  //   }
+  // }, [isDarkMode]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

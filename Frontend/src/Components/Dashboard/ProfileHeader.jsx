@@ -3,13 +3,10 @@ import profileBgCover from "../../assets/Images/Dashboard/homepage/profileBgCove
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import { useLocation } from "react-router-dom";
 const ProfileHeader = () => {
-
-    const location = useLocation();
-
-     
+  const location = useLocation();
 
   return (
-    <div className="w-full h-[200px] relative  dark:bg-db-primary bg-db-secondary-light rounded-lg overflow-hidden mb-6">
+    <div className="w-full h-[200px] relative  dark:bg-db-primary bg-db-primary rounded-lg overflow-hidden mb-6">
       {/* Background Section */}
       <div className="relative h-[60%] w-full">
         <img
@@ -20,7 +17,7 @@ const ProfileHeader = () => {
       </div>
 
       {/* Profile Content */}
-      <div className="dark:bg-db-secondary bg-db-secondary-light p-4 flex items-center justify-end h-[40%]">
+      <div className="dark:bg-db-secondary bg-db-primary p-4 flex items-center justify-end h-[40%]">
         <div className="flex items-center gap-4 absolute left-5 top-[45%]">
           {/* Profile Picture */}
           <img
@@ -44,21 +41,19 @@ const ProfileHeader = () => {
         </div>
 
         {/* Action Buttons */}
-            {
-                location.pathname === '/dashboard/profile' && (
-                    <div className="flex gap-2">
-                    <button className="flex items-center gap-1 bg-[#0256F5] text-white px-4 py-2 rounded-md text-sm  transition">
-                      Edit Profile
-                      <FiEdit />
-                    </button>
-           
-                    <button className="flex items-center gap-1 bg-transparent border border-[#0256F5]  text-white px-4 py-2 rounded-md text-sm  transition">
-                      Subscribe Plan
-                      <FiCalendar />
-                    </button>
-                  </div>
-                )
-            }
+        {location.pathname === "/dashboard/profile" && (
+          <div className="flex gap-2">
+            <button className="flex items-center gap-1 bg-[#0256F5] text-white px-4 py-2 rounded-md text-sm  transition">
+              Edit Profile
+              <FiEdit />
+            </button>
+
+            <button className="flex items-center gap-1 bg-transparent border border-[#0256F5]  text-white px-4 py-2 rounded-md text-sm  transition">
+              Subscribe Plan
+              <FiCalendar />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

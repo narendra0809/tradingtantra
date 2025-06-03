@@ -55,12 +55,12 @@ const LearnFromUsPage = () => {
     <>
       <div className="w-full mx-auto ">
         <h2 className="font-abcRepro font-semibold text-3xl my-10">
-        Learn From Us
+          Learn From Us
         </h2>
         {data.map((data, index) => (
           <div
             key={index}
-            className="dark:bg-db-primary bg-db-primary-light  mb-3 rounded-2xl border border-[#0256f535] "
+            className="dark:bg-db-primary bg-db-primary  mb-3 rounded-2xl border border-[#0256f535] "
           >
             {/* Question Section */}
             <div

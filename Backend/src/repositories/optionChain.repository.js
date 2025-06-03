@@ -6,13 +6,7 @@ import {
   MidcpNiftyOptionChain,
   SensexOptionChain,
 } from "../models/optionChain.model.js";
-import {
-  convertToIST,
-  formateDate,
-  getCurrentFetchDate,
-  getPreviousDate,
-  getPrevousFetchDate,
-} from "../utils/dateUtils.js";
+import { convertToIST } from "../utils/dateUtils.js";
 import config from "../config/optionChain.config.js";
 import { delay } from "../utils/dateUtils.js";
 const modelMap = {
@@ -131,47 +125,57 @@ export async function saveOptionChainData(
   try {
     const Model = modelMap[underlyingName];
     if (!Model) return;
-    const now = new Date();
-    const dayOfWeek = now.getDay();
 
-    const daysBack = dayOfWeek === 1 ? 3 : 1;
-
-    const referenceDate = getPreviousDate(now, daysBack);
-    const timestamp = convertToIST(Date.now());
-    const oldTimestamp = timestamp.split(",");
-    oldTimestamp[0] = formateDate(referenceDate);
-    const previousTimestamp = oldTimestamp.join(",");
-    const currentFetchDate = getCurrentFetchDate();
+    // Saving only time in DB :
+    const timestamp = convertToIST(Date.now()).split(",")[1].trim();
 
     const [existingDoc] = await Model.find({
       underlyingName,
-      timestamp: previousTimestamp,
+      timestamp,
       expiry,
     });
-
-    const updatedDoc = await Model.findOneAndUpdate(
-      {
-        _id: existingDoc._id,
-      },
-      {
-        $set: {
-          underlyingName,
-          underlyingScrip,
-          underlyingSeg,
-          expiry,
-          fetchDate: currentFetchDate,
-          timestamp,
-          lastPrice: data.lastPrice,
-          strikeData: data.strikeData,
-          updatedAt: new Date(),
+    if (!existingDoc) {
+      const insertedNewDoc = await Model.create({
+        underlyingName,
+        underlyingScrip,
+        underlyingSeg,
+        expiry,
+        fetchDate: null,
+        timestamp,
+        lastPrice: data.lastPrice,
+        strikeData: data.strikeData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      console.log(
+        "New Doc for Option Chain Inserted",
+        insertedNewDoc.timestamp
+      );
+    } else {
+      const updatedDoc = await Model.findOneAndUpdate(
+        {
+          _id: existingDoc._id,
         },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    );
-    console.log("Updated Doc : ", updatedDoc);
+        {
+          $set: {
+            underlyingName,
+            underlyingScrip,
+            underlyingSeg,
+            expiry,
+            fetchDate: null,
+            timestamp,
+            lastPrice: data.lastPrice,
+            strikeData: data.strikeData,
+            updatedAt: new Date(),
+          },
+        },
+        {
+          upsert: false,
+          new: true,
+        }
+      );
+      console.log("Updated Doc : ", updatedDoc.timestamp);
+    }
 
     console.log(`Saved option chain for ${underlyingName}, expiry ${expiry}`);
   } catch (error) {

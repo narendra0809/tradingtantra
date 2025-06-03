@@ -49,3 +49,15 @@ export function getCurrentFetchDate() {
   date[1] = str;
   return date.join("T");
 }
+
+export function getNextDate(dateString, daysForward = 1) {
+  const date = dateString instanceof Date ? dateString : new Date(dateString);
+
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${dateString}`);
+  }
+
+  const nextDate = new Date(date);
+  nextDate.setDate(date.getDate() + daysForward);
+  return nextDate;
+}

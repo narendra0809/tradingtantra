@@ -14,7 +14,7 @@ const HomePageGridLayout = () => {
 
       <div className="homeParent">
         <div className="div1 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg  ">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start justify-between   space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -40,7 +40,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div2 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -66,7 +66,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div3 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -87,7 +87,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div4 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -114,7 +114,7 @@ const HomePageGridLayout = () => {
         </div>
 
         <div class="div5 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -141,7 +141,7 @@ const HomePageGridLayout = () => {
         </div>
 
         <div class="div6 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -163,7 +163,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div7 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3 space-y-6">
               <div>
                 <img className="w-35 h-35  " src={graph} alt="Profit" />
@@ -182,7 +182,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div8 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg md:h-auto h-full">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg  h-full">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg  h-full">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -205,7 +205,7 @@ const HomePageGridLayout = () => {
           </div>
         </div>
         <div class="div9 dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-lg md:h-auto h-full">
-          <div className="dark:bg-db-primary bg-db-primary-light   border border-transparent rounded-xl p-4 relative shadow-lg h-full">
+          <div className="dark:bg-db-primary bg-db-primary   border border-transparent rounded-xl p-4 relative shadow-lg h-full">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>

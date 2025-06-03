@@ -23,7 +23,11 @@ const CAGRCalculator = ({ calculator }) => {
     const { initialAmount, finalAmount, duration } = inputs;
     if (!initialAmount || !finalAmount || !duration) return;
     const CAGR = (
-      (Math.pow(parseFloat(finalAmount) / parseFloat(initialAmount), 1 / parseFloat(duration)) - 1) *
+      (Math.pow(
+        parseFloat(finalAmount) / parseFloat(initialAmount),
+        1 / parseFloat(duration)
+      ) -
+        1) *
       100
     ).toFixed(2);
     setResult(`${CAGR} %`);
@@ -33,7 +37,8 @@ const CAGRCalculator = ({ calculator }) => {
     const { initialAmount, CAGR, duration } = inputs;
     if (!initialAmount || !CAGR || !duration) return;
     const finalAmount = (
-      parseFloat(initialAmount) * Math.pow(1 + parseFloat(CAGR) / 100, parseFloat(duration))
+      parseFloat(initialAmount) *
+      Math.pow(1 + parseFloat(CAGR) / 100, parseFloat(duration))
     ).toFixed(2);
     setResult(finalAmount);
   };
@@ -100,7 +105,7 @@ const CAGRCalculator = ({ calculator }) => {
       },
       // Custom plugin for center text
       centerTextPlugin: {
-        text: result || calculator==="CAGR" ? "0 X" : "CAGR 0",
+        text: result || calculator === "CAGR" ? "0 X" : "CAGR 0",
       },
     },
   };
@@ -128,7 +133,7 @@ const CAGRCalculator = ({ calculator }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-light-b2   rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary   rounded-md mt-10">
         <form className="space-y-6">
           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
             <div className="flex flex-col space-y-[30px]">
@@ -150,8 +155,14 @@ const CAGRCalculator = ({ calculator }) => {
                       placeholder: "Enter Duration in Years",
                     },
                   ].map(({ label, name, placeholder }) => (
-                    <div key={name} className="flex flex-col items-start space-y-3">
-                      <label className="text-lg font-abcRepro font-light" htmlFor={name}>
+                    <div
+                      key={name}
+                      className="flex flex-col items-start space-y-3"
+                    >
+                      <label
+                        className="text-lg font-abcRepro font-light"
+                        htmlFor={name}
+                      >
                         {label}
                       </label>
                       <input
@@ -182,8 +193,14 @@ const CAGRCalculator = ({ calculator }) => {
                       placeholder: "Enter Duration in Years",
                     },
                   ].map(({ label, name, placeholder }) => (
-                    <div key={name} className="flex flex-col items-start space-y-3">
-                      <label className="text-lg font-abcRepro font-light" htmlFor={name}>
+                    <div
+                      key={name}
+                      className="flex flex-col items-start space-y-3"
+                    >
+                      <label
+                        className="text-lg font-abcRepro font-light"
+                        htmlFor={name}
+                      >
                         {label}
                       </label>
                       <input
@@ -199,22 +216,34 @@ const CAGRCalculator = ({ calculator }) => {
                   ))}
             </div>
             <div>
-              <Doughnut data={chartData} options={chartOptions} plugins={[centerTextPlugin]} />
+              <Doughnut
+                data={chartData}
+                options={chartOptions}
+                plugins={[centerTextPlugin]}
+              />
             </div>
           </div>
 
           <div className="flex justify-between items-center gap-10">
-            <button type="button" onClick={handleClear} className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5">
+            <button
+              type="button"
+              onClick={handleClear}
+              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+            >
               Clear
             </button>
-            <button type="submit" onClick={handleCalculate} className="bg-primary py-2 rounded-md w-4/5">
+            <button
+              type="submit"
+              onClick={handleCalculate}
+              className="bg-primary py-2 rounded-md w-4/5"
+            >
               Calculate
             </button>
           </div>
         </form>
       </div>
 
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-light-b2 rounded-md mt-5">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary rounded-md mt-5">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         {calculator === "CAGR" ? (
           <div className="mt-[30px] flex w-full justify-between items-center font-abcRepro text-2xl font-light">

@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Home, User, Settings, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import logo from "../../assets/Images/logo.svg";
 import { RiLockFill } from "react-icons/ri";
 import AiOptionClock from "../../assets/Images/sidebar/AiOptionClock.svg";
@@ -211,46 +212,48 @@ const Sidebar = () => {
   );
 };
 
-const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => (
-  <NavLink
-    to={path}
-    className={({ isActive }) =>
-      ` 
+const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
+  return (
+    <NavLink
+      to={path}
+      className={({ isActive }) =>
+        ` 
     cursor-pointer flex
     ${
       isActive
         ? "bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-2 border-primary"
         : "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
     }`
-    }
-    end
-  >
-    <li
-      className={`flex  items-center justify-between w-full  px-4 py-2  rounded-md cursor-pointer text-base font-medium space-x-4 hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] transition-all duration-300 ease-in-out  `}
+      }
+      end
     >
-      <span className="flex items-center space-x-2 ">
-        <img src={icon} alt={label} className="w-auto h-5" />
-        {isOpen && <span>{label}</span>}
-      </span>
+      <li
+        className={`flex  items-center justify-between w-full  px-4 py-2  rounded-md cursor-pointer text-base font-medium space-x-4 hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] transition-all duration-300 ease-in-out  `}
+      >
+        <span className="flex items-center space-x-2 ">
+          <img src={icon} alt={label} className="w-auto h-5" />
+          {isOpen && <span>{label}</span>}
+        </span>
 
-      {isSubscribed === "false" && isOpen && (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#0256F5" />
-              <stop offset="100%" stopColor="#77A6FF" />
-            </linearGradient>
-          </defs>
-          <RiLockFill size={24} fill="url(#gradient)" />
-        </svg>
-      )}
-    </li>
-  </NavLink>
-);
+        {isSubscribed === "false" && isOpen && (
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stopColor="#0256F5" />
+                <stop offset="100%" stopColor="#77A6FF" />
+              </linearGradient>
+            </defs>
+            <RiLockFill size={24} fill="url(#gradient)" />
+          </svg>
+        )}
+      </li>
+    </NavLink>
+  );
+};
 
 export default Sidebar;

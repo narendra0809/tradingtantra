@@ -79,7 +79,7 @@ const OurStrategy = () => {
           <ImportantVideoCard key={index} impVideo={impVideo} />
         ))}
       </div>
-      
+
       <h1 className="text-2xl font-bold mt-[50px] mb-5">Strategy Videos</h1>
       <div className="grid grid-cols-1 gap-y-5 gap-x-[25px] md:grid-cols-2 lg:grid-cols-3">
         {strategyVideosData.map((strategyVideo, index) => (
@@ -93,10 +93,14 @@ const OurStrategy = () => {
 const ImportantVideoCard = ({ impVideo }) => {
   return (
     <div className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-      <div className="dark:bg-db-primary bg-db-primary-light relative border border-transparent rounded-md p-2.5 h-[350px]">
+      <div className="dark:bg-db-primary bg-db-primary relative border border-transparent rounded-md p-2.5 h-[350px]">
         <div className="flex flex-col items-start space-y-2.5">
           <div className="w-full rounded-md relative">
-            <img src={impVideo.img} className="w-full h-auto" alt={impVideo.title} />
+            <img
+              src={impVideo.img}
+              className="w-full h-auto"
+              alt={impVideo.title}
+            />
             <BsFillPlayCircleFill className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#0457F5] text-4xl" />
           </div>
           <div className="flex flex-col gap-y-2.5 justify-between items-start">
@@ -116,18 +120,21 @@ const ImportantVideoCard = ({ impVideo }) => {
 const StrategyVideoCard = ({ strategyVideo }) => {
   return (
     <div className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-      <div className="dark:bg-db-primary bg-db-primary-light relative  border border-transparent rounded-md p-2.5 h-[350px] flex flex-col justify-start">
-        <div className="relative dark:bg-[#02000E] bg-db-secondary-light w-full h-[60%] flex justify-center items-center">
-
-        <p className="uppercase lg:text-[50px] md:text-[40px] sm:text-[24px] text-[20px] leading-13  text-center text-[#ED9B2F] px-20 font-bold text-wrap" style={{ textShadow: "rgb(24 9 255) 0px 0px 20px, rgb(24 9 255) 0px 0px 20px" }}>
-          {strategyVideo.title}
-        </p>
-        <BsFillPlayCircleFill className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#0457F5] text-4xl" />
+      <div className="dark:bg-db-primary bg-db-primary relative  border border-transparent rounded-md p-2.5 h-[350px] flex flex-col justify-start">
+        <div className="relative dark:bg-[#02000E] bg-db-primary w-full h-[60%] flex justify-center items-center">
+          <p
+            className="uppercase lg:text-[50px] md:text-[40px] sm:text-[24px] text-[20px] leading-13  text-center text-[#ED9B2F] px-20 font-bold text-wrap"
+            style={{
+              textShadow:
+                "rgb(24 9 255) 0px 0px 20px, rgb(24 9 255) 0px 0px 20px",
+            }}
+          >
+            {strategyVideo.title}
+          </p>
+          <BsFillPlayCircleFill className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#0457F5] text-4xl" />
         </div>
-        
-        <p className="text-xl font-medium mt-5 ">
-          {strategyVideo.title}
-        </p>
+
+        <p className="text-xl font-medium mt-5 ">{strategyVideo.title}</p>
         <button className="border absolute left-2 bottom-2 flex gap-2 items-center border-[#0659F6] py-2 rounded-md font-medium px-3">
           Watch Video
           <GoArrowRight />

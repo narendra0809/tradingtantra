@@ -15,7 +15,7 @@ const MyProfilePage = () => {
       <div className="mt-10">
         <ProfileHeader />
       </div>
-      <div className="max-w-xl mx-auto p-6 dark:bg-db-primary bg-db-primary-light   rounded-xl mt-16 ">
+      <div className="max-w-xl mx-auto p-6 dark:bg-db-primary bg-db-primary   rounded-xl mt-16 ">
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-2xl font-semibold flex items-center gap-2">

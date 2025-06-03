@@ -52,7 +52,7 @@
 // const OiClockChart = () => {
 //   // console.log(data[0]);
 //   return (
-//     <div className="w-full h-[500px] dark:bg-db-secondary  bg-db-secondary-light p-5 rounded-lg shadow-lg">
+//     <div className="w-full h-[500px] dark:bg-db-secondary  bg-db-primary p-5 rounded-lg shadow-lg">
 //       <ResponsiveContainer width="100%" height="100%">
 //         <BarChart data={data} barCategoryGap={0} barSize={10}>
 //           <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
@@ -132,14 +132,14 @@ const CustomTooltip = ({ active, payload }) => {
 const OiClockChart = ({ data: chartData }) => {
   if (chartData.length === 0) {
     return (
-      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-db-secondary-light p-5 rounded-lg shadow-lg">
+      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
         <p>Loading or missing data...</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[500px] dark:bg-db-secondary bg-db-secondary-light p-5 rounded-lg shadow-lg">
+    <div className="w-full h-[500px] dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
       <ResponsiveContainer width="100%" height={500}>
         <BarChart
           data={chartData}

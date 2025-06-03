@@ -1,11 +1,7 @@
 import WebSocket from "ws";
-import connectDB from "../config/db.js";
 import StocksDetail from "../models/stocksDetail.model.js";
 import parseBinaryData from "../utils/parseBinaryData.js";
-import {
-  fetchHistoricalData,
-} from "../utils/fetchData.js";
-import moment from 'moment';
+import { fetchHistoricalData } from "../utils/fetchData.js";
 import DailyMomentumSignal from "../models/dailyMomentumSignal.model.js";
 import MarketDetailData from "../models/marketData.model.js";
 import MomentumStockFiveMin from "../models/momentumStockFiveMin.model.js";
@@ -23,9 +19,7 @@ const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 const CLIENT_ID = process.env.DHAN_CLIENT_ID;
 const WS_URL = `wss://api-feed.dhan.co?version=2&token=${ACCESS_TOKEN}&clientId=${CLIENT_ID}&authType=2`;
 
-
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 
 let securityIdList = [];
 let securityIdMap = new Map();
@@ -244,10 +238,10 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   // Validate data consistency
   const minLength = Math.min(
     allFiveMinCandles.length,
-    allFiveMinCandles.filter(c => c.open != null).length,
-    allFiveMinCandles.filter(c => c.high != null).length,
-    allFiveMinCandles.filter(c => c.low != null).length,
-    allFiveMinCandles.filter(c => c.close != null).length
+    allFiveMinCandles.filter((c) => c.open != null).length,
+    allFiveMinCandles.filter((c) => c.high != null).length,
+    allFiveMinCandles.filter((c) => c.low != null).length,
+    allFiveMinCandles.filter((c) => c.close != null).length
   );
   if (minLength < allFiveMinCandles.length) {
     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
@@ -255,7 +249,8 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
 
   // Check if last candle is complete
   if (allFiveMinCandles.length > 0) {
-    const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleTimestamp =
+      allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
     if (minuteDiff < 5) {
       allFiveMinCandles.pop();
@@ -286,7 +281,8 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
       const secondCandleDate = new Date(secondCandle.timestamp * 1000);
       const firstMinutes = firstCandleDate.getMinutes();
       const secondMinutes = secondCandleDate.getMinutes();
-      const timeDiffMinutes = (secondCandleDate - firstCandleDate) / (1000 * 60);
+      const timeDiffMinutes =
+        (secondCandleDate - firstCandleDate) / (1000 * 60);
 
       // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
@@ -329,7 +325,9 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
 
 const getData = async () => {
   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
-  const securityIds = stocks.map((stock) => stock.SECURITY_ID.trim().toString());
+  const securityIds = stocks.map((stock) =>
+    stock.SECURITY_ID.trim().toString()
+  );
 
   try {
     // Get current date and time
@@ -345,10 +343,16 @@ const getData = async () => {
     const normalizedFromDate = fromDate;
 
     // Validate date range
-    const fromDateObj = new Date(normalizedFromDate.replace(" ", "T") + "+05:30");
+    const fromDateObj = new Date(
+      normalizedFromDate.replace(" ", "T") + "+05:30"
+    );
     const toDateObj = new Date(normalizedToDate.replace(" ", "T") + "+05:30");
-    const tradingStart = new Date(`${normalizedFromDate.split(" ")[0]}T09:15:00+05:30`);
-    const tradingEnd = new Date(`${normalizedToDate.split(" ")[0]}T15:30:00+05:30`);
+    const tradingStart = new Date(
+      `${normalizedFromDate.split(" ")[0]}T09:15:00+05:30`
+    );
+    const tradingEnd = new Date(
+      `${normalizedToDate.split(" ")[0]}T15:30:00+05:30`
+    );
 
     if (fromDateObj < tradingStart || toDateObj > tradingEnd) {
       throw new Error("Date range outside NSE trading hours");
@@ -356,7 +360,10 @@ const getData = async () => {
 
     // Get previous trading day for historical data
     const prevTradingDayForFetch = await getPreviousTradingDay(toDateObj);
-    const prevDateStrForFetch = prevTradingDayForFetch.toISOString().slice(0, 10).replace(/-/g, "-");
+    const prevDateStrForFetch = prevTradingDayForFetch
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, "-");
     const prevFromDate = `${prevDateStrForFetch} 09:30:00`;
     const prevToDate = `${prevDateStrForFetch} 15:30:00`;
 
@@ -365,17 +372,26 @@ const getData = async () => {
       const id = securityIds[i];
       let allCandles = [];
       let completeCandles = [];
-
+      console.log("normalizedFromDate : ", normalizedFromDate);
+      console.log("normalizedToDate : ", normalizedToDate);
       // Fetch today's 5-minute data
-      let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "5");
+      let rawData = await fetchHistoricalData(
+        id,
+        normalizedFromDate,
+        normalizedToDate,
+        i,
+        "5"
+      );
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        allCandles.push(...rawData.timestamp.map((ts, idx) => ({
-          timestamp: ts,
-          open: rawData.open[idx],
-          high: rawData.high[idx],
-          low: rawData.low[idx],
-          close: rawData.close[idx],
-        })));
+        allCandles.push(
+          ...rawData.timestamp.map((ts, idx) => ({
+            timestamp: ts,
+            open: rawData.open[idx],
+            high: rawData.high[idx],
+            low: rawData.low[idx],
+            close: rawData.close[idx],
+          }))
+        );
       } else {
         continue;
       }
@@ -383,7 +399,10 @@ const getData = async () => {
       // Check if last candle is complete (≥ 5 minutes difference)
       if (allCandles.length > 0) {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
-        const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
+        const minuteDiff = getMinuteDifference(
+          currentTime,
+          lastCandleTimestamp
+        );
         if (minuteDiff < 5) {
           allCandles.pop();
         }
@@ -393,15 +412,23 @@ const getData = async () => {
 
       // If fewer than 12 complete candles, fetch previous day's data
       if (completeCandles.length < 12) {
-        rawData = await fetchHistoricalData(id, prevFromDate, prevToDate, i, "5");
+        rawData = await fetchHistoricalData(
+          id,
+          prevFromDate,
+          prevToDate,
+          i,
+          "5"
+        );
         if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-          allCandles.unshift(...rawData.timestamp.map((ts, idx) => ({
-            timestamp: ts,
-            open: rawData.open[idx],
-            high: rawData.high[idx],
-            low: rawData.low[idx],
-            close: rawData.close[idx],
-          })));
+          allCandles.unshift(
+            ...rawData.timestamp.map((ts, idx) => ({
+              timestamp: ts,
+              open: rawData.open[idx],
+              high: rawData.high[idx],
+              low: rawData.low[idx],
+              close: rawData.close[idx],
+            }))
+          );
           completeCandles = allCandles;
         }
       }
@@ -432,13 +459,17 @@ const getData = async () => {
             },
             { upsert: true }
           );
-          console.log(`[MongoDB] 5-min data saved for ${id}`);
+          // console.log(`[MongoDB] 5-min data saved for ${id}`);
         } catch (error) {
-          console.error(`[MongoDB] Error saving 5-min data for ${id}: ${error.message}`);
+          // console.error(`[MongoDB] Error saving 5-min data for ${id}: ${error.message}`);
         }
 
         // Merge 5-minute candles into 10-minute candles
-        const tenMinCandles = mergeToTenMinCandles(id, completeCandles, currentTime);
+        const tenMinCandles = mergeToTenMinCandles(
+          id,
+          completeCandles,
+          currentTime
+        );
         if (tenMinCandles) {
           const formattedTenMinData = {
             securityId: id,
@@ -465,7 +496,9 @@ const getData = async () => {
             );
             console.log(`[MongoDB] 10-min data saved for ${id}`);
           } catch (error) {
-            console.error(`[MongoDB] Error saving 10-min data for ${id}: ${error.message}`);
+            console.error(
+              `[MongoDB] Error saving 10-min data for ${id}: ${error.message}`
+            );
           }
         }
       }
@@ -480,15 +513,23 @@ const getData = async () => {
       let completeCandles = [];
 
       // Fetch today's 15-minute data
-      let rawData = await fetchHistoricalData(id, normalizedFromDate, normalizedToDate, i, "15");
+      let rawData = await fetchHistoricalData(
+        id,
+        normalizedFromDate,
+        normalizedToDate,
+        i,
+        "15"
+      );
       if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        allCandles.push(...rawData.timestamp.map((ts, idx) => ({
-          timestamp: ts,
-          open: rawData.open[idx],
-          high: rawData.high[idx],
-          low: rawData.low[idx],
-          close: rawData.close[idx],
-        })));
+        allCandles.push(
+          ...rawData.timestamp.map((ts, idx) => ({
+            timestamp: ts,
+            open: rawData.open[idx],
+            high: rawData.high[idx],
+            low: rawData.low[idx],
+            close: rawData.close[idx],
+          }))
+        );
       } else {
         continue;
       }
@@ -496,7 +537,10 @@ const getData = async () => {
       // Check if last candle is complete (≥ 15 minutes difference)
       if (allCandles.length > 0) {
         const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
-        const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
+        const minuteDiff = getMinuteDifference(
+          currentTime,
+          lastCandleTimestamp
+        );
         if (minuteDiff < 15) {
           allCandles.pop();
         }
@@ -506,15 +550,23 @@ const getData = async () => {
 
       // If fewer than 5 complete candles, fetch previous day's data
       if (completeCandles.length < 5) {
-        rawData = await fetchHistoricalData(id, prevFromDate, prevToDate, i, "15");
+        rawData = await fetchHistoricalData(
+          id,
+          prevFromDate,
+          prevToDate,
+          i,
+          "15"
+        );
         if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-          allCandles.unshift(...rawData.timestamp.map((ts, idx) => ({
-            timestamp: ts,
-            open: rawData.open[idx],
-            high: rawData.high[idx],
-            low: rawData.low[idx],
-            close: rawData.close[idx],
-          })));
+          allCandles.unshift(
+            ...rawData.timestamp.map((ts, idx) => ({
+              timestamp: ts,
+              open: rawData.open[idx],
+              high: rawData.high[idx],
+              low: rawData.low[idx],
+              close: rawData.close[idx],
+            }))
+          );
           completeCandles = allCandles;
         }
       }
@@ -545,9 +597,9 @@ const getData = async () => {
             },
             { upsert: true }
           );
-          console.log(`[MongoDB] 15-min data saved for ${id}`);
+          // console.log(`[MongoDB] 15-min data saved for ${id}`);
         } catch (error) {
-          console.error(`[MongoDB] Error saving 15-min data for ${id}: ${error.message}`);
+          // console.error(`[MongoDB] Error saving 15-min data for ${id}: ${error.message}`);
         }
       }
 
@@ -685,7 +737,8 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
         }
       ).sort({ updatedAt: -1 });
       return {
-        message: "No recent candle data found, returning existing momentum stocks",
+        message:
+          "No recent candle data found, returning existing momentum stocks",
         updatedData: updatedDataFromDB.slice(0, 20),
       };
     }
@@ -750,9 +803,13 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
 
       try {
         await MomentumStockFiveMin.bulkWrite(bulkUpdates);
-        console.log(`[MongoDB] Momentum stocks saved or updated for MomentumStockFiveMin`);
+        console.log(
+          `[MongoDB] Momentum stocks saved or updated for MomentumStockFiveMin`
+        );
       } catch (error) {
-        console.error(`[MongoDB] Error saving momentum stocks: ${error.message}`);
+        console.error(
+          `[MongoDB] Error saving momentum stocks: ${error.message}`
+        );
       }
     }
 
@@ -782,7 +839,9 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
       updatedData: updatedDataFromDB,
     };
   } catch (error) {
-    console.error(`[Main] Error in AIMomentumCatcherFiveMins: ${error.message}`);
+    console.error(
+      `[Main] Error in AIMomentumCatcherFiveMins: ${error.message}`
+    );
     return {
       message: "Internal server error",
       error: error.message,
@@ -793,38 +852,56 @@ const AIMomentumCatcherFiveMins = async (req, res) => {
 const AIMomentumCatcherTenMins = async (req, res) => {
   try {
     // Fetch stock metadata (216 stocks)
-    const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBOL: 1, _id: 0 });
+    const stocks = await StocksDetail.find(
+      {},
+      { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBOL: 1, _id: 0 }
+    );
     if (!stocks?.length) return { message: "No stocks data found" };
 
     // Create stock mapping
-    const stockMap = new Map(stocks.map(entry => [
-      entry.SECURITY_ID,
-      {
-        UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL,
-        SYMBOL_NAME: entry.SYMBOL_NAME
-      }
-    ]));
-    const securityIds = stocks.map(stock => stock.SECURITY_ID);
+    const stockMap = new Map(
+      stocks.map((entry) => [
+        entry.SECURITY_ID,
+        {
+          UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL,
+          SYMBOL_NAME: entry.SYMBOL_NAME,
+        },
+      ])
+    );
+    const securityIds = stocks.map((stock) => stock.SECURITY_ID);
 
     // Get latest market data
-    const latestEntry = await MarketDetailData.findOne().sort({ date: -1 }).select("date");
+    const latestEntry = await MarketDetailData.findOne()
+      .sort({ date: -1 })
+      .select("date");
     if (!latestEntry) return { message: "No stock data available" };
 
     const latestDate = latestEntry.date;
     const [latestData, previousDayEntry] = await Promise.all([
       MarketDetailData.find({ date: latestDate }),
-      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort({ date: -1 })
+      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort(
+        { date: -1 }
+      ),
     ]);
 
-    if (!latestData.length) return { message: "No stock data available for the latest date" };
-    if (!previousDayEntry) return { message: "No previous stock data available" };
+    if (!latestData.length)
+      return { message: "No stock data available for the latest date" };
+    if (!previousDayEntry)
+      return { message: "No previous stock data available" };
 
     // Prepare price maps
-    const createPriceMap = (data, priceField) => new Map(
-      data.map(entry => [entry.securityId, entry.data?.[priceField]?.[0] || 0])
+    const createPriceMap = (data, priceField) =>
+      new Map(
+        data.map((entry) => [
+          entry.securityId,
+          entry.data?.[priceField]?.[0] || 0,
+        ])
+      );
+    const latestDataMap = createPriceMap(latestData, "latestTradedPrice");
+    const yesterdayMap = createPriceMap(
+      await MarketDetailData.find({ date: previousDayEntry.date }),
+      "dayClose"
     );
-    const latestDataMap = createPriceMap(latestData, 'latestTradedPrice');
-    const yesterdayMap = createPriceMap(await MarketDetailData.find({ date: previousDayEntry.date }), 'dayClose');
 
     // Process each security
     const momentumStocks = [];
@@ -855,11 +932,15 @@ const AIMomentumCatcherTenMins = async (req, res) => {
       // Analyze last two 10-min periods
       const currentBody = Math.abs(lastCandle.close - lastCandle.open);
       const previousRange = secondLastCandle.high - secondLastCandle.low;
-      const hasMomentum = currentBody >= previousRange * 2 && previousRange > 0.1;
+      const hasMomentum =
+        currentBody >= previousRange * 2 && previousRange > 0.1;
 
       if (hasMomentum) {
         const stockInfo = stockMap.get(securityId) || {};
-        const pctChange = ((latestDataMap.get(securityId) - yesterdayMap.get(securityId)) / yesterdayMap.get(securityId)) * 100 || 0;
+        const pctChange =
+          ((latestDataMap.get(securityId) - yesterdayMap.get(securityId)) /
+            yesterdayMap.get(securityId)) *
+            100 || 0;
 
         momentumStocks.push({
           securityId,
@@ -871,7 +952,8 @@ const AIMomentumCatcherTenMins = async (req, res) => {
           previousClose: secondLastCandle.close,
           currentOpen: lastCandle.open,
           currentClose: lastCandle.close,
-          momentumType: lastCandle.close > lastCandle.open ? "Bullish" : "Bearish",
+          momentumType:
+            lastCandle.close > lastCandle.open ? "Bullish" : "Bearish",
           priceChange: currentBody,
           percentageChange: pctChange.toFixed(2),
           timestamp: lastCandle.timestamp,
@@ -882,19 +964,23 @@ const AIMomentumCatcherTenMins = async (req, res) => {
 
     // Save results
     if (momentumStocks.length) {
-      const bulkUpdates = momentumStocks.map(stock => ({
+      const bulkUpdates = momentumStocks.map((stock) => ({
         updateOne: {
           filter: { securityId: stock.securityId },
           update: { $set: stock },
-          upsert: true
-        }
+          upsert: true,
+        },
       }));
 
       try {
         await MomentumStockTenMin.bulkWrite(bulkUpdates);
-        console.log(`[MongoDB] Momentum stocks saved or updated for MomentumStockTenMin`);
+        console.log(
+          `[MongoDB] Momentum stocks saved or updated for MomentumStockTenMin`
+        );
       } catch (error) {
-        console.error(`[MongoDB] Error saving momentum stocks: ${error.message}`);
+        console.error(
+          `[MongoDB] Error saving momentum stocks: ${error.message}`
+        );
       }
     }
 
@@ -919,15 +1005,17 @@ const AIMomentumCatcherTenMins = async (req, res) => {
     ).sort({ updatedAt: -1 });
 
     return {
-      message: momentumStocks.length ? "Momentum stocks found and saved" : "No momentum signals",
+      message: momentumStocks.length
+        ? "Momentum stocks found and saved"
+        : "No momentum signals",
       count: allMomentumStocks.length,
-      data: allMomentumStocks
+      data: allMomentumStocks,
     };
   } catch (error) {
     console.error(`[Main] Error in AIMomentumCatcherTenMins: ${error.message}`);
     return {
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     };
   }
 };
@@ -947,8 +1035,13 @@ const AIIntradayReversalFiveMins = async (req, res) => {
 
     // Fetch latest and previous day data
     const [latestData, previousEntry] = await Promise.all([
-      MarketDetailData.find({ date: latestDate }, { securityId: 1, data: 1, _id: 0 }),
-      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort({ date: -1 }).limit(1)
+      MarketDetailData.find(
+        { date: latestDate },
+        { securityId: 1, data: 1, _id: 0 }
+      ),
+      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 })
+        .sort({ date: -1 })
+        .limit(1),
     ]);
 
     if (!latestData?.length) {
@@ -973,7 +1066,10 @@ const AIIntradayReversalFiveMins = async (req, res) => {
     const securityIds = [];
     latestData.forEach((entry) => {
       securityIds.push(entry.securityId.trim().toString());
-      latestDataMap.set(entry.securityId, entry.data?.latestTradedPrice?.[0] || 0);
+      latestDataMap.set(
+        entry.securityId,
+        entry.data?.latestTradedPrice?.[0] || 0
+      );
     });
 
     const previousDayDataMap = new Map();
@@ -1065,16 +1161,21 @@ const AIIntradayReversalFiveMins = async (req, res) => {
       // Check candle directions
       const isLatestBullish = lastFiveClose[4] > lastFiveOpen[4];
       const isLatestBearish = lastFiveClose[4] < lastFiveOpen[4];
-      const prevFourColors = prevFourReturns.map((ret) => ret > 0 ? "green" : ret < 0 ? "red" : "neutral");
+      const prevFourColors = prevFourReturns.map((ret) =>
+        ret > 0 ? "green" : ret < 0 ? "red" : "neutral"
+      );
 
       // Overall percentage change
       const overAllPercentageChange =
-        previousDayClose && latestTradedPrice && !isNaN(previousDayClose) && !isNaN(latestTradedPrice)
+        previousDayClose &&
+        latestTradedPrice &&
+        !isNaN(previousDayClose) &&
+        !isNaN(latestTradedPrice)
           ? ((latestTradedPrice - previousDayClose) / previousDayClose) * 100
           : 0;
 
       // Bullish Reversal: Last green, previous 4 red, decreasing losses
-      const allPrevRed = prevFourColors.every(color => color === "red");
+      const allPrevRed = prevFourColors.every((color) => color === "red");
       const decreasingLosses = prevFourReturns.every(
         (ret, i) => i === 0 || Math.abs(ret) < Math.abs(prevFourReturns[i - 1])
       );
@@ -1094,7 +1195,7 @@ const AIIntradayReversalFiveMins = async (req, res) => {
       }
 
       // Bearish Reversal: Last red, previous 4 green, decreasing gains
-      const allPrevGreen = prevFourColors.every(color => color === "green");
+      const allPrevGreen = prevFourColors.every((color) => color === "green");
       const decreasingGains = prevFourReturns.every(
         (ret, i) => i === 0 || ret < prevFourReturns[i - 1]
       );
@@ -1128,11 +1229,15 @@ const AIIntradayReversalFiveMins = async (req, res) => {
             { upsert: true, new: true }
           );
         } catch (dbError) {
-          console.error(`[MongoDB] Error saving reversal signal for ${signal.securityId}: ${dbError.message}`);
+          console.error(
+            `[MongoDB] Error saving reversal signal for ${signal.securityId}: ${dbError.message}`
+          );
         }
       });
       await Promise.all(savePromises);
-      console.log(`[MongoDB] Reversal signals saved or updated for IntradayReversalFiveMin`);
+      console.log(
+        `[MongoDB] Reversal signals saved or updated for IntradayReversalFiveMin`
+      );
     }
 
     // Fetch all signals, sorted by updatedAt (descending)
@@ -1150,12 +1255,16 @@ const AIIntradayReversalFiveMins = async (req, res) => {
     ).sort({ updatedAt: -1 });
 
     return {
-      message: finalResults.length ? "Intraday reversal stocks found and saved" : "No reversal signals detected",
+      message: finalResults.length
+        ? "Intraday reversal stocks found and saved"
+        : "No reversal signals detected",
       count: allMomentumStocks.length,
       data: allMomentumStocks,
     };
   } catch (error) {
-    console.error(`[Main] Error in AIIntradayReversalFiveMins: ${error.message}`);
+    console.error(
+      `[Main] Error in AIIntradayReversalFiveMins: ${error.message}`
+    );
     return {
       message: "Internal server error",
       error: error.message,
@@ -1178,8 +1287,13 @@ const AIIntradayReversalDaily = async (req, res) => {
 
     // Fetch latest and previous day data
     const [latestData, previousEntry] = await Promise.all([
-      MarketDetailData.find({ date: latestDate }, { securityId: 1, data: 1, _id: 0 }),
-      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 }).sort({ date: -1 }).limit(1)
+      MarketDetailData.find(
+        { date: latestDate },
+        { securityId: 1, data: 1, _id: 0 }
+      ),
+      MarketDetailData.findOne({ date: { $lt: latestDate } }, { date: 1 })
+        .sort({ date: -1 })
+        .limit(1),
     ]);
 
     if (!latestData?.length) {
@@ -1204,7 +1318,10 @@ const AIIntradayReversalDaily = async (req, res) => {
     const securityIds = [];
     latestData.forEach((entry) => {
       securityIds.push(entry.securityId.trim().toString());
-      latestDataMap.set(entry.securityId, entry.data?.latestTradedPrice?.[0] || 0);
+      latestDataMap.set(
+        entry.securityId,
+        entry.data?.latestTradedPrice?.[0] || 0
+      );
     });
 
     const previousDayDataMap = new Map();
@@ -1251,7 +1368,15 @@ const AIIntradayReversalDaily = async (req, res) => {
     if (!updatedData.length) {
       const existingSignals = await DailyMomentumSignal.find(
         {},
-        { type: 1, securityId: 1, stockSymbol: 1, stockName: 1, percentageChange: 1, timestamp: 1, _id: 0 }
+        {
+          type: 1,
+          securityId: 1,
+          stockSymbol: 1,
+          stockName: 1,
+          percentageChange: 1,
+          timestamp: 1,
+          _id: 0,
+        }
       ).sort({ updatedAt: -1 });
       return {
         message: "No candle data found, returning existing signals",
@@ -1287,16 +1412,21 @@ const AIIntradayReversalDaily = async (req, res) => {
       // Check candle directions
       const isLatestBullish = lastFiveClose[4] > lastFiveOpen[4];
       const isLatestBearish = lastFiveClose[4] < lastFiveOpen[4];
-      const prevFourColors = prevFourReturns.map((ret) => ret > 0 ? "green" : ret < 0 ? "red" : "neutral");
+      const prevFourColors = prevFourReturns.map((ret) =>
+        ret > 0 ? "green" : ret < 0 ? "red" : "neutral"
+      );
 
       // Overall percentage change
       const percentageChange =
-        previousDayClose && latestTradedPrice && !isNaN(previousDayClose) && !isNaN(latestTradedPrice)
+        previousDayClose &&
+        latestTradedPrice &&
+        !isNaN(previousDayClose) &&
+        !isNaN(latestTradedPrice)
           ? ((latestTradedPrice - previousDayClose) / previousDayClose) * 100
           : 0;
 
       // Bullish Reversal
-      const allPrevRed = prevFourColors.every(color => color === "red");
+      const allPrevRed = prevFourColors.every((color) => color === "red");
       const decreasingLosses = prevFourReturns.every(
         (ret, i) => i === 0 || Math.abs(ret) < Math.abs(prevFourReturns[i - 1])
       );
@@ -1316,7 +1446,7 @@ const AIIntradayReversalDaily = async (req, res) => {
       }
 
       // Bearish Reversal
-      const allPrevGreen = prevFourColors.every(color => color === "green");
+      const allPrevGreen = prevFourColors.every((color) => color === "green");
       const decreasingGains = prevFourReturns.every(
         (ret, i) => i === 0 || ret < prevFourReturns[i - 1]
       );
@@ -1350,11 +1480,15 @@ const AIIntradayReversalDaily = async (req, res) => {
             { upsert: true, new: true }
           );
         } catch (dbError) {
-          console.error(`[MongoDB] Error saving reversal signal for ${signal.securityId}: ${dbError.message}`);
+          console.error(
+            `[MongoDB] Error saving reversal signal for ${signal.securityId}: ${dbError.message}`
+          );
         }
       });
       await Promise.all(savePromises);
-      console.log(`[MongoDB] Reversal signals saved or updated for DailyMomentumSignal`);
+      console.log(
+        `[MongoDB] Reversal signals saved or updated for DailyMomentumSignal`
+      );
     }
 
     // Fetch all signals
@@ -1372,7 +1506,9 @@ const AIIntradayReversalDaily = async (req, res) => {
     ).sort({ updatedAt: -1 });
 
     return {
-      message: finalResults.length ? "Intraday reversal stocks found and saved" : "No reversal signals detected",
+      message: finalResults.length
+        ? "Intraday reversal stocks found and saved"
+        : "No reversal signals detected",
       data: fullData,
     };
   } catch (error) {
@@ -1465,7 +1601,9 @@ const DailyRangeBreakout = async () => {
     });
 
     // Get 5-minute candle data
-    const candleData = await FiveMinCandles.find({ securityId: { $in: securityIds } }).lean();
+    const candleData = await FiveMinCandles.find({
+      securityId: { $in: securityIds },
+    }).lean();
     const updatedData = [];
 
     for (const data of candleData) {
@@ -1477,30 +1615,52 @@ const DailyRangeBreakout = async () => {
       // Validate and sort timestamps
       const timestamps = data.timestamp
         .map((ts, index) => ({ ts, index }))
-        .filter(item => /^\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2} [ap]m$/i.test(item.ts))
+        .filter((item) =>
+          /^\d{2}\/\d{2}\/\d{4}, \d{2}:\d{2}:\d{2} [ap]m$/i.test(item.ts)
+        )
         .sort((a, b) => {
-          const dateA = new Date(a.ts.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i, '$3-$2-$1 $4'));
-          const dateB = new Date(b.ts.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i, '$3-$2-$1 $4'));
+          const dateA = new Date(
+            a.ts.replace(
+              /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i,
+              "$3-$2-$1 $4"
+            )
+          );
+          const dateB = new Date(
+            b.ts.replace(
+              /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i,
+              "$3-$2-$1 $4"
+            )
+          );
           return dateB - dateA;
         })
         .slice(0, 5)
         .sort((a, b) => {
-          const dateA = new Date(a.ts.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i, '$3-$2-$1 $4'));
-          const dateB = new Date(b.ts.replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i, '$3-$2-$1 $4'));
+          const dateA = new Date(
+            a.ts.replace(
+              /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i,
+              "$3-$2-$1 $4"
+            )
+          );
+          const dateB = new Date(
+            b.ts.replace(
+              /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i,
+              "$3-$2-$1 $4"
+            )
+          );
           return dateA - dateB;
         })
-        .map(item => item.index);
+        .map((item) => item.index);
 
       if (timestamps.length < 5) {
         continue;
       }
 
       const lastFiveCandles = {
-        timestamp: timestamps.map(i => data.timestamp[i]),
-        open: timestamps.map(i => data.open[i]),
-        close: timestamps.map(i => data.close[i]),
-        high: timestamps.map(i => data.high[i]),
-        low: timestamps.map(i => data.low[i]),
+        timestamp: timestamps.map((i) => data.timestamp[i]),
+        open: timestamps.map((i) => data.open[i]),
+        close: timestamps.map((i) => data.close[i]),
+        high: timestamps.map((i) => data.high[i]),
+        low: timestamps.map((i) => data.low[i]),
       };
 
       updatedData.push({
@@ -1512,7 +1672,15 @@ const DailyRangeBreakout = async () => {
     if (!updatedData.length) {
       const existingSignals = await DailyRangeBreakouts.find(
         {},
-        { type: 1, securityId: 1, stockSymbol: 1, stockName: 1, percentageChange: 1, timestamp: 1, _id: 0 }
+        {
+          type: 1,
+          securityId: 1,
+          stockSymbol: 1,
+          stockName: 1,
+          percentageChange: 1,
+          timestamp: 1,
+          _id: 0,
+        }
       ).sort({ updatedAt: -1 });
       return {
         status: 200,
@@ -1607,9 +1775,13 @@ const DailyRangeBreakout = async () => {
 
     // Save breakout signals
     if (breakoutStocks.length > 0) {
-      const bulkOps = breakoutStocks.map(signal => ({
+      const bulkOps = breakoutStocks.map((signal) => ({
         updateOne: {
-          filter: { securityId: signal.securityId, date: signal.date, type: signal.type },
+          filter: {
+            securityId: signal.securityId,
+            date: signal.date,
+            type: signal.type,
+          },
           update: { $set: signal },
           upsert: true,
         },
@@ -1617,27 +1789,42 @@ const DailyRangeBreakout = async () => {
 
       try {
         await DailyRangeBreakouts.bulkWrite(bulkOps);
-        console.log(`[MongoDB] Breakout signals saved or updated for DailyRangeBreakouts`);
+        console.log(
+          `[MongoDB] Breakout signals saved or updated for DailyRangeBreakouts`
+        );
       } catch (dbError) {
-        console.error(`[MongoDB] Error saving breakout signals: ${dbError.message}`);
+        console.error(
+          `[MongoDB] Error saving breakout signals: ${dbError.message}`
+        );
       }
     }
 
     // Get all breakout signals
     const fullData = await DailyRangeBreakouts.find(
       {},
-      { type: 1, securityId: 1, stockSymbol: 1, stockName: 1, percentageChange: 1, timestamp: 1, _id: 0 }
+      {
+        type: 1,
+        securityId: 1,
+        stockSymbol: 1,
+        stockName: 1,
+        percentageChange: 1,
+        timestamp: 1,
+        _id: 0,
+      }
     ).sort({ updatedAt: -1 });
 
     return {
       status: 200,
-      message: breakoutStocks.length > 0 ? "Breakout analysis complete" : "No breakout signals detected",
+      message:
+        breakoutStocks.length > 0
+          ? "Breakout analysis complete"
+          : "No breakout signals detected",
       data: fullData,
       currentBreakouts: breakoutStocks,
       stats: {
         total: breakoutStocks.length,
-        bullish: breakoutStocks.filter(b => b.type === "Bullish").length,
-        bearish: breakoutStocks.filter(b => b.type === "Bearish").length,
+        bullish: breakoutStocks.filter((b) => b.type === "Bullish").length,
+        bearish: breakoutStocks.filter((b) => b.type === "Bearish").length,
       },
     };
   } catch (error) {
@@ -1653,8 +1840,10 @@ const DayHighLowReversal = async () => {
   try {
     // Helper function to convert string timestamp to Unix seconds
     function parseTimestamp(timestampStr) {
-      const formattedStr = timestampStr
-        .replace(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i, '$3-$2-$1 $4');
+      const formattedStr = timestampStr.replace(
+        /(\d{2})\/(\d{2})\/(\d{4}), (\d{2}:\d{2}:\d{2} [ap]m)/i,
+        "$3-$2-$1 $4"
+      );
       const date = new Date(Date.parse(formattedStr));
       return isNaN(date.getTime()) ? null : Math.floor(date.getTime() / 1000);
     }
@@ -1711,7 +1900,10 @@ const DayHighLowReversal = async () => {
     ]);
 
     if (!stockData || stockData.length === 0) {
-      return { success: false, message: "No stock data found for the latest date" };
+      return {
+        success: false,
+        message: "No stock data found for the latest date",
+      };
     }
 
     // Fetch stock details
@@ -1767,14 +1959,19 @@ const DayHighLowReversal = async () => {
       const stocksDetail = stockDetailsMap.get(securityId);
       const previousDayData = previousStockDataMap.get(securityId);
 
-      if (!stockInfo || !stocksDetail || !stockInfo.dayHigh || !stockInfo.dayLow) {
+      if (
+        !stockInfo ||
+        !stocksDetail ||
+        !stockInfo.dayHigh ||
+        !stockInfo.dayLow
+      ) {
         continue;
       }
 
       // Convert and sort timestamps
       const timestamps = candleData.timestamp
         .map((ts, index) => ({ ts: parseTimestamp(ts), index }))
-        .filter(item => item.ts !== null)
+        .filter((item) => item.ts !== null)
         .sort((a, b) => b.ts - a.ts)
         .slice(0, 5)
         .sort((a, b) => a.ts - b.ts);
@@ -1783,13 +1980,13 @@ const DayHighLowReversal = async () => {
         continue;
       }
 
-      const lastFiveIndices = timestamps.map(item => item.index);
+      const lastFiveIndices = timestamps.map((item) => item.index);
       const lastFiveCandles = {
-        timestamp: lastFiveIndices.map(i => candleData.timestamp[i]),
-        open: lastFiveIndices.map(i => candleData.open[i]),
-        close: lastFiveIndices.map(i => candleData.close[i]),
-        high: lastFiveIndices.map(i => candleData.high[i]),
-        low: lastFiveIndices.map(i => candleData.low[i]),
+        timestamp: lastFiveIndices.map((i) => candleData.timestamp[i]),
+        open: lastFiveIndices.map((i) => candleData.open[i]),
+        close: lastFiveIndices.map((i) => candleData.close[i]),
+        high: lastFiveIndices.map((i) => candleData.high[i]),
+        low: lastFiveIndices.map((i) => candleData.low[i]),
       };
 
       const dayHigh = stockInfo.dayHigh;
@@ -1800,7 +1997,10 @@ const DayHighLowReversal = async () => {
       const previousDayClose = previousDayData?.dayClose || 0;
       const percentageChange =
         latestTradedPrice && previousDayClose
-          ? ((latestTradedPrice - previousDayClose) / previousDayClose * 100).toFixed(2)
+          ? (
+              ((latestTradedPrice - previousDayClose) / previousDayClose) *
+              100
+            ).toFixed(2)
           : 0;
 
       // Last candle (15:25)
@@ -1867,16 +2067,24 @@ const DayHighLowReversal = async () => {
     if (responseData.length > 0) {
       const bulkOps = responseData.map((item) => ({
         updateOne: {
-          filter: { securityId: item.securityId, date: item.date, type: item.type },
+          filter: {
+            securityId: item.securityId,
+            date: item.date,
+            type: item.type,
+          },
           update: { $set: item },
           upsert: true,
         },
       }));
       try {
         await HighLowReversal.bulkWrite(bulkOps);
-        console.log(`[MongoDB] Reversal signals saved or updated for HighLowReversal`);
+        console.log(
+          `[MongoDB] Reversal signals saved or updated for HighLowReversal`
+        );
       } catch (dbError) {
-        console.error(`[MongoDB] Error saving reversal signals: ${dbError.message}`);
+        console.error(
+          `[MongoDB] Error saving reversal signals: ${dbError.message}`
+        );
       }
     }
 
@@ -1899,11 +2107,16 @@ const DayHighLowReversal = async () => {
         fourthCandle: 1,
         _id: 0,
       }
-    ).sort({ updatedAt: -1 }).lean();
+    )
+      .sort({ updatedAt: -1 })
+      .lean();
 
     return {
       success: true,
-      message: responseData.length > 0 ? "Day High Low Reversal analysis complete" : "No reversals detected",
+      message:
+        responseData.length > 0
+          ? "Day High Low Reversal analysis complete"
+          : "No reversals detected",
       data,
     };
   } catch (error) {
@@ -1929,41 +2142,49 @@ const twoDayHLBreak = async () => {
     const secondPrevTargetDate = uniqueTradingDays[2]._id;
 
     // Fetch stock data
-    const [currentStockData, firstPrevStockData, secondPrevStockData] = await Promise.all([
-      MarketDetailData.find(
-        { date: latestDate },
-        {
-          securityId: 1,
-          "data.latestTradedPrice": 1,
-          date: 1,
-          _id: 0,
-        }
-      ),
-      MarketDetailData.find(
-        { date: firstPrevTargetDate },
-        {
-          securityId: 1,
-          "data.dayHigh": 1,
-          "data.dayLow": 1,
-          date: 1,
-          _id: 0,
-        }
-      ),
-      MarketDetailData.find(
-        { date: secondPrevTargetDate },
-        {
-          securityId: 1,
-          "data.dayHigh": 1,
-          "data.dayLow": 1,
-          "data.dayClose": 1,
-          date: 1,
-          _id: 0,
-        }
-      ),
-    ]);
+    const [currentStockData, firstPrevStockData, secondPrevStockData] =
+      await Promise.all([
+        MarketDetailData.find(
+          { date: latestDate },
+          {
+            securityId: 1,
+            "data.latestTradedPrice": 1,
+            date: 1,
+            _id: 0,
+          }
+        ),
+        MarketDetailData.find(
+          { date: firstPrevTargetDate },
+          {
+            securityId: 1,
+            "data.dayHigh": 1,
+            "data.dayLow": 1,
+            date: 1,
+            _id: 0,
+          }
+        ),
+        MarketDetailData.find(
+          { date: secondPrevTargetDate },
+          {
+            securityId: 1,
+            "data.dayHigh": 1,
+            "data.dayLow": 1,
+            "data.dayClose": 1,
+            date: 1,
+            _id: 0,
+          }
+        ),
+      ]);
 
-    if (!currentStockData.length || !firstPrevStockData.length || !secondPrevStockData.length) {
-      return { success: false, message: "No stock data found for the selected dates" };
+    if (
+      !currentStockData.length ||
+      !firstPrevStockData.length ||
+      !secondPrevStockData.length
+    ) {
+      return {
+        success: false,
+        message: "No stock data found for the selected dates",
+      };
     }
 
     // Create maps
@@ -2037,7 +2258,12 @@ const twoDayHLBreak = async () => {
       const secondPrevDayData = secondPrevStockDataMap.get(securityId);
       const stocksDetail = stockDetailsMap.get(securityId);
 
-      if (!currentDayData || !firstPrevDayData || !secondPrevDayData || !stocksDetail) {
+      if (
+        !currentDayData ||
+        !firstPrevDayData ||
+        !secondPrevDayData ||
+        !stocksDetail
+      ) {
         continue;
       }
 
@@ -2049,7 +2275,12 @@ const twoDayHLBreak = async () => {
       const secondPrevDayClose = secondPrevDayData.dayClose;
       const latestTradedPrice = currentDayData.latestTradedPrice;
 
-      if (!firstPrevDayHigh || !firstPrevDayLow || !secondPrevDayHigh || !secondPrevDayLow) {
+      if (
+        !firstPrevDayHigh ||
+        !firstPrevDayLow ||
+        !secondPrevDayHigh ||
+        !secondPrevDayLow
+      ) {
         continue;
       }
 
@@ -2074,7 +2305,10 @@ const twoDayHLBreak = async () => {
           maxHigh,
           timestamp: candleTimestamp,
           percentageChange: parseFloat(
-            ((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose * 100).toFixed(2)
+            (
+              ((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose) *
+              100
+            ).toFixed(2)
           ),
           date: latestDate,
           updatedAt: new Date(),
@@ -2091,7 +2325,10 @@ const twoDayHLBreak = async () => {
           minLow,
           timestamp: candleTimestamp,
           percentageChange: parseFloat(
-            ((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose * 100).toFixed(2)
+            (
+              ((latestTradedPrice - secondPrevDayClose) / secondPrevDayClose) *
+              100
+            ).toFixed(2)
           ),
           date: latestDate,
           updatedAt: new Date(),
@@ -2103,16 +2340,24 @@ const twoDayHLBreak = async () => {
     if (responseData.length > 0) {
       const bulkOps = responseData.map((item) => ({
         updateOne: {
-          filter: { securityId: item.securityId, date: item.date, type: item.type },
+          filter: {
+            securityId: item.securityId,
+            date: item.date,
+            type: item.type,
+          },
           update: { $set: item },
           upsert: true,
         },
       }));
       try {
         await TwoDayHighLowBreak.bulkWrite(bulkOps);
-        console.log(`[MongoDB] Break signals saved or updated for TwoDayHighLowBreak`);
+        console.log(
+          `[MongoDB] Break signals saved or updated for TwoDayHighLowBreak`
+        );
       } catch (dbError) {
-        console.error(`[MongoDB] Error saving break signals: ${dbError.message}`);
+        console.error(
+          `[MongoDB] Error saving break signals: ${dbError.message}`
+        );
       }
     }
 
@@ -2130,11 +2375,16 @@ const twoDayHLBreak = async () => {
         date: 1,
         _id: 0,
       }
-    ).sort({ updatedAt: -1 }).lean();
+    )
+      .sort({ updatedAt: -1 })
+      .lean();
 
     return {
       success: true,
-      message: responseData.length > 0 ? "Two Day High Low Break analysis complete" : "No breakouts detected",
+      message:
+        responseData.length > 0
+          ? "Two Day High Low Break analysis complete"
+          : "No breakouts detected",
       data,
     };
   } catch (error) {

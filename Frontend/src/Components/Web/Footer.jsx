@@ -12,13 +12,13 @@ const Footer = () => {
   const location = useLocation();
   const currentYear = new Date().getFullYear();
   const isDashboardRoute = location.pathname.includes("/dashboard");
-const theme=useSelector((state)=>state.theme.theme)
+  const theme = useSelector((state) => state.theme.theme);
   return (
-    <div className="dark:bg-db-primary bg-db-primary-light  w-full px-[5%]  pt-10 font-abcRepro mt-20">
+    <div className="dark:bg-db-primary bg-db-primary  w-full px-[5%]  pt-10 font-abcRepro mt-20">
       <div className="flex sm:flex-row flex-col gap-y-5 justify-between">
         <div className="lg:space-y-10 space-y-8">
           <img
-            src={theme==="dark"?logo:logo_light}
+            src={theme === "dark" ? logo : logo_light}
             className="lg:w-60 w-60  h-auto"
             alt="trading tantra logo"
           />
@@ -31,7 +31,7 @@ const theme=useSelector((state)=>state.theme.theme)
         <div className="sm:w-96 w-65 space-y-8 ">
           {/* Conditionally Render Button */}
           <Link to={isDashboardRoute ? "/" : "/dashboard"}>
-            <button className="lg:ml-48 md:ml-40 sm:ml-35 ml-0 px-4 py-2 mb-10 dark:bg-primary bg-primary-light rounded-md font-normal lg:text-xl md:text-lg text-base">
+            <button className="lg:ml-48 md:ml-40 sm:ml-35 ml-0 px-4 py-2 mb-10 dark:bg-primary bg-db-primary rounded-md font-normal lg:text-xl md:text-lg text-base">
               {isDashboardRoute ? "Go to Website" : "View Dashboard"}
             </button>
           </Link>

@@ -46,7 +46,7 @@ const CalculatorsPage = () => {
     <>
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-10 mt-10  ">
         {/* Left Section */}
-        <div className="lg:col-span-2 dark:bg-db-primary bg-db-secondary-light border border-[#0256f550] p-5 rounded-md">
+        <div className="lg:col-span-2 dark:bg-db-primary bg-db-primary border border-[#0256f550] p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between items-center">
             {selectedCalculator === "Risk" ? (
@@ -152,9 +152,9 @@ const CalculatorsPage = () => {
               {calculators.map((calc) => (
                 <button
                   key={calc}
-                  className={`p-2.5 rounded-sm dark:hover:bg-primary hover:bg-primary-light   transition-all ${
+                  className={`p-2.5 rounded-sm dark:hover:bg-primary hover:bg-db-primary   transition-all ${
                     selectedCalculator === calc
-                      ? "dark:bg-primary bg-primary-light"
+                      ? "dark:bg-primary bg-db-primary"
                       : ""
                   }`}
                   onClick={() => handelCalculatorChange(calc)}
@@ -180,7 +180,7 @@ const CalculatorsPage = () => {
         </div>
 
         {/* Right Section  */}
-        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-db-secondary-light border border-[#0256f550]  space-y-[45px]">
+        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-db-primary border border-[#0256f550]  space-y-[45px]">
           {selectedCalculator === "Risk" ? (
             <RiskCalculatorRight />
           ) : selectedCalculator === "CAGR" ? (
@@ -252,7 +252,7 @@ const CalculatorsPage = () => {
         {selectedCalculator === "Risk" ? (
           <>
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Risk calculator?
                 </h2>
@@ -311,7 +311,7 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary-light  p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to use this Calculator?
                 </h2>
@@ -407,7 +407,7 @@ const CalculatorsPage = () => {
         ) : selectedCalculator === "CAGR" ? (
           <>
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Compound Annual Growth Rate (CAGR)?
                 </h2>
@@ -425,7 +425,7 @@ const CalculatorsPage = () => {
             </section>
 
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary-light  p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to calculate CAGR?
                 </h2>
@@ -483,7 +483,7 @@ const CalculatorsPage = () => {
             </section>
 
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   Advantages of using CAGR
                 </h2>
@@ -515,7 +515,7 @@ const CalculatorsPage = () => {
         ) : selectedCalculator === "SIP" ? (
           <>
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is SIP calculator?
                 </h2>
@@ -559,7 +559,7 @@ const CalculatorsPage = () => {
             </section>
 
             <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary-light  p-[30px] rounded-md  ">
+              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   How to calculate SIP investments?
                 </h2>
@@ -619,7 +619,7 @@ const CalculatorsPage = () => {
           selectedCalculator === "EMI" && (
             <>
               <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-5">
                     What is EMI calculator?
                   </h2>
@@ -647,7 +647,7 @@ const CalculatorsPage = () => {
                     <p className="text-base font-light">Term of the Loan</p>
                   </div>
                 </div>{" "}
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light px-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary px-[30px] rounded-md  ">
                   <h2 className="text-lg font-semibold mb-5">Loan Amount:-</h2>
                   <div className="space-y-6">
                     <p className="text-base font-light">
@@ -658,7 +658,7 @@ const CalculatorsPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light p-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
                   <h2 className="text-lg font-semibold mb-5">
                     Rate of Interest:-
                   </h2>
@@ -671,7 +671,7 @@ const CalculatorsPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary-light  rounded-md px-[30px] pb-[30px] ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary  rounded-md px-[30px] pb-[30px] ">
                   <h2 className="text-lg font-semibold mb-5">
                     Term of the Loan:-
                   </h2>
@@ -698,7 +698,7 @@ const CalculatorsPage = () => {
               </section>
 
               <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-                <div className="font-abcRepro dark:bg-db-primary bg-db-primary-light  p-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-[25px]">
                     Formula:-
                   </h2>

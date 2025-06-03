@@ -66,13 +66,13 @@ const Notifications = () => {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 dark:bg-[#01071C] bg-db-primary-light  rounded-xl   mt-10">
+    <div className="max-w-lg mx-auto p-6 dark:bg-[#01071C] bg-db-primary  rounded-xl   mt-10">
       {/* Header */}
       <div className="flex justify-between items-center pb-4">
         <h2 className="text-base font-semibold">Notifications</h2>
         <div className="flex gap-2 items-center">
           <button className="text-[11px]  cursor-pointer flex items-center gap-x-2">
-         <CheckCheck size={15}  /> Mark all as read
+            <CheckCheck size={15} /> Mark all as read
           </button>
           <button className="bg-[#0256F5] text-white  px-3 py-2 rounded-full text-[10px]">
             View all notifications
@@ -118,7 +118,9 @@ const Notifications = () => {
             />
             <div className="flex-1">
               <p className="text-[12px] ">
-                <span className="font-semibold text-sm">{notification.user}</span>{" "}
+                <span className="font-semibold text-sm">
+                  {notification.user}
+                </span>{" "}
                 {notification.action}
               </p>
               {notification.message && (
@@ -140,7 +142,8 @@ const Notifications = () => {
                 </div>
               )}
               <div className="text-xs flex justify-between items-center text-gray-400 mt-1">
-               <span> {notification.time}</span>  <span>{notification.date}</span>
+                <span> {notification.time}</span>{" "}
+                <span>{notification.date}</span>
               </div>
             </div>
             <div className="text-[#0256F5] text-sm">•</div>

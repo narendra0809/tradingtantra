@@ -28,7 +28,7 @@ import MarketDepthPage from "./pages/DashboardPage/MarketDepthPage";
 import MonryActionPage from "./pages/DashboardPage/MoneyActionPage";
 import AiSwingTradesPage from "./pages/DashboardPage/AiSwingTradesPage";
 import OptionClockPage from "./pages/DashboardPage/OptionClockPage";
-import AIOptionDataPage from "./pages/DashboardPage/AIOptionDatAPage";
+import AIOptionDataPage from "./pages/DashboardPage/AIOptionDataPage";
 import FinancialCalendar from "./pages/DashboardPage/FinancialCalendar";
 import OurStrategy from "./pages/DashboardPage/OurStrategy";
 import TradingJournal from "./pages/DashboardPage/TradingJournal";

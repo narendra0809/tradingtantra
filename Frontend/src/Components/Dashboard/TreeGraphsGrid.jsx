@@ -45,7 +45,7 @@ const TreeGraphsGrid = ({ data, loading }) => {
                     graphTitles[index % graphTitles.length]?.class
                   } w-full h-full mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
                 >
-                  <div className="w-full flex flex-col dark:bg-db-primary bg-db-secondary-light rounded-md overflow-hidden">
+                  <div className="w-full flex flex-col dark:bg-db-primary bg-db-primary rounded-md overflow-hidden">
                     <h1 className="text-base px-2.5">{sector}</h1>
                     <div className="flex-grow w-full">
                       {loading ? (

@@ -19,7 +19,6 @@ const FeedBackPage = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
 
     await fetchData("feedback", "POST", formData);
 
@@ -29,7 +28,6 @@ const FeedBackPage = () => {
       category: "",
       message: "",
     });
-
   };
 
   const handleChange = (e) => {
@@ -42,15 +40,16 @@ const FeedBackPage = () => {
   };
 
   return (
-
-    <div className="dark:bg-db-primary relative bg-db-primary-light  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
-
-     {
-      loading &&  <Loader className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"/>
-     }
+    <div className="dark:bg-db-primary relative bg-db-primary  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
+      {loading && (
+        <Loader className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+      )}
       <h4 className="text-3xl font-medium font-Inter ">Feed Back</h4>
       <div className="w-full mt-10">
-        <form className="flex items-center justify-between flex-wrap w-full space-y-4" onSubmit={handleFormSubmit}>
+        <form
+          className="flex items-center justify-between flex-wrap w-full space-y-4"
+          onSubmit={handleFormSubmit}
+        >
           <div className="flex flex-col items-start dark:text-[#C9CFE5] text-gray-800 w-full space-y-2">
             <label className="font-Inter  text-sm font-light" htmlFor="name">
               Name
@@ -142,7 +141,10 @@ const FeedBackPage = () => {
               ></textarea>
             </div>
           </div>
-          <button className="w-full bg-primary mt-5 py-5 rounded-lg" type="submit">
+          <button
+            className="w-full bg-primary mt-5 py-5 rounded-lg"
+            type="submit"
+          >
             Send message
           </button>
         </form>

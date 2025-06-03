@@ -30,7 +30,7 @@
 //     <div className="flex md:flex-row flex-col gap-4 items-center mt-5 w-full">
 //       {/* Slider Container */}
 //       <div className="dark:bg-gradient-to-br from-[#0108B1] to-[#02000E] w-full p-px rounded-lg">
-//         <div className="w-full p-4 dark:bg-db-primary bg-db-primary-light rounded-lg">
+//         <div className="w-full p-4 dark:bg-db-primary bg-db-primary rounded-lg">
 //           <Slider
 //             range
 //             min={minTime}
@@ -144,7 +144,7 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
     <div className="flex md:flex-row flex-col gap-4 items-center mt-5 w-full">
       {/* Slider Container */}
       <div className="dark:bg-gradient-to-br from-[#0108B1] to-[#02000E] w-full p-px rounded-lg">
-        <div className="w-full p-4 dark:bg-db-primary bg-db-primary-light rounded-lg">
+        <div className="w-full p-4 dark:bg-db-primary bg-db-primary rounded-lg">
           <div className="relative">
             {/* Selected interval display above first handle */}
             <div

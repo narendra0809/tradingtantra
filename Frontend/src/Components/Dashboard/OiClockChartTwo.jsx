@@ -38,7 +38,7 @@ const OiClockChartTwo = ({ data: chartData }) => {
   ];
 
   return (
-    <div className="w-full h-[375px] dark:bg-db-secondary bg-db-secondary-light p-5 rounded-lg shadow-lg">
+    <div className="w-full h-[375px] dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={formattedData}

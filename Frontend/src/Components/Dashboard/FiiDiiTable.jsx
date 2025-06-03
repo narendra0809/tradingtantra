@@ -19,13 +19,13 @@ const FiiDiiTable = ({ data, loading }) => {
       {loading ? (
         <Loader />
       ) : (
-        <div className="dark:bg-db-primary  bg-db-primary-light rounded-lg p-2 ">
+        <div className="dark:bg-db-primary  bg-db-primary rounded-lg p-2 ">
           <h2 className=" text-2xl font-semibold p-2 flex items-center gap-2">
             FII / DII <FcCandleSticks />
           </h2>
 
           <div className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-            <div className="dark:bg-db-secondary bg-light-b2 rounded-lg p-4 w-full overflow-x-auto">
+            <div className="dark:bg-db-secondary bg-db-primary rounded-lg p-4 w-full overflow-x-auto">
               <table className="w-full min-w-[800px] text-sm">
                 <thead>
                   <tr className="border-b border-gray-600">

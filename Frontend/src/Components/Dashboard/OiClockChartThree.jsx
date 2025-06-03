@@ -9,7 +9,7 @@ const OiClockChartThree = ({ data }) => {
   ];
   const pcr = (formattedData[1].value / formattedData[0].value).toFixed(2);
   return (
-    <div className="dark:bg-db-secondary  bg-db-secondary-light min-h-[375px] p-6 rounded-lg text-white shadow-lg w-full  ">
+    <div className="dark:bg-db-secondary  bg-db-primary min-h-[375px] p-6 rounded-lg text-white shadow-lg w-full  ">
       <div className="flex justify-between items-center">
         {/* Donut Chart */}
         <PieChart width={300} height={300}>

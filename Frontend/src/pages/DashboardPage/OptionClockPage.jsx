@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { GoDotFill } from "react-icons/go";
 import TimeRangeSlider from "../../Components/Dashboard/TimeRangeSlider";
 import OiClockChart from "../../Components/Dashboard/OiClockChart";
@@ -6,11 +7,7 @@ import OiClockChartTwo from "../../Components/Dashboard/OiClockChartTwo";
 import OiClockChartThree from "../../Components/Dashboard/OiClockChartThree";
 import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
-import {
-  convertTo12HourFormat,
-  getPreviousDate,
-  parseTime,
-} from "../../utils/utils";
+import { convertTo12HourFormat, parseTime } from "../../utils/utils";
 import { lotSize } from "../../constants/constants";
 
 const OptionClockPage = () => {
@@ -76,7 +73,6 @@ const OptionClockPage = () => {
       });
 
       setAllIndexData(newData);
-
       // Set default expiry for Nifty50 if available
       if (newData.Nifty50?.expiries?.length > 0) {
         setSelectedExpiry(() => newData.Nifty50.expiries[0]);
@@ -127,47 +123,46 @@ const OptionClockPage = () => {
       const endTime = convertTo12HourFormat(range.split("-")[1]);
       let filteredData = allIndexData[selectedIndex].data.filter((data) => {
         const expectedExpiry = data.expiry;
-        const date = data.timestamp.split(",")[0].trim();
-        const timestamp = data.timestamp.split(",")[1].trim();
-
+        const timeStamp = data.timestamp.trim();
         if (expectedExpiry !== selectedExpiry) return false;
 
-        let currDate = new Date();
-        const dayNum = currDate.getDay();
-        if (dayNum === 6) {
-          currDate = getPreviousDate(currDate);
-        } else if (dayNum === 0) {
-          currDate = getPreviousDate(getPreviousDate(currDate));
-        }
+        // let currDate = new Date();
+        // const dayNum = currDate.getDay();
+        // if (dayNum === 6) {
+        //   currDate = getPreviousDate(currDate);
+        // } else if (dayNum === 0) {
+        //   currDate = getPreviousDate(getPreviousDate(currDate));
+        // }
 
-        const formatter = new Intl.DateTimeFormat("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          year: "numeric",
-        });
+        // const formatter = new Intl.DateTimeFormat("en-US", {
+        //   month: "2-digit",
+        //   day: "2-digit",
+        //   year: "numeric",
+        // });
 
-        let formattedDate = formatter.format(currDate).slice(1).split("/");
-        if (formattedDate[1].charAt(0) === "0") {
-          formattedDate[1] = formattedDate[1].charAt(1);
-        }
-        formattedDate = formattedDate.join("/");
+        // let formattedDate = formatter.format(currDate).slice(1).split("/");
+        // if (formattedDate[1].charAt(0) === "0") {
+        //   formattedDate[1] = formattedDate[1].charAt(1);
+        // }
+        // formattedDate = formattedDate.join("/");
 
-        if (date !== formattedDate) return false;
+        // if (date !== formattedDate) return false;
 
         const { totalOiCE: totalCE, totalOiPE: totalPE } = getTotalOi(data);
         totalOiCE = totalOiCE + totalCE;
         totalOiPE = totalOiPE + totalPE;
 
-        return timestamp === startTime || timestamp === endTime;
+        return timeStamp === startTime || timeStamp === endTime;
       });
+
       console.log(filteredData);
+
       filteredData = filteredData.sort(
-        (a, b) =>
-          parseTime(a.timestamp.split(",")[1].trim()) -
-          parseTime(b.timestamp.split(",")[1].trim())
+        (a, b) => parseTime(a.timestamp.trim()) - parseTime(b.timestamp.trim())
       );
 
       const processedData = processData(filteredData[0], filteredData[1]);
+      console.log("Processed Data : ", processedData);
       setTotalOiChanges(getTotalOIChange(processedData));
       setTotalOi({
         totalOiCE: totalOiCE / lotSize[selectedIndex],
@@ -202,6 +197,7 @@ const OptionClockPage = () => {
       TotalOiChangeCE += data.oiChangeCE;
       TotalOiChangePE += data.oiChangePE;
     });
+    console.log({ TotalOiChangeCE, TotalOiChangePE });
     return { TotalOiChangeCE, TotalOiChangePE };
   };
 
@@ -343,7 +339,7 @@ const OptionClockPage = () => {
 
       {/* oi clock charts section*/}
       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
-        <div className="dark:bg-db-primary bg-db-primary-light rounded-lg p-3">
+        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-3">
           {chartLoading ? (
             <div className="flex justify-center items-center h-64">
               {/* <LoadingSpinner /> */}
@@ -351,7 +347,7 @@ const OptionClockPage = () => {
             </div>
           ) : (
             <>
-              <div className="dark:bg-db-primary bg-db-primary-lightrounded-lg ">
+              <div className="dark:bg-db-primary bg-db-primaryrounded-lg ">
                 <div className="flex items-center gap-2">
                   <h2 className="text-3xl font-bold ">OI Clock </h2>{" "}
                   <span>
@@ -366,7 +362,7 @@ const OptionClockPage = () => {
 
               <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                  <div className="dark:bg-db-secondary bg-db-primary-light rounded-lg p-3">
+                  <div className="dark:bg-db-secondary bg-db-primary rounded-lg p-3">
                     <div className="flex items-center gap-2">
                       <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
                       <span className="text-xl">
@@ -378,7 +374,7 @@ const OptionClockPage = () => {
                 </div>
 
                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                  <div className="dark:bg-db-secondary bg-db-primary-light px-3 rounded-lg h-full">
+                  <div className="dark:bg-db-secondary bg-db-primary px-3 rounded-lg h-full">
                     <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
                       <div className="flex gap-2 items-center text-xl">
                         <h2 className="text-3xl font-medium">OI Clock</h2>{" "}

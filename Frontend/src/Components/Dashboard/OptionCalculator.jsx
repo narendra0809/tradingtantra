@@ -34,7 +34,7 @@ const OptionCalculator = () => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-light-b2 rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary rounded-md mt-10">
         <form className="space-y-6" onSubmit={calculateQuantity}>
           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
             <div className="flex flex-col space-y-3">
@@ -55,9 +55,17 @@ const OptionCalculator = () => {
                 className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
               />
             </div>
-            {[  
-              { label: "Risk Per Trade %", state: riskPerTrade, setter: setRiskPerTrade },
-              { label: "Stoploss Per Trade (Points)", state: stoploss, setter: setStoploss },
+            {[
+              {
+                label: "Risk Per Trade %",
+                state: riskPerTrade,
+                setter: setRiskPerTrade,
+              },
+              {
+                label: "Stoploss Per Trade (Points)",
+                state: stoploss,
+                setter: setStoploss,
+              },
               { label: "Price", state: price, setter: setPrice },
             ].map(({ label, state, setter }, index) => (
               <div key={index} className="flex flex-col space-y-3">
@@ -87,16 +95,13 @@ const OptionCalculator = () => {
             >
               Clear
             </button>
-            <button
-              type="submit"
-              className="bg-primary py-2 rounded-md w-4/5"
-            >
+            <button type="submit" className="bg-primary py-2 rounded-md w-4/5">
               Calculate
             </button>
           </div>
         </form>
       </div>
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-light-b2  rounded-md mt-5">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary  rounded-md mt-5">
         <h4 className="text-3xl font-light">Result:</h4>
         <div className="mt-[30px] flex w-full justify-between items-center text-2xl font-light">
           <p>Quantity:</p>

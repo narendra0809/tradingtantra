@@ -56,7 +56,7 @@ const AISectorChart = ({ data }) => {
   };
 
   return (
-    <div className="p-4 dark:bg-db-secondary bg-db-secondary-light  rounded-lg shadow-md w-full">
+    <div className="p-4 dark:bg-db-secondary bg-db-primary  rounded-lg shadow-md w-full">
       <ResponsiveContainer width="100%" height={350}>
         <BarChart
           data={sectorWisePercentageChange}

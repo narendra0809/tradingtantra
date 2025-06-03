@@ -87,9 +87,13 @@ const FIIDIIPage = () => {
         } else {
           console.error("FII/DII fetch error:", err);
           if (err.response?.status === 403 || err.response?.status === 401) {
-            setError("Subscription required. Please subscribe to access FII/DII data.");
+            setError(
+              "Subscription required. Please subscribe to access FII/DII data."
+            );
           } else if (attempt < maxAttempts) {
-            console.log(`Retrying FII/DII fetch (attempt ${attempt + 1}/${maxAttempts})`);
+            console.log(
+              `Retrying FII/DII fetch (attempt ${attempt + 1}/${maxAttempts})`
+            );
             setTimeout(() => fetchFiiDiiData(attempt + 1, maxAttempts), 1000);
             return;
           } else {
@@ -123,7 +127,7 @@ const FIIDIIPage = () => {
         </div>
       )}
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <div className="dark:bg-db-primary bg-db-primary-light rounded-lg p-2">
+        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2">
           <div>
             <div className="flex gap-4 items-center">
               <h1 className="text-3xl font-bold">FII/DII</h1>
