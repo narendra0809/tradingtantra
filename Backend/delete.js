@@ -133,7 +133,17 @@ const runMarketCleanupJob = async () => {
 };
 
 // ✅ Scheduled job every minute between 9 AM to 6 PM, Monday to Friday
-cron.schedule('*/2 * * * 1-5', runMarketCleanupJob);
+
+
+// From 9:10 to 9:59
+cron.schedule('10-59 9 * * 1-5', runMarketCleanupJob);
+
+// From 10:00 to 14:59
+cron.schedule('* 10-14 * * 1-5', runMarketCleanupJob);
+
+// From 15:00 to 15:40
+cron.schedule('0-40 15 * * 1-5', runMarketCleanupJob);
+
 
 // ✅ Run manually when script starts (optional)
 runMarketCleanupJob();
