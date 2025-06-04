@@ -1,16 +1,7 @@
-import React, { useEffect, useState } from "react";
-import TreemapChart from "../../Components/Dashboard/TreemapChart";
-import candles from "../../assets/Images/Dashboard/marketdepthpage/candles.png";
-import { FaPlayCircle } from "react-icons/fa";
-import { FcCandleSticks } from "react-icons/fc";
-import StockCard from "../../Components/Dashboard/StockCard";
-import LomShortTerm from "../../assets/Images/Dashboard/monryActionPage/LomShortTerm.png";
-import LomLongTerm from "../../assets/Images/Dashboard/monryActionPage/LomLongTerm.png";
-import contraction from "../../assets/Images/Dashboard/monryActionPage/Contraction.png";
-import OneDayHL from "../../assets/Images/Dashboard/monryActionPage/oneDayHL.png";
-import twoDayHL from "../../assets/Images/Dashboard/monryActionPage/twoDayHL.png";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
+
 import TwoDayHLBreak from "../../Components/Dashboard/Cards/Smart money action/TwoDayHLBreak";
-import axios from "axios";
 import DayHighLowReversal from "../../Components/Dashboard/Cards/Smart money action/DayHighLowReversal";
 import DailyRangeBreakout from "../../Components/Dashboard/Cards/Smart money action/DailyRangeBreakout";
 import AIMomentumCatcherTenMins from "../../Components/Dashboard/Cards/Smart money action/AIMomentumCatcherTenMins";
@@ -21,7 +12,7 @@ import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 
 const MonryActionPage = () => {
- const SOCKET_URI = import.meta.env.VITE_SOCKET_URI;
+  const SOCKET_URI = import.meta.env.VITE_SOCKET_URI;
 
   const token = localStorage.getItem("token");
   const socket = io(SOCKET_URI, {
@@ -51,8 +42,9 @@ const MonryActionPage = () => {
   );
 
   const [isSubscribed, setIsSubscribed] = useState(null);
+
   useEffect(() => {
-    const Subscribed =Cookies.get("isSubscribed");
+    const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed);
 
     // Flag to check if any data has arrived
@@ -115,11 +107,13 @@ const MonryActionPage = () => {
 
     socket.on("connect_error", (err) => {
       console.warn("Socket Connection Error:", err.message);
-      
+
       if (err.message.includes("Subscription required")) {
-          alert("⚠️ Subscription Required: Please subscribe to access this feature.");
+        alert(
+          "⚠️ Subscription Required: Please subscribe to access this feature."
+        );
       }
-  })  
+    });
     // Attach event listeners
     socket.on("twoDayHLBreak", handleTwoDayHLBreak);
     socket.on("DayHighLowReversal", handleDayHighLowReversal);
@@ -128,7 +122,7 @@ const MonryActionPage = () => {
     socket.on("AIMomentumCatcherFiveMins", handleMomentumCatcherFiveMins);
     socket.on("AIIntradayReversalFiveMins", handleAIIntradayReversalFiveMins);
     socket.on("AIIntradayReversalDaily", handleAIIntradayReversalDaily);
-     
+
     // Set a timeout to stop loading if no data is received
     // const timeout = setTimeout(() => {
     //   if (!hasDataArrived) {
@@ -158,8 +152,6 @@ const MonryActionPage = () => {
 
   return (
     <>
-     
-
       <section className="grid lg:grid-cols-2 grid-col-1 gap-8 mt-10">
         <AIMomentumCatcherFiveMins
           data={MomentumCatherFiveMinRes.updatedData}

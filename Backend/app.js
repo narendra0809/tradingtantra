@@ -6,11 +6,9 @@ import passport from "passport";
 import connectDB from "./src/config/db.js";
 import cookieParser from "cookie-parser";
 import http from "http";
-import cron from "node-cron";
 import "./delete.js";
 import "./src/config/passport.js";
 import optionChainJob from "./src/jobs/optionChain.job.js";
-import { getOptionChainData } from "./src/controllers/chain.controller.js";
 import { fetchAndSaveAllUnderlyings } from "./src/services/optionChain.service.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
@@ -19,7 +17,7 @@ import paymentRoutes from "./src/routes/payment.routes.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import compression from "compression";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
-import { getSocketInstance, initializeServer } from "./src/config/socket.js";
+import { initializeServer } from "./src/config/socket.js";
 import "./src/jobs/workers/FiveMinData.js";
 import "./src/jobs/workers/LiveData.js";
 import "./src/jobs/liveMarket.job.js";
@@ -27,6 +25,7 @@ import "./src/jobs/AfterMarket.job.js";
 import "./src/jobs/holiday.job.js";
 import "./src/jobs/FiiDiiJob.js";
 import optionClockRoutes from "./src/routes/optionClock.js";
+import smartMoneyActionJob from "./src/jobs/SmartMoneyAction.job.js";
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
@@ -89,6 +88,7 @@ connectDB()
     server.listen(PORT, () => {
       console.log("Server started on port", PORT);
       optionChainJob.start();
+      smartMoneyActionJob.start();
     });
   })
   .catch((error) => {
@@ -96,6 +96,7 @@ connectDB()
   });
 process.on("SIGINT", () => {
   optionChainJob.stop();
+  smartMoneyActionJob.stop();
   server.close(() => {
     console.log("Server closed");
     process.exit(0);

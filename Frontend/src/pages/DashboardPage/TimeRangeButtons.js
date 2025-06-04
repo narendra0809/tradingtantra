@@ -10,8 +10,13 @@ const TimeRangeButtons = ({ onTimeChange }) => {
 
   // Set default to latest available timestamp
   useEffect(() => {
-    const latestValid = timestamps.reverse().find(ts => {
-      const tsDate = new Date(ts.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4}), (\d{1,2}:\d{2}:\d{2} [AP]M)/, '$3-$1-$2 $4'));
+    const latestValid = timestamps.reverse().find((ts) => {
+      const tsDate = new Date(
+        ts.replace(
+          /(\d{1,2})\/(\d{1,2})\/(\d{4}), (\d{1,2}:\d{2}:\d{2} [AP]M)/,
+          "$3-$1-$2 $4"
+        )
+      );
       return tsDate <= marketClose;
     });
     setSelectedTime(latestValid || "");
@@ -26,10 +31,17 @@ const TimeRangeButtons = ({ onTimeChange }) => {
 
   return (
     <div className="mt-4">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Time</label>
-      <div className="flex flex-wrap gap-2 mt-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-gray-50 dark:bg-[#000A2D]">
-        {timestamps.map(time => {
-          const timeDate = new Date(time.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4}), (\d{1,2}:\d{2}:\d{2} [AP]M)/, '$3-$1-$2 $4'));
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        Select Time
+      </label>
+      <div className="flex flex-wrap gap-2 mt-2 max-h-40 overflow-y-auto p-2 border rounded-lg bg-gray-50 bg-[#000A2D]">
+        {timestamps.map((time) => {
+          const timeDate = new Date(
+            time.replace(
+              /(\d{1,2})\/(\d{1,2})\/(\d{4}), (\d{1,2}:\d{2}:\d{2} [AP]M)/,
+              "$3-$1-$2 $4"
+            )
+          );
           const isDisabled = timeDate > marketClose;
           return (
             <button

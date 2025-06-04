@@ -29,9 +29,9 @@ const AIOptionDataPage = () => {
   });
   const [selectedIndex, setSelectedIndex] = useState("Nifty50");
   const [selectedExpiry, setSelectedExpiry] = useState("");
-  const [selectedInterval, setSelectedInterval] = useState("3m");
+  const [selectedInterval, setSelectedInterval] = useState(3);
   const [loading, setLoading] = useState(false);
-  const [currData, setCurrData] = useState([]);
+  const [currentCandles, setCurrentCandles] = useState([]);
 
   const fetchIndexData = async (index) => {
     try {
@@ -102,7 +102,7 @@ const AIOptionDataPage = () => {
 
   useEffect(() => {
     processData();
-  }, [allIndexData]);
+  }, [allIndexData, selectedIndex, selectedExpiry, selectedInterval]);
 
   useEffect(() => {
     if (selectedExpiry) {
@@ -111,7 +111,7 @@ const AIOptionDataPage = () => {
   }, [selectedExpiry, selectedIndex]);
 
   const handleIntervalChange = (e) => {
-    setSelectedInterval(e.target.value);
+    setSelectedInterval(Number(e.target.value));
   };
   const handleIndexChange = (e) => {
     const index = e.target.value;
@@ -121,12 +121,35 @@ const AIOptionDataPage = () => {
     }
   };
 
-  const processData = () => {
-    const pricePoints = extractPricePoints(allIndexData[selectedIndex].data);
-    console.log("Price Points : ", pricePoints);
+  const filterByExpiry = (data) => {
+    return data.filter((item) => item.expiry === selectedExpiry);
+  };
 
-    const candles = createCandles(pricePoints, 3);
-    console.log(candles);
+  const processData = () => {
+    const filterdDataByExpiry = filterByExpiry(
+      allIndexData[selectedIndex].data
+    );
+    // console.log("Filtered Data : ", filterdDataByExpiry);
+    const pricePoints = extractPricePoints(filterdDataByExpiry);
+    // console.log("Price Points : ", pricePoints);
+
+    const candles = createCandles(pricePoints, selectedInterval);
+    // console.log(candles);
+
+    const convertedCandles = convertCandlesForDisplaying(candles);
+    setCurrentCandles(convertedCandles);
+    console.log("Converted Candles : ", convertedCandles);
+  };
+
+  const convertCandlesForDisplaying = (candles) => {
+    // let obj = {
+    //   x: new Date(213131312323),
+    //   y: ["open", "high", "low", "close"],
+    // };
+    return candles.map(({ timestamp, open, high, low, close }) => ({
+      x: new Date(timestamp),
+      y: [open, high, low, close],
+    }));
   };
 
   const extractPricePoints = (data) => {
@@ -141,10 +164,11 @@ const AIOptionDataPage = () => {
     });
   };
 
-  const createCandles = (pricePoints, intervalMinutes = 3) => {
+  const createCandles = (pricePoints, intervalMinutes = 15) => {
     if (!pricePoints.length) return [];
 
     const intervalMs = intervalMinutes * 60 * 1000;
+    console.log(intervalMs);
     const candles = [];
     let currentCandle = null;
 
@@ -161,9 +185,13 @@ const AIOptionDataPage = () => {
       low: firstPoint.price,
       close: firstPoint.price,
     };
+    console.log(pricePoints.length);
 
     for (let i = 1; i < pricePoints.length; i++) {
       const point = pricePoints[i];
+      // console.log("Point Timestamp :", point.timestamp);
+      // console.log("current timestamp :", currentCandle.timestamp);
+      // console.log("Interval MS :", intervalMs);
       if (point.timestamp < currentCandle.timestamp + intervalMs) {
         currentCandle.high = Math.max(currentCandle.high, point.price);
         currentCandle.low = Math.min(currentCandle.low, point.price);
@@ -185,6 +213,7 @@ const AIOptionDataPage = () => {
     if (currentCandle) {
       candles.push(currentCandle);
     }
+
     return candles;
   };
 
@@ -254,19 +283,19 @@ const AIOptionDataPage = () => {
             >
               <option
                 className="dark:bg-db-secondary bg-db-primary text-white "
-                value="3m"
+                value="3"
               >
                 3m
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary text-white "
-                value="15m"
+                value="15"
               >
                 15m
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary text-white "
-                value="30m"
+                value="30"
               >
                 30m
               </option>
@@ -314,7 +343,7 @@ const AIOptionDataPage = () => {
             </div>
 
             <div className="mt-8 h-[350px]">
-              <CandleChart />
+              <CandleChart candles={currentCandles} />
             </div>
           </div>
         </div>

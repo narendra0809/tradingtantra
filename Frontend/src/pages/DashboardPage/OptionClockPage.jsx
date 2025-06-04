@@ -12,6 +12,7 @@ import { lotSize } from "../../constants/constants";
 
 const OptionClockPage = () => {
   const { fetchData } = useFetchData();
+  const [firstRender, setFirstRender] = useState(true);
   const [allIndexData, setAllIndexData] = useState({
     Nifty50: { data: [], expiries: [] },
     BankNifty: { data: [], expiries: [] },
@@ -76,7 +77,6 @@ const OptionClockPage = () => {
       // Set default expiry for Nifty50 if available
       if (newData.Nifty50?.expiries?.length > 0) {
         setSelectedExpiry(() => newData.Nifty50.expiries[0]);
-        getDataByIndexAndExpiry("15:03-15:09");
       }
     } catch (error) {
       console.error("Error fetching index data:", error);
@@ -93,10 +93,11 @@ const OptionClockPage = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedExpiry) {
-      getDataByIndexAndExpiry("09:15-15:30");
+    if (selectedExpiry && firstRender) {
+      getDataByIndexAndExpiry(`9:15-15:30`);
+      setFirstRender(false);
     }
-  }, [selectedExpiry, selectedIndex]);
+  }, [selectedExpiry]);
 
   const handleIndexChange = (e) => {
     const index = e.target.value;
@@ -125,6 +126,15 @@ const OptionClockPage = () => {
         const expectedExpiry = data.expiry;
         const timeStamp = data.timestamp.trim();
         if (expectedExpiry !== selectedExpiry) return false;
+        // if (timeStamp == startTime) {
+        //   console.log("Start Time  Expected expiry : ", expectedExpiry);
+        // }
+        // console.log("TimeStamp : ", timeStamp);
+        // console.log("endTime : ", endTime);
+        // if (timeStamp == endTime) {
+        //   console.log("End Time  Expected expiry : ", expectedExpiry);
+        // }
+        // console.log("Expiry : ", expectedExpiry);
 
         // let currDate = new Date();
         // const dayNum = currDate.getDay();
@@ -292,19 +302,19 @@ const OptionClockPage = () => {
               className="bg-transparent focus:outline-none"
               value={selectedIndex}
             >
-              <option className="dark:bg-[#000A2D]" value="Nifty50">
+              <option className="bg-[#000A2D]" value="Nifty50">
                 Nifty50
               </option>
-              <option className="dark:bg-[#000A2D]" value="BankNifty">
+              <option className="bg-[#000A2D]" value="BankNifty">
                 BankNifty
               </option>
-              <option className="dark:bg-[#000A2D]" value="FinNifty">
+              <option className="bg-[#000A2D]" value="FinNifty">
                 FinNifty
               </option>
-              <option className="dark:bg-[#000A2D]" value="Midcap">
+              <option className="bg-[#000A2D]" value="Midcap">
                 Midcap
               </option>
-              <option className="dark:bg-[#000A2D]" value="Sensex">
+              <option className="bg-[#000A2D]" value="Sensex">
                 Sensex
               </option>
             </select>
@@ -319,11 +329,7 @@ const OptionClockPage = () => {
               onChange={handleExpiryChange}
             >
               {currentExpiries.map((expiry) => (
-                <option
-                  key={expiry}
-                  className="dark:bg-[#000A2D]"
-                  value={expiry}
-                >
+                <option key={expiry} className="bg-[#000A2D]" value={expiry}>
                   {expiry}
                 </option>
               ))}
@@ -355,7 +361,7 @@ const OptionClockPage = () => {
                   </span>
                 </div>
 
-                <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
                   <OiClockChart data={currData} />
                 </div>
               </div>
@@ -364,7 +370,7 @@ const OptionClockPage = () => {
                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
                   <div className="dark:bg-db-secondary bg-db-primary rounded-lg p-3">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
+                      <h2 className="text-3xl font-medium">OI Net Position</h2>{" "}
                       <span className="text-xl">
                         <FcCandleSticks />
                       </span>
@@ -390,7 +396,10 @@ const OptionClockPage = () => {
                         <p>Bears Total OI</p>
                       </div>
                     </div>
-                    <OiClockChartThree data={totalOi} />
+                    <OiClockChartThree
+                      data={totalOi}
+                      selectedIndex={selectedIndex}
+                    />
                   </div>
                 </div>
               </div>

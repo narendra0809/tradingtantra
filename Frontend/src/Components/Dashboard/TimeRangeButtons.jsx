@@ -53,7 +53,7 @@ const TimeRangeButtons = ({ onTimeChange }) => {
                   ? "bg-[#0E5FF6] text-white"
                   : isDisabled
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-white text-gray-900 hover:bg-[#0E5FF6] hover:text-white dark:bg-[#000A2D] dark:text-gray-200 dark:hover:bg-[#0E5FF6]"
+                  : "bg-white text-gray-900 hover:bg-[#0E5FF6] hover:text-white bg-[#000A2D] dark:text-gray-200 dark:hover:bg-[#0E5FF6]"
               }`}
             >
               {time.split(", ")[1].replace(":00 ", " ")} {/* e.g., "9:15 AM" */}

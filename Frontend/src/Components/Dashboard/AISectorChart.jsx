@@ -12,7 +12,11 @@ import {
   Cell,
 } from "recharts";
 
+import { useMediaQuery } from "react-responsive";
+
 const AISectorChart = ({ data }) => {
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  console.log(isMobile);
   const theme = useSelector((state) => state.theme.theme);
 
   const [sectorWisePercentageChange, setSectorWisePercentageChange] = useState(
@@ -46,8 +50,8 @@ const AISectorChart = ({ data }) => {
           dx={-5}
           textAnchor="end"
           fill={theme === "dark" ? "#fff" : "#000"}
-          transform="rotate(-85)"
-          fontSize={11}
+          transform={`${isMobile ? "rotate(-90)" : "rotate(-85)"}`}
+          fontSize={isMobile ? 10 : 14}
         >
           {payload.value}
         </text>
@@ -56,7 +60,7 @@ const AISectorChart = ({ data }) => {
   };
 
   return (
-    <div className="p-4 dark:bg-db-secondary bg-db-primary  rounded-lg shadow-md w-full">
+    <div className=" dark:bg-db-secondary bg-db-primary  rounded-lg shadow-md w-full">
       <ResponsiveContainer width="100%" height={350}>
         <BarChart
           data={sectorWisePercentageChange}

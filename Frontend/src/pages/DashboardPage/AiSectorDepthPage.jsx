@@ -1,8 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
-import TreemapChart from "../../Components/Dashboard/TreemapChart";
 import AISectorChart from "../../Components/Dashboard/AISectorChart";
 import StockCard from "../../Components/Dashboard/StockCard";
 import TreeGraphsGrid from "../../Components/Dashboard/TreeGraphsGrid";

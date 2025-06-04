@@ -36,7 +36,6 @@ const Sidebar = () => {
   const isOpen = useSelector((state) => state.sidebar.sideBarToggler);
 
   const dispatch = useDispatch();
-  // const [isOpen, setIsOpen] = useState(true);
 
   return (
     <aside

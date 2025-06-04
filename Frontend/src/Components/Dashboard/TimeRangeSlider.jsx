@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 // import { useState } from "react";
 // import Slider from "rc-slider";
@@ -115,7 +116,7 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
     allValues[0],
     allValues[allValues.length - 1],
   ]);
-  const [hoverValue, setHoverValue] = useState(null);
+  // const [hoverValue, setHoverValue] = useState(null);
 
   // Convert decimal time to HH:MM format
   const formatTime = (decimalTime) => {

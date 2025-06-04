@@ -8,26 +8,21 @@ import {
   sectorStockData,
 } from "../controllers/stock.contollers.js";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
-import {
-  AIIntradayReversalDaily,
-  AIIntradayReversalFiveMins,
-  AIMomentumCatcherFiveMins,
-  AIMomentumCatcherTenMins,
-  DailyRangeBreakout,
-  DayHighLowReversal,
-  startWebSocket,
-  twoDayHLBreak,
-} from "../controllers/liveMarketData.controller.js";
+
 import {
   dailyCandleReversal,
   fiveDayRangeBreakers,
   tenDayRangeBreakers,
 } from "../controllers/swingAnalysis.controllers.js";
 import getFiiDiiData from "../controllers/FiiDii.controller.js";
-import {
-  AICandleBreakers,
-  AIContractionDB,
-} from "../controllers/AIswingTrades.controller.js";
+import { AIContractionDB } from "../controllers/AIswingTrades.controller.js";
+import { AIIntradayReversalFiveMins } from "../controllers/liveMarketDataControllers/aiIntradayReversalFiveMins.js";
+import { AIIntradayReversalDaily } from "../controllers/liveMarketDataControllers/aiIntradayReversalDaily.js";
+import { AIMomentumCatcherFiveMins } from "../controllers/liveMarketDataControllers/aiMomentumCatcherFiveMins.js";
+import { AIMomentumCatcherTenMins } from "../controllers/liveMarketDataControllers/aiMomentumCatcherTenMins.js";
+import { DailyRangeBreakout } from "../controllers/liveMarketDataControllers/dailyRangeBreakout.js";
+import { dayHighLowReversal } from "../controllers/liveMarketDataControllers/dayHighLowReversal.js";
+import { twoDayHLBreak } from "../controllers/liveMarketDataControllers/twoDayHLBreak.js";
 const router = express.Router();
 router.get("/get-turnover", getStocksData);
 router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);
@@ -39,7 +34,7 @@ router.get("/sector-data", sectorStockData);
 router.get("/five-min-intraday-reversal-candle", AIIntradayReversalFiveMins);
 router.get("/daily-intraday-reversal-candle", AIIntradayReversalDaily);
 router.get("/daily-range-breakout", DailyRangeBreakout);
-router.get("/day-high-low-reversal", DayHighLowReversal);
+router.get("/day-high-low-reversal", dayHighLowReversal);
 router.get("/two-day-hl-break", twoDayHLBreak);
 router.get("/five-min-momentum", AIMomentumCatcherFiveMins);
 router.get("/ten-min-momentum", AIMomentumCatcherTenMins);

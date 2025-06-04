@@ -7,23 +7,30 @@ import {
   previousDaysVolume,
   sectorStockData,
 } from "../controllers/stock.contollers.js";
+import { AIIntradayReversalFiveMins } from "../controllers/liveMarketDataControllers/aiIntradayReversalFiveMins.js";
+import { AIIntradayReversalDaily } from "../controllers/liveMarketDataControllers/aiIntradayReversalDaily.js";
+import { AIMomentumCatcherFiveMins } from "../controllers/liveMarketDataControllers/aiMomentumCatcherFiveMins.js";
+import { AIMomentumCatcherTenMins } from "../controllers/liveMarketDataControllers/aiMomentumCatcherTenMins.js";
+import { DailyRangeBreakout } from "../controllers/liveMarketDataControllers/dailyRangeBreakout.js";
+import { dayHighLowReversal } from "../controllers/liveMarketDataControllers/dayHighLowReversal.js";
+import { twoDayHLBreak } from "../controllers/liveMarketDataControllers/twoDayHLBreak.js";
+// import {
+//   AIIntradayReversalDaily,
+//   AIIntradayReversalFiveMins,
+//   AIMomentumCatcherFiveMins,
+//   AIMomentumCatcherTenMins,
+//   DailyRangeBreakout,
+//   DayHighLowReversal,
+//   twoDayHLBreak,
+// } from "../controllers/liveMarketData.controller.js";
 import {
-  AIIntradayReversalDaily,
-  AIIntradayReversalFiveMins,
-  AIMomentumCatcherFiveMins,
-  AIMomentumCatcherTenMins,
-  DailyRangeBreakout,
-  DayHighLowReversal,
-  twoDayHLBreak,
-} from "../controllers/liveMarketData.controller.js";
- import {
   AIContraction,
   dailyCandleReversal,
   fiveDayRangeBreakers,
   tenDayRangeBreakers,
 } from "../controllers/swingAnalysis.controllers.js";
 import checkSubscription from "../middlewares/checkSubscription.js";
-import authenticateSocket from '../middlewares/authenticateSocket.js'
+import authenticateSocket from "../middlewares/authenticateSocket.js";
 
 let io;
 
@@ -108,7 +115,7 @@ async function sendSmartMoneyActionData() {
       AIIntradayReversalDailyResponse,
     ] = await Promise.allSettled([
       twoDayHLBreak(),
-      DayHighLowReversal(),
+      dayHighLowReversal(),
       DailyRangeBreakout(),
       AIMomentumCatcherTenMins(),
       AIMomentumCatcherFiveMins(),
@@ -197,7 +204,7 @@ const initializeServer = (server) => {
 
   io.use(authenticateSocket);
   io.use(checkSubscription);
- 
+
   io.on("connection", async (socket) => {
     console.log("a user connected", socket.id);
 
@@ -246,9 +253,3 @@ const getSocketInstance = () => {
 };
 
 export { initializeServer, getSocketInstance };
-
-
-
-
- 
- 
