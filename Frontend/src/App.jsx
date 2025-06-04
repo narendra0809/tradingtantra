@@ -45,8 +45,6 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PasswordChanged from "./pages/PasswordChanged";
 import OTPModal from "./pages/OTPModal";
-import OTPModal123 from "./pages/OTPModal";
-
 
 const App = () => {
   return (
