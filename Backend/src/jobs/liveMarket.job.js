@@ -14,7 +14,6 @@ const connection = {
 };
 
 const fiveMinDataQueue = new Queue("fiveMinData", { connection });
-const tenMinDataQueue = new Queue("tenMinData", { connection });
 const liveDataQueue = new Queue("liveData", { connection });
 
 const getISTTime = () => {
@@ -39,24 +38,39 @@ const checkHoliday = async () => {
   }
 };
 
+const isWithinMarketHours = () => {
+  const now = getISTTime();
+  const hours = now.hour;
+  const minutes = now.minute;
+
+  return (
+    (hours > 9 || (hours === 9 && minutes >= 15)) &&
+    (hours < 15 || (hours === 15 && minutes <= 35))
+  );
+};
+
 const runFiveMinDataTask = async () => {
   const now = getISTTime();
+  const hours = now.hour;
+  const minutes = now.minute;
+
   console.log(`[${now.toISO()}] Running 5-minute data task`);
 
-  if (now.weekday === 6 || now.weekday === 7 || (await checkHoliday())) {
-    console.log(`[${now.toISO()}] Weekend or holiday. Skipping execution.`);
+  if (
+    now.weekday === 6 ||
+    now.weekday === 7 ||
+    (await checkHoliday()) ||
+    !isWithinMarketHours()
+  ) {
+    console.log(`[${now.toISO()}] Not in market hours or holiday. Skipping.`);
     return;
   }
 
-  // if (
-  //   hours < 9 ||
-  //   (hours === 9 && minutes < 15) ||
-  //   hours > 15 ||
-  //   (hours === 15 && minutes > 35)
-  // ) {
-  //   console.log(`[${now.toISO()}] Outside market hours (9:15–3:30). Skipping.`);
-  //   return;
-  // }
+  // Only run every 5 mins
+  if (minutes % 5 !== 0) {
+    console.log(`[${now.toISO()}] Not a 5-minute interval. Skipping.`);
+    return;
+  }
 
   try {
     const fromDate = now.minus({ days: 1 }).toISODate();
@@ -71,10 +85,18 @@ const runFiveMinDataTask = async () => {
 
 const runLiveDataTask = async () => {
   const now = getISTTime();
+  const hours = now.hour;
+  const minutes = now.minute;
+
   console.log(`[${now.toISO()}] Running live data task`);
 
-  if (now.weekday === 6 || now.weekday === 7 || (await checkHoliday())) {
-    console.log(`[${now.toISO()}] Weekend or holiday. Skipping execution.`);
+  if (
+    now.weekday === 6 ||
+    now.weekday === 7 ||
+    (await checkHoliday()) ||
+    !isWithinMarketHours()
+  ) {
+    console.log(`[${now.toISO()}] Not in market hours or holiday. Skipping.`);
     return;
   }
 
@@ -96,7 +118,6 @@ const clearQueuesOnWeekend = async () => {
   if (day === 6 || day === 7) {
     console.log(`[${now.toISO()}] Weekend. Clearing queues.`);
     await fiveMinDataQueue.obliterate({ force: true });
-    // await tenMinDataQueue.obliterate({ force: true });
     await liveDataQueue.obliterate({ force: true });
     console.log(`[${now.toISO()}] Queues cleared.`);
   }
@@ -114,20 +135,21 @@ const initializeTasks = async () => {
   await runLiveDataTask();
 };
 
-cron.schedule("*/4 9-15 * * 1-5", runFiveMinDataTask, {
+// Run every minute Mon–Fri from 9 AM to 3 PM
+cron.schedule("* 9-15 * * 1-5", runFiveMinDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
 
-cron.schedule("*/1 9-15 * * 1-5", runLiveDataTask, {
+cron.schedule("* 9-15 * * 1-5", runLiveDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
 
 console.log(
   `[${new Date().toISOString()}] Schedulers initialized:
-   - 5-minute data: Every 5 mins, 9:15–3:30, Mon–Fri
-   - Live data: Every minute, 9:15–3:30, Mon–Fri ✅`
+   - 5-minute data: Every 5 mins, 9:15–3:35, Mon–Fri
+   - Live data: Every minute, 9:15–3:35, Mon–Fri ✅`
 );
 
 const startup = async () => {
