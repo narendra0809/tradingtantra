@@ -26,7 +26,6 @@ const TreeGraphsGrid = ({ data, loading }) => {
   ];
 
   const [sectorWiseData, setSectorWiseData] = useState([]);
-  console.log("data in grapg ", data);
 
   useEffect(() => {
     setSectorWiseData(data.sectorWiseData);
@@ -36,7 +35,7 @@ const TreeGraphsGrid = ({ data, loading }) => {
     <>
       <div className="lg:block">
         <div className="parent">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div></div>}>
             {Object.entries(sectorWiseData || {}).map(
               ([sector, values], index) => (
                 <div

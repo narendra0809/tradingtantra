@@ -4,8 +4,6 @@ import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
 import Loader from "../Loader";
-import dayHigh from "../../assets/Images/Dashboard/marketdepthpage/dayHigh.png";
-import dayLow from "../../assets/Images/Dashboard/marketdepthpage/dayLow.png";
 
 const StockCard = ({ title, data, loading, error }) => {
   const [sortedData, setSortedData] = useState([]);

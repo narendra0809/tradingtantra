@@ -16,7 +16,7 @@ import { useMediaQuery } from "react-responsive";
 
 const AISectorChart = ({ data }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  console.log(isMobile);
+
   const theme = useSelector((state) => state.theme.theme);
 
   const [sectorWisePercentageChange, setSectorWisePercentageChange] = useState(
@@ -35,10 +35,8 @@ const AISectorChart = ({ data }) => {
         return { name: sector, value: averagePercentageChange };
       });
 
-    setSectorWisePercentageChange(updatedData); // Set state once with the entire array
-  }, [data]); // Runs when `data` changes
-
-  console.log("sectorWise data", sectorWisePercentageChange);
+    setSectorWisePercentageChange(updatedData);
+  }, [data]);
 
   const renderCustomXAxisTick = ({ x, y, payload }) => {
     return (

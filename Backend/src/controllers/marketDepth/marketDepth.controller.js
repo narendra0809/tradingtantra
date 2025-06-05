@@ -1,0 +1,654 @@
+import MarketDetailData from "../../models/marketData.model.js";
+import StocksDetail from "../../models/stocksDetail.model.js";
+
+export const getStocksData = async () => {
+  try {
+    // Step 1: Get the latest **unique** date
+    const latestEntry = await MarketDetailData.findOne()
+      .sort({ date: -1 })
+      .select("date")
+      .lean();
+
+    if (!latestEntry) {
+      return { success: false, message: "No stock data available" };
+    }
+    // console.log("latestEntry", latestEntry);
+
+    const latestDate = latestEntry.date;
+
+    // Step 2: Find the **most recent past available date** (ignoring holidays)
+    let previousDayDate = null;
+
+    const previousDayEntry = await MarketDetailData.findOne(
+      { date: { $lt: latestDate } } // Find entry before latest date
+    )
+      .sort({ date: -1 }) // Sort again to get the latest available past entry
+      .select("date")
+      .lean();
+
+    if (!previousDayEntry) {
+      return { success: false, message: "No previous data found!" };
+    }
+
+    if (previousDayEntry) {
+      previousDayDate = previousDayEntry.date;
+    }
+
+    // Step 3: Fetch stock data for the latest date
+    const stocksData = await MarketDetailData.find({ date: latestDate }).lean();
+
+    if (!stocksData.length) {
+      return {
+        success: false,
+        message: "No stock data available for the latest date",
+      };
+    }
+
+    // Step 4: Fetch previous day's stock data (if available)
+    let previousDayMap = new Map();
+    if (previousDayDate) {
+      const previousDayData = await MarketDetailData.find({
+        date: previousDayDate,
+      }).lean();
+      previousDayMap = new Map(
+        previousDayData.map((stock) => [stock.securityId, stock])
+      );
+    }
+
+    console.log("emekdeb🙌");
+    // Step 5: Fetch stock details
+    const stockIds = stocksData.map((entry) => entry.securityId);
+    const stockDetails = await StocksDetail.find(
+      { SECURITY_ID: { $in: stockIds } },
+      {
+        _id: 0,
+        SECURITY_ID: 1,
+        UNDERLYING_SYMBOL: 1,
+        SYMBOL_NAME: 1,
+        DISPLAY_NAME: 1,
+        INDEX: 1,
+        SECTOR: 1,
+      }
+    ).lean();
+
+    const stockDetailsMap = new Map(
+      stockDetails.map((stock) => [stock.SECURITY_ID, stock])
+    );
+
+    // Step 6: Compute stock data with changes
+    // Step 6: Compute stock data with changes
+    const response = stocksData.map((stock) => {
+      const stockDetail = stockDetailsMap.get(stock.securityId) || {};
+      const previousStock = previousDayMap.get(stock.securityId);
+
+      const todayLatestPrice = stock?.data?.[0]?.latestTradedPrice || 0;
+      const prevDayLatestPrice =
+        previousStock?.data?.[0]?.latestTradedPrice || 0;
+
+      // Change Percentage Calculation
+      const changePercentage =
+        prevDayLatestPrice && prevDayLatestPrice !== 0
+          ? parseFloat(
+              (
+                ((todayLatestPrice - prevDayLatestPrice) / prevDayLatestPrice) *
+                100
+              ).toFixed(2)
+            )
+          : 0;
+
+      return {
+        SECURITY_ID: stock.securityId,
+        INDEX: stockDetail.INDEX || "N/A",
+        SECTOR: stockDetail.SECTOR || "N/A",
+        UNDERLYING_SYMBOL: stockDetail.UNDERLYING_SYMBOL || "N/A",
+        SYMBOL_NAME: stockDetail.SYMBOL_NAME || "N/A",
+        DISPLAY_NAME: stockDetail.DISPLAY_NAME || "N/A",
+        turnover: stock.turnover,
+        previousDayPrice: prevDayLatestPrice,
+        currentPrice: todayLatestPrice,
+        changePercentage,
+      };
+    });
+
+    // Sort by turnover and return top 30 stocks
+    const sortedData = response
+      .sort((a, b) => b.turnover - a.turnover)
+      .slice(0, 30);
+
+    return {
+      turnOverData: sortedData,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    };
+  }
+};
+
+export const getDayHighBreak = async () => {
+  try {
+    // Step 1: Find the most recent date available in the database
+    const latestEntry = await MarketDetailData.findOne()
+      .sort({ date: -1 }) // Get the latest date
+      .select("date");
+
+    if (!latestEntry) {
+      return { message: "Not enough data to calculate day high break" };
+    }
+
+    const latestDate = latestEntry.date;
+
+    // Step 2: Fetch all entries that match this date
+    const todayData = await MarketDetailData.find({ date: latestDate });
+
+    if (todayData.length === 0) {
+      return { message: "No data available for the latest saved date" };
+    }
+    const previousDayEntry = await MarketDetailData.findOne(
+      { date: { $lt: latestDate } },
+      { date: 1 }
+    ).sort({ date: -1 });
+
+    if (!previousDayEntry) {
+      return { success: false, message: "No previous stock data available" };
+    }
+
+    const previousDayDate = previousDayEntry.date;
+
+    // Fetch previous day's stock data
+    const previousDayData = await MarketDetailData.find({
+      date: previousDayDate,
+    });
+    const yesterdayMap = new Map();
+    previousDayData.forEach((entry) => {
+      yesterdayMap.set(
+        entry.securityId,
+        entry.data?.latestTradedPrice?.[0] || 0
+      );
+    });
+    const stocksDetail = await StocksDetail.find();
+
+    if (!stocksDetail) {
+      return {
+        success: false,
+        message: "Not enough data to calculate day high break",
+      };
+    }
+    let filteredData = todayData.map((data) => ({
+      latestPrice: parseFloat(data.data.latestTradedPrice[0].toFixed(2)),
+      dayHigh: parseFloat(data.data.dayHigh?.[0].toFixed(2)),
+      securityId: data.securityId,
+      turnover: data.turnover,
+      todayOpen: parseFloat(data.data.dayOpen?.[0].toFixed(2)),
+      xElement: data.xelement,
+    }));
+    const dayHighBreak = filteredData
+      .map((data) => {
+        const dayHigh = data.dayHigh;
+        const changePrice = dayHigh * 0.005;
+        const latestPrice = data.latestPrice;
+        const dayClose = yesterdayMap.get(data.securityId);
+        if (latestPrice >= dayHigh - changePrice) {
+          const stock = stocksDetail.find(
+            (stock) => stock.SECURITY_ID === data.securityId
+          );
+
+          if (stock) {
+            const {
+              _id,
+              createdAt,
+              updatedAt,
+              SECURITY_ID,
+              __v,
+              ...filteredStock
+            } = stock.toObject();
+
+            const percentageChange = (
+              ((latestPrice - dayClose) / dayClose) *
+              100
+            ).toFixed(2);
+
+            const percentageDifference = (
+              ((dayHigh - latestPrice) / latestPrice) *
+              100
+            ).toFixed(2);
+            return {
+              ...data,
+              stock: filteredStock,
+              percentageChange,
+              percentageDifference,
+            };
+          }
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.percentageDifference - b.percentageDifference);
+
+    return { dayHighBreak: dayHighBreak.slice(0, 30) };
+  } catch (error) {
+    // console.log(error);
+    return { message: "Server error", error: error.message };
+  }
+};
+
+export const getTopGainersAndLosers = async () => {
+  try {
+    // Step 1: Find the most recent available date (today)
+    const latestEntry = await MarketDetailData.findOne()
+      .sort({ date: -1 }) // Get the latest date
+      .select("date");
+
+    if (!latestEntry) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No stock data available" });
+    }
+
+    const latestDate = latestEntry.date;
+
+    // Step 2: Find the previous trading day (yesterday)
+    const previousDayEntry = await MarketDetailData.findOne(
+      { date: { $lt: latestDate } },
+      { date: 1 }
+    ).sort({ date: -1 });
+
+    if (!previousDayEntry) {
+      return res
+        .status(404)
+        .json({ success: false, message: "No previous stock data available" });
+    }
+
+    const previousDayDate = previousDayEntry.date;
+
+    // Step 3: Fetch all data for both days in parallel
+    const [todayData, yesterdayData] = await Promise.all([
+      MarketDetailData.find({ date: latestDate }),
+      MarketDetailData.find({ date: previousDayDate }),
+    ]);
+
+    if (todayData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No stock data available for the latest date",
+      });
+    }
+
+    if (yesterdayData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No stock data available for the previous date",
+      });
+    }
+
+    // Step 4: Create a map of yesterday's closing prices
+    const yesterdayCloseMap = new Map();
+    yesterdayData.forEach((entry) => {
+      // Using data.dayClose[0] as per your schema example
+      const dayClose = entry.data?.latestTradedPrice?.[0] || 0;
+      yesterdayCloseMap.set(entry.securityId, dayClose);
+    });
+
+    // Step 5: Get stock details for all securities
+    const stockIds = todayData.map((entry) => entry.securityId);
+    const stockDetails = await StocksDetail.find(
+      { SECURITY_ID: { $in: stockIds } },
+      {
+        UNDERLYING_SYMBOL: 1,
+        SYMBOL_NAME: 1,
+        SECURITY_ID: 1,
+        INDEX: 1,
+        SECTOR: 1,
+      }
+    );
+
+    const stockDetailsMap = new Map();
+    stockDetails.forEach((stock) => {
+      stockDetailsMap.set(stock.SECURITY_ID, stock);
+    });
+
+    // Step 6: Calculate percentage changes
+    const gainers = [];
+    const losers = [];
+
+    todayData.forEach((todayEntry) => {
+      const securityId = todayEntry.securityId;
+      const yesterdayClose = yesterdayCloseMap.get(securityId) || 0;
+
+      // Skip if no yesterday data or yesterday close is 0
+      if (yesterdayClose === 0) return;
+
+      const latestPrice = todayEntry.data?.latestTradedPrice?.[0] || 0;
+
+      // Skip if no latest price
+      if (latestPrice === 0) return;
+
+      // Calculate percentage change
+      const percentageChange =
+        ((latestPrice - yesterdayClose) / yesterdayClose) * 100;
+      const roundedPercentage = parseFloat(percentageChange.toFixed(2));
+
+      const stockDetail = stockDetailsMap.get(securityId) || {};
+
+      const stockInfo = {
+        securityId,
+        stockSymbol: stockDetail.UNDERLYING_SYMBOL || "N/A",
+        stockName: stockDetail.SYMBOL_NAME || "N/A",
+        sector: stockDetail.SECTOR || "N/A",
+        index: stockDetail.INDEX || "N/A",
+        lastTradePrice: latestPrice,
+        previousClosePrice: yesterdayClose,
+        percentageChange: roundedPercentage,
+        turnover: todayEntry.turnover,
+        xElement: todayEntry.xelement,
+      };
+
+      if (percentageChange > 0) {
+        gainers.push(stockInfo);
+      } else {
+        losers.push(stockInfo);
+      }
+    });
+
+    // Step 7: Sort and limit results
+    gainers.sort((a, b) => b.percentageChange - a.percentageChange);
+    losers.sort((a, b) => a.percentageChange - b.percentageChange);
+
+    // Return top 30 gainers and losers
+    return {
+      success: true,
+      date: latestDate,
+      previousDate: previousDayDate,
+      topGainers: gainers.slice(0, 30),
+      topLosers: losers.slice(0, 30),
+      stats: {
+        totalGainers: gainers.length,
+        totalLosers: losers.length,
+        highestGainer: gainers[0]?.percentageChange || 0,
+        highestLoser: losers[0]?.percentageChange || 0,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching top gainers & losers:", error);
+    return {
+      success: false,
+      message: "Error fetching top gainers & losers",
+      error: error.message,
+    };
+  }
+};
+
+export const getDayLowBreak = async () => {
+  try {
+    // Step 1: Find the most recent date available in the database
+    const latestEntry = await MarketDetailData.findOne()
+      .sort({ date: -1 }) // Get the latest date
+      .select("date");
+
+    if (!latestEntry) {
+      return { message: "Not enough data to calculate day low break" };
+    }
+
+    const latestDate = latestEntry.date;
+
+    // Step 2: Fetch all entries that match this date
+    const todayData = await MarketDetailData.find({ date: latestDate });
+
+    if (todayData.length === 0) {
+      return {
+        success: false,
+        message: "No data available for the latest saved date",
+      };
+    }
+
+    // console.log("Total entries found for latest date:", todayData.length);
+    const previousDayEntry = await MarketDetailData.findOne(
+      { date: { $lt: latestDate } },
+      { date: 1 }
+    ).sort({ date: -1 });
+
+    if (!previousDayEntry) {
+      return { success: false, message: "No previous stock data available" };
+    }
+
+    const previousDayDate = previousDayEntry.date;
+
+    // Fetch previous day's stock data
+    const previousDayData = await MarketDetailData.find({
+      date: previousDayDate,
+    });
+    const yesterdayMap = new Map();
+    previousDayData.forEach((entry) => {
+      yesterdayMap.set(entry.securityId, entry.data?.latestTradedPrice[0] || 0);
+    });
+    const stocksDetail = await StocksDetail.find();
+
+    if (!stocksDetail) {
+      return {
+        success: false,
+        message: "Not enough data to calculate day low break",
+      };
+    }
+
+    let filteredData = todayData.map((data) => ({
+      latestPrice: parseFloat(data.data.latestTradedPrice?.[0].toFixed(2)),
+      dayLow: parseFloat(data.data.dayLow?.[0].toFixed(2)),
+      securityId: data.securityId,
+      turnover: data.turnover,
+      xElement: data.xelement,
+    }));
+
+    const dayLowBreak = filteredData
+      .map((data) => {
+        const changePrice = data.dayLow * 0.005;
+        const latestPrice = data.latestPrice;
+        const dayLow = data.dayLow;
+        const previousClose = yesterdayMap.get(data.securityId);
+        if (latestPrice <= dayLow + changePrice) {
+          const stock = stocksDetail.find(
+            (stock) => stock.SECURITY_ID === data.securityId
+          );
+
+          if (stock) {
+            const {
+              _id,
+              createdAt,
+              updatedAt,
+              SECURITY_ID,
+              __v,
+              ...filteredStock
+            } = stock.toObject();
+
+            const percentageChange = (
+              ((latestPrice - previousClose) / previousClose) *
+              100
+            ).toFixed(2);
+
+            const percentageDifference = (
+              ((dayLow - latestPrice) / latestPrice) *
+              100
+            ).toFixed(2);
+
+            return {
+              ...data,
+              stock: filteredStock,
+              percentageChange,
+              percentageDifference,
+            };
+          }
+        }
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.percentageDifference - a.percentageDifference);
+    return { dayLowBreak: dayLowBreak.slice(0, 30) };
+  } catch (error) {
+    // console.log(error);
+    return { message: "Server error", error: error.message };
+  }
+};
+
+export const previousDaysVolume = async () => {
+  try {
+    const uniqueTradingDaysDates = await MarketDetailData.aggregate([
+      { $group: { _id: "$date" } },
+      { $sort: { _id: -1 } },
+      { $limit: 2 },
+    ]);
+
+    console.log(uniqueTradingDaysDates, "unique");
+    if (!uniqueTradingDaysDates || uniqueTradingDaysDates.length < 2) {
+      return { success: false, message: "No stock data available" };
+    }
+
+    const latestDate = uniqueTradingDaysDates[0]._id;
+    const previousDayDate = uniqueTradingDaysDates[1]._id;
+
+    const todayData = await MarketDetailData.find(
+      { date: latestDate },
+      {
+        securityId: 1,
+        data: 1,
+        _id: 0,
+      }
+    );
+
+    // console.log('todatdata',todayData)
+
+    const batchSize = 1080;
+    let previousData = [];
+    let batchIndex = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      const batch = await MarketDetailData.aggregate([
+        { $match: { date: { $lt: latestDate } } },
+        { $sort: { date: -1 } },
+        { $skip: batchIndex * batchSize },
+        { $limit: batchSize },
+        {
+          $project: {
+            securityId: 1,
+            data: 1,
+            date: 1,
+            _id: 0,
+          },
+        },
+      ]);
+
+      if (batch.length === 0) {
+        hasMore = false;
+      } else {
+        previousData = previousData.concat(batch);
+        batchIndex++;
+      }
+    }
+
+    if (!previousData.length) {
+      return { success: false, message: "No previous stock data available" };
+    }
+
+    const yesterdayData = await MarketDetailData.find(
+      { date: previousDayDate },
+      {
+        securityId: 1,
+        data: 1,
+        _id: 0,
+      }
+    );
+
+    const prevDayDataMap = new Map();
+    yesterdayData.forEach((data) => {
+      prevDayDataMap.set(data.securityId, data);
+    });
+
+    const stocksDetail = await StocksDetail.find(
+      {},
+      {
+        SECURITY_ID: 1,
+        UNDERLYING_SYMBOL: 1,
+        SYMBOL_NAME: 1,
+        DISPLAY_NAME: 1,
+        _id: 0,
+      }
+    );
+
+    const stocksDetailsMap = new Map();
+    stocksDetail.forEach((stock) => {
+      stocksDetailsMap.set(stock.SECURITY_ID, {
+        UNDERLYING_SYMBOL: stock.UNDERLYING_SYMBOL,
+        SYMBOL_NAME: stock.SYMBOL_NAME,
+        DISPLAY_NAME: stock.DISPLAY_NAME,
+      });
+    });
+
+    let previousVolumesMap = {};
+    previousData.forEach(({ securityId, data }) => {
+      const volume = data?.[0]?.volume || 0;
+
+      if (!previousVolumesMap[securityId]) {
+        previousVolumesMap[securityId] = [];
+      }
+      previousVolumesMap[securityId].push(volume);
+    });
+
+    let bulkUpdates = [];
+    // console.log(todayData,'today')
+    const combinedData = todayData.map(({ securityId, data }) => {
+      const todayVolume = data?.volume?.[0] || 0;
+      const latestTradedPrice1 = data?.latestTradedPrice?.[0] || 0;
+      const todayOpen = data?.dayOpen?.[0] || 0;
+
+      const stock = stocksDetailsMap.get(securityId);
+      const previousDayData = prevDayDataMap.get(securityId);
+      const previousDayClose =
+        previousDayData?.data?.latestTradedPrice?.[0] || 0;
+
+      const percentageChange = previousDayClose
+        ? ((latestTradedPrice1 - previousDayClose) / previousDayClose) * 100
+        : 0;
+
+      const volumeHistory = previousVolumesMap[securityId] || [];
+      const totalPreviousVolume = volumeHistory.reduce(
+        (sum, vol) => sum + vol,
+        0
+      );
+      const averagePreviousVolume = volumeHistory.length
+        ? totalPreviousVolume / volumeHistory.length
+        : 0;
+
+      const xElement =
+        averagePreviousVolume > 0 ? todayVolume / averagePreviousVolume : 0;
+
+      bulkUpdates.push({
+        updateOne: {
+          filter: { securityId, date: latestDate },
+          update: { $set: { xelement: xElement } },
+        },
+      });
+
+      return {
+        securityId,
+        todayVolume,
+        stock,
+        totalPreviousVolume,
+        averagePreviousVolume,
+        xElement,
+        percentageChange,
+      };
+    });
+
+    if (bulkUpdates.length > 0) {
+      await MarketDetailData.bulkWrite(bulkUpdates);
+    }
+    // Sort combinedData by xElement in descending order
+    combinedData.sort((a, b) => b.xElement - a.xElement);
+
+    return { previousDayVolumeData: combinedData.slice(0, 30) };
+  } catch (error) {
+    // console.error(error, 'pd reeoe');
+    return { success: false, message: "Error in calculating volume data" };
+  }
+};

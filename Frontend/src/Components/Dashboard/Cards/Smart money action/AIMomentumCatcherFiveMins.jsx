@@ -174,7 +174,15 @@ const AIMomentumCatcherFiveMins = ({ data, loading, error, isSubscribed }) => {
 
                   {/* Scrollable Table Body */}
                   <tbody>
-                    {loading && <Loader />}
+                    {loading && (
+                      <tr>
+                        <td colSpan="4" className="relative h-[200px] w-full">
+                          <div className="absolute inset-0 flex justify-center items-center">
+                            <Loader />
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     {error && <p>{error}</p>}
                     {sortedData.length > 0 ? (
                       sortedData.map((stock, index) => (

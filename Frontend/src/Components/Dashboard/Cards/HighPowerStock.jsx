@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
@@ -146,8 +147,10 @@ const HighPowerStock = ({
                   <tbody>
                     {loading ? (
                       <tr>
-                        <td colSpan="4" className="text-center py-4">
-                          <Loader />
+                        <td colSpan="4" className="relative h-[200px] w-full">
+                          <div className="absolute inset-0 flex justify-center items-center">
+                            <Loader />
+                          </div>
                         </td>
                       </tr>
                     ) : error ? (

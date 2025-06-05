@@ -23,6 +23,9 @@ import { AIMomentumCatcherTenMins } from "../controllers/liveMarketDataControlle
 import { DailyRangeBreakout } from "../controllers/liveMarketDataControllers/dailyRangeBreakout.js";
 import { dayHighLowReversal } from "../controllers/liveMarketDataControllers/dayHighLowReversal.js";
 import { twoDayHLBreak } from "../controllers/liveMarketDataControllers/twoDayHLBreak.js";
+import { getSmartMoneyActionData } from "../controllers/liveMarketDataControllers/getSmartActionMoneyData.js";
+import { sectorDepth } from "../controllers/sectorDepth/sectorDepth.controller.js";
+import { marketDepth } from "../controllers/marketDepth/getMarketDepthData.js";
 const router = express.Router();
 router.get("/get-turnover", getStocksData);
 router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);
@@ -45,4 +48,10 @@ router.get("/daily-candel-reversal", dailyCandleReversal);
 router.get("/ai-contraction", AIContractionDB);
 
 router.get("/fii-dii", getFiiDiiData);
+
+//Outside market hours routes for data fetching :
+router.get("/smart-money-action", getSmartMoneyActionData);
+router.get("/sector-depth", sectorDepth);
+router.get("/market-depth", marketDepth);
+
 export default router;

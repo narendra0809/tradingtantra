@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoIosNotifications } from "react-icons/io";
-import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
+import userImg from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 // import { setTheme } from "../../contexts/Redux/Slices/themeSlice";
@@ -19,6 +19,7 @@ const Header = () => {
   const [hovered, setHovered] = useState(false);
   // const [isDarkMode, setIsDarkMode] = useState("dark");
   const [profileDropDown, setProfileDropDown] = useState(false);
+  const navigate = useNavigate();
   const dropdownRef = useRef(null); // Ref for the dropdown area
 
   const isOpen = useSelector((state) => state.sidebar.sideBarToggler);
@@ -132,14 +133,14 @@ const Header = () => {
         <div className="relative" ref={dropdownRef}>
           <img
             onClick={() => setProfileDropDown(!profileDropDown)}
-            src={user}
+            src={userImg}
             className="w-10 h-10 rounded-sm cursor-pointer"
             alt=""
           />
           {profileDropDown && (
             <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] dark:bg-db-secondary bg-[#273D8F] text-white right-0 top-15 z-20">
               <div className="flex items-center gap-3">
-                <img src={user} className="w-10 h-10 rounded-sm" alt="" />
+                <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
                 <div>
                   <p className="text-sm">JuliusCesar1014</p>
                   <div className="text-xs flex gap-3 items-center">
@@ -151,18 +152,38 @@ const Header = () => {
                 </div>
               </div>
               <div className="space-y-3">
-                <div className="flex gap-3">
+                <button
+                  className="flex gap-3"
+                  onClick={() => {
+                    navigate("/dashboard/profile");
+                    setProfileDropDown(!profileDropDown);
+                  }}
+                >
                   <img src={myProfile} alt="" />
                   <p>My Profile</p>
-                </div>
-                <div className="flex gap-3">
+                </button>
+
+                <button
+                  className="flex gap-3"
+                  onClick={() => {
+                    navigate("/dashboard/plan");
+                    setProfileDropDown(!profileDropDown);
+                  }}
+                >
                   <img src={myPlan} alt="" />
                   <p>My Plan</p>
-                </div>
-                <div className="flex gap-3">
+                </button>
+
+                <button
+                  className="flex gap-3"
+                  onClick={() => {
+                    navigate("/dashboard/feedback");
+                    setProfileDropDown(!profileDropDown);
+                  }}
+                >
                   <img src={feedBack} alt="" />
                   <p>Feedback</p>
-                </div>
+                </button>
               </div>
               <div>
                 {/* <button className="flex items-center gap-3" onClick={logout}> */}

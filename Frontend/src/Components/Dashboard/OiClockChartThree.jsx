@@ -6,8 +6,7 @@ import { useMediaQuery } from "react-responsive";
 
 const OiClockChartThree = ({ data, selectedIndex }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isMedium = useMediaQuery({ maxWidth: 1248, minWidth: 768 });
-  console.log(isMedium);
+
   const formattedData = [
     {
       name: "Bulls",

@@ -32,7 +32,7 @@ class SmartMoneyActionJob {
     if (this.task) {
       this.task.stop();
       this.task = null;
-      console.log("Option chain job stopped");
+      console.log("Smart Money Action Job stopped");
     }
   }
 }

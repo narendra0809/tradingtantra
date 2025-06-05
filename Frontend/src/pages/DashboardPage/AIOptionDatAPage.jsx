@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
@@ -7,6 +8,7 @@ import CandleChart from "../../Components/Dashboard/CandleChart";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
 import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
+import { lotSize } from "../../constants/constants";
 
 const meterData = [
   {
@@ -15,7 +17,7 @@ const meterData = [
   },
   {
     title: "PCR",
-    value: 0.9,
+    value: 0.5,
   },
 ];
 const AIOptionDataPage = () => {
@@ -32,6 +34,7 @@ const AIOptionDataPage = () => {
   const [selectedInterval, setSelectedInterval] = useState(3);
   const [loading, setLoading] = useState(false);
   const [currentCandles, setCurrentCandles] = useState([]);
+  const [totalOI, setTotalOI] = useState({ totalCE: 0, totalPE: 0 });
 
   const fetchIndexData = async (index) => {
     try {
@@ -80,11 +83,8 @@ const AIOptionDataPage = () => {
 
       setAllIndexData(newData);
 
-      console.log("Data Fetch : ", newData);
-
       if (newData.Nifty50?.expiries?.length > 0) {
         setSelectedExpiry(() => newData.Nifty50.expiries[0]);
-        // getDataByIndexAndExpiry("15:03-15:09");
       }
     } catch (error) {
       console.error("Error fetching index data:", error);
@@ -104,12 +104,6 @@ const AIOptionDataPage = () => {
     processData();
   }, [allIndexData, selectedIndex, selectedExpiry, selectedInterval]);
 
-  useEffect(() => {
-    if (selectedExpiry) {
-      // getDataByIndexAndExpiry("09:15-15:30");
-    }
-  }, [selectedExpiry, selectedIndex]);
-
   const handleIntervalChange = (e) => {
     setSelectedInterval(Number(e.target.value));
   };
@@ -122,7 +116,32 @@ const AIOptionDataPage = () => {
   };
 
   const filterByExpiry = (data) => {
-    return data.filter((item) => item.expiry === selectedExpiry);
+    let totalCE = 0;
+    let totalPE = 0;
+    const arr = data.filter((item) => {
+      const obj = getTotalOi(item);
+      totalCE += obj.totalOiCE;
+      totalPE += obj.totalOiPE;
+      return item.expiry === selectedExpiry;
+    });
+    setTotalOI({
+      totalCE: totalCE / lotSize[selectedIndex],
+      totalPE: totalPE / lotSize[selectedIndex],
+    });
+    return arr;
+  };
+
+  const getTotalOi = (data) => {
+    let totalOiCE = 0;
+    let totalOiPE = 0;
+    data.strikeData.forEach((strike) => {
+      if (strike.optionType === "CE") {
+        totalOiCE = totalOiCE + strike.oi;
+      } else {
+        totalOiPE = totalOiPE + strike.oi;
+      }
+    });
+    return { totalOiCE, totalOiPE };
   };
 
   const processData = () => {
@@ -137,8 +156,8 @@ const AIOptionDataPage = () => {
     // console.log(candles);
 
     const convertedCandles = convertCandlesForDisplaying(candles);
+    console.log("Process for : " + selectedIndex, convertedCandles);
     setCurrentCandles(convertedCandles);
-    console.log("Converted Candles : ", convertedCandles);
   };
 
   const convertCandlesForDisplaying = (candles) => {
@@ -148,7 +167,7 @@ const AIOptionDataPage = () => {
     // };
     return candles.map(({ timestamp, open, high, low, close }) => ({
       x: new Date(timestamp),
-      y: [open, high, low, close],
+      y: [open.toFixed(2), high.toFixed(2), low.toFixed(2), close.toFixed(2)],
     }));
   };
 
@@ -168,7 +187,6 @@ const AIOptionDataPage = () => {
     if (!pricePoints.length) return [];
 
     const intervalMs = intervalMinutes * 60 * 1000;
-    console.log(intervalMs);
     const candles = [];
     let currentCandle = null;
 
@@ -185,7 +203,6 @@ const AIOptionDataPage = () => {
       low: firstPoint.price,
       close: firstPoint.price,
     };
-    console.log(pricePoints.length);
 
     for (let i = 1; i < pricePoints.length; i++) {
       const point = pricePoints[i];
@@ -218,6 +235,14 @@ const AIOptionDataPage = () => {
   };
 
   const currentExpiries = allIndexData[selectedIndex]?.expiries || [];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="ml-4 text-xl">Loading market data...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -353,7 +378,7 @@ const AIOptionDataPage = () => {
           <div className="dark:bg-db-primary bg-db-primary   rounded-lg p-4 ">
             <div className="grid grid-cols-2 gap-4">
               {meterData.map((item, index) => (
-                <GaugeMeter key={index} title={item.title} value={item.value} />
+                <GaugeMeter key={index} title={item.title} totalOI={totalOI} />
               ))}
             </div>
 

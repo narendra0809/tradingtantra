@@ -10,7 +10,6 @@ export const runAllStrategies = async () => {
   try {
     console.log("Starting all momentum strategies at", new Date());
 
-    // Run all strategies in parallel for better performance
     const results = await Promise.allSettled([
       AIMomentumCatcherFiveMins(),
       AIMomentumCatcherTenMins(),
@@ -21,7 +20,6 @@ export const runAllStrategies = async () => {
       AIIntradayReversalFiveMins(),
     ]);
 
-    // Log results
     results.forEach((result, index) => {
       const strategyNames = [
         "AIMomentumCatcherFiveMins",
