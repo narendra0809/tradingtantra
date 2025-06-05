@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 // src/Components/Dashboard/TimeRangeButtons.js
 import React, { useState, useEffect } from "react";
 import { generateTimestamps } from "../../utils/generateTimestamps";

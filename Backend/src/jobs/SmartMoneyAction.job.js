@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import runAllStrategies from "../controllers/liveMarketDataControllers/momentumFunction.js";
+import { runAllStrategies } from "../controllers/liveMarketDataControllers/momentumFunction.js";
 
 class SmartMoneyActionJob {
   constructor() {

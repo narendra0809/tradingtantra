@@ -6,7 +6,7 @@ import { DailyRangeBreakout } from "./dailyRangeBreakout.js";
 import { dayHighLowReversal } from "./dayHighLowReversal.js";
 import { twoDayHLBreak } from "./twoDayHLBreak.js";
 
-const runAllStrategies = async () => {
+export const runAllStrategies = async () => {
   try {
     console.log("Starting all momentum strategies at", new Date());
 
@@ -54,5 +54,3 @@ const runAllStrategies = async () => {
     };
   }
 };
-
-export default { runAllStrategies };
