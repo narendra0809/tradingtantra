@@ -165,14 +165,12 @@ const OptionClockPage = () => {
         return timeStamp === startTime || timeStamp === endTime;
       });
 
-      console.log(filteredData);
-
       filteredData = filteredData.sort(
         (a, b) => parseTime(a.timestamp.trim()) - parseTime(b.timestamp.trim())
       );
 
       const processedData = processData(filteredData[0], filteredData[1]);
-      console.log("Processed Data : ", processedData);
+
       setTotalOiChanges(getTotalOIChange(processedData));
       setTotalOi({
         totalOiCE: totalOiCE / lotSize[selectedIndex],

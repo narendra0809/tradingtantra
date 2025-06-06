@@ -8,6 +8,7 @@ import TenMinCandles from "../models/tenMinCandles.model.js";
 import FifteenMinCandles from "../models/fifteenMinCandles.model.js";
 import redis from "../config/redisClient.js";
 import MarketHoliday from "../models/holidays.model.js";
+import { runFetchForIndexCandles } from "../services/indexCandles.service.js";
 const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 const CLIENT_ID = process.env.DHAN_CLIENT_ID;
 const WS_URL = `wss://api-feed.dhan.co?version=2&token=${ACCESS_TOKEN}&clientId=${CLIENT_ID}&authType=2`;
@@ -195,7 +196,7 @@ const formatTimestamp = (unixTimestamp) => {
   return formatted;
 };
 
-const getMinuteDifference = (currentTime, candleTimestamp) => {
+export const getMinuteDifference = (currentTime, candleTimestamp) => {
   const current = new Date(currentTime);
   const candle = new Date(candleTimestamp * 1000);
   const diffMs = current - candle;
@@ -600,6 +601,8 @@ const getData = async () => {
       }
 
       await delay(200);
+
+      await runFetchForIndexCandles(fromDate, toDate);
     }
   } catch (error) {
     console.error("[Main] Error in getData:", error.message);

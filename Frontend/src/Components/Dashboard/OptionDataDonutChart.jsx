@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Chart from "react-apexcharts";
 
 const OptionDataDonutChart = () => {
   const shares = [
-    { name: "Reliance", percent: 44, change: 2.5 },  
-    { name: "TCS", percent: 55, change: -1.8 },      
-    { name: "Infosys", percent: 10, change: 8.2 },   
-    { name: "HDFC Bank", percent: 17, change: -7.9 }, 
-    { name: "ICICI Bank", percent: 15, change: 1.2 }, 
+    { name: "Reliance", percent: 44, change: 2.5 },
+    { name: "TCS", percent: 55, change: -1.8 },
+    { name: "Infosys", percent: 10, change: 8.2 },
+    { name: "HDFC Bank", percent: 17, change: -7.9 },
+    { name: "ICICI Bank", percent: 15, change: 1.2 },
   ];
 
   const interpolateColor = (startColor, endColor, factor) => {
@@ -111,7 +111,12 @@ const OptionDataDonutChart = () => {
         Nifty 50 is down by 32 pts
       </p>
       <div className="w-full flex justify-center">
-        <Chart options={chartData.options} series={chartData.series} type="donut" width="100%" />
+        <Chart
+          options={chartData.options}
+          series={chartData.series}
+          type="donut"
+          width="100%"
+        />
       </div>
     </div>
   );

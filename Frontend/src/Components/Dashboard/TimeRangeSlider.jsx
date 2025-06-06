@@ -84,48 +84,39 @@
 
 // export default TimeRangeSlider;
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
 const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
-  const minTime = 9.25; // 9:15 in decimal (9 + 15/60)
-  const maxTime = 15.5; // 15:30 in decimal (15 + 30/60)
-  const smallStep = 0.05; // 3-minute steps (3/60 = 0.05)
-  const labelStep = 0.75; // 45-minute steps for labels
+  const minTime = 18;
+  const maxTime = 19.5;
+  const smallStep = 0.05;
+  const labelStep = 0.75;
 
-  // Generate all possible 3-minute interval values
   const allValues = Array.from(
     { length: Math.round((maxTime - minTime) / smallStep) + 1 },
     (_, i) => parseFloat((minTime + i * smallStep).toFixed(2))
   );
 
-  // Generate meter labels - manually ensure we include 15:30
   const timeLabels = [];
   let currentTime = minTime;
   while (currentTime <= maxTime) {
     timeLabels.push(parseFloat(currentTime.toFixed(2)));
     currentTime += labelStep;
   }
-  // Ensure maxTime is included even if it doesn't align perfectly with labelStep
   if (timeLabels[timeLabels.length - 1] < maxTime) {
     timeLabels.push(maxTime);
   }
 
-  const [range, setRange] = useState([
-    allValues[0],
-    allValues[allValues.length - 1],
-  ]);
-  // const [hoverValue, setHoverValue] = useState(null);
+  const [range, setRange] = useState([minTime, minTime]);
 
-  // Convert decimal time to HH:MM format
   const formatTime = (decimalTime) => {
     const hours = Math.floor(decimalTime);
     const minutes = Math.round((decimalTime - hours) * 60);
     return `${hours}:${minutes.toString().padStart(2, "0")}`;
   };
 
-  // Format range for display
   const formatRange = (val) => {
     if (!val) return "";
     if (Array.isArray(val)) {
@@ -134,20 +125,42 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
     return formatTime(val);
   };
 
-  // Calculate position for the first handle's tooltip
   const calculateTooltipPosition = () => {
     const totalRange = maxTime - minTime;
     const position = ((range[0] - minTime) / totalRange) * 100;
-    return Math.min(Math.max(position, 5), 95); // Keep within 5-95% to prevent overflow
+    return Math.min(Math.max(position, 5), 95);
   };
+
+  useEffect(() => {
+    const updateRange = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const decimalTime = hours + minutes / 60;
+
+      if (decimalTime >= minTime && decimalTime <= maxTime) {
+        const totalMinutes = Math.floor(decimalTime * 60);
+        const roundedMinutes = Math.floor(totalMinutes / 3) * 3;
+        const roundedTime = parseFloat((roundedMinutes / 60).toFixed(2));
+
+        if (roundedTime > range[1]) {
+          console.log("Rounded Time : ", roundedTime);
+          setRange([minTime, Math.min(roundedTime, maxTime)]);
+        }
+      }
+    };
+
+    updateRange();
+    const interval = setInterval(updateRange, 3 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [range]);
 
   return (
     <div className="flex md:flex-row flex-col gap-4 items-center mt-5 w-full">
-      {/* Slider Container */}
       <div className="dark:bg-gradient-to-br from-[#0108B1] to-[#02000E] w-full p-px rounded-lg">
         <div className="w-full p-4 dark:bg-db-primary bg-db-primary rounded-lg">
           <div className="relative">
-            {/* Selected interval display above first handle */}
             <div
               className="absolute -top-8"
               style={{
@@ -189,7 +202,6 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
             />
           </div>
 
-          {/* Meter Scale */}
           <div className="relative mt-4 flex justify-between dark:text-gray-50 text-xs">
             {timeLabels.map((time, index) => (
               <div key={index} className="flex flex-col items-center">
@@ -201,7 +213,6 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
         </div>
       </div>
 
-      {/* Go Button */}
       <button
         onClick={() => getDataByIndexAndExpiry(formatRange(range))}
         className="bg-[#0E5FF6] text-white md:px-6 md:py-8 px-5 py-2 rounded-lg"

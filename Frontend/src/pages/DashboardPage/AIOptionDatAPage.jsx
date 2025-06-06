@@ -10,18 +10,29 @@ import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
 import { lotSize } from "../../constants/constants";
 
+const newIndexes = [
+  {
+    NIFTY: "Nifty50",
+  },
+  { BANKNIFTY: "BankNifty" },
+  { FINNIFTY: "FinNifty" },
+  { MIDCPNIFTY: "Midcap" },
+  { SENSEX: "Sensex" },
+];
+
 const meterData = [
   {
-    title: "Sector Depth",
+    title: "Sentiment Dial",
     value: 10.3,
   },
   {
-    title: "PCR",
+    title: "PCR Dial",
     value: 0.5,
   },
 ];
 const AIOptionDataPage = () => {
   const { fetchData } = useFetchData();
+  const [indexCandles, setIndexCandles] = useState([]);
   const [allIndexData, setAllIndexData] = useState({
     Nifty50: { data: [], expiries: [] },
     BankNifty: { data: [], expiries: [] },
@@ -29,15 +40,56 @@ const AIOptionDataPage = () => {
     Midcap: { data: [], expiries: [] },
     Sensex: { data: [], expiries: [] },
   });
-  const [selectedIndex, setSelectedIndex] = useState("Nifty50");
+  const [selectedIndex, setSelectedIndex] = useState("NIFTY");
   const [selectedExpiry, setSelectedExpiry] = useState("");
   const [selectedInterval, setSelectedInterval] = useState(3);
   const [loading, setLoading] = useState(false);
+  const [firstRender, setFirstRender] = useState(true);
   const [currentCandles, setCurrentCandles] = useState([]);
   const [totalOI, setTotalOI] = useState({ totalCE: 0, totalPE: 0 });
 
-  const fetchIndexData = async (index) => {
+  const fetchIndexCandlesData = async (index) => {
     try {
+      setLoading(true);
+      const response = await fetchData("index-candles", "GET");
+      if (response.status !== 200) {
+        throw new Error("Error fetching index candles data");
+      }
+      setIndexCandles(response.data);
+    } catch (error) {
+      console.error(`Error fetching ${index} data:`, error);
+      return { data: [], expiries: [] };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculatePCRByIndexAndExpiry = (allIndexDataArgs, currentExpiry) => {
+    const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])[
+      selectedIndex
+    ];
+    const dataByIndex = allIndexDataArgs[currentIndexName].data.data;
+    const filteredData = dataByIndex.filter(
+      (data) => data.expiry === selectedExpiry || currentExpiry
+    );
+
+    let totalCE = 0;
+    let totalPE = 0;
+    filteredData.forEach((data) => {
+      const obj = getTotalOi(data);
+      totalCE += obj.totalOiCE;
+      totalPE += obj.totalOiPE;
+    });
+    console.log(filteredData);
+    setTotalOI({
+      totalCE: totalCE / lotSize[currentIndexName],
+      totalPE: totalPE / lotSize[currentIndexName],
+    });
+  };
+
+  const fetehAllIndexData = async (index) => {
+    try {
+      setLoading(true);
       const response = await fetchData(
         `option-data/underlying?underlyingName=${index}`,
         "GET"
@@ -49,6 +101,8 @@ const AIOptionDataPage = () => {
     } catch (error) {
       console.error(`Error fetching ${index} data:`, error);
       return { data: [], expiries: [] };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +110,7 @@ const AIOptionDataPage = () => {
     setSelectedExpiry(e.target.value);
   };
 
-  const fetchAllIndexData = async () => {
+  const runFetchForOptionData = async () => {
     try {
       setLoading(true);
       const indexes = [
@@ -66,25 +120,28 @@ const AIOptionDataPage = () => {
         "MIDCPNIFTY",
         "SENSEX",
       ];
-      const results = await Promise.all(indexes.map(fetchIndexData));
+      const results = await Promise.all(indexes.map(fetehAllIndexData));
 
-      const newIndexes = [
-        "Nifty50",
-        "BankNifty",
-        "FinNifty",
-        "Midcap",
-        "Sensex",
-      ];
-      const newData = {};
-
-      newIndexes.forEach((index, i) => {
-        newData[index] = results[i].data;
-      });
+      const newData = {
+        Nifty50: results[0],
+        BankNifty: results[1],
+        FinNifty: results[2],
+        Midcap: results[3],
+        Sensex: results[4],
+      };
 
       setAllIndexData(newData);
+      const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])[
+        selectedIndex
+      ];
 
-      if (newData.Nifty50?.expiries?.length > 0) {
-        setSelectedExpiry(() => newData.Nifty50.expiries[0]);
+      if (newData[currentIndexName]?.expiries?.length > 0) {
+        const firstExpiry = newData[currentIndexName].expiries[0];
+        setSelectedExpiry(firstExpiry);
+
+        setTimeout(() => {
+          calculatePCRByIndexAndExpiry(newData, firstExpiry);
+        }, 0);
       }
     } catch (error) {
       console.error("Error fetching index data:", error);
@@ -95,40 +152,50 @@ const AIOptionDataPage = () => {
 
   useEffect(() => {
     const initializeData = async () => {
-      await fetchAllIndexData();
+      await runFetchForOptionData();
     };
     initializeData();
   }, []);
 
   useEffect(() => {
-    processData();
-  }, [allIndexData, selectedIndex, selectedExpiry, selectedInterval]);
+    fetchIndexCandlesData();
+  }, []);
+
+  useEffect(() => {
+    filterDataByIndex();
+  }, [indexCandles, selectedIndex, selectedInterval]);
+
+  useEffect(() => {
+    if (!firstRender) {
+      calculatePCRByIndexAndExpiry(allIndexData);
+    } else {
+      setFirstRender(false);
+    }
+  }, [selectedIndex, selectedExpiry]);
+
+  const filterDataByIndex = () => {
+    const filteredData = indexCandles.filter((candle) => {
+      const indexName = candle.indexName;
+      const interval = candle.interval;
+      const selectedIntervalString = `${selectedInterval}m`;
+      return indexName === selectedIndex && selectedIntervalString === interval;
+    });
+    const candles = convertCandlesForDisplaying(filteredData);
+    setCurrentCandles(candles);
+  };
 
   const handleIntervalChange = (e) => {
     setSelectedInterval(Number(e.target.value));
   };
+
   const handleIndexChange = (e) => {
     const index = e.target.value;
     setSelectedIndex(index);
-    if (allIndexData[index]?.expiries?.length > 0) {
-      setSelectedExpiry(allIndexData[index].expiries[0]);
-    }
-  };
 
-  const filterByExpiry = (data) => {
-    let totalCE = 0;
-    let totalPE = 0;
-    const arr = data.filter((item) => {
-      const obj = getTotalOi(item);
-      totalCE += obj.totalOiCE;
-      totalPE += obj.totalOiPE;
-      return item.expiry === selectedExpiry;
-    });
-    setTotalOI({
-      totalCE: totalCE / lotSize[selectedIndex],
-      totalPE: totalPE / lotSize[selectedIndex],
-    });
-    return arr;
+    const currentIndexName = newIndexes.find((idx) => idx[index])[index];
+    if (allIndexData[currentIndexName]?.expiries?.length > 0) {
+      setSelectedExpiry(allIndexData[currentIndexName].expiries[0]);
+    }
   };
 
   const getTotalOi = (data) => {
@@ -144,105 +211,17 @@ const AIOptionDataPage = () => {
     return { totalOiCE, totalOiPE };
   };
 
-  const processData = () => {
-    const filterdDataByExpiry = filterByExpiry(
-      allIndexData[selectedIndex].data
-    );
-    // console.log("Filtered Data : ", filterdDataByExpiry);
-    const pricePoints = extractPricePoints(filterdDataByExpiry);
-    // console.log("Price Points : ", pricePoints);
-
-    const candles = createCandles(pricePoints, selectedInterval);
-    // console.log(candles);
-
-    const convertedCandles = convertCandlesForDisplaying(candles);
-    console.log("Process for : " + selectedIndex, convertedCandles);
-    setCurrentCandles(convertedCandles);
-  };
-
   const convertCandlesForDisplaying = (candles) => {
-    // let obj = {
-    //   x: new Date(213131312323),
-    //   y: ["open", "high", "low", "close"],
-    // };
     return candles.map(({ timestamp, open, high, low, close }) => ({
-      x: new Date(timestamp),
+      x: new Date(timestamp).getTime(),
       y: [open.toFixed(2), high.toFixed(2), low.toFixed(2), close.toFixed(2)],
     }));
   };
 
-  const extractPricePoints = (data) => {
-    return data.map((item) => {
-      const today = new Date().toISOString().split("T")[0];
-      const dateTime = `${today} ${item.timestamp.trim()}`;
-      const timestamp = new Date(dateTime).getTime();
-      return {
-        timestamp,
-        price: item.lastPrice,
-      };
-    });
-  };
-
-  const createCandles = (pricePoints, intervalMinutes = 15) => {
-    if (!pricePoints.length) return [];
-
-    const intervalMs = intervalMinutes * 60 * 1000;
-    const candles = [];
-    let currentCandle = null;
-
-    pricePoints.sort((a, b) => a.timestamp - b.timestamp);
-
-    const firstPoint = pricePoints[0];
-    const firstCandleStart =
-      Math.floor(firstPoint.timestamp / intervalMs) * intervalMs;
-
-    currentCandle = {
-      timestamp: firstCandleStart,
-      open: firstPoint.price,
-      high: firstPoint.price,
-      low: firstPoint.price,
-      close: firstPoint.price,
-    };
-
-    for (let i = 1; i < pricePoints.length; i++) {
-      const point = pricePoints[i];
-      // console.log("Point Timestamp :", point.timestamp);
-      // console.log("current timestamp :", currentCandle.timestamp);
-      // console.log("Interval MS :", intervalMs);
-      if (point.timestamp < currentCandle.timestamp + intervalMs) {
-        currentCandle.high = Math.max(currentCandle.high, point.price);
-        currentCandle.low = Math.min(currentCandle.low, point.price);
-        currentCandle.close = point.price;
-      } else {
-        candles.push(currentCandle);
-
-        const newCandleStart =
-          Math.floor(point.timestamp / intervalMs) * intervalMs;
-        currentCandle = {
-          timestamp: newCandleStart,
-          open: point.price,
-          high: point.price,
-          low: point.price,
-          close: point.price,
-        };
-      }
-    }
-    if (currentCandle) {
-      candles.push(currentCandle);
-    }
-
-    return candles;
-  };
-
-  const currentExpiries = allIndexData[selectedIndex]?.expiries || [];
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="ml-4 text-xl">Loading market data...</p>
-      </div>
-    );
-  }
+  const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])[
+    selectedIndex
+  ];
+  const currentExpiries = allIndexData[currentIndexName]?.expiries || [];
 
   return (
     <>
@@ -268,31 +247,31 @@ const AIOptionDataPage = () => {
             >
               <option
                 className="dark:bg-db-secondary bg-db-primary  text-white"
-                value="Nifty50"
+                value="NIFTY"
               >
                 Nifty50
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary  text-white"
-                value="BankNifty"
+                value="BANKNIFTY"
               >
                 BankNifty
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary  text-white"
-                value="BankNifty"
+                value="FINNIFTY"
               >
                 FinNifty
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary  text-white"
-                value="BankNifty"
+                value="MIDCPNIFTY"
               >
                 Midcap
               </option>
               <option
                 className="dark:bg-db-secondary bg-db-primary  text-white"
-                value="Sensex"
+                value="SENSEX"
               >
                 Sensex
               </option>
@@ -367,7 +346,7 @@ const AIOptionDataPage = () => {
               </span>
             </div>
 
-            <div className="mt-8 h-[350px]">
+            <div className="mt-8 h-[350px] lg:h-[88%]">
               <CandleChart candles={currentCandles} />
             </div>
           </div>
@@ -375,28 +354,28 @@ const AIOptionDataPage = () => {
 
         {/* second card */}
         <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary   rounded-lg p-4 ">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="h-full dark:bg-db-primary bg-db-primary rounded-lg">
+            <div className="flex flex-col items-center gap-5">
               {meterData.map((item, index) => (
                 <GaugeMeter key={index} title={item.title} totalOI={totalOI} />
               ))}
             </div>
 
-            <div className="flex gap-4 items-center mt-8">
-              <h1 className="text-2xl font-medium ">Money Flux</h1>
+            <div className="flex justify-center gap-4 items-center mt-8">
+              {/* <h1 className="text-2xl font-medium ">Money Flux</h1> */}
 
               <span className="flex gap-1 items-center text-base font-light ">
-                How to Use <FaPlayCircle className="text-[#0256F5]" />{" "}
+                {/* How to Use <FaPlayCircle className="text-[#0256F5]" />{" "} */}
               </span>
 
-              <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white">
-                <GoDotFill />
-                Live
-              </span>
-            </div>
+              {/* <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white"> */}
+              {/* <GoDotFill /> */}
+              {/* Live */}
+              {/* </span> */}
 
-            <div className="rounded-lg overflow-hidden h-[350px] mt-4">
-              {/* <TreemapChart/> */}
+              <div className="rounded-lg overflow-hidden h-[200px] mt-4">
+                {/* <TreemapChart/> */}
+              </div>
             </div>
           </div>
         </div>

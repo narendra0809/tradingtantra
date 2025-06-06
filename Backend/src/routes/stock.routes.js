@@ -26,6 +26,7 @@ import { twoDayHLBreak } from "../controllers/liveMarketDataControllers/twoDayHL
 import { getSmartMoneyActionData } from "../controllers/liveMarketDataControllers/getSmartActionMoneyData.js";
 import { sectorDepth } from "../controllers/sectorDepth/sectorDepth.controller.js";
 import { marketDepth } from "../controllers/marketDepth/getMarketDepthData.js";
+import { getIndexCandlesData } from "../controllers/indexCandles.controller.js";
 const router = express.Router();
 router.get("/get-turnover", getStocksData);
 router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);
@@ -48,6 +49,8 @@ router.get("/daily-candel-reversal", dailyCandleReversal);
 router.get("/ai-contraction", AIContractionDB);
 
 router.get("/fii-dii", getFiiDiiData);
+
+router.get("/index-candles", getIndexCandlesData);
 
 //Outside market hours routes for data fetching :
 router.get("/smart-money-action", getSmartMoneyActionData);

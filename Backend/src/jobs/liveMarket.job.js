@@ -135,8 +135,7 @@ const initializeTasks = async () => {
   await runLiveDataTask();
 };
 
-// Run every minute Mon–Fri from 9 AM to 3 PM
-cron.schedule("* 9-15 * * 1-5", runFiveMinDataTask, {
+cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
