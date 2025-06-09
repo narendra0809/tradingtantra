@@ -9,6 +9,7 @@ import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChar
 import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
 import { lotSize } from "../../constants/constants";
+import { formatDateString } from "../../utils/utils";
 
 const newIndexes = [
   {
@@ -55,6 +56,7 @@ const AIOptionDataPage = () => {
       if (response.status !== 200) {
         throw new Error("Error fetching index candles data");
       }
+      console.log(response.data);
       setIndexCandles(response.data);
     } catch (error) {
       console.error(`Error fetching ${index} data:`, error);
@@ -177,9 +179,15 @@ const AIOptionDataPage = () => {
     const filteredData = indexCandles.filter((candle) => {
       const indexName = candle.indexName;
       const interval = candle.interval;
+      const currDate = formatDateString();
       const selectedIntervalString = `${selectedInterval}m`;
-      return indexName === selectedIndex && selectedIntervalString === interval;
+      return (
+        candle.timestamp.split(",")[0] === currDate &&
+        indexName === selectedIndex &&
+        selectedIntervalString === interval
+      );
     });
+    console.log(filteredData);
     const candles = convertCandlesForDisplaying(filteredData);
     setCurrentCandles(candles);
   };
@@ -383,7 +391,7 @@ const AIOptionDataPage = () => {
 
       <section className="mt-10 bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
         <div className="w-full h-full dark:bg-db-primary bg-db-primary   rounded-lg p-4">
-          <OptionDataDonutChart />
+          {/* <OptionDataDonutChart /> */}
         </div>
       </section>
     </>

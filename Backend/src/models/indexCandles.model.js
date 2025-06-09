@@ -9,6 +9,7 @@ const IndexCandlesSchema = new mongoose.Schema(
     high: { type: Number, required: true },
     low: { type: Number, required: true },
     close: { type: Number, required: true },
+    lastClose: { type: Number },
     timestamp: { type: String, required: true },
   },
   { timestamps: true }

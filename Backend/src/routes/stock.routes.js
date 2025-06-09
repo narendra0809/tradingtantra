@@ -27,6 +27,8 @@ import { getSmartMoneyActionData } from "../controllers/liveMarketDataController
 import { sectorDepth } from "../controllers/sectorDepth/sectorDepth.controller.js";
 import { marketDepth } from "../controllers/marketDepth/getMarketDepthData.js";
 import { getIndexCandlesData } from "../controllers/indexCandles.controller.js";
+import { getAllIndexPoints } from "../controllers/indexCandlesPoints.controller.js";
+import { getContributionInIndex } from "../controllers/contributors.controller.js";
 const router = express.Router();
 router.get("/get-turnover", getStocksData);
 router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);
@@ -51,6 +53,8 @@ router.get("/ai-contraction", AIContractionDB);
 router.get("/fii-dii", getFiiDiiData);
 
 router.get("/index-candles", getIndexCandlesData);
+router.get("/get-all-index-points", getAllIndexPoints);
+router.get("/index-contribution/:indexName", getContributionInIndex);
 
 //Outside market hours routes for data fetching :
 router.get("/smart-money-action", getSmartMoneyActionData);

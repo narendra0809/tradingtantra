@@ -13,13 +13,15 @@ const connection = {
 };
 
 // Function to check if current time is within 9:15 AM to 3:30 PM IST
-const isMarketTime = () => {
+export const isMarketTime = () => {
   const now = DateTime.now().setZone("Asia/Kolkata");
   const hour = now.hour;
   const minute = now.minute;
 
-  // Return true if time is between 9:15 and 15:30
-  if ((hour <= 9 && minute < 15) || (hour >= 15 && minute > 40)) {
+  if (hour < 9 || (hour === 9 && minute < 15)) {
+    return false;
+  }
+  if (hour > 15 || (hour === 15 && minute >= 30)) {
     return false;
   }
   return true;
@@ -30,7 +32,7 @@ const fiveMinWorker = new Worker(
   async (job) => {
     try {
       console.log(`[Worker] Received job:`, job.data);
-
+      console.log("MARKET OURS  :", isMarketTime());
       if (!isMarketTime()) {
         console.log(`[Worker] Skipping job. Outside market hours.`);
         return;

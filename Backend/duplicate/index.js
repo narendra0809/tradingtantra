@@ -1,7 +1,39 @@
-import moment from "moment-timezone";
-import IndexCandles from "../models/indexCandles.model.js";
+import mongoose from "mongoose";
 import axios from "axios";
-import { getMinuteDifference } from "../controllers/liveMarketData.controller.js";
+import moment from "moment-timezone";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// MongoDB connection
+
+const DB_URI = "mongodb://localhost:27017/";
+
+console.log(process.env.DHAN_ACCESS_TOKEN);
+mongoose
+  .connect(DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+// Define MongoDB schema for index candles
+const IndexCandleSchema = new mongoose.Schema({
+  indexName: String,
+  securityId: String,
+  interval: String,
+  open: Number,
+  high: Number,
+  low: Number,
+  close: Number,
+  timestamp: String, // Changed to String for custom format
+  createdAt: { type: Date, default: Date.now },
+});
+
+const IndexCandle = mongoose.model("IndexCandle", IndexCandleSchema);
+
+// Indices configuration
 const indices = [
   { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
   { name: "BANKNIFTY", scrip: "25", seg: "IDX_I", stepSize: 100 },
@@ -12,7 +44,8 @@ const indices = [
 
 // Dhan API configuration
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN; // Store in .env file
+const ACCESS_TOKEN =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzUxOTE4MjI1LCJ0b2tlbkNvbnN1bWVyVHlwZSI6IlNFTEYiLCJ3ZWJob29rVXJsIjoiIiwiZGhhbkNsaWVudElkIjoiMTEwNDA3MzA3OCJ9.oQLc3FghLD_fA4gKjxvQDUgoamvZSN2HaSKW8e5T2yNGKqQGtjJsRO-hOB_IDDBVofaf4-GUKiWJe8g3h99kFg"; // Store in .env file
 
 // Function to convert Unix timestamp to IST string in DD/MM/YYYY, hh:mm:ss A format
 const unixToIST = (unixTimestamp) => {
@@ -23,7 +56,7 @@ const unixToIST = (unixTimestamp) => {
 };
 
 // Function to merge 1-minute candles into specified interval candles
-const mergeCandles = (data, intervalMinutes, currentTime) => {
+const mergeCandles = (data, intervalMinutes) => {
   const mergedCandles = [];
   const candlesPerInterval = intervalMinutes;
 
@@ -34,17 +67,8 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
       high: data.high.slice(i, sliceEnd),
       low: data.low.slice(i, sliceEnd),
       close: data.close.slice(i, sliceEnd),
-      lastClose: data.close.slice(i, sliceEnd),
       timestamp: data.timestamp.slice(i, sliceEnd),
     };
-    if (slice.open.length < candlesPerInterval) {
-      const lastTimestamp = slice.timestamp[slice.timestamp.length - 1];
-      const minuteDiff = getMinuteDifference(currentTime, lastTimestamp);
-
-      if (minuteDiff < intervalMinutes) {
-        continue;
-      }
-    }
 
     if (slice.open.length > 0) {
       mergedCandles.push({
@@ -52,7 +76,6 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
         high: Math.max(...slice.high),
         low: Math.min(...slice.low),
         close: slice.close[slice.close.length - 1],
-        lastClose: slice.close[slice.close.length - 1],
         timestamp: unixToIST(slice.timestamp[0]),
       });
     }
@@ -95,20 +118,15 @@ const fetchDhanData = async (index, fromDate, toDate) => {
 };
 
 // Function to process and save candles for an index
-const processIndexCandles = async (
-  index,
-  apiData,
-  currentTime,
-  intervals = [3, 15, 30]
-) => {
+const processIndexCandles = async (index, apiData, intervals = [3, 15, 30]) => {
   if (!apiData) return;
 
   try {
     for (const interval of intervals) {
-      const mergedCandles = mergeCandles(apiData, interval, currentTime);
+      const mergedCandles = mergeCandles(apiData, interval);
 
       for (const candle of mergedCandles) {
-        const indexCandle = new IndexCandles({
+        const indexCandle = new IndexCandle({
           indexName: index.name,
           securityId: index.scrip,
           interval: `${interval}m`,
@@ -116,9 +134,9 @@ const processIndexCandles = async (
           high: candle.high,
           low: candle.low,
           close: candle.close,
-          lastClose: candle.close,
           timestamp: candle.timestamp,
         });
+
         await indexCandle.save();
       }
       console.log(`Saved ${interval}-minute candles for ${index.name}`);
@@ -129,26 +147,24 @@ const processIndexCandles = async (
 };
 
 // Function to fetch and process data for all indices
-const fetchAndProcessAllIndices = async (fromDate, toDate) => {
-  const currentTime = new Date();
+const fetchAndProcessAllIndices = async () => {
+  const fromDate = "2025-06-06";
+  const toDate = "2025-06-09";
 
   for (const index of indices) {
     console.log(`Fetching data for ${index.name}...`);
     const apiData = await fetchDhanData(index, fromDate, toDate);
     if (apiData) {
-      await processIndexCandles(index, apiData, currentTime);
+      await processIndexCandles(index, apiData);
     }
   }
   console.log("All indices processed successfully");
 };
 
-export const runFetchForIndexCandles = async (fromDate, toDate) => {
-  try {
-    console.log(`Starting index candle fetch from ${fromDate} to ${toDate}`);
-    await fetchAndProcessAllIndices(fromDate, toDate);
-    console.log("Index candle processing completed");
-  } catch (error) {
-    console.error("Error in runFetchForIndexCandles:", error);
-    throw error;
-  }
-};
+// Run the script
+fetchAndProcessAllIndices()
+  .then(() => mongoose.connection.close())
+  .catch((err) => {
+    console.error("Error:", err);
+    mongoose.connection.close();
+  });

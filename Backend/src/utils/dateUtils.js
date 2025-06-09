@@ -29,8 +29,8 @@ export const getPreviousDate = (today, daysBack = 1) => {
 
 export function formateDate(currDate) {
   const formatter = new Intl.DateTimeFormat("en-US", {
-    month: "2-digit",
     day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
   return formatter.format(currDate).slice(1);
@@ -61,3 +61,28 @@ export function getNextDate(dateString, daysForward = 1) {
   nextDate.setDate(date.getDate() + daysForward);
   return nextDate;
 }
+
+export const formatDateString = (date) => {
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
+
+export const getFormattedTime = () => {
+  const date = new Date();
+
+  const minutes = date.getMinutes();
+  const roundedMinutes = Math.floor(minutes / 3) * 3;
+
+  const roundedDate = new Date(date);
+  roundedDate.setMinutes(roundedMinutes, 0, 0);
+
+  return roundedDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+};
