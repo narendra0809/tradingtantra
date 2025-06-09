@@ -204,7 +204,7 @@ export const getMinuteDifference = (currentTime, candleTimestamp) => {
   return diffMinutes;
 };
 
-const getPreviousTradingDay = async (date) => {
+export const getPreviousTradingDay = async (date) => {
   let prevDay = new Date(date);
   prevDay.setDate(prevDay.getDate() - 1);
 

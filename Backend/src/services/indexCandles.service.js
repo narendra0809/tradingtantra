@@ -1,7 +1,8 @@
 import moment from "moment-timezone";
 import IndexCandles from "../models/indexCandles.model.js";
 import axios from "axios";
-import { getMinuteDifference } from "../controllers/liveMarketData.controller.js";
+import { getMinuteDifference, getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
+
 const indices = [
   { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
   { name: "BANKNIFTY", scrip: "25", seg: "IDX_I", stepSize: 100 },
@@ -12,9 +13,9 @@ const indices = [
 
 // Dhan API configuration
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN; // Store in .env file
+const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 
-// Function to convert Unix timestamp to IST string in DD/MM/YYYY, hh:mm:ss A format
+// Convert Unix timestamp to IST string in DD/MM/YYYY, hh:mm:ss A format
 const unixToIST = (unixTimestamp) => {
   return moment
     .unix(unixTimestamp)
@@ -22,7 +23,12 @@ const unixToIST = (unixTimestamp) => {
     .format("DD/MM/YYYY, hh:mm:ss A");
 };
 
-// Function to merge 1-minute candles into specified interval candles
+// Format date to DD-MM-YYYY for API
+const formatDateForAPI = (date) => {
+  return moment(date).format("DD-MM-YYYY");
+};
+
+// Merge 1-minute candles into specified interval candles
 const mergeCandles = (data, intervalMinutes, currentTime) => {
   const mergedCandles = [];
   const candlesPerInterval = intervalMinutes;
@@ -34,13 +40,11 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
       high: data.high.slice(i, sliceEnd),
       low: data.low.slice(i, sliceEnd),
       close: data.close.slice(i, sliceEnd),
-      lastClose: data.close.slice(i, sliceEnd),
       timestamp: data.timestamp.slice(i, sliceEnd),
     };
     if (slice.open.length < candlesPerInterval) {
       const lastTimestamp = slice.timestamp[slice.timestamp.length - 1];
       const minuteDiff = getMinuteDifference(currentTime, lastTimestamp);
-
       if (minuteDiff < intervalMinutes) {
         continue;
       }
@@ -61,7 +65,7 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
   return mergedCandles;
 };
 
-// Function to fetch data from Dhan API
+// Fetch data from Dhan API
 const fetchDhanData = async (index, fromDate, toDate) => {
   try {
     const response = await axios.post(
@@ -83,24 +87,38 @@ const fetchDhanData = async (index, fromDate, toDate) => {
         },
       }
     );
-
     return response.data;
   } catch (error) {
-    console.error(
-      `Error fetching data for ${index.name}:`,
-      error.response?.data || error.message
-    );
+    console.error(`Error fetching data for ${index.name}:`, error.response?.data || error.message);
     return null;
   }
 };
 
-// Function to process and save candles for an index
-const processIndexCandles = async (
-  index,
-  apiData,
-  currentTime,
-  intervals = [3, 15, 30]
-) => {
+// Delete all data if it's Monday
+const deleteDataOnMonday = async () => {
+  const today = moment().tz("Asia/Kolkata");
+  if (today.day() === 1) { // Monday
+    await IndexCandles.deleteMany({});
+    console.log("Deleted all data as it's Monday");
+  }
+};
+
+// Delete data older than the previous trading day
+const deleteOldData = async (previousTradingDay) => {
+  const previousTradingDayStart = moment(previousTradingDay)
+    .tz("Asia/Kolkata")
+    .startOf("day")
+    .toDate();
+  await IndexCandles.deleteMany({
+    timestamp: {
+      $lt: moment(previousTradingDayStart).format("DD/MM/YYYY, 00:00:00 A"),
+    },
+  });
+  console.log(`Deleted data older than ${previousTradingDay}`);
+};
+
+// Process and save candles for an index
+const processIndexCandles = async (index, apiData, currentTime, intervals = [3, 15, 30]) => {
   if (!apiData) return;
 
   try {
@@ -108,29 +126,52 @@ const processIndexCandles = async (
       const mergedCandles = mergeCandles(apiData, interval, currentTime);
 
       for (const candle of mergedCandles) {
-        const indexCandle = new IndexCandles({
+        // Check if candle already exists
+        const existingCandle = await IndexCandles.findOne({
           indexName: index.name,
           securityId: index.scrip,
           interval: `${interval}m`,
-          open: candle.open,
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-          lastClose: candle.close,
           timestamp: candle.timestamp,
         });
-        await indexCandle.save();
+
+        if (existingCandle) {
+          // Update existing candle
+          existingCandle.open = candle.open;
+          existingCandle.high = candle.high;
+          existingCandle.low = candle.low;
+          existingCandle.close = candle.close;
+          existingCandle.lastClose = candle.close;
+          await existingCandle.save();
+          console.log(`Updated ${interval}-minute candle for ${index.name} at ${candle.timestamp}`);
+        } else {
+          // Save new candle
+          const indexCandle = new IndexCandles({
+            indexName: index.name,
+            securityId: index.scrip,
+            interval: `${interval}m`,
+            open: candle.open,
+            high: candle.high,
+            low: candle.low,
+            close: candle.close,
+            lastClose: candle.close,
+            timestamp: candle.timestamp,
+          });
+          await indexCandle.save();
+          console.log(`Saved new ${interval}-minute candle for ${index.name} at ${candle.timestamp}`);
+        }
       }
-      console.log(`Saved ${interval}-minute candles for ${index.name}`);
     }
   } catch (error) {
     console.error(`Error processing ${index.name} candles:`, error);
   }
 };
 
-// Function to fetch and process data for all indices
-const fetchAndProcessAllIndices = async (fromDate, toDate) => {
+// Fetch and process data for all indices
+const fetchAndProcessAllIndices = async (fromDate, toDate, previousTradingDay) => {
   const currentTime = new Date();
+
+  // Delete old data
+  await deleteOldData(previousTradingDay);
 
   for (const index of indices) {
     console.log(`Fetching data for ${index.name}...`);
@@ -142,10 +183,21 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
   console.log("All indices processed successfully");
 };
 
-export const runFetchForIndexCandles = async (fromDate, toDate) => {
+// Main function to run the fetch and process
+export const runFetchForIndexCandles = async () => {
   try {
-    console.log(`Starting index candle fetch from ${fromDate} to ${toDate}`);
-    await fetchAndProcessAllIndices(fromDate, toDate);
+    const today = moment().tz("Asia/Kolkata");
+    const currentDate = formatDateForAPI(today);
+    
+    // Get previous trading day
+    const previousTradingDay = await getPreviousTradingDay();
+    const previousTradingDate = formatDateForAPI(previousTradingDay);
+
+    // Delete all data if it's Monday
+    await deleteDataOnMonday();
+
+    console.log(`Starting index candle fetch for ${previousTradingDate} to ${currentDate}`);
+    await fetchAndProcessAllIndices(previousTradingDate, currentDate, previousTradingDay);
     console.log("Index candle processing completed");
   } catch (error) {
     console.error("Error in runFetchForIndexCandles:", error);

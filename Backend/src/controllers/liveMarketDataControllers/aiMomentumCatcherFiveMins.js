@@ -8,16 +8,24 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
     // Fetch stock details (216 stocks)
     const stocks = await StocksDetail.find(
       {},
-      { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBL: 1, _id: 0 }
+      { SECURITY_ID: 1, SYMBOL_NAME: 1, UNDERLYING_SYMBOL: 1, _id: 0 }
     );
     if (!stocks || stocks.length === 0) {
+      console.error("No stocks found in StocksDetail collection");
       return { message: "No stocks data found" };
     }
 
+    // Log stock data for debugging
+    console.log(`Fetched ${stocks.length} stocks from StocksDetail`);
+
+    // Create stock mapping
     const stockMap = new Map();
     stocks.forEach((entry) => {
+      if (!entry.SECURITY_ID || !entry.SYMBOL_NAME) {
+        console.warn(`Invalid stock entry: ${JSON.stringify(entry)}`);
+      }
       stockMap.set(entry.SECURITY_ID, {
-        UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL,
+        UNDERLYING_SYMBOL: entry.UNDERLYING_SYMBOL, // Corrected typo
         SYMBOL_NAME: entry.SYMBOL_NAME,
       });
     });
@@ -28,6 +36,7 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
       .select("date");
 
     if (!latestEntry) {
+      console.error("No market data found in MarketDetailData");
       return { message: "No stock data available" };
     }
 
@@ -35,6 +44,7 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
     const latestData = await MarketDetailData.find({ date: latestDate });
 
     if (latestData.length === 0) {
+      console.error(`No market data found for date: ${latestDate}`);
       return { message: "No stock data available for the latest date" };
     }
 
@@ -44,6 +54,7 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
     ).sort({ date: -1 });
 
     if (!previousDayEntry) {
+      console.error("No previous day data found in MarketDetailData");
       return { message: "No previous stock data available" };
     }
 
@@ -74,6 +85,7 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
       const data = await FiveMinCandles.findOne({ securityId }).lean();
 
       if (!data || !data.open || !data.close || data.timestamp.length < 2) {
+        console.warn(`No valid candle data for securityId: ${securityId}`);
         continue;
       }
 
@@ -111,6 +123,7 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
     }
 
     if (updatedData.length === 0) {
+      console.warn("No recent candle data found in FiveMinCandles");
       const updatedDataFromDB = await MomentumStockFiveMin.find(
         {},
         {
@@ -155,6 +168,11 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
 
         if (hasMomentum && (isBullish || isBearish)) {
           const stockDetails = stockMap.get(entry.securityId) || {};
+          if (!stockDetails.SYMBOL_NAME) {
+            console.warn(
+              `No stock details found for securityId: ${entry.securityId}`
+            );
+          }
           const dayClose = yesterdayMap.get(entry.securityId);
           const latestTradedPrice = latestDataMap.get(entry.securityId);
 
@@ -183,6 +201,9 @@ export const AIMomentumCatcherFiveMins = async (req, res) => {
         return null;
       })
       .filter((stock) => stock !== null);
+
+    // Log momentum stocks for debugging
+    console.log(`Found ${momentumStocks.length} momentum stocks`);
 
     // Bulk upsert in MongoDB
     if (momentumStocks.length > 0) {
