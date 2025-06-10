@@ -386,9 +386,9 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    console.log("currentTime updated to:", currentTime);
-  }, [currentTime]);
+  // useEffect(() => {
+  //   console.log("currentTime updated to:", currentTime);
+  // }, [currentTime]);
 
   // Styles
   const trackStyle = {

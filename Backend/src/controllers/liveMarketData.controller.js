@@ -207,6 +207,7 @@ export const getMinuteDifference = (currentTime, candleTimestamp) => {
 export const getPreviousTradingDay = async (date) => {
   let prevDay = new Date(date);
   prevDay.setDate(prevDay.getDate() - 1);
+  console.log("Date is  :", prevDay);
 
   while (true) {
     const isWeekend = prevDay.getDay() === 0 || prevDay.getDay() === 6;
