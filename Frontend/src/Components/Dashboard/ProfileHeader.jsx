@@ -1,8 +1,9 @@
+/* eslint-disable react/prop-types */
 import { FiEdit, FiCalendar } from "react-icons/fi";
 import profileBgCover from "../../assets/Images/Dashboard/homepage/profileBgCover.png";
 import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import { useLocation } from "react-router-dom";
-const ProfileHeader = () => {
+const ProfileHeader = ({ handleBuyShow, handleProfileShow, buyShow }) => {
   const location = useLocation();
 
   return (
@@ -43,12 +44,22 @@ const ProfileHeader = () => {
         {/* Action Buttons */}
         {location.pathname === "/dashboard/profile" && (
           <div className="flex gap-2">
-            <button className="flex items-center gap-1 bg-[#0256F5] text-white px-4 py-2 rounded-md text-sm  transition">
+            <button
+              onClick={() => handleProfileShow()}
+              className={`flex items-center gap-1 ${
+                !buyShow && "bg-[#0256F5]"
+              } text-white px-4 py-2 rounded-md text-sm  transition`}
+            >
               Edit Profile
               <FiEdit />
             </button>
 
-            <button className="flex items-center gap-1 bg-transparent border border-[#0256F5]  text-white px-4 py-2 rounded-md text-sm  transition">
+            <button
+              onClick={() => handleBuyShow()}
+              className={`flex items-center ${
+                buyShow && "bg-[#0256F5]"
+              } gap-1  border border-[#0256F5]  text-white px-4 py-2 rounded-md text-sm  transition`}
+            >
               Subscribe Plan
               <FiCalendar />
             </button>

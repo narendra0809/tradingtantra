@@ -15,14 +15,14 @@ function isWithinTradingHours() {
   const start = new Date();
   const end = new Date();
 
-  start.setHours(9, 15, 0);   // 9:15 AM
-  end.setHours(15, 35, 0);    // 3:35 PM
+  start.setHours(9, 15, 0); // 9:15 AM
+  end.setHours(15, 35, 0); // 3:35 PM
 
   return now >= start && now <= end;
 }
 
 new Worker(
-  'liveData',
+  "liveData",
   async () => {
     try {
       if (isWithinTradingHours()) {
@@ -32,7 +32,7 @@ new Worker(
         console.log("🕘 Outside market hours. Skipping data fetch.");
       }
     } catch (error) {
-      console.log('❌ Error in live worker:', error);
+      console.log("❌ Error in live worker:", error);
     }
   },
   { connection }

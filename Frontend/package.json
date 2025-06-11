@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "xlsx": "^0.18.5",
+    "file-saver": "^2.0.5",
     "@reduxjs/toolkit": "^2.6.0",
     "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/vite": "^4.0.6",

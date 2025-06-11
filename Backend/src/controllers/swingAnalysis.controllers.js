@@ -6,7 +6,6 @@ import DailyCandleReversalModel from "../models/dailyCandleRevarsal.model.js";
 import ContractionModel from "../models/Contraction.model.js";
 import CandleBreakoutBreakdown from "../models/candlebreakout.model.js";
 
-
 const getFormattedISTDate = () => {
   const now = new Date();
   const istDate = new Date(
@@ -26,14 +25,14 @@ const processRangeBreakers = async (days, Model) => {
   const tradingDays = await MarketDetailData.aggregate([
     { $group: { _id: "$date" } },
     { $sort: { _id: -1 } },
-    { $limit: lookbackDays }
+    { $limit: lookbackDays },
   ]);
 
   if (tradingDays.length < lookbackDays) {
     throw new Error(`Need at least ${days} trading days of data`);
   }
 
-  const dates = tradingDays.map(d => d._id);
+  const dates = tradingDays.map((d) => d._id);
   const currentDate = dates[0];
   const previousDates = dates.slice(1); // Last `days` days
 
@@ -45,7 +44,7 @@ const processRangeBreakers = async (days, Model) => {
       "data.dayHigh": 1,
       "data.dayLow": 1,
       "data.latestTradedPrice": 1,
-      date: 1
+      date: 1,
     }
   ).lean();
 
@@ -54,7 +53,7 @@ const processRangeBreakers = async (days, Model) => {
     {},
     { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
   );
-  const stockMap = new Map(stocks.map(stock => [stock.SECURITY_ID, stock]));
+  const stockMap = new Map(stocks.map((stock) => [stock.SECURITY_ID, stock]));
 
   // 4. Organize market data by securityId
   const securityDataMap = new Map();
@@ -65,7 +64,7 @@ const processRangeBreakers = async (days, Model) => {
     if (!securityDataMap.has(entry.securityId)) {
       securityDataMap.set(entry.securityId, {
         current: null,
-        previous: Array(days).fill(null)
+        previous: Array(days).fill(null),
       });
     }
 
@@ -87,19 +86,15 @@ const processRangeBreakers = async (days, Model) => {
 
   for (const [securityId, data] of securityDataMap.entries()) {
     const { current, previous } = data;
-    if (!current || previous.some(d => !d)) continue;
+    if (!current || previous.some((d) => !d)) continue;
 
     const stock = stockMap.get(securityId);
     if (!stock) continue;
 
-    const {
-      dayHigh,
-      dayLow,
-      latestTradedPrice
-    } = current;
+    const { dayHigh, dayLow, latestTradedPrice } = current;
 
-    const previousHighs = previous.map(d => d.dayHigh);
-    const previousLows = previous.map(d => d.dayLow);
+    const previousHighs = previous.map((d) => d.dayHigh);
+    const previousLows = previous.map((d) => d.dayLow);
     const baseLatestPrice = previous[0].latestTradedPrice;
 
     const maxHigh = Math.max(...previousHighs);
@@ -110,7 +105,8 @@ const processRangeBreakers = async (days, Model) => {
     else if (latestTradedPrice < minLow) type = "bearish";
     if (!type) continue;
 
-    const pctChange = ((latestTradedPrice - baseLatestPrice) / baseLatestPrice) * 100;
+    const pctChange =
+      ((latestTradedPrice - baseLatestPrice) / baseLatestPrice) * 100;
 
     bulkOps.push({
       updateOne: {
@@ -121,16 +117,18 @@ const processRangeBreakers = async (days, Model) => {
             todayHigh: dayHigh.toFixed(2),
             todayLow: dayLow.toFixed(2),
             todayLatestTradedPrice: latestTradedPrice.toFixed(2),
-            [days === 5 ? 'preFiveDaysHigh' : 'preTenDaysHigh']: maxHigh.toFixed(2),
-            [days === 5 ? 'preFiveDaysLow' : 'preTenDaysLow']: minLow.toFixed(2),
+            [days === 5 ? "preFiveDaysHigh" : "preTenDaysHigh"]:
+              maxHigh.toFixed(2),
+            [days === 5 ? "preFiveDaysLow" : "preTenDaysLow"]:
+              minLow.toFixed(2),
             UNDERLYING_SYMBOL: stock.UNDERLYING_SYMBOL,
             SYMBOL_NAME: stock.SYMBOL_NAME,
             type,
-            timestamp: getFormattedISTDate()
-          }
+            timestamp: getFormattedISTDate(),
+          },
         },
-        upsert: true
-      }
+        upsert: true,
+      },
     });
   }
 
@@ -170,15 +168,18 @@ const dailyCandleReversal = async (req, res) => {
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
-      { $limit: 3 }
+      { $limit: 3 },
     ]);
 
     if (tradingDays.length < 3) {
-      return res?.status(400).json({ message: "Need at least 3 trading days" }) || 
-             { message: "Need at least 3 trading days" };
+      return (
+        res?.status(400).json({ message: "Need at least 3 trading days" }) || {
+          message: "Need at least 3 trading days",
+        }
+      );
     }
 
-    const dates = tradingDays.map(d => d._id);
+    const dates = tradingDays.map((d) => d._id);
     const [currentDate, prevDate, prevPrevDate] = dates;
 
     // 2. Fetch market data in single query
@@ -188,29 +189,29 @@ const dailyCandleReversal = async (req, res) => {
         securityId: 1,
         "data.dayOpen": 1,
         "data.latestTradedPrice": 1,
-        date: 1
+        date: 1,
       }
     ).lean();
 
     // 3. Get stock metadata
     const stocks = await StocksDetail.find(
-      {}, 
+      {},
       { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
     );
-    const stockMap = new Map(stocks.map(s => [s.SECURITY_ID, s]));
+    const stockMap = new Map(stocks.map((s) => [s.SECURITY_ID, s]));
 
     // 4. Organize data by security
     const securityData = new Map();
-    
-    marketData.forEach(entry => {
+
+    marketData.forEach((entry) => {
       if (!securityData.has(entry.securityId)) {
         securityData.set(entry.securityId, {
           current: null,
           prev: null,
-          prevPrev: null
+          prevPrev: null,
         });
       }
-      
+
       const data = securityData.get(entry.securityId);
       if (entry.date === currentDate) data.current = entry.data[0];
       else if (entry.date === prevDate) data.prev = entry.data[0];
@@ -219,54 +220,70 @@ const dailyCandleReversal = async (req, res) => {
 
     // 5. Detect reversals with updated conditions
     const bulkOps = [];
-    
+
     for (const [securityId, data] of securityData) {
       // Skip if incomplete data
       if (!data.current || !data.prev || !data.prevPrev) continue;
-      
+
       const stock = stockMap.get(securityId);
       if (!stock) continue;
-      
+
       // Current candle values
       const { dayOpen: currOpen, latestTradedPrice: currPrice } = data.current;
-      
+
       // Previous candle values
       const { dayOpen: prevOpen, latestTradedPrice: prevPrice } = data.prev;
-      
+
       // Pre-previous candle values
       const { latestTradedPrice: prevPrevPrice } = data.prevPrev;
-      
+
       // Skip if any invalid values
-      if ([prevPrice, prevPrevPrice, currPrice].some(v => v === undefined || v === 0)) continue;
+      if (
+        [prevPrice, prevPrevPrice, currPrice].some(
+          (v) => v === undefined || v === 0
+        )
+      )
+        continue;
 
       // Calculate percentage changes
-      const prevCandleChange = ((prevPrice - prevPrevPrice) / prevPrevPrice) * 100;
+      const prevCandleChange =
+        ((prevPrice - prevPrevPrice) / prevPrevPrice) * 100;
       const currCandleChange = ((currPrice - prevPrice) / prevPrice) * 100;
-      
+
       // Absolute values for comparison
       const absPrevChange = Math.abs(prevCandleChange);
       const absCurrChange = Math.abs(currCandleChange);
-      
+      // console.log("ABS PREV CHAGNE : ", absPrevChange);
+      // console.log("ABS Curr CHAGNE : ", absCurrChange);
+
       // Minimum 2% movement in previous candle
-      if (absPrevChange < 2) continue;
-      
+      if (absPrevChange < 1) continue;
+
       let trend = null;
-      
+
       // Bullish Reversal Condition:
       // 1. Previous candle was red (open > latestTradedPrice)
       // 2. Current candle is green (open < latestTradedPrice)
       // 3. Current candle change is ≥2x the previous candle change
-      if (prevOpen > prevPrice && currOpen < currPrice && absCurrChange >= absPrevChange * 2) {
+      if (
+        prevOpen > prevPrice &&
+        currOpen < currPrice &&
+        absCurrChange >= absPrevChange * 2
+      ) {
         trend = "BULLISH";
-      } 
+      }
       // Bearish Reversal Condition:
       // 1. Previous candle was green (open < latestTradedPrice)
       // 2. Current candle is red (open > latestTradedPrice)
       // 3. Current candle change is ≥2x the previous candle change
-      else if (prevOpen < prevPrice && currOpen > currPrice && absCurrChange >= absPrevChange * 2) {
+      else if (
+        prevOpen < prevPrice &&
+        currOpen > currPrice &&
+        absCurrChange >= absPrevChange * 2
+      ) {
         trend = "BEARISH";
       }
-      
+
       if (trend) {
         bulkOps.push({
           updateOne: {
@@ -279,11 +296,11 @@ const dailyCandleReversal = async (req, res) => {
                 trend,
                 UNDERLYING_SYMBOL: stock.UNDERLYING_SYMBOL,
                 SYMBOL_NAME: stock.SYMBOL_NAME,
-                timestamp: getFormattedISTDate()
-              }
+                timestamp: getFormattedISTDate(),
+              },
             },
-            upsert: true
-          }
+            upsert: true,
+          },
         });
       }
     }
@@ -293,20 +310,19 @@ const dailyCandleReversal = async (req, res) => {
       await DailyCandleReversalModel.bulkWrite(bulkOps);
     }
 
-    const response = { 
+    const response = {
       success: true,
       count: bulkOps.length,
-      message: `Found ${bulkOps.length} reversal patterns`
+      message: `Found ${bulkOps.length} reversal patterns`,
     };
-    
-    return res?.json(response) || response;
 
+    return res?.json(response) || response;
   } catch (error) {
     console.error("Daily reversal error:", error);
-    const response = { 
+    const response = {
       success: false,
       message: "Internal server error",
-      error: error.message 
+      error: error.message,
     };
     return res?.status(500).json(response) || response;
   }
@@ -317,15 +333,18 @@ const AIContraction = async (req, res) => {
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
-      { $limit: 7 }
+      { $limit: 7 },
     ]);
 
     if (tradingDays.length < 7) {
-      return res?.status(400).json({ message: "Need at least 7 trading days" }) || 
-             { message: "Need at least 7 trading days" };
+      return (
+        res?.status(400).json({ message: "Need at least 7 trading days" }) || {
+          message: "Need at least 7 trading days",
+        }
+      );
     }
 
-    const dates = tradingDays.map(d => d._id);
+    const dates = tradingDays.map((d) => d._id);
     const currentDate = dates[0];
     const previousDates = dates.slice(1);
 
@@ -339,30 +358,30 @@ const AIContraction = async (req, res) => {
         "data.dayHigh": 1,
         "data.dayLow": 1,
         "data.latestTradedPrice": 1,
-        date: 1
+        date: 1,
       }
     ).lean();
 
     // 3. Get stock metadata
     const stocks = await StocksDetail.find(
-      {}, 
+      {},
       { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
     );
-    const stockMap = new Map(stocks.map(s => [s.SECURITY_ID, s]));
+    const stockMap = new Map(stocks.map((s) => [s.SECURITY_ID, s]));
 
     // 4. Organize data by security and calculate candle sizes
     const securityData = new Map();
-    
-    marketData.forEach(entry => {
+
+    marketData.forEach((entry) => {
       if (!securityData.has(entry.securityId)) {
         securityData.set(entry.securityId, {
-          candles: []
+          candles: [],
         });
       }
-      
+
       const data = securityData.get(entry.securityId);
       const candleData = entry.data[0];
-      
+
       data.candles.push({
         date: entry.date,
         open: candleData.dayOpen,
@@ -373,40 +392,43 @@ const AIContraction = async (req, res) => {
         // Calculate candle body size (absolute difference between open and close)
         bodySize: Math.abs(candleData.dayOpen - candleData.latestTradedPrice),
         // Calculate total candle range (high - low)
-        totalRange: candleData.dayHigh - candleData.dayLow
+        totalRange: candleData.dayHigh - candleData.dayLow,
       });
     });
 
     // 5. Find contraction patterns
     const bulkOps = [];
-    
+
     for (const [securityId, data] of securityData) {
       // Skip if we don't have all 7 days
       if (data.candles.length < 7) continue;
-      
+
       const stock = stockMap.get(securityId);
       if (!stock) continue;
-      
+
       // Sort candles by date (newest first)
-      const sortedCandles = [...data.candles].sort((a, b) => 
-        new Date(b.date) - new Date(a.date));
-      
+      const sortedCandles = [...data.candles].sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+
       const currentCandle = sortedCandles[0];
       const previousCandles = sortedCandles.slice(1);
-      
+
       // Check if current candle is the smallest in both body size and total range
-      const isSmallestBody = previousCandles.every(c => 
-        currentCandle.bodySize < c.bodySize);
-      
-      const isSmallestRange = previousCandles.every(c => 
-        currentCandle.totalRange < c.totalRange);
-      
+      const isSmallestBody = previousCandles.every(
+        (c) => currentCandle.bodySize < c.bodySize
+      );
+
+      const isSmallestRange = previousCandles.every(
+        (c) => currentCandle.totalRange < c.totalRange
+      );
+
       // Only consider if both body and range are smallest
       if (isSmallestBody && isSmallestRange) {
         const prevClose = sortedCandles[1].close;
-        const percentageChange = 
+        const percentageChange =
           ((currentCandle.latestPrice - prevClose) / prevClose) * 100;
-        
+
         bulkOps.push({
           updateOne: {
             filter: { securityId },
@@ -418,11 +440,11 @@ const AIContraction = async (req, res) => {
                 percentageChange: parseFloat(percentageChange.toFixed(2)),
                 currentBodySize: currentCandle.bodySize.toFixed(2),
                 currentRange: currentCandle.totalRange.toFixed(2),
-                timestamp: getFormattedISTDate()
-              }
+                timestamp: getFormattedISTDate(),
+              },
             },
-            upsert: true
-          }
+            upsert: true,
+          },
         });
       }
     }
@@ -432,20 +454,19 @@ const AIContraction = async (req, res) => {
       await ContractionModel.bulkWrite(bulkOps);
     }
 
-    const response = { 
+    const response = {
       success: true,
       count: bulkOps.length,
-      message: `Found ${bulkOps.length} contraction patterns`
+      message: `Found ${bulkOps.length} contraction patterns`,
     };
-    
-    return res?.json(response) || response;
 
+    return res?.json(response) || response;
   } catch (error) {
     console.error("AI Contraction error:", error);
-    const response = { 
+    const response = {
       success: false,
       message: "Internal server error",
-      error: error.message 
+      error: error.message,
     };
     return res?.status(500).json(response) || response;
   }
@@ -455,7 +476,7 @@ const candleBreakoutBreakdown = async (req, res) => {
   let response = {
     success: false,
     message: "",
-    data: null
+    data: null,
   };
 
   try {
@@ -463,7 +484,7 @@ const candleBreakoutBreakdown = async (req, res) => {
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
     ]);
 
     if (tradingDays.length < 5) {
@@ -471,7 +492,7 @@ const candleBreakoutBreakdown = async (req, res) => {
       return res ? res.status(400).json(response) : response;
     }
 
-    const dates = tradingDays.map(d => d._id);
+    const dates = tradingDays.map((d) => d._id);
     const [currentDate, day1Back, day2Back, day3Back, day4Back] = dates;
 
     // Step 2: Fetch OHLC data
@@ -484,7 +505,7 @@ const candleBreakoutBreakdown = async (req, res) => {
         "data.dayLow": 1,
         "data.dayClose": 1,
         date: 1,
-        _id: 0
+        _id: 0,
       }
     ).lean();
 
@@ -493,7 +514,7 @@ const candleBreakoutBreakdown = async (req, res) => {
       {},
       { SECURITY_ID: 1, UNDERLYING_SYMBOL: 1, SYMBOL_NAME: 1 }
     );
-    const stockMap = new Map(stocks.map(s => [s.SECURITY_ID, s]));
+    const stockMap = new Map(stocks.map((s) => [s.SECURITY_ID, s]));
 
     // Step 4: Analyze
     const analysisResults = [];
@@ -502,7 +523,7 @@ const candleBreakoutBreakdown = async (req, res) => {
       if (!acc[entry.securityId]) {
         acc[entry.securityId] = {
           stockInfo: stockMap.get(entry.securityId),
-          candles: {}
+          candles: {},
         };
       }
       acc[entry.securityId].candles[entry.date] = entry.data[0];
@@ -515,9 +536,9 @@ const candleBreakoutBreakdown = async (req, res) => {
       if (Object.keys(candles).length !== 5) continue;
 
       const sortedDates = [day4Back, day3Back, day2Back, day1Back, currentDate];
-      const sortedCandles = sortedDates.map(date => ({
+      const sortedCandles = sortedDates.map((date) => ({
         date,
-        ...candles[date]
+        ...candles[date],
       }));
 
       const refCandle = sortedCandles[0];
@@ -526,7 +547,7 @@ const candleBreakoutBreakdown = async (req, res) => {
       const lowerBound = refClose * 0.98;
 
       const middleCandles = sortedCandles.slice(1, 4);
-      const allWithinRange = middleCandles.every(c => {
+      const allWithinRange = middleCandles.every((c) => {
         return c.dayClose >= lowerBound && c.dayClose <= upperBound;
       });
 
@@ -538,8 +559,15 @@ const candleBreakoutBreakdown = async (req, res) => {
       else if (currentCandle.dayClose < lowerBound) trend = "BEARISH";
 
       if (trend) {
-        const fstPreviousDayChange = ((currentCandle.dayClose - sortedCandles[3].dayClose) / sortedCandles[3].dayClose * 100).toFixed(2);
-        const persentageChange = ((currentCandle.dayClose - refClose) / refClose * 100).toFixed(2);
+        const fstPreviousDayChange = (
+          ((currentCandle.dayClose - sortedCandles[3].dayClose) /
+            sortedCandles[3].dayClose) *
+          100
+        ).toFixed(2);
+        const persentageChange = (
+          ((currentCandle.dayClose - refClose) / refClose) *
+          100
+        ).toFixed(2);
 
         const payload = {
           securityId,
@@ -548,7 +576,7 @@ const candleBreakoutBreakdown = async (req, res) => {
           fstPreviousDayChange: parseFloat(fstPreviousDayChange),
           persentageChange: parseFloat(persentageChange),
           trend,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
 
         // ✅ UPSERT (update if exists, else insert)
@@ -566,29 +594,25 @@ const candleBreakoutBreakdown = async (req, res) => {
       success: true,
       count: analysisResults.length,
       message: `Found ${analysisResults.length} breakout patterns`,
-      data: null
+      data: null,
     };
 
     return res ? res.status(200).json(response) : response;
-
   } catch (error) {
     console.error("Candle breakout detection error:", error);
     response = {
       success: false,
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     };
     return res ? res.status(500).json(response) : response;
   }
 };
 
-
-
-
 export {
-  fiveDayRangeBreakers,//change check with the dayClose instead of latestTradedPrice
-  tenDayRangeBreakers,//change check with the dayClose instead of latestTradedPrice
+  fiveDayRangeBreakers, //change check with the dayClose instead of latestTradedPrice
+  tenDayRangeBreakers, //change check with the dayClose instead of latestTradedPrice
   dailyCandleReversal,
   AIContraction,
-  candleBreakoutBreakdown
+  candleBreakoutBreakdown,
 };

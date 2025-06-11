@@ -262,8 +262,8 @@ export const DailyRangeBreakout = async () => {
         updateOne: {
           filter: {
             securityId: signal.securityId,
-            date: signal.date,
-            type: signal.type,
+            // date: signal.date,
+            // type: signal.type,
           },
           update: { $set: signal },
           upsert: true,

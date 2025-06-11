@@ -139,6 +139,8 @@ export const AIIntradayReversalDaily = async (req, res) => {
 
       const prevFourReturns = candleReturns.slice(0, 4);
       const latestReturn = candleReturns[4];
+      // console.log("Latest Data : ", latestReturn);
+      // process.exit();
 
       // Check candle directions
       const isLatestBullish = lastFiveClose[4] > lastFiveOpen[4];

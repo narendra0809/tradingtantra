@@ -4,6 +4,7 @@ import Chart from "react-apexcharts";
 import { useSelector } from "react-redux";
 
 const CandleChart = ({ candles }) => {
+  console.log(candles);
   const theme = useSelector((state) => state.theme.theme);
 
   const labelStyle = {

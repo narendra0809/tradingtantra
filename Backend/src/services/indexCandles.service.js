@@ -18,6 +18,9 @@ const indices = [
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
 const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 
+// Utility to add a delay
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // Convert Unix timestamp to IST string in DD/MM/YYYY, hh:mm:ss A format
 const unixToIST = (unixTimestamp) => {
   return moment
@@ -31,10 +34,17 @@ const formatDateForAPI = (date) => {
   return moment(date).format("DD-MM-YYYY");
 };
 
-// Merge 1-minute candles into specified interval candles
+// Merge 1-minute candles into 3-minute candles
+
 const mergeCandles = (data, intervalMinutes, currentTime) => {
   const mergedCandles = [];
   const candlesPerInterval = intervalMinutes;
+
+  // Define trading session end (3:30 PM IST on the current date)
+  const tradingDayEnd = moment
+    .tz("Asia/Kolkata")
+    .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+  const tradingDayEndUnix = Math.floor(tradingDayEnd.unix()); // Unix timestamp in seconds
 
   for (let i = 0; i < data.open.length; i += candlesPerInterval) {
     const sliceEnd = Math.min(i + candlesPerInterval, data.open.length);
@@ -45,6 +55,13 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
       close: data.close.slice(i, sliceEnd),
       timestamp: data.timestamp.slice(i, sliceEnd),
     };
+
+    // Skip if the first timestamp in the slice is after 3:30 PM IST
+    if (slice.timestamp[0] > tradingDayEndUnix) {
+      continue;
+    }
+
+    // Ensure the slice has enough candles and is not too recent
     if (slice.open.length < candlesPerInterval) {
       const lastTimestamp = slice.timestamp[slice.timestamp.length - 1];
       const minuteDiff = getMinuteDifference(currentTime, lastTimestamp);
@@ -67,9 +84,8 @@ const mergeCandles = (data, intervalMinutes, currentTime) => {
 
   return mergedCandles;
 };
-
-// Fetch data from Dhan API
-const fetchDhanData = async (index, fromDate, toDate) => {
+// Fetch data from Dhan API for a specific interval
+const fetchDhanData = async (index, interval, fromDate, toDate) => {
   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
   try {
@@ -79,7 +95,7 @@ const fetchDhanData = async (index, fromDate, toDate) => {
         securityId: index.scrip,
         exchangeSegment: index.seg,
         instrument: "INDEX",
-        interval: "1",
+        interval: interval === "3m" ? "1" : interval.replace("m", ""),
         oi: false,
         fromDate: formattedFromDate,
         toDate: formattedToDate,
@@ -92,23 +108,21 @@ const fetchDhanData = async (index, fromDate, toDate) => {
         },
       }
     );
-    return response.data;
+
+    const obj = {
+      open: response.data.open,
+      low: response.data.low,
+      high: response.data.high,
+      close: response.data.close,
+      timestamp: response.data.timestamp,
+    };
+    return obj;
   } catch (error) {
     console.error(
-      `Error fetching data for ${index.name}:`,
+      `Error fetching ${interval} data for ${index.name}:`,
       error.response?.data || error.message
     );
     return null;
-  }
-};
-
-// Delete all data if it's Monday
-const deleteDataOnMonday = async () => {
-  const today = moment().tz("Asia/Kolkata");
-  if (today.day() === 1) {
-    // Monday
-    await IndexCandles.deleteMany({});
-    console.log("Deleted all data as it's Monday");
   }
 };
 
@@ -127,79 +141,103 @@ const deleteOldData = async (previousTradingDay) => {
 };
 
 // Process and save candles for an index
-const processIndexCandles = async (
-  index,
-  apiData,
-  currentTime,
-  intervals = [3, 15, 30]
-) => {
+const processIndexCandles = async (index, apiData, currentTime, interval) => {
   if (!apiData) return;
 
   try {
-    for (const interval of intervals) {
-      const mergedCandles = mergeCandles(apiData, interval, currentTime);
+    let candles = [];
 
-      for (const candle of mergedCandles) {
-        // Check if candle already exists
-        const existingCandle = await IndexCandles.findOne({
+    const tradingDayEnd = moment
+      .tz("Asia/Kolkata")
+      .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+    const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
+
+    if (interval === "3m") {
+      candles = mergeCandles(apiData, 3, currentTime);
+    } else {
+      const intervalMinutes = interval === "15m" ? 15 : 30;
+      candles = apiData.open
+        .map((_, i) => {
+          const actualTimestampUnix = apiData.timestamp[i];
+
+          if (actualTimestampUnix > tradingDayEndUnix) {
+            return null;
+          }
+          // Validate interval spacing
+          if (i > 0) {
+            const prevTimestampUnix = apiData.timestamp[i - 1];
+            const diffMinutes = (actualTimestampUnix - prevTimestampUnix) / 60;
+            if (diffMinutes !== intervalMinutes) {
+            }
+          }
+          return {
+            open: apiData.open[i],
+            high: apiData.high[i],
+            low: apiData.low[i],
+            close: apiData.close[i],
+            lastClose: apiData.close[i],
+            timestamp: unixToIST(actualTimestampUnix),
+          };
+        })
+        .filter((candle) => candle !== null); // Remove skipped candles
+    }
+
+    for (const candle of candles) {
+      // Check if candle already exists
+      const existingCandle = await IndexCandles.findOne({
+        indexName: index.name,
+        securityId: index.scrip,
+        interval,
+        timestamp: candle.timestamp,
+      });
+
+      if (!existingCandle) {
+        const indexCandle = new IndexCandles({
           indexName: index.name,
           securityId: index.scrip,
-          interval: `${interval}m`,
+          interval,
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+          lastClose: candle.close,
           timestamp: candle.timestamp,
         });
-
-        if (existingCandle) {
-          // Update existing candle
-          existingCandle.open = candle.open;
-          existingCandle.high = candle.high;
-          existingCandle.low = candle.low;
-          existingCandle.close = candle.close;
-          existingCandle.lastClose = candle.close;
-          await existingCandle.save();
-          console.log(
-            `Updated ${interval}-minute candle for ${index.name} at ${candle.timestamp}`
-          );
-        } else {
-          // Save new candle
-          const indexCandle = new IndexCandles({
-            indexName: index.name,
-            securityId: index.scrip,
-            interval: `${interval}m`,
-            open: candle.open,
-            high: candle.high,
-            low: candle.low,
-            close: candle.close,
-            lastClose: candle.close,
-            timestamp: candle.timestamp,
-          });
-          await indexCandle.save();
-          console.log(
-            `Saved new ${interval}-minute candle for ${index.name} at ${candle.timestamp}`
-          );
-        }
+        await indexCandle.save();
       }
     }
+    console.log(
+      `Saved new ${interval} candle for ${index.name} count : ${candles.length}`
+    );
   } catch (error) {
-    console.error(`Error processing ${index.name} candles:`, error);
+    console.error(
+      `Error processing ${index.name} candles for ${interval}:`,
+      error
+    );
   }
 };
 
-// Fetch and process data for all indices
+// Fetch and process data for all indices and intervals
 const fetchAndProcessAllIndices = async (
   fromDate,
   toDate,
   previousTradingDay
 ) => {
   const currentTime = new Date();
+  const intervals = ["3m", "15m", "30m"];
 
   // Delete old data
   await deleteOldData(previousTradingDay);
 
   for (const index of indices) {
-    console.log(`Fetching data for ${index.name}...`);
-    const apiData = await fetchDhanData(index, fromDate, toDate);
-    if (apiData) {
-      await processIndexCandles(index, apiData, currentTime);
+    for (const interval of intervals) {
+      console.log(`Fetching ${interval} data for ${index.name}...`);
+      const apiData = await fetchDhanData(index, interval, fromDate, toDate);
+      if (apiData) {
+        await processIndexCandles(index, apiData, currentTime, interval);
+      }
+
+      await delay(200);
     }
   }
   console.log("All indices processed successfully");
@@ -214,9 +252,6 @@ export const runFetchForIndexCandles = async () => {
     // Get previous trading day
     const previousTradingDay = await getPreviousTradingDay(today);
     const previousTradingDate = formatDateForAPI(previousTradingDay);
-
-    // Delete all data if it's Monday
-    await deleteDataOnMonday();
 
     console.log(
       `Starting index candle fetch for ${previousTradingDate} to ${currentDate}`

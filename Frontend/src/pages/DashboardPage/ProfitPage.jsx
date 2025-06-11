@@ -1,5 +1,3 @@
-import React from "react";
-
 const ProfitPage = () => {
   return (
     <div className="mt-10 space-y-10">

@@ -94,7 +94,6 @@ const verifyPayment = async (req, res) => {
     }
 
     transaction.transactionId = razorpay_payment_id;
-    
 
     await transaction.save();
 

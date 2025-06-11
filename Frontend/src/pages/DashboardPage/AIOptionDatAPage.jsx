@@ -10,7 +10,16 @@ import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
 import { lotSize } from "../../constants/constants";
 import { formatDateString } from "../../utils/utils";
+import axios from "axios";
+const URI = import.meta.env.VITE_SERVER_URI;
 
+const contributeIndex = {
+  NIFTY: "NIFTY 50",
+  BANKNIFTY: "BANKNIFTY",
+  FINNIFTY: "FINNIFTY",
+  MIDCPNIFTY: "MIDCAP",
+  SENSEX: "SENSEX",
+};
 const newIndexes = [
   {
     NIFTY: "Nifty50",
@@ -33,6 +42,34 @@ const meterData = [
 ];
 const AIOptionDataPage = () => {
   const { fetchData } = useFetchData();
+  const [allIndexPts, setAllIndexPts] = useState({
+    "NIFTY 50": {
+      pts: 0,
+      per: 0,
+    },
+    BANKNIFTY: {
+      pts: 0,
+      per: 0,
+    },
+    FINNIFTY: {
+      pts: 0,
+      per: 0,
+    },
+    MIDCPNIFTY: {
+      pts: 0,
+      per: 0,
+    },
+    SENSEX: {
+      pts: 0,
+      per: 0,
+    },
+  });
+
+  const [contribution, setContribution] = useState({
+    indexName: "NIFTY 50",
+    contributions: [],
+  });
+
   const [indexCandles, setIndexCandles] = useState([]);
   const [allIndexData, setAllIndexData] = useState({
     Nifty50: { data: [], expiries: [] },
@@ -49,6 +86,63 @@ const AIOptionDataPage = () => {
   const [currentCandles, setCurrentCandles] = useState([]);
   const [totalOI, setTotalOI] = useState({ totalCE: 0, totalPE: 0 });
 
+  const fetchAllIndexPts = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${URI}/get-all-index-points`);
+      if (res.status !== 200) {
+        throw new Error("error while fetching all index pts.");
+      }
+      const indexData = {
+        "NIFTY 50": res.data.NIFTY,
+        BANKNIFTY: res.data.BANKNIFTY,
+        MIDCAP: res.data.MIDCPNIFTY,
+        SENSEX: res.data.SENSEX,
+        FINNIFTY: res.data.FINNIFTY,
+        "NIFTY MID": { pts: 0, per: 0 },
+      };
+      setAllIndexPts(indexData);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchContributionInIndex = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `${URI}/index-contribution/${contributeIndex[selectedIndex]}`
+      );
+      if (res.status !== 200) {
+        throw new Error("Error in fetching contribution !");
+      }
+      setContribution(res.data);
+    } catch (error) {
+      console.log(
+        `Error in fetching contribution of ${selectedIndex} : `,
+        error
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchIndexPTS = async () => {
+      await fetchAllIndexPts();
+    };
+    fetchIndexPTS();
+  }, []);
+
+  useEffect(() => {
+    const fetchContribution = async () => {
+      await fetchContributionInIndex();
+    };
+    fetchContribution();
+  }, [selectedIndex]);
+
   const fetchIndexCandlesData = async (index) => {
     try {
       setLoading(true);
@@ -56,7 +150,6 @@ const AIOptionDataPage = () => {
       if (response.status !== 200) {
         throw new Error("Error fetching index candles data");
       }
-      console.log(response.data);
       setIndexCandles(response.data);
     } catch (error) {
       console.error(`Error fetching ${index} data:`, error);
@@ -187,11 +280,9 @@ const AIOptionDataPage = () => {
         selectedIntervalString === interval
       );
     });
-    console.log(filteredData);
     const candles = convertCandlesForDisplaying(filteredData);
     setCurrentCandles(candles);
   };
-
   const handleIntervalChange = (e) => {
     setSelectedInterval(Number(e.target.value));
   };
@@ -391,7 +482,10 @@ const AIOptionDataPage = () => {
 
       <section className="mt-10 bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
         <div className="w-full h-full dark:bg-db-primary bg-db-primary   rounded-lg p-4">
-          {/* <OptionDataDonutChart /> */}
+          <OptionDataDonutChart
+            contributor={contribution}
+            allIndexPts={allIndexPts}
+          />
         </div>
       </section>
     </>

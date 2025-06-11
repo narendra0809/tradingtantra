@@ -1,7 +1,7 @@
 // 1. Required modules
-import { MongoClient } from 'mongodb';
-import cron from 'node-cron';
-import dotenv from 'dotenv';
+import { MongoClient } from "mongodb";
+import cron from "node-cron";
+import dotenv from "dotenv";
 
 // 2. Load .env config (e.g. DB_URI)
 dotenv.config();
@@ -13,7 +13,7 @@ const client = new MongoClient(uri);
 async function isMarketWorkingDay() {
   const today = new Date();
   const date = today.getDate(); // 1–31
-  const day = today.getDay();   // 0 = Sunday, 6 = Saturday
+  const day = today.getDay(); // 0 = Sunday, 6 = Saturday
 
   // Not between 1st–5th OR it's Sat/Sun → market closed
   if (date < 1 || date > 5 || day === 0 || day === 6) return false;
@@ -24,16 +24,16 @@ async function isMarketWorkingDay() {
   try {
     await client.connect();
     const db = client.db();
-    const holidays = db.collection('marketholidays');
+    const holidays = db.collection("marketholidays");
 
     const holiday = await holidays.findOne({
-      date: { $gte: startOfDay, $lte: endOfDay }
+      date: { $gte: startOfDay, $lte: endOfDay },
     });
 
     // Agar holiday mila to false return karenge (market closed)
     return !holiday;
   } catch (err) {
-    console.error('🛑 Error checking holiday:', err);
+    console.error("🛑 Error checking holiday:", err);
     return false;
   } finally {
     await client.close();
@@ -49,13 +49,14 @@ async function keepOnlyLatestMarketData() {
   try {
     await localClient.connect();
     const db = localClient.db();
-    const collection = db.collection('marketdetaildatas');
+    const collection = db.collection("marketdetaildatas");
 
     const documents = await collection.find({}).toArray();
     const bulkOps = [];
 
     for (const doc of documents) {
-      if (!doc.data || !Array.isArray(doc.data) || doc.data.length === 0) continue;
+      if (!doc.data || !Array.isArray(doc.data) || doc.data.length === 0)
+        continue;
 
       // Get the latest entry from data array
       const latestEntry = doc.data.reduce((latest, curr) =>
@@ -70,9 +71,9 @@ async function keepOnlyLatestMarketData() {
             filter: { _id: doc._id },
             update: {
               $set: { data: [latestEntry] },
-              $currentDate: { updatedAt: true }
-            }
-          }
+              $currentDate: { updatedAt: true },
+            },
+          },
         });
       }
 
@@ -93,13 +94,14 @@ async function keepOnlyLatestMarketData() {
     if (total > MAX_DOCS) {
       const excess = total - MAX_DOCS;
 
-      const toDelete = await collection.find({})
+      const toDelete = await collection
+        .find({})
         .sort({ updatedAt: 1 })
         .limit(excess)
         .project({ _id: 1 })
         .toArray();
 
-      const ids = toDelete.map(doc => doc._id);
+      const ids = toDelete.map((doc) => doc._id);
       await collection.deleteMany({ _id: { $in: ids } });
 
       oldDocumentsDeleted = ids.length;
@@ -108,10 +110,11 @@ async function keepOnlyLatestMarketData() {
 
     console.log(`✅ keepOnlyLatestMarketData finished`);
     console.log(`📌 Duplicate entries cleaned: ${duplicateDataCleaned}`);
-    console.log(`📌 Old documents deleted due to limit: ${oldDocumentsDeleted}`);
-
+    console.log(
+      `📌 Old documents deleted due to limit: ${oldDocumentsDeleted}`
+    );
   } catch (err) {
-    console.error('🛑 Error in keepOnlyLatestMarketData:', err);
+    console.error("🛑 Error in keepOnlyLatestMarketData:", err);
   } finally {
     await localClient.close();
   }
@@ -124,26 +127,19 @@ const runMarketCleanupJob = async () => {
   const min = now.getMinutes();
   const totalMinutes = hr * 60 + min;
 
-
-
-
-
-    await keepOnlyLatestMarketData();
-  
+  await keepOnlyLatestMarketData();
 };
 
 // ✅ Scheduled job every minute between 9 AM to 6 PM, Monday to Friday
 
-
 // From 9:10 to 9:59
-cron.schedule('10-59 9 * * 1-5', runMarketCleanupJob);
+cron.schedule("10-59 9 * * 1-5", runMarketCleanupJob);
 
 // From 10:00 to 14:59
-cron.schedule('* 10-14 * * 1-5', runMarketCleanupJob);
+cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob);
 
 // From 15:00 to 15:40
-cron.schedule('0-40 15 * * 1-5', runMarketCleanupJob);
-
+cron.schedule("0-40 15 * * 1-5", runMarketCleanupJob);
 
 // ✅ Run manually when script starts (optional)
-runMarketCleanupJob();
+// runMarketCleanupJob();

@@ -9,6 +9,7 @@ const URI = import.meta.env.VITE_SERVER_URI;
 
 const IndexDepthPage = () => {
   const [selectedIndex, setSelectedIndex] = useState("NIFTY 50");
+  const [loading, setLoading] = useState(true);
   const [allIndexPts, setAllIndexPts] = useState({
     "NIFTY 50": {
       pts: 0,
@@ -42,6 +43,7 @@ const IndexDepthPage = () => {
 
   const fetchAllIndexPts = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${URI}/get-all-index-points`);
       if (res.status !== 200) {
         throw new Error("error while fetching all index pts.");
@@ -57,17 +59,19 @@ const IndexDepthPage = () => {
       setAllIndexPts(indexData);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchContributionInIndex = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${URI}/index-contribution/${selectedIndex}`);
       if (res.status !== 200) {
         throw new Error("Error in fetching contribution !");
       }
       setContribution(res.data);
-      console.log(res.data);
 
       const contributions = res.data.contributions || [];
       const gainersCount = contributions.filter(
@@ -83,6 +87,8 @@ const IndexDepthPage = () => {
         `Error in fetching contribution of ${selectedIndex} : `,
         error
       );
+    } finally {
+      setLoading(false);
     }
   };
 

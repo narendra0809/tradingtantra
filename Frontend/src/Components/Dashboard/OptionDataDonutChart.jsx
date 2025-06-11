@@ -196,9 +196,9 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
                     {contributor.points > 0 ? "+" : ""}
                     {contributor.points}
                   </span>
-                  <span className="text-gray-400 ml-2 w-16 text-right">
+                  {/* <span className="text-gray-400 ml-2 w-16 text-right">
                     ({contributor.percent.toFixed(1)}%)
-                  </span>
+                  </span> */}
                 </div>
               ))}
               {otherContributions > 0 && (

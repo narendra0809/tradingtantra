@@ -75,12 +75,12 @@ const BuyPlanPage = () => {
 
   return (
     <>
-      <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
+      {/* <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
         <div className="blue-blur-circle"></div>
         <h1 className="md:text-6xl text-4xl font-abcRepro font-bold ">
           Buy Plan
         </h1>
-      </div>
+      </div> */}
 
       <div className="xl:w-[70%] md:w-[90%] w-full mx-auto bg-[#01071C] md:px-8 px-4 md:py-8 py-4 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] flex sm:flex-row flex-col items-start gap-5 ">
         <div className="sm:w-[60%] w-full">

@@ -45,6 +45,20 @@ import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PasswordChanged from "./pages/PasswordChanged";
 import OTPModal from "./pages/OTPModal";
+import Home from "./pages/AdminPages/Home";
+import ProtectedRouteAdmin from "./utils/admin/ProtectedRouteAdmin";
+import AdminLogin from "./pages/AdminPages/AdminLogin";
+import LatestTransactions from "./pages/AdminPages/LatestTransactions";
+import ManageOrders from "./pages/AdminPages/ManageOrders";
+import Feedback from "./pages/AdminPages/Feedback";
+import Ticker from "./pages/AdminPages/Ticker";
+import PaymentMethod from "./pages/AdminPages/PaymentMethod";
+import Updates from "./pages/AdminPages/Updates";
+import DataAPI from "./pages/AdminPages/DataAPI";
+import Profile from "./pages/AdminPages/Profile";
+import SettingsUpload from "./pages/AdminPages/SettingsUpload";
+import OurStrategyAdmin from "./pages/AdminPages/OurStrategyAdmin";
+import Dashboard from "./pages/AdminPages/Dashboard";
 
 const App = () => {
   return (
@@ -104,6 +118,24 @@ const App = () => {
                   <Route path="our-strategy" element={<OurStrategy />} />
                   <Route path="trading-journal" element={<TradingJournal />} />
                   <Route path="testing-razorpay" element={<TestRazorpay />} />
+                </Route>
+              </Route>
+
+              <Route path="/admin/login" element={<AdminLogin />} />
+
+              <Route element={<ProtectedRouteAdmin />}>
+                <Route path="/admin" element={<Home />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="manage-users" element={<LatestTransactions />} />
+                  <Route path="manage-orders" element={<ManageOrders />} />
+                  <Route path="feedback" element={<Feedback />} />
+                  <Route path="ticker" element={<Ticker />} />
+                  <Route path="payment-method" element={<PaymentMethod />} />
+                  <Route path="updates" element={<Updates />} />
+                  <Route path="data-api" element={<DataAPI />} />
+                  <Route path="our-strategy" element={<OurStrategyAdmin />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="setting" element={<SettingsUpload />} />
                 </Route>
               </Route>
             </Routes>

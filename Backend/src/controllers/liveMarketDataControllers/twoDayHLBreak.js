@@ -221,8 +221,8 @@ export const twoDayHLBreak = async () => {
         updateOne: {
           filter: {
             securityId: item.securityId,
-            date: item.date,
-            type: item.type,
+            // date: item.date,
+            // type: item.type,
           },
           update: { $set: item },
           upsert: true,
