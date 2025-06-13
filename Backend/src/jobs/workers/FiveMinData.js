@@ -21,8 +21,7 @@ export const isMarketTime = () => {
   if (hour < 9 || (hour === 9 && minute < 15)) {
     return false;
   }
-  if (hour > 15 || (hour === 15 && minute >= 35)) {
-    //Change
+  if (hour > 15 || (hour === 15 && minute >= 40)) {
     return false;
   }
   return true;
@@ -33,6 +32,7 @@ const fiveMinWorker = new Worker(
   async (job) => {
     try {
       console.log(`[Worker] Received job:`, job.data);
+      console.log("MARKET OURS  :", isMarketTime());
       if (!isMarketTime()) {
         console.log(`[Worker] Skipping job. Outside market hours.`);
         return;

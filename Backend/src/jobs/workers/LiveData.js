@@ -16,7 +16,7 @@ function isWithinTradingHours() {
   const end = new Date();
 
   start.setHours(9, 15, 0); // 9:15 AM
-  end.setHours(15, 35, 0); // 3:35 PM
+  end.setHours(15, 40, 0); // 3:35 PM
 
   return now >= start && now <= end;
 }

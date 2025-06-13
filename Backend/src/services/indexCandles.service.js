@@ -34,60 +34,121 @@ const formatDateForAPI = (date) => {
   return moment(date).format("DD-MM-YYYY");
 };
 
-// Merge 1-minute candles into 3-minute candles
+// Get the 3-minute interval start timestamp
+const getIntervalStart = (timestamp, intervalMinutes) => {
+  const date = moment.unix(timestamp).tz("Asia/Kolkata");
+  const minute = date.minute();
+  const intervalStartMinute = Math.floor(minute / intervalMinutes) * intervalMinutes;
+  return date
+    .set({ minute: intervalStartMinute, second: 0, millisecond: 0 })
+    .unix();
+};
 
-const mergeCandles = (data, intervalMinutes, currentTime) => {
+// Merge last 9 one-minute candles into 3 three-minute candles and handle after-market close
+const mergeCandles = (data, intervalMinutes, currentTime, indexName, tradingDay) => {
   const mergedCandles = [];
   const candlesPerInterval = intervalMinutes;
+  const candlesToProcess = 9; // Process last 9 one-minute candles
 
-  // Define trading session end (3:30 PM IST on the current date)
-  const tradingDayEnd = moment
-    .tz("Asia/Kolkata")
-    .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
-  const tradingDayEndUnix = Math.floor(tradingDayEnd.unix()); // Unix timestamp in seconds
+  const tradingDayStart = moment
+    .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
+    .startOf("day");
+  const tradingDayEnd = tradingDayStart.clone().set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+  const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
+  const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
 
-  for (let i = 0; i < data.open.length; i += candlesPerInterval) {
-    const sliceEnd = Math.min(i + candlesPerInterval, data.open.length);
-    const slice = {
-      open: data.open.slice(i, sliceEnd),
-      high: data.high.slice(i, sliceEnd),
-      low: data.low.slice(i, sliceEnd),
-      close: data.close.slice(i, sliceEnd),
-      timestamp: data.timestamp.slice(i, sliceEnd),
-    };
+  let afterMarketClose = null;
 
-    // Skip if the first timestamp in the slice is after 3:30 PM IST
-    if (slice.timestamp[0] > tradingDayEndUnix) {
+  // Take the last 9 one-minute candles
+  const startIndex = Math.max(0, data.open.length - candlesToProcess);
+  const slicedData = {
+    open: data.open.slice(startIndex),
+    high: data.high.slice(startIndex),
+    low: data.low.slice(startIndex),
+    close: data.close.slice(startIndex),
+    timestamp: data.timestamp.slice(startIndex),
+  };
+
+  // Group candles by 3-minute intervals
+  const intervalGroups = {};
+  for (let i = 0; i < slicedData.open.length; i++) {
+    const timestamp = slicedData.timestamp[i];
+    
+    // Skip if timestamp is from previous day
+    if (timestamp < tradingDayStartUnix) {
       continue;
     }
 
-    // Ensure the slice has enough candles and is not too recent
-    if (slice.open.length < candlesPerInterval) {
-      const lastTimestamp = slice.timestamp[slice.timestamp.length - 1];
-      const minuteDiff = getMinuteDifference(currentTime, lastTimestamp);
-      if (minuteDiff < intervalMinutes) {
-        continue;
-      }
+    if (timestamp > tradingDayEndUnix) {
+      afterMarketClose = slicedData.close[i];
+      continue;
     }
 
-    if (slice.open.length > 0) {
-      mergedCandles.push({
+    const intervalStartUnix = getIntervalStart(timestamp, intervalMinutes);
+    const intervalKey = intervalStartUnix;
+
+    if (!intervalGroups[intervalKey]) {
+      intervalGroups[intervalKey] = {
+        open: [],
+        high: [],
+        low: [],
+        close: [],
+        timestamp: [],
+      };
+    }
+
+    intervalGroups[intervalKey].open.push(slicedData.open[i]);
+    intervalGroups[intervalKey].high.push(slicedData.high[i]);
+    intervalGroups[intervalKey].low.push(slicedData.low[i]);
+    intervalGroups[intervalKey].close.push(slicedData.close[i]);
+    intervalGroups[intervalKey].timestamp.push(slicedData.timestamp[i]);
+  }
+
+  // Create 3-minute candles from grouped data (only complete intervals)
+  const intervalKeys = Object.keys(intervalGroups)
+    .map(Number)
+    .sort((a, b) => b - a) // Sort descending to get latest intervals
+    .slice(0, 3); // Take last 3 intervals
+
+  for (const intervalKey of intervalKeys) {
+    const slice = intervalGroups[intervalKey];
+    // Only process complete 3-minute intervals (exactly 3 one-minute candles)
+    if (slice.open.length === candlesPerInterval) {
+      const candle = {
         open: slice.open[0],
         high: Math.max(...slice.high),
         low: Math.min(...slice.low),
         close: slice.close[slice.close.length - 1],
         lastClose: slice.close[slice.close.length - 1],
-        timestamp: unixToIST(slice.timestamp[0]),
-      });
+        timestamp: unixToIST(intervalKey),
+      };
+      mergedCandles.push(candle);
     }
+  }
+
+  // Add after-market close to 3:27 PM candle
+  if (afterMarketClose !== null) {
+    const targetTimestamp = moment
+      .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
+      .set({ hour: 15, minute: 27, second: 0, millisecond: 0 })
+      .format("DD/MM/YYYY, hh:mm:ss A");
+   
+    mergedCandles.push({
+      close: afterMarketClose,
+      lastClose: afterMarketClose,
+      timestamp: targetTimestamp,
+      isAfterMarketUpdate: true,
+    });
   }
 
   return mergedCandles;
 };
+
 // Fetch data from Dhan API for a specific interval
 const fetchDhanData = async (index, interval, fromDate, toDate) => {
   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+
   try {
     const response = await axios.post(
       DHAN_API_URL,
@@ -116,8 +177,14 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
       close: response.data.close,
       timestamp: response.data.timestamp,
     };
+
     return obj;
   } catch (error) {
+    if (error.response?.status === 429) {
+      console.warn(`Rate limit hit for ${index.name}. Retrying after 1s...`);
+      await delay(150);
+      return fetchDhanData(index, interval, fromDate, toDate);
+    }
     console.error(
       `Error fetching ${interval} data for ${index.name}:`,
       error.response?.data || error.message
@@ -126,118 +193,165 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
   }
 };
 
-// Delete data older than the previous trading day
-const deleteOldData = async (previousTradingDay) => {
-  const previousTradingDayStart = moment(previousTradingDay)
-    .tz("Asia/Kolkata")
-    .startOf("day")
-    .toDate();
-  await IndexCandles.deleteMany({
-    timestamp: {
-      $lt: moment(previousTradingDayStart).format("DD/MM/YYYY, 00:00:00 A"),
-    },
-  });
-  console.log(`Deleted data older than ${previousTradingDay}`);
-};
-
 // Process and save candles for an index
-const processIndexCandles = async (index, apiData, currentTime, interval) => {
-  if (!apiData) return;
+const processIndexCandles = async (index, apiData, currentTime, interval, tradingDay) => {
+  if (!apiData) {
+    console.log(`No data to process for ${index.name} (${interval})`);
+    return;
+  }
 
   try {
     let candles = [];
+    let afterMarketClose = null;
 
-    const tradingDayEnd = moment
-      .tz("Asia/Kolkata")
-      .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+    const tradingDayStart = moment.tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata").startOf("day");
+    const tradingDayEnd = tradingDayStart.clone().set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+    const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
     const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
 
     if (interval === "3m") {
-      candles = mergeCandles(apiData, 3, currentTime);
+      candles = mergeCandles(apiData, 3, currentTime, index.name, tradingDay);
     } else {
       const intervalMinutes = interval === "15m" ? 15 : 30;
-      candles = apiData.open
-        .map((_, i) => {
-          const actualTimestampUnix = apiData.timestamp[i];
+      const candlesToProcess = 3; // Process last 3 candles
+      const startIndex = Math.max(0, apiData.open.length - candlesToProcess);
 
-          if (actualTimestampUnix > tradingDayEndUnix) {
+      // Take the last 3 candles
+      const slicedData = {
+        open: apiData.open.slice(startIndex),
+        high: apiData.high.slice(startIndex),
+        low: apiData.low.slice(startIndex),
+        close: apiData.close.slice(startIndex),
+        timestamp: apiData.timestamp.slice(startIndex),
+      };
+
+      candles = slicedData.open
+        .map((_, i) => {
+          const actualTimestampUnix = slicedData.timestamp[i];
+
+          // Skip if timestamp is from previous day
+          if (actualTimestampUnix < tradingDayStartUnix) {
             return null;
           }
-          // Validate interval spacing
+
+          if (actualTimestampUnix > tradingDayEndUnix) {
+            afterMarketClose = slicedData.close[i];
+            return null;
+          }
+
           if (i > 0) {
-            const prevTimestampUnix = apiData.timestamp[i - 1];
+            const prevTimestampUnix = slicedData.timestamp[i - 1];
             const diffMinutes = (actualTimestampUnix - prevTimestampUnix) / 60;
             if (diffMinutes !== intervalMinutes) {
+              console.warn(
+                `Unexpected interval for ${index.name} (${interval}): ${diffMinutes} minutes at ${unixToIST(actualTimestampUnix)}`
+              );
+              return null;
             }
           }
+
           return {
-            open: apiData.open[i],
-            high: apiData.high[i],
-            low: apiData.low[i],
-            close: apiData.close[i],
-            lastClose: apiData.close[i],
+            open: slicedData.open[i],
+            high: slicedData.high[i],
+            low: slicedData.low[i],
+            close: slicedData.close[i],
+            lastClose: slicedData.close[i],
             timestamp: unixToIST(actualTimestampUnix),
           };
         })
-        .filter((candle) => candle !== null); // Remove skipped candles
+        .filter((candle) => candle !== null);
+
+      // Add after-market close to 3:15 PM candle
+      if (afterMarketClose !== null) {
+        const targetTimestamp = moment
+          .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
+          .set({ hour: 15, minute: 15, second: 0, millisecond: 0 })
+          .format("DD/MM/YYYY, hh:mm:ss A");
+
+        candles.push({
+          close: afterMarketClose,
+          lastClose: afterMarketClose,
+          timestamp: targetTimestamp,
+          isAfterMarketUpdate: true,
+        });
+      }
     }
 
     for (const candle of candles) {
-      // Check if candle already exists
-      const existingCandle = await IndexCandles.findOne({
+      const query = {
         indexName: index.name,
         securityId: index.scrip,
         interval,
         timestamp: candle.timestamp,
-      });
+      };
 
-      if (!existingCandle) {
-        const indexCandle = new IndexCandles({
-          indexName: index.name,
-          securityId: index.scrip,
-          interval,
-          open: candle.open,
-          high: candle.high,
-          low: candle.low,
-          close: candle.close,
-          lastClose: candle.close,
-          timestamp: candle.timestamp,
-        });
-        await indexCandle.save();
+      if (candle.isAfterMarketUpdate) {
+        // Update existing candle with after-market close
+        const updateResult = await IndexCandles.updateOne(
+          query,
+          {
+            $set: {
+              close: candle.close,
+              lastClose: candle.lastClose,
+            },
+          }
+        );
+        if (updateResult.matchedCount > 0) {
+          console.log(`Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`);
+        } else {
+          console.warn(`No ${interval} candle found to update at ${candle.timestamp} for ${index.name}`);
+          // Save as new candle with default values
+          const indexCandle = new IndexCandles({
+            indexName: index.name,
+            securityId: index.scrip,
+            interval,
+            open: candle.open || 0,
+            high: candle.high || 0,
+            low: candle.low || 0,
+            close: candle.close,
+            lastClose: candle.lastClose,
+            timestamp: candle.timestamp,
+          });
+          await indexCandle.save();
+          console.log(`Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`);
+        }
+      } else {
+        // Save new candle if it doesn't exist
+        const existingCandle = await IndexCandles.findOne(query);
+        if (!existingCandle) {
+          const indexCandle = new IndexCandles({
+            indexName: index.name,
+            securityId: index.scrip,
+            interval,
+            open: candle.open,
+            high: candle.high,
+            low: candle.low,
+            close: candle.close,
+            lastClose: candle.lastClose,
+            timestamp: candle.timestamp,
+          });
+          await indexCandle.save();
+          console.log(`Saved ${interval} candle for ${index.name} at ${candle.timestamp}`);
+        }
       }
     }
-    console.log(
-      `Saved new ${interval} candle for ${index.name} count : ${candles.length}`
-    );
   } catch (error) {
-    console.error(
-      `Error processing ${index.name} candles for ${interval}:`,
-      error
-    );
+    console.error(`Error processing ${index.name} candles for ${interval}:`, error);
   }
 };
 
 // Fetch and process data for all indices and intervals
-const fetchAndProcessAllIndices = async (
-  fromDate,
-  toDate,
-  previousTradingDay
-) => {
+const fetchAndProcessAllIndices = async (fromDate, toDate) => {
   const currentTime = new Date();
   const intervals = ["3m", "15m", "30m"];
 
-  // Delete old data
-  await deleteOldData(previousTradingDay);
-
   for (const index of indices) {
     for (const interval of intervals) {
-      console.log(`Fetching ${interval} data for ${index.name}...`);
       const apiData = await fetchDhanData(index, interval, fromDate, toDate);
       if (apiData) {
-        await processIndexCandles(index, apiData, currentTime, interval);
+        await processIndexCandles(index, apiData, currentTime, interval, toDate);
       }
-
-      await delay(200);
+      await delay(150);
     }
   }
   console.log("All indices processed successfully");
@@ -249,19 +363,8 @@ export const runFetchForIndexCandles = async () => {
     const today = moment().tz("Asia/Kolkata");
     const currentDate = formatDateForAPI(today);
 
-    // Get previous trading day
-    const previousTradingDay = await getPreviousTradingDay(today);
-    const previousTradingDate = formatDateForAPI(previousTradingDay);
-
-    console.log(
-      `Starting index candle fetch for ${previousTradingDate} to ${currentDate}`
-    );
-    await fetchAndProcessAllIndices(
-      previousTradingDate,
-      currentDate,
-      previousTradingDay
-    );
-    console.log("Index candle processing completed");
+    // Only fetch and process current day's data
+    await fetchAndProcessAllIndices(currentDate, currentDate);
   } catch (error) {
     console.error("Error in runFetchForIndexCandles:", error);
     throw error;
