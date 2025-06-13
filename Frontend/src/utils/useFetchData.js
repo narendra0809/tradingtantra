@@ -9,7 +9,6 @@ const useFetchData = () => {
   const fetchData = async (url, method, formData = null) => {
     try {
       setLoading(true);
-
       let response;
 
       if (method == "GET") {
@@ -34,6 +33,8 @@ const useFetchData = () => {
           method: "DELETE",
           url: `${SERVER_URI}/api/${url}`,
         });
+      } else {
+        throw new Error("Method type not provided in the arguments !");
       }
 
       // console.log(response.data, "response");

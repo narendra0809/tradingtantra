@@ -59,88 +59,105 @@ import Profile from "./pages/AdminPages/Profile";
 import SettingsUpload from "./pages/AdminPages/SettingsUpload";
 import OurStrategyAdmin from "./pages/AdminPages/OurStrategyAdmin";
 import Dashboard from "./pages/AdminPages/Dashboard";
+import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 
 const App = () => {
   return (
     <>
       <div>
-        <AuthProvider>
-          <RiskProvider>
-            <ScrollToTop />
-            <Routes>
-              <Route path="login" element={<LoginPage />} />
-              <Route path="signup" element={<RegisterPage />} />
-              <Route path="forget-password" element={<ForgetPassword />} />
-              <Route path="reset-password" element={<ResetPassword />} />
-              <Route path="password-changed" element={<PasswordChanged />} />
-              <Route path="opt-modal" element={<OTPModal />} />
-              <Route path="/" element={<WebLayout />}>
-                <Route index element={<HomePage />} />
+        <AdminAuthProvider>
+          <AuthProvider>
+            <RiskProvider>
+              <ScrollToTop />
+              <Routes>
+                <Route path="login" element={<LoginPage />} />
+                <Route path="signup" element={<RegisterPage />} />
+                <Route path="forget-password" element={<ForgetPassword />} />
+                <Route path="reset-password" element={<ResetPassword />} />
+                <Route path="password-changed" element={<PasswordChanged />} />
+                <Route path="opt-modal" element={<OTPModal />} />
+                <Route path="/" element={<WebLayout />}>
+                  <Route index element={<HomePage />} />
 
-                <Route path="/updates" element={<UpdatesPage />} />
-                <Route path="/contact-us" element={<ContactUsPage />} />
-                <Route path="/about-us" element={<AboutUsPage />} />
-                <Route path="/disclaimer" element={<DisclaimerPage />} />
-                <Route path="/refund-policy" element={<RefundPolicyPage />} />
-                <Route path="/disclosures" element={<DisclosuresPage />} />
-                <Route
-                  path="/terms-and-condition"
-                  element={<TermsAndConditionPage />}
-                />
-                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                <Route path="/faq" element={<FAQPage />} />
-                <Route path="/renew-plan" element={<RenewPlanPage />} />
-                <Route path="/buy-plan" element={<BuyPlanPage />} />
-                <Route path="/testimonial" element={<Testimonials />} />
-              </Route>
-
-              {/* ----------------------------ALL PROTECTED ROUTE--------------------------------------- */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<DashboardLayout />}>
-                  <Route index element={<Homepage />} />
-                  <Route path="notifications" element={<Notifications />} />
-                  <Route path="profile" element={<MyProfilePage />} />
-                  <Route path="plan" element={<MyPlanPage />} />
-                  <Route path="market-depth" element={<MarketDepthPage />} />
-                  <Route path="smart-action" element={<MonryActionPage />} />
-                  <Route path="swing-trades" element={<AiSwingTradesPage />} />
-                  <Route path="option-clock" element={<OptionClockPage />} />
-                  <Route path="option-data" element={<AIOptionDataPage />} />
-                  <Route path="index-depth" element={<IndexDepthPage />} />
-                  <Route path="fii-dii" element={<FIIDIIPage />} />
-                  <Route path="sector-depth" element={<AiSectorDepthPage />} />
-                  <Route path="updates" element={<UpdatesPageDashboard />} />
-                  <Route path="profit" element={<ProfitPage />} />
-                  <Route path="feedback" element={<FeedBackPage />} />
-                  <Route path="learn-from-us" element={<LearnFromUsPage />} />
-                  <Route path="calculator" element={<CalculatorsPage />} />
-                  <Route path="calender" element={<FinancialCalendar />} />
-                  <Route path="our-strategy" element={<OurStrategy />} />
-                  <Route path="trading-journal" element={<TradingJournal />} />
-                  <Route path="testing-razorpay" element={<TestRazorpay />} />
+                  <Route path="/updates" element={<UpdatesPage />} />
+                  <Route path="/contact-us" element={<ContactUsPage />} />
+                  <Route path="/about-us" element={<AboutUsPage />} />
+                  <Route path="/disclaimer" element={<DisclaimerPage />} />
+                  <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                  <Route path="/disclosures" element={<DisclosuresPage />} />
+                  <Route
+                    path="/terms-and-condition"
+                    element={<TermsAndConditionPage />}
+                  />
+                  <Route
+                    path="/privacy-policy"
+                    element={<PrivacyPolicyPage />}
+                  />
+                  <Route path="/faq" element={<FAQPage />} />
+                  <Route path="/renew-plan" element={<RenewPlanPage />} />
+                  <Route path="/buy-plan" element={<BuyPlanPage />} />
+                  <Route path="/testimonial" element={<Testimonials />} />
                 </Route>
-              </Route>
 
-              <Route path="/admin/login" element={<AdminLogin />} />
-
-              <Route element={<ProtectedRouteAdmin />}>
-                <Route path="/admin" element={<Home />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="manage-users" element={<LatestTransactions />} />
-                  <Route path="manage-orders" element={<ManageOrders />} />
-                  <Route path="feedback" element={<Feedback />} />
-                  <Route path="ticker" element={<Ticker />} />
-                  <Route path="payment-method" element={<PaymentMethod />} />
-                  <Route path="updates" element={<Updates />} />
-                  <Route path="data-api" element={<DataAPI />} />
-                  <Route path="our-strategy" element={<OurStrategyAdmin />} />
-                  <Route path="profile" element={<Profile />} />
-                  <Route path="setting" element={<SettingsUpload />} />
+                {/* ----------------------------ALL PROTECTED ROUTE--------------------------------------- */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<DashboardLayout />}>
+                    <Route index element={<Homepage />} />
+                    <Route path="notifications" element={<Notifications />} />
+                    <Route path="profile" element={<MyProfilePage />} />
+                    <Route path="plan" element={<MyPlanPage />} />
+                    <Route path="market-depth" element={<MarketDepthPage />} />
+                    <Route path="smart-action" element={<MonryActionPage />} />
+                    <Route
+                      path="swing-trades"
+                      element={<AiSwingTradesPage />}
+                    />
+                    <Route path="option-clock" element={<OptionClockPage />} />
+                    <Route path="option-data" element={<AIOptionDataPage />} />
+                    <Route path="index-depth" element={<IndexDepthPage />} />
+                    <Route path="fii-dii" element={<FIIDIIPage />} />
+                    <Route
+                      path="sector-depth"
+                      element={<AiSectorDepthPage />}
+                    />
+                    <Route path="updates" element={<UpdatesPageDashboard />} />
+                    <Route path="profit" element={<ProfitPage />} />
+                    <Route path="feedback" element={<FeedBackPage />} />
+                    <Route path="learn-from-us" element={<LearnFromUsPage />} />
+                    <Route path="calculator" element={<CalculatorsPage />} />
+                    <Route path="calender" element={<FinancialCalendar />} />
+                    <Route path="our-strategy" element={<OurStrategy />} />
+                    <Route
+                      path="trading-journal"
+                      element={<TradingJournal />}
+                    />
+                    <Route path="testing-razorpay" element={<TestRazorpay />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </RiskProvider>
-        </AuthProvider>
+
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route element={<ProtectedRouteAdmin />}>
+                  <Route path="/admin" element={<Home />}>
+                    <Route index element={<Dashboard />} />
+                    <Route
+                      path="manage-users"
+                      element={<LatestTransactions />}
+                    />
+                    <Route path="manage-orders" element={<ManageOrders />} />
+                    <Route path="feedback" element={<Feedback />} />
+                    <Route path="ticker" element={<Ticker />} />
+                    <Route path="payment-method" element={<PaymentMethod />} />
+                    <Route path="updates" element={<Updates />} />
+                    <Route path="data-api" element={<DataAPI />} />
+                    <Route path="our-strategy" element={<OurStrategyAdmin />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="setting" element={<SettingsUpload />} />
+                  </Route>
+                </Route>
+              </Routes>
+            </RiskProvider>
+          </AuthProvider>
+        </AdminAuthProvider>
       </div>{" "}
     </>
   );

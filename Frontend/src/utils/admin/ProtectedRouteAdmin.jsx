@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+
+import { useAdminAuth } from "../../contexts/adminContext/AdminAuthContext";
 
 const ProtectedRouteAdmin = () => {
-  const { user, checkAuth } = useAuth();
+  const { admin, checkAuth } = useAdminAuth();
   const location = useLocation();
 
   const [loading, setLoading] = useState(true);
@@ -16,8 +17,8 @@ const ProtectedRouteAdmin = () => {
   }, []);
 
   if (loading) return <div>Loading...</div>;
-  console.log("User logged in : ", user);
-  return user ? (
+
+  return admin ? (
     <Outlet />
   ) : (
     <Navigate to="/admin/login" state={{ from: location }} replace />

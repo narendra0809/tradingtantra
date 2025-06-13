@@ -10,8 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "xlsx": "^0.18.5",
-    "file-saver": "^2.0.5",
     "@reduxjs/toolkit": "^2.6.0",
     "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/vite": "^4.0.6",
@@ -21,6 +19,7 @@
     "chartjs-plugin-datalabels": "^2.2.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "file-saver": "^2.0.5",
     "framer-motion": "^12.4.2",
     "fusioncharts": "^4.1.2",
     "highcharts": "^12.1.2",
@@ -31,6 +30,7 @@
     "lightweight-charts": "^3.8.0",
     "lucide": "^0.475.0",
     "lucide-react": "^0.475.0",
+    "moment": "^2.30.1",
     "razorpay": "^2.9.6",
     "rc-slider": "^11.1.8",
     "react": "^19.0.0",
@@ -45,6 +45,7 @@
     "react-highcharts": "^16.1.0",
     "react-icons": "^5.4.0",
     "react-range": "^1.10.0",
+    "react-razorpay": "^3.0.1",
     "react-redux": "^9.2.0",
     "react-responsive": "^10.0.1",
     "react-router-dom": "^7.1.5",
@@ -54,7 +55,9 @@
     "rsuite": "^5.78.0",
     "socket.io-client": "^4.8.1",
     "swiper": "^11.2.4",
-    "tailwindcss": "^4.0.6"
+    "tailwindcss": "^4.0.6",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.63"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 
 const Homepage = () => {
   const theme = useSelector((state) => state.theme.theme);
-  console.log(theme);
+
   const cards = [
     {
       imgDark: TradingJournalImg,

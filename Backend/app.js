@@ -14,6 +14,10 @@ import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
+import adminAuthRoutes from "./src/routes/admin_routes/adminAuth.route.js";
+import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
+import adminDetailsRoutes from "./src/routes/admin_routes/adminDetails.route.js";
+import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import compression from "compression";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
@@ -57,10 +61,16 @@ app.use(compression());
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api", stocksRoutes);
+app.use("/api", subcriptionValidityRoutes);
 app.use("/api", feedbackRoute);
 app.use("/api", isSubscribedRoute);
 app.use("/api", swingTradeRoutes);
 app.use("/api", optionClockRoutes);
+
+// Admin Routes :
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin", adminDetailsRoutes);
+app.use("/api/admin", userDetailsRoutes);
 
 // Add this before the server starts
 app.get("/api/option-chain/trigger", async (req, res) => {

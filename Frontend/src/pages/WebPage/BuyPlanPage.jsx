@@ -4,14 +4,41 @@ import lock from "../../assets/Images/lock.svg";
 import play from "../../assets/Images/play.svg";
 import doc from "../../assets/Images/doc.svg";
 import shild from "../../assets/Images/shild.svg";
+import { useNavigate } from "react-router-dom";
 import pay from "../../assets/Images/payImg.png";
+import { useRazorpay } from "react-razorpay";
+import useFetchData from "../../utils/useFetchData";
+import { paymentSchema } from "../../../validators/validator";
+import Cookies from "js-cookie";
 
 const BuyPlanPage = () => {
+  const { Razorpay } = useRazorpay();
+  const navigate = useNavigate();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [countryCode, setCountryCode] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    firstName: "",
+    lastName: "",
+    country: "",
+    state: "",
+    phoneNumber: "",
+    email: "",
+    confirmEmail: "",
+  });
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    country: "",
+    state: "",
+    phoneNumber: Number,
+    email: "",
+    confirmEmail: "",
+  });
+  const { fetchData } = useFetchData();
 
   // Fetch countries data
   useEffect(() => {
@@ -64,24 +91,104 @@ const BuyPlanPage = () => {
   }, [selectedCountry]);
 
   const handleCountryChange = (event) => {
+    setFormData({ ...formData, country: event.target.value });
     setSelectedCountry(event.target.value);
     setSelectedState("");
     setCountryCode("");
   };
 
   const handleStateChange = (event) => {
+    setFormData({ ...formData, state: event.target.value });
     setSelectedState(event.target.value);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setFormErrors({ ...formErrors, [name]: "" });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isChecked) {
+      setFormErrors({
+        ...formErrors,
+        isAgreed: "Please agree to terms & conditions",
+      });
+      return;
+    }
+    const { data: formValues, error } = paymentSchema.safeParse(formData);
+    if (error) {
+      const errorMessages = error.errors;
+      const errorData = {};
+      errorMessages.map((err) => {
+        errorData[err.path[0]] = err.message;
+      });
+      setFormErrors(errorData);
+      return;
+    }
+    try {
+      const res = await fetchData("payment/createorder", "POST", formValues);
+      if (res.status !== 200) {
+        throw new Error("Failed to create order !");
+      }
+      const data = res.data;
+      const RAZOR_KEY = data.key;
+      const options = {
+        key: RAZOR_KEY,
+        amount: data.data.amount,
+        currency: "INR",
+        name: "Trading Tantra",
+        description: "Test Transaction",
+        order_id: data.data.orderId,
+        prefill: {
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          contact: data.phoneNumber,
+        },
+        handler: async (response) => {
+          const isVerified = await verifyPayment(response);
+          if (!isVerified) return;
+          Cookies.set("isSubscribed", true, { expires: 1 });
+          navigate("/dashboard/plan", { replace: true });
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.log("Error doing payment : ", error.message);
+    }
+  };
+
+  const verifyPayment = async (paymentResponse) => {
+    try {
+      const res = await fetchData(
+        "payment/verify-payment",
+        "POST",
+        paymentResponse
+      );
+      if (res.status !== 200) {
+        throw new Error("Failed to verify payment");
+      }
+      return res.data.success;
+    } catch (error) {
+      console.log("Error verifing payment : ", error);
+    }
+  };
+
+  const handleClick = () => {
+    document.getElementById("formSubmit").click();
+  };
+
+  const handleCheck = (e) => {
+    setIsChecked(e.target.checked);
+    setFormErrors({ ...formErrors, isAgreed: "" });
+  };
   return (
     <>
-      {/* <div className="bg-[url(./assets/Images/heroImg.png)]  rounded-3xl md:w-[90%] w-full md:h-[360px] h-[200px] mx-auto object-center bg-no-repeat md:my-35 mt-30 mb-20  flex items-center justify-center font-abcRepro ">
-        <div className="blue-blur-circle"></div>
-        <h1 className="md:text-6xl text-4xl font-abcRepro font-bold ">
-          Buy Plan
-        </h1>
-      </div> */}
-
       <div className="xl:w-[70%] md:w-[90%] w-full mx-auto bg-[#01071C] md:px-8 px-4 md:py-8 py-4 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] flex sm:flex-row flex-col items-start gap-5 ">
         <div className="sm:w-[60%] w-full">
           <div className="flex flex-col md:space-y-10 space-y-5">
@@ -95,20 +202,35 @@ const BuyPlanPage = () => {
           </div>
 
           <div className=" md:mt-15 mt-8">
-            <form action="">
+            <form onSubmit={handleSubmit}>
               <div className="flex items-center justify-between flex-wrap  text-white md:space-y-6 space-y-3">
                 <input
+                  onChange={handleChange}
+                  name="firstName"
                   type="text"
                   placeholder="First Name*"
+                  value={formData.firstName}
                   className="sm:w-[45%] w-full  bg-[#000A2D] py-2 rounded-lg px-3"
                 />
+                {formErrors.firstName && (
+                  <span className="bg-red-400 rounded-lg p-2 ">
+                    {formErrors.firstName}
+                  </span>
+                )}
                 <input
                   type="text"
+                  onChange={handleChange}
+                  name="lastName"
+                  value={formData.lastName}
                   placeholder="Last Name*"
                   className="sm:w-[45%] w-full   bg-[#000A2D] py-2 rounded-lg px-3"
                 />
+                {formErrors.lastName && (
+                  <span className="bg-red-400 rounded-lg p-2 ">
+                    {formErrors.lastName}
+                  </span>
+                )}
 
-                {/* Country Dropdown */}
                 <select
                   name="country"
                   className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
@@ -125,13 +247,12 @@ const BuyPlanPage = () => {
                   ))}
                 </select>
 
-                {/* State Dropdown */}
                 <select
                   name="state"
                   className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
                   value={selectedState}
                   onChange={handleStateChange}
-                  disabled={!selectedCountry} // Disable if no country is selected
+                  disabled={!selectedCountry}
                 >
                   <option value="" disabled>
                     Select State
@@ -153,6 +274,9 @@ const BuyPlanPage = () => {
                   </p>
                   <input
                     type="number"
+                    name="phoneNumber"
+                    onChange={handleChange}
+                    value={formData.phoneNumber}
                     placeholder="Whatsapp Number*"
                     className="w-[85%] bg-[#000A2D] py-2 rounded-lg px-3"
                   />
@@ -160,15 +284,32 @@ const BuyPlanPage = () => {
 
                 <input
                   type="email"
+                  onChange={handleChange}
+                  name="email"
+                  value={formData.email}
                   placeholder="G-Mail Id*"
                   className="w-full bg-[#000A2D] py-2 rounded-lg px-3"
                 />
+                {formErrors.email && (
+                  <span className="bg-red-400 rounded-lg p-2 ">
+                    {formErrors.email}
+                  </span>
+                )}
                 <input
+                  onChange={handleChange}
+                  name="confirmEmail"
+                  value={formData.confirmEmail}
                   type="email"
                   placeholder="Re-enter G-Mail Id"
                   className="w-full bg-[#000A2D] py-2 rounded-lg px-3"
                 />
+                {formErrors.confirmEmail && (
+                  <span className="bg-red-400 rounded-lg p-2 ">
+                    {formErrors.confirmEmail}
+                  </span>
+                )}
               </div>
+              <button type="submit" id="formSubmit"></button>
             </form>
           </div>
         </div>
@@ -218,12 +359,29 @@ const BuyPlanPage = () => {
             </div>
           </div>
           <div className="flex items-center gap-2 text-black">
-            <input type="checkbox" className="w-4 h-4" name="TandC" />
+            <input
+              type="checkbox"
+              onChange={handleCheck}
+              checked={isChecked}
+              className="w-4 h-4"
+              name="TandC"
+            />
             <label htmlFor="TandC" className="md:text-xl text-xs">
               I agree with terms & Condition
             </label>
+            {formErrors?.isAgreed && (
+              <span className="bg-red-400 rounded-lg p-2">
+                {formErrors?.isAgreed}
+              </span>
+            )}
           </div>
-          <img src={pay} alt="" className="w-4/5 cursor-pointer mt-5 mx-auto" />
+          <button onClick={handleClick}>
+            <img
+              src={pay}
+              alt=""
+              className="w-4/5 cursor-pointer mt-5 mx-auto"
+            />
+          </button>
         </div>
       </div>
     </>

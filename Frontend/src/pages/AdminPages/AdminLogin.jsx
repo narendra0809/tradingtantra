@@ -4,7 +4,7 @@ import WrapperHeader from "../WrapperHeader";
 import WrapperPage from "../WrapperPage";
 import { useNavigate } from "react-router-dom";
 import useFetchData from "../../utils/useFetchData";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAdminAuth } from "../../contexts/adminContext/AdminAuthContext";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -12,7 +12,7 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { data, error, fetchData } = useFetchData();
-  const { login } = useAuth();
+  const { login } = useAdminAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -39,13 +39,13 @@ const AdminLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
-    console.log("Formdata : ", formData);
+
     setFormErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
       try {
-        await fetchData("auth/login", "POST", formData);
+        await fetchData("admin/auth/login", "POST", formData);
       } catch (err) {
         console.error("Login error:", err);
       } finally {
@@ -56,9 +56,8 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (data?.success) {
-      login(data.token, true);
-      //   Cookies.set("isSubscribed", data?.user?.isSubscribed, { expires: 1 });
-      //   navigate("/admin");
+      login(data.token);
+      navigate("/admin");
     }
   }, [data]);
 

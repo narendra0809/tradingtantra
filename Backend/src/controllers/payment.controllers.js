@@ -2,25 +2,12 @@ import crypto from "crypto";
 import { razorpayInstance } from "../config/razorpayInstance.js";
 import Payment from "../models/payment.model.js";
 import UserSubscription from "../models/userSubscription.model.js";
-import Subscription from "../models/subscriptionPlan.model.js";
-
 const createOrder = async (req, res) => {
-  const { planId } = req.body;
-  // console.log('planId',planId)
-  const subscriptionPlan = await Subscription.findById(planId);
+  const { firstName, lastName, email, country, state } = req.body;
 
-  // console.log(subscriptionPlan, "subscriptionPlan");
-
-  if (!subscriptionPlan) {
-    return res.status(404).json({ success: false, message: "Plan not found" });
-  }
-
-  const options = { amount: subscriptionPlan.price * 100, currency: "INR" };
-
+  const options_order = { amount: 3999 * 100, currency: "INR" };
   try {
-    const order = await razorpayInstance.orders.create(options);
-    // console.log( "order",order );
-
+    const order = await razorpayInstance.orders.create(options_order);
     if (!order) {
       return res
         .status(500)
@@ -29,13 +16,11 @@ const createOrder = async (req, res) => {
 
     const payment = new Payment({
       userId: req.user._id,
-      amount: options.amount,
-      currency: options.currency,
+      amount: order.amount,
+      currency: order.currency,
       orderId: order.id,
       status: order.status,
     });
-
-    // console.log(payment, "payment");
 
     await payment.save();
 
@@ -43,6 +28,7 @@ const createOrder = async (req, res) => {
       .status(200)
       .json({ success: true, data: payment, key: process.env.RAZORPAY_KEY_ID });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -52,22 +38,12 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    const {
-      razorpay_payment_id,
-      razorpay_order_id,
-      razorpay_signature,
-      planId,
-    } = req.body;
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+      req.body;
 
-    // console.log("bodu", req.body);
+    console.log("Request body : ", req.body);
 
-    if (
-      !razorpay_payment_id &&
-      !razorpay_order_id &&
-      !razorpay_signature &&
-      !planId
-    ) {
-      // console.log("in if", planId);
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
       return res.status(400).json({
         success: false,
         message: "Missing required payment verification fields.",
@@ -99,7 +75,6 @@ const verifyPayment = async (req, res) => {
 
     const userSubscription = new UserSubscription({
       userId: transaction.userId,
-      planId,
       startDate: new Date(),
       endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       status: "active",

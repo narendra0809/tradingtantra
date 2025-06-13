@@ -8,7 +8,7 @@ import { razporpayWebhook } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
 
-router.post("/createorder", createOrder);
+router.post("/createorder", verifyUser, createOrder);
 router.post("/verify-payment", verifyPayment);
 
 //webhook

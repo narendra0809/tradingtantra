@@ -3,7 +3,7 @@ import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
 import GaugeMeter from "../../Components/Dashboard/GaugeMeter";
-
+import moment from "moment";
 import CandleChart from "../../Components/Dashboard/CandleChart";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
 import useFetchData from "../../utils/useFetchData";
@@ -175,7 +175,7 @@ const AIOptionDataPage = () => {
       totalCE += obj.totalOiCE;
       totalPE += obj.totalOiPE;
     });
-    console.log(filteredData);
+
     setTotalOI({
       totalCE: totalCE / lotSize[currentIndexName],
       totalPE: totalPE / lotSize[currentIndexName],
@@ -280,6 +280,7 @@ const AIOptionDataPage = () => {
         selectedIntervalString === interval
       );
     });
+
     const candles = convertCandlesForDisplaying(filteredData);
     setCurrentCandles(candles);
   };
@@ -312,7 +313,7 @@ const AIOptionDataPage = () => {
 
   const convertCandlesForDisplaying = (candles) => {
     return candles.map(({ timestamp, open, high, low, close }) => ({
-      x: new Date(timestamp).getTime(),
+      x: moment(timestamp, "DD/MM/YYYY, hh:mm:ss A").valueOf(),
       y: [open.toFixed(2), high.toFixed(2), low.toFixed(2), close.toFixed(2)],
     }));
   };

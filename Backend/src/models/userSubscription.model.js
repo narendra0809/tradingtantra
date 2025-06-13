@@ -5,11 +5,7 @@ const userSubscriptionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
-  },
-  planId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Subscription",
-    required: true,
+    unique: true,
   },
   startDate: { type: Date, default: Date.now },
   endDate: { type: Date, required: true },

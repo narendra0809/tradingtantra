@@ -13,7 +13,7 @@ const isSubscribed = async (req, res) => {
     // console.log('isSubscribed',isSubscribed)
     res.status(200).json({
       success: true,
-      isSubscribed: isSubscribed ? true : false,
+      isSubscribed,
     });
   } catch (error) {
     res.status(500).json({

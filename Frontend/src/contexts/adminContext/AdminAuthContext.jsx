@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import { createContext, useContext, useState, useEffect } from "react";
@@ -6,13 +7,13 @@ import { jwtDecode } from "jwt-decode";
 
 import axios from "axios";
 
-const AuthContext = createContext();
+const AdminAuthContext = createContext();
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const token = localStorage.getItem("token");
+export const AdminAuthProvider = ({ children }) => {
+  const [admin, setAdmin] = useState(() => {
+    const token = localStorage.getItem("adminToken");
     return token ? jwtDecode(token) : null;
   });
 
@@ -23,10 +24,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-    let token = localStorage.getItem("token");
+    let token = localStorage.getItem("adminToken");
 
     if (!token) {
-      setUser(null);
+      setAdmin(null);
       return;
     }
 
@@ -35,8 +36,7 @@ export const AuthProvider = ({ children }) => {
       const expirationTime = decoded.exp * 1000;
 
       if (expirationTime > Date.now()) {
-        setUser(decoded);
-        setTimeout(logout, expirationTime - Date.now()); // Auto logout when token expires
+        setAdmin(decoded);
       } else {
         logout();
       }
@@ -46,20 +46,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (token, isAdmin) => {
-    localStorage.setItem("token", token);
-    setUser(jwtDecode(token));
-    if (isAdmin) {
-      navigate("/admin", { replace: true });
-    } else {
-      navigate("/dashboard", { replace: true });
-    }
+  const login = (token) => {
+    localStorage.setItem("adminToken", token);
+    setAdmin(jwtDecode(token));
+    navigate("/admin", { replace: true });
   };
 
   const logout = async () => {
     try {
       await axios.post(
-        `${SERVER_URI}/auth/logout`,
+        `${SERVER_URI}/admin/auth/logout`,
         {},
         { withCredentials: true }
       );
@@ -67,16 +63,16 @@ export const AuthProvider = ({ children }) => {
       console.error("Error logging out:", error);
     }
 
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/", { replace: true });
+    localStorage.removeItem("adminToken");
+    setAdmin(null);
+    navigate("/admin", { replace: true });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, checkAuth }}>
+    <AdminAuthContext.Provider value={{ admin, login, logout, checkAuth }}>
       {children}
-    </AuthContext.Provider>
+    </AdminAuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAdminAuth = () => useContext(AdminAuthContext);

@@ -138,7 +138,7 @@ const Header = () => {
             alt=""
           />
           {profileDropDown && (
-            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] dark:bg-db-secondary bg-[#273D8F] text-white right-0 top-15 z-20">
+            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary  text-white right-0 top-15 z-20">
               <div className="flex items-center gap-3">
                 <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
                 <div>
@@ -153,7 +153,7 @@ const Header = () => {
               </div>
               <div className="space-y-3">
                 <button
-                  className="flex gap-3"
+                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
                   onClick={() => {
                     navigate("/dashboard/profile");
                     setProfileDropDown(!profileDropDown);
@@ -164,7 +164,7 @@ const Header = () => {
                 </button>
 
                 <button
-                  className="flex gap-3"
+                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
                   onClick={() => {
                     navigate("/dashboard/plan");
                     setProfileDropDown(!profileDropDown);
@@ -175,7 +175,7 @@ const Header = () => {
                 </button>
 
                 <button
-                  className="flex gap-3"
+                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
                   onClick={() => {
                     navigate("/dashboard/feedback");
                     setProfileDropDown(!profileDropDown);
@@ -186,8 +186,10 @@ const Header = () => {
                 </button>
               </div>
               <div>
-                {/* <button className="flex items-center gap-3" onClick={logout}> */}
-                <button className="flex items-center gap-3" onClick={logout}>
+                <button
+                  className="flex items-center gap-3 hover:font-semibold hover:text-red-400"
+                  onClick={logout}
+                >
                   <img src={logout} alt="" />
                   <p>Log out</p>
                 </button>
