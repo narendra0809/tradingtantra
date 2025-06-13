@@ -1,4 +1,3 @@
-import React from "react";
 import myImage from "../assets/homapage/BarLineChart (1).png"; // <-- apni image path daalna
 
 const ImageCard = () => {

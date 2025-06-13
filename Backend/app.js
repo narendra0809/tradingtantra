@@ -15,6 +15,7 @@ import stocksRoutes from "./src/routes/stock.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import adminAuthRoutes from "./src/routes/admin_routes/adminAuth.route.js";
+import transactionsRoutes from "./src/routes/admin_routes/transactions.route.js";
 import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
 import adminDetailsRoutes from "./src/routes/admin_routes/adminDetails.route.js";
 import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js";
@@ -69,8 +70,12 @@ app.use("/api", optionClockRoutes);
 
 // Admin Routes :
 app.use("/api/admin/auth", adminAuthRoutes);
-app.use("/api/admin", adminDetailsRoutes);
-app.use("/api/admin", userDetailsRoutes);
+app.use(
+  "/api/admin",
+  adminDetailsRoutes,
+  userDetailsRoutes,
+  transactionsRoutes
+);
 
 // Add this before the server starts
 app.get("/api/option-chain/trigger", async (req, res) => {

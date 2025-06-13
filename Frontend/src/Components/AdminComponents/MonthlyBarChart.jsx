@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import {
   BarChart,
   Bar,
@@ -10,22 +11,7 @@ import {
   LabelList,
 } from "recharts";
 
-const data = [
-  { name: "January", value: 16 },
-  { name: "February", value: 58 },
-  { name: "March", value: 36 },
-  { name: "April", value: 33 },
-  { name: "May", value: 79 },
-  { name: "June", value: 86 },
-  { name: "July", value: 54 },
-  { name: "August", value: 27 },
-  { name: "September", value: 80 },
-  { name: "October", value: 78 },
-  { name: "November", value: 97 },
-  { name: "December", value: 76 },
-];
-
-const MonthlyBarChart = () => {
+const MonthlyBarChart = ({ activeUsersByMonth: data }) => {
   return (
     <div className="w-full overflow-x-auto rounded-xl p-4">
       {/* Minimum width to allow all months to display on small screens */}
