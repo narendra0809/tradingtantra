@@ -61,12 +61,15 @@ export const getAllIndexPoints = async (req, res) => {
 
   const indexPoints = {};
   for (const [indexName, values] of Object.entries(indexs)) {
-    const pts = Math.round(values.currentClose - values.lastClose);
-    indexPoints[indexName] = {
-      pts,
-      per: (pts / 100).toFixed(2),
-    };
-  }
+  const pts = Math.round(values.currentClose - values.lastClose);
+  const per = ((values.currentClose - values.lastClose) / values.lastClose) * 100;
+  
+  indexPoints[indexName] = {
+    pts,
+    per: per.toFixed(2), // Rounded to 2 decimal places
+  };
+}
+
 
   res.status(200).json(indexPoints);
 };

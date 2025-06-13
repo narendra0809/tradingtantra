@@ -4,7 +4,9 @@ import Chart from "react-apexcharts";
 const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
   const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
 
+  // Sort contributions by absolute points in descending order and take top 10
   const topContributors = contributor.contributions
+    .sort((a, b) => Math.abs(b.points) - Math.abs(a.points)) // Sort by absolute points
     .slice(0, 10)
     .map((item) => ({
       name: item.displayName,
@@ -12,20 +14,29 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
       percent: Math.abs((item.points / indexPts) * 100),
     }));
 
-  const otherContributions = contributor.contributions
-    .slice(10)
-    .reduce((sum, item) => sum + Math.abs((item.points / indexPts) * 100), 0);
+  // Calculate sum of points for contributions beyond top 10
+  const otherContributionsPoints = parseFloat(
+    contributor.contributions
+      .slice(10)
+      .reduce((sum, item) => sum + item.points, 0)
+      .toFixed(2)
+  );
+
+  // Calculate percentage for "Others" as the absolute difference from indexPts
+  const otherContributionsPercent = Math.abs(
+    ((otherContributionsPoints / indexPts) * 100).toFixed(2)
+  );
 
   const chartSeries =
-    otherContributions > 0
+    otherContributionsPoints !== 0
       ? [
           ...topContributors.map((s) => s.percent),
-          parseFloat(otherContributions.toFixed(2)),
+          parseFloat(otherContributionsPercent),
         ]
       : topContributors.map((s) => s.percent);
 
   const chartLabels =
-    otherContributions > 0
+    otherContributionsPoints !== 0
       ? [
           ...topContributors.map(
             (s) => `${s.name} (${s.points > 0 ? "+" : ""}${s.points})`
@@ -53,7 +64,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
   };
 
   const chartColors =
-    otherContributions > 0
+    otherContributionsPoints !== 0
       ? [
           ...topContributors.map((s) => getColor(s.percent, s.points)),
           "#888888",
@@ -91,9 +102,6 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
         dropShadow: {
           enabled: false,
         },
-        // formatter: function (val) {
-        //   return val > 0.1 ? val.toFixed(1) + "%" : "";
-        // },
         offset: 5,
         minAngleToShowLabel: 1,
       },
@@ -101,7 +109,6 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
         pie: {
           donut: {
             size: "70%",
-            // background: "#01071C",
             labels: {
               show: true,
               name: {
@@ -179,7 +186,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
               {topContributors.map((contributor, index) => (
                 <div
                   key={index}
-                  className="flex items-center py-2 px-3 rounded  transition-colors"
+                  className="flex items-center py-2 px-3 rounded transition-colors"
                 >
                   <div
                     className="w-4 h-4 rounded-full mr-3"
@@ -196,19 +203,23 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
                     {contributor.points > 0 ? "+" : ""}
                     {contributor.points}
                   </span>
-                  {/* <span className="text-gray-400 ml-2 w-16 text-right">
-                    ({contributor.percent.toFixed(1)}%)
-                  </span> */}
                 </div>
               ))}
-              {otherContributions > 0 && (
+              {otherContributionsPoints !== 0 && (
                 <div className="flex items-center pt-2 border-t border-gray-700 mt-2 py-2 px-3 rounded">
                   <div className="w-4 h-4 rounded-full mr-3 bg-gray-500" />
                   <span className="text-white flex-1">
                     Other {contributor.contributions.slice(10).length} stocks
                   </span>
-                  <span className="text-gray-400 ml-2 w-16 text-right">
-                    ({otherContributions.toFixed(1)}%)
+                  <span
+                    className={`ml-2 font-medium text-right ${
+                      otherContributionsPoints > 0
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+                    {otherContributionsPoints > 0 ? "+" : ""}
+                    {otherContributionsPoints}
                   </span>
                 </div>
               )}
