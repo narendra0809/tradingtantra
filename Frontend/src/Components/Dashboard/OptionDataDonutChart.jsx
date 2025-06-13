@@ -14,29 +14,28 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
       percent: Math.abs((item.points / indexPts) * 100),
     }));
 
-  // Calculate sum of points for contributions beyond top 10
-  const otherContributionsPoints = parseFloat(
-    contributor.contributions
-      .slice(10)
-      .reduce((sum, item) => sum + item.points, 0)
-      .toFixed(2)
+  // Calculate sum of points for "Others" (beyond top 10)
+  const otherContributionsPoints = contributor.contributions
+    .slice(10)
+    .reduce((sum, item) => sum + item.points, 0);
+
+  // Calculate "Others" percentage based on the sum of points
+  const otherContributionsPercent = parseFloat(
+    Math.abs((otherContributionsPoints / indexPts) * 100).toFixed(2)
   );
 
-  // Calculate percentage for "Others" as the absolute difference from indexPts
-  const otherContributionsPercent = Math.abs(
-    ((otherContributionsPoints / indexPts) * 100).toFixed(2)
-  );
-
+  // Prepare chart series
   const chartSeries =
-    otherContributionsPoints !== 0
+    otherContributionsPercent > 0
       ? [
           ...topContributors.map((s) => s.percent),
-          parseFloat(otherContributionsPercent),
+          otherContributionsPercent,
         ]
       : topContributors.map((s) => s.percent);
 
+  // Prepare chart labels
   const chartLabels =
-    otherContributionsPoints !== 0
+    otherContributionsPercent > 0
       ? [
           ...topContributors.map(
             (s) => `${s.name} (${s.points > 0 ? "+" : ""}${s.points})`
@@ -49,8 +48,8 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
 
   // Updated color scheme with normal green/red and gradient based on contribution
   const getColor = (percent, points) => {
-    const maxPercent = Math.max(...topContributors.map((s) => s.percent));
-    const intensity = percent / maxPercent; // Scale from 0 to 1 based on contribution size
+    const maxPercent = Math.max(...topContributors.map((s) => s.percent), otherContributionsPercent);
+    const intensity = percent / (maxPercent || 1); // Scale from 0 to 1 based on contribution size
 
     if (points > 0) {
       // Positive contributions - green with varying opacity
@@ -63,11 +62,12 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
     }
   };
 
+  // Prepare chart colors, including "Others" color based on its points
   const chartColors =
-    otherContributionsPoints !== 0
+    otherContributionsPercent > 0
       ? [
           ...topContributors.map((s) => getColor(s.percent, s.points)),
-          "#888888",
+          getColor(otherContributionsPercent, otherContributionsPoints), // Color based on points
         ]
       : topContributors.map((s) => getColor(s.percent, s.points));
 
@@ -205,21 +205,27 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
                   </span>
                 </div>
               ))}
-              {otherContributionsPoints !== 0 && (
+              {otherContributionsPercent > 0 && (
                 <div className="flex items-center pt-2 border-t border-gray-700 mt-2 py-2 px-3 rounded">
-                  <div className="w-4 h-4 rounded-full mr-3 bg-gray-500" />
+                  <div
+                    className="w-4 h-4 rounded-full mr-3"
+                    style={{
+                      backgroundColor:
+                        otherContributionsPoints > 0
+                          ? getColor(otherContributionsPercent, otherContributionsPoints)
+                          : getColor(otherContributionsPercent, otherContributionsPoints),
+                    }}
+                  />
                   <span className="text-white flex-1">
                     Other {contributor.contributions.slice(10).length} stocks
                   </span>
                   <span
-                    className={`ml-2 font-medium text-right ${
-                      otherContributionsPoints > 0
-                        ? "text-green-400"
-                        : "text-red-400"
+                    className={`ml-2 font-medium ${
+                      otherContributionsPoints > 0 ? "text-green-400" : "text-red-400"
                     }`}
                   >
                     {otherContributionsPoints > 0 ? "+" : ""}
-                    {otherContributionsPoints}
+                    {otherContributionsPoints.toFixed(2)}
                   </span>
                 </div>
               )}
