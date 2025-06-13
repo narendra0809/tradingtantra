@@ -1,5 +1,6 @@
 import User from "../../models/user.model.js";
 import UserSubscription from "../../models/userSubscription.model.js";
+import { getActiveUsersByMonth } from "../../services/userDetails.service.js";
 
 export const getTotalUsersData = async (req, res) => {
   try {
@@ -24,6 +25,21 @@ export const getTotalUsersData = async (req, res) => {
         inActiveUsers,
       },
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "internal server error" });
+  }
+};
+
+export const getActiveUsersByMonths = async (req, res) => {
+  try {
+    if (!req.admin || !req.admin.id)
+      res.status(401).send("Unauthorized Access !");
+    const subscribedUsers = await UserSubscription.find();
+
+    const acitveUsersByMonth = getActiveUsersByMonth(subscribedUsers);
+
+    res.status(200).json({ success: true, acitveUsersByMonth });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "internal server error" });

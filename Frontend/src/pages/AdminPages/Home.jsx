@@ -15,6 +15,27 @@ const Home = () => {
     lastName: "",
     email: "",
   });
+  const [usersData, setUsersData] = useState({
+    activeUsers: 0,
+    inActiveUsers: 0,
+    totalAmount: 0,
+    totalUsers: 0,
+  });
+
+  const [activeUsersByMonth, setActiveUsersByMonth] = useState([
+    { name: "January", value: 0 },
+    { name: "February", value: 0 },
+    { name: "March", value: 0 },
+    { name: "April", value: 0 },
+    { name: "May", value: 0 },
+    { name: "June", value: 0 },
+    { name: "July", value: 0 },
+    { name: "August", value: 0 },
+    { name: "September", value: 0 },
+    { name: "October", value: 0 },
+    { name: "November", value: 0 },
+    { name: "December", value: 0 },
+  ]);
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -41,7 +62,21 @@ const Home = () => {
       if (res.status !== 200) {
         throw new Error("Failed to fetch users data");
       }
-      console.log(res.data);
+      setUsersData(res.data.usersData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const fetchActiveUsersByMonth = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-activeusers-month`, {
+        withCredentials: true,
+      });
+      if (res.status !== 200) {
+        throw new Error("Failed to fetch users data");
+      }
+
+      setActiveUsersByMonth(res.data.acitveUsersByMonth);
     } catch (error) {
       console.log(error);
     }
@@ -50,6 +85,7 @@ const Home = () => {
   useEffect(() => {
     fetchAdminDetails();
     fetchTotalUsersData();
+    fetchActiveUsersByMonth();
   }, []);
 
   return (
@@ -87,6 +123,8 @@ const Home = () => {
           <Outlet
             context={{
               admin: admin,
+              usersData: usersData,
+              activeUsersByMonth: activeUsersByMonth,
             }}
           />
         </main>

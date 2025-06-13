@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,69 +12,106 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { name: "Total User", value: 10, fill: "#E56A54" },
-  { name: "Total Active User", value: 20, fill: "#DEB250" },
-  { name: "Total Amount", value: 1600, fill: "#EA4D2D" },
-];
-
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#1c1f3a] text-white text-sm px-3 py-1 rounded shadow-md">
-        <p className="font-medium">{`${payload[0].name}: ${payload[0].value}`}</p>
+        <p className="font-medium">{`${payload[0].payload.title}: ${payload[0].value}`}</p>
       </div>
     );
   }
   return null;
 };
 
-const HorizontalBarChart = () => {
+const HorizontalBarChart = ({ statData }) => {
+  const [chartData, setChartData] = useState([
+    { title: "Total Users", value: 0, fill: "#E56A54" },
+    { title: "Total Active User", value: 0, fill: "#DEB250" },
+    { title: "Total Amount", value: 0, fill: "#EA4D2D" },
+  ]);
+
+  useEffect(() => {
+    if (statData) {
+      setChartData([
+        {
+          title: "Total Users",
+          value: statData.totalUsers || 0,
+          fill: "#E56A54",
+        },
+        {
+          title: "Total Active User",
+          value: statData.activeUsers || 0,
+          fill: "#DEB250",
+        },
+        {
+          title: "Total Amount",
+          value: statData.totalAmount || 0,
+          fill: "#EA4D2D",
+        },
+      ]);
+    }
+  }, [statData]);
+
   return (
-    <div className="rounded-2xl w-full max-w-full overflow-x-auto">
-      <div className="min-w-[300px] sm:min-w-full h-64 sm:h-72 md:h-80 lg:h-96">
+    <div className="w-full h-full p-4">
+      <div className="h-full w-full min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             layout="vertical"
-            data={data}
-            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+            data={chartData}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 20,
+            }}
             barSize={30}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#2E334B" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#2E334B"
+              horizontal={false}
+            />
             <XAxis
               type="number"
               stroke="#B0B3C2"
-              tick={{ fontSize: 10 }}
-              domain={["auto", "auto"]}
+              tick={{ fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis
-              dataKey="name"
+              dataKey="title"
               type="category"
               stroke="#B0B3C2"
-              tick={{ fontSize: 10 }}
-              width={130}
+              tick={{ fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              width={120}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ fill: "rgba(255, 255, 255, 0.1)" }}
+            />
             <Legend
               wrapperStyle={{
-                paddingTop: "10px",
+                paddingTop: "20px",
                 fontSize: "12px",
-                textAlign: "center",
               }}
               payload={[
                 {
-                  value: "2025",
+                  value: "Current Stats",
                   type: "square",
                   color: "#66ffcc",
                 },
               ]}
             />
-            <Bar dataKey="value" radius={[0, 2, 2, 0]}>
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1500}>
               <LabelList
                 dataKey="value"
                 position="right"
                 fill="#fff"
-                style={{ fontSize: 10, fontWeight: 500 }}
+                style={{ fontSize: 12 }}
+                formatter={(value) => value.toLocaleString()}
               />
             </Bar>
           </BarChart>
