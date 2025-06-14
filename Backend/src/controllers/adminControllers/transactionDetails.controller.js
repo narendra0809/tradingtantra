@@ -4,6 +4,9 @@ import UserSubscription from "../../models/userSubscription.model.js";
 
 export const getTransactionDetails = async (req, res) => {
   try {
+    if (!req.admin || !req.admin.id) {
+      res.status(401).send({ message: "Unauthorized Access" });
+    }
     const usersSubs = await UserSubscription.find();
     const transactions = [];
 

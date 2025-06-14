@@ -2,41 +2,12 @@ import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { FaFolderOpen } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
-
-const feedbackData = [
-  {
-    name: "Jayvion Simon",
-    date: "12-02-2025",
-    category: "AI Market Depth",
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Lucian Obrien",
-    date: "12-02-2025",
-    category: "Smart Money Action",
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Deja Brady",
-    date: "12-02-2025",
-    category: "AI Swing Analysis",
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Harrison Stein",
-    date: "12-02-2025",
-    category: "AI Option Clock",
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    name: "Reece Chung",
-    date: "12-02-2025",
-    category: "Other",
-    feedback: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-];
+import axios from "axios";
+import { ADMIN_SERVER_URI } from "./Home";
+import { useEffect } from "react";
 
 const Feedback = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState({});
@@ -45,6 +16,18 @@ const Feedback = () => {
     if (!dateStr) return "";
     const [year, month, day] = dateStr.split("-");
     return `${day}-${month}-${year}`;
+  };
+
+  const fetchFeedbacks = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-feedbacks`, {
+        withCredentials: true,
+      });
+      console.log(res.data.feedbacks);
+      setFeedbacks(res.data.feedbacks);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleFileUpload = (e, index) => {
@@ -57,15 +40,20 @@ const Feedback = () => {
     }
   };
 
-  const filteredData = feedbackData.filter((item) => {
+  const filteredData = feedbacks.filter((item) => {
+    console.log(item);
     const formattedDate = formatDate(selectedDate);
     const matchesDate = selectedDate ? item.date === formattedDate : true;
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.feedback.toLowerCase().includes(searchTerm.toLowerCase());
+      item.message.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesDate && matchesSearch;
   });
+
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
 
   return (
     <div
@@ -109,7 +97,7 @@ const Feedback = () => {
               <th className="py-2 px-2 whitespace-nowrap">Name</th>
               <th className="py-2 px-2 whitespace-nowrap">Date</th>
               <th className="py-2 px-2 whitespace-nowrap">Category</th>
-              <th className="py-2 px-2 whitespace-nowrap">Upload File</th>
+              <th className="py-2 px-2 whitespace-nowrap">Image</th>
               <th className="py-2 px-2 whitespace-nowrap">Feedback</th>
             </tr>
           </thead>
@@ -123,7 +111,9 @@ const Feedback = () => {
                   <td className="py-3 px-2 font-medium whitespace-nowrap">
                     {item.name}
                   </td>
-                  <td className="py-3 px-2 whitespace-nowrap">{item.date}</td>
+                  <td className="py-3 px-2 whitespace-nowrap">
+                    {item.createdAt.split("T")[0]}
+                  </td>
                   <td className="py-3 px-2 whitespace-nowrap">
                     {item.category}
                   </td>
@@ -147,7 +137,7 @@ const Feedback = () => {
                     )}
                   </td>
                   <td className="py-3 px-2 text-gray-300 min-w-[200px]">
-                    {item.feedback}
+                    {item.message}
                   </td>
                 </tr>
               ))

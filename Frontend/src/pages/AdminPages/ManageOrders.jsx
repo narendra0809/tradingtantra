@@ -3,75 +3,7 @@ import { useState, useEffect } from "react";
 import { FaSearch, FaRegFilePdf } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-
-const orders = [
-  {
-    name: "Jayvion Simon",
-    email: "nannie.abernathy70@gmail.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Paid",
-    orderStatus: "Complete",
-    avatar: "https://randomuser.me/api/portraits/men/10.jpg",
-  },
-  {
-    name: "Lucian Obrien",
-    email: "ashlynn.ohara62@gmail.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Unpaid",
-    orderStatus: "Cancelled",
-    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
-  },
-  {
-    name: "Lucian Obrien",
-    email: "ashlynn.ohara62@gmail.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Paid",
-    orderStatus: "Pending",
-    avatar: "https://randomuser.me/api/portraits/men/11.jpg",
-  },
-  {
-    name: "Deja Brady",
-    email: "milo.farrell@hotmail.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Paid",
-    orderStatus: "Complete",
-    avatar: "https://randomuser.me/api/portraits/women/12.jpg",
-  },
-  {
-    name: "Harrison Stein",
-    email: "violet.ratke8@yahoo.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Unpaid",
-    orderStatus: "Cancelled",
-    avatar: "https://randomuser.me/api/portraits/men/13.jpg",
-  },
-  {
-    name: "Reece Chung",
-    email: "letha.lubowitz24@yahoo.com",
-    date: "12-02-2025",
-    orderId: "order_qwedfvbfa9f",
-    transactionId: "#556533",
-    amount: "INR 3,999",
-    payment: "Paid",
-    orderStatus: "Pending",
-    avatar: "https://randomuser.me/api/portraits/men/14.jpg",
-  },
-];
+import { useOutletContext } from "react-router-dom";
 
 const PaymentBadge = ({ status }) => {
   const base = "px-2 py-1 rounded-md text-xs sm:text-sm font-medium";
@@ -98,6 +30,7 @@ const OrderStatusBadge = ({ status }) => {
 };
 
 const ManageOrders = () => {
+  const { transactions: orders } = useOutletContext();
   const [selectedDate, setSelectedDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileView, setIsMobileView] = useState(false);
@@ -113,7 +46,7 @@ const ManageOrders = () => {
 
   const filteredOrders = orders.filter((item) => {
     const matchDate = selectedDate
-      ? item.date.includes(selectedDate.split("-").reverse().join("-"))
+      ? item.paymentDate.split("T")[0] === selectedDate
       : true;
     const matchSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -173,18 +106,13 @@ const ManageOrders = () => {
             <div key={idx} className="bg-[#101B35] p-4 rounded-lg shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="w-10 h-10 rounded-full"
-                  />
                   <div>
                     <div className="font-medium">{item.name}</div>
                     <div className="text-gray-400 text-xs">{item.email}</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm">{item.date}</div>
+                  <div className="text-sm">{item.paymentDate}</div>
                   <div className="text-xs text-gray-400">{item.amount}</div>
                 </div>
               </div>
@@ -202,8 +130,8 @@ const ManageOrders = () => {
 
               <div className="flex justify-between items-center">
                 <div className="flex gap-2">
-                  <PaymentBadge status={item.payment} />
-                  <OrderStatusBadge status={item.orderStatus} />
+                  <PaymentBadge status={item.paymentStatus} />
+                  <OrderStatusBadge status={item.subscriptionStatus} />
                 </div>
                 <FaRegFilePdf
                   className="text-white cursor-pointer text-lg"
@@ -222,7 +150,8 @@ const ManageOrders = () => {
               <thead>
                 <tr className="text-left font-medium border-b border-gray-600 text-white">
                   <th className="py-3 px-2 whitespace-nowrap">Name & Email</th>
-                  <th className="py-3 px-2 whitespace-nowrap">Date</th>
+                  <th className="py-3 px-2 whitespace-nowrap">Payment Date</th>
+                  <th className="py-3 px-2 whitespace-nowrap">Expiry Date</th>
                   <th className="py-3 px-2 whitespace-nowrap">Order ID</th>
                   <th className="py-3 px-2 whitespace-nowrap">
                     Transaction ID
@@ -240,11 +169,6 @@ const ManageOrders = () => {
                     className="border-b border-[#1f2a3e] hover:bg-[#101B35]"
                   >
                     <td className="py-3 px-2 flex items-center gap-2 min-w-[200px]">
-                      <img
-                        src={item.avatar}
-                        alt={item.name}
-                        className="w-8 h-8 rounded-full"
-                      />
                       <div>
                         <div className="font-medium">{item.name}</div>
                         <div className="text-gray-400 text-xs">
@@ -252,7 +176,12 @@ const ManageOrders = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3 px-2 whitespace-nowrap">{item.date}</td>
+                    <td className="py-3 px-2 whitespace-nowrap">
+                      {item.paymentDate.split("T")[0]}
+                    </td>
+                    <td className="py-3 px-2 whitespace-nowrap">
+                      {item.expiryDate.split("T")[0]}
+                    </td>
                     <td className="py-3 px-2 whitespace-nowrap">
                       {item.orderId}
                     </td>
@@ -263,10 +192,10 @@ const ManageOrders = () => {
                       {item.amount}
                     </td>
                     <td className="py-3 px-2 whitespace-nowrap">
-                      <PaymentBadge status={item.payment} />
+                      <PaymentBadge status={item.paymentStatus} />
                     </td>
                     <td className="py-3 px-2 whitespace-nowrap">
-                      <OrderStatusBadge status={item.orderStatus} />
+                      <OrderStatusBadge status={item.subcriptionStatus} />
                     </td>
                     <td className="py-3 px-2 whitespace-nowrap">
                       <FaRegFilePdf

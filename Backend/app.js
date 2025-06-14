@@ -16,7 +16,12 @@ import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import adminAuthRoutes from "./src/routes/admin_routes/adminAuth.route.js";
 import transactionsRoutes from "./src/routes/admin_routes/transactions.route.js";
+import updatesRoutes from "./src/routes/admin_routes/adminUpdates.route.js";
 import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
+import adminImageRoutes from "./src/routes/admin_routes/adminImages.route.js";
+import adminKeysRoutes from "./src/routes/admin_routes/adminKeys.route.js";
+import adminStrategyRoutes from "./src/routes/admin_routes/adminStrategy.route.js";
+import adminTickerRoutes from "./src/routes/admin_routes/adminTicker.route.js";
 import adminDetailsRoutes from "./src/routes/admin_routes/adminDetails.route.js";
 import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
@@ -31,14 +36,23 @@ import "./src/jobs/holiday.job.js";
 import "./src/jobs/FiiDiiJob.js";
 import optionClockRoutes from "./src/routes/optionClock.js";
 import smartMoneyActionJob from "./src/jobs/SmartMoneyAction.job.js";
+import path from "path";
 dotenv.config();
+
 const app = express();
 const server = http.createServer(app);
+
+app.use(
+  "/assets",
+  express.static(path.join(import.meta.dirname, "../Frontend/src/assets"))
+);
 app.use(morgan("dev"));
 app.use(express.json({ limit: "100mb" }));
+
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
+
 initializeServer(server);
 
 app.use(
@@ -74,7 +88,12 @@ app.use(
   "/api/admin",
   adminDetailsRoutes,
   userDetailsRoutes,
-  transactionsRoutes
+  transactionsRoutes,
+  updatesRoutes,
+  adminStrategyRoutes,
+  adminKeysRoutes,
+  adminImageRoutes,
+  adminTickerRoutes
 );
 
 // Add this before the server starts

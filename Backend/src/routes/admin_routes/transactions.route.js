@@ -4,6 +4,6 @@ import { getTransactionDetails } from "../../controllers/adminControllers/transa
 
 const router = express.Router();
 
-router.get("/get-transactions", getTransactionDetails);
+router.get("/get-transactions", verifyAdmin, getTransactionDetails);
 
 export default router;

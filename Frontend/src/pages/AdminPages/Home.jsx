@@ -22,6 +22,20 @@ const Home = () => {
     totalUsers: 0,
   });
 
+  const [transactions, setTransactions] = useState([
+    {
+      name: "",
+      email: "",
+      expiryDate: "",
+      subcriptionStatus: "",
+      orderId: "",
+      transactionId: "",
+      paymentDate: "",
+      paymentStatus: "Paid",
+      amount: "INR 3,999",
+    },
+  ]);
+
   const [activeUsersByMonth, setActiveUsersByMonth] = useState([
     { name: "January", value: 0 },
     { name: "February", value: 0 },
@@ -82,10 +96,25 @@ const Home = () => {
     }
   };
 
+  const fetchAllTransactions = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-transactions`, {
+        withCredentials: true,
+      });
+      if (res.status !== 200) {
+        throw new Error("Error while fetching transactions !");
+      }
+      setTransactions(res.data.transactions);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchAdminDetails();
     fetchTotalUsersData();
     fetchActiveUsersByMonth();
+    fetchAllTransactions();
   }, []);
 
   return (
@@ -125,6 +154,7 @@ const Home = () => {
               admin: admin,
               usersData: usersData,
               activeUsersByMonth: activeUsersByMonth,
+              transactions: transactions,
             }}
           />
         </main>

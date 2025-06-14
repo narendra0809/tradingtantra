@@ -1,43 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import vthumb from "../../assets/adminImages/homapage/our.png";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import axios from "axios";
+import { ADMIN_SERVER_URI } from "./Home";
 
 export default function OurStrategyAdmin() {
-  const [videos, setVideos] = useState([
-    {
-      title: "Our Strategy",
-      link: "https://www.youtube.com/watch?v=_qvBMaYc02E",
-      thumbnail: vthumb,
-    },
-    {
-      title: "Market Analysis",
-      link: "https://www.youtube.com/watch?v=abcd1234",
-      thumbnail: vthumb,
-    },
-  ]);
+  const [videos, setVideos] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ title: "", link: "" });
+  const [formData, setFormData] = useState({ title: "", link: "", _id: "" });
   const [isEditing, setIsEditing] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
 
   const openAddModal = () => {
-    setFormData({ title: "", link: "" });
+    setFormData({ title: "", link: "", _id: "" });
     setIsEditing(false);
     setModalOpen(true);
   };
 
   const openEditModal = (index) => {
-    setFormData({ title: videos[index].title, link: videos[index].link });
+    setFormData({
+      title: videos[index].title,
+      link: videos[index].link,
+      _id: videos[index]._id,
+    });
     setIsEditing(true);
-    setEditIndex(index);
     setModalOpen(true);
-  };
-
-  const handleDelete = (index) => {
-    if (window.confirm("Are you sure you want to delete this video?")) {
-      setVideos((prev) => prev.filter((_, i) => i !== index));
-    }
   };
 
   const handleChange = (e) => {
@@ -45,22 +32,72 @@ export default function OurStrategyAdmin() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const saveVideo = () => {
+  const fetchVideos = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
+        withCredentials: true,
+      });
+      if (res.status !== 200) {
+        throw new Error("Error while fetching videos");
+      }
+      setVideos(res.data.videos);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const saveVideo = async () => {
     const { title, link } = formData;
     if (!title.trim() || !link.trim()) {
       alert("Please fill in all fields.");
       return;
     }
-    const newVideo = { ...formData, thumbnail: vthumb };
-    if (isEditing) {
-      const updated = [...videos];
-      updated[editIndex] = newVideo;
-      setVideos(updated);
-    } else {
-      setVideos((prev) => [...prev, newVideo]);
+    try {
+      const newVideo = { ...formData, thumbnail: vthumb };
+      if (isEditing) {
+        const res = await axios.put(
+          `${ADMIN_SERVER_URI}/edit-strategy`,
+          newVideo,
+          { withCredentials: true }
+        );
+        if (res.status !== 200) {
+          throw new Error("Error while saving video !");
+        }
+        setVideos((prev) =>
+          prev.map((vid) => (vid._id === newVideo._id ? newVideo : vid))
+        );
+      } else {
+        const res = await axios.post(
+          `${ADMIN_SERVER_URI}/post-strategy`,
+          newVideo,
+          { withCredentials: true }
+        );
+        if (res.status !== 200) {
+          throw new Error("Error while saving video !");
+        }
+        setVideos([...videos, newVideo]);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setModalOpen(false);
     }
-    setModalOpen(false);
   };
+
+  const deleteVideo = async (id) => {
+    try {
+      await axios.delete(`${ADMIN_SERVER_URI}/delete-strategy?id=${id}`, {
+        withCredentials: true,
+      });
+      setVideos((prev) => prev.filter((vid) => vid._id !== id));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
 
   return (
     <div className="bg-[#000A2D] text-white min-h-screen p-6 sm:p-10">
@@ -86,43 +123,49 @@ export default function OurStrategyAdmin() {
             </tr>
           </thead>
           <tbody>
-            {videos.map((video, index) => (
-              <tr key={index} className="border-b border-blue-900">
-                <td className="py-3 px-4">
-                  <img
-                    src={video.thumbnail}
-                    alt="thumbnail"
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                </td>
-                <td className="py-3 px-4">{video.title}</td>
-                <td className="py-3 px-4 break-all text-blue-300">
-                  <a
-                    href={video.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {video.link}
-                  </a>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openEditModal(index)}
-                      className="text-blue-400 hover:text-blue-300"
-                    >
-                      <FiEdit size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(index)}
-                      className="text-red-500 hover:text-red-400"
-                    >
-                      <FiTrash2 size={18} />
-                    </button>
-                  </div>
-                </td>
+            {videos.length === 0 ? (
+              <tr>
+                <td className="text-center">No videos found !</td>
               </tr>
-            ))}
+            ) : (
+              videos.map((video, index) => (
+                <tr key={index} className="border-b border-blue-900">
+                  <td className="py-3 px-4">
+                    <img
+                      src={video.thumbnail}
+                      alt="thumbnail"
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                  </td>
+                  <td className="py-3 px-4">{video.title}</td>
+                  <td className="py-3 px-4 break-all text-blue-300">
+                    <a
+                      href={video.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {video.link}
+                    </a>
+                  </td>
+                  <td className="py-3 px-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditModal(index)}
+                        className="text-blue-400 hover:text-blue-300"
+                      >
+                        <FiEdit size={18} />
+                      </button>
+                      <button
+                        onClick={() => deleteVideo(video._id)}
+                        className="text-red-500 hover:text-red-400"
+                      >
+                        <FiTrash2 size={18} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

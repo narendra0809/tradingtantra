@@ -17,7 +17,7 @@ const initialStatData = [
 ];
 
 const Dashboard = () => {
-  const { usersData, activeUsersByMonth } = useOutletContext();
+  const { usersData, activeUsersByMonth, transactions } = useOutletContext();
   const [statData, setStatData] = useState(initialStatData);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ const Dashboard = () => {
 
       {/* Latest Transactions */}
       <div className="mt-10">
-        <LatestTransactions />
+        <LatestTransactions transactions={transactions} />
       </div>
     </div>
   );

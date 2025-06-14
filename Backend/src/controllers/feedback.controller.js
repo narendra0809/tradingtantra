@@ -32,4 +32,19 @@ const feedback = async (req, res) => {
   }
 };
 
+export const getFeedbacks = async (req, res) => {
+  try {
+    if (!req.admin || !req.admin.id) {
+      res.status(401).send("Unauthorized Access !");
+    }
+    const feedbacks = await Feedback.find();
+    if (!feedbacks) {
+      res.status(200).json({ success: true, message: "No feedbacks yet !" });
+    }
+    res.status(200).json({ success: true, feedbacks });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default feedback;

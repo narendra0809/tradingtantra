@@ -1,28 +1,64 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
+import axios from "axios";
 import logo from "../../assets/adminImages/logo.png";
+import { ADMIN_SERVER_URI } from "./Home";
 
 const UploadCard = ({ title, size, image, onUpload, onRemove }) => {
   const [preview, setPreview] = useState(image || null);
+  const [uploading, setUploading] = useState(false);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
+      setUploading(true);
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
-        onUpload(reader.result);
       };
       reader.readAsDataURL(file);
+
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("type", title.toLowerCase());
+
+      try {
+        const response = await axios.post(
+          `${ADMIN_SERVER_URI}/image-upload`,
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
+        );
+        const imageUrl = response.data.imageUrl;
+        console.log("Response  :", imageUrl);
+        onUpload(imageUrl);
+        setPreview(imageUrl);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        alert("Failed to upload image. Please try again.");
+        setPreview(image || null);
+      } finally {
+        setUploading(false);
+      }
     } else {
       alert("Please select a valid image file.");
     }
   };
 
-  const handleRemove = () => {
-    setPreview(logo); // fallback to default
-    onRemove();
+  const handleRemove = async () => {
+    try {
+      await axios.delete(`${ADMIN_SERVER_URI}/image-upload`, {
+        data: { type: title.toLowerCase() },
+      });
+      setPreview(null);
+      onRemove();
+    } catch (error) {
+      console.error("Remove failed:", error);
+      alert("Failed to remove image. Please try again.");
+    }
   };
 
   return (
@@ -53,14 +89,17 @@ const UploadCard = ({ title, size, image, onUpload, onRemove }) => {
         <div className="flex items-center gap-4 mt-4 flex-wrap">
           <label
             htmlFor={`${title}-file-input`}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-md cursor-pointer"
+            className={`bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-md cursor-pointer ${
+              uploading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Upload
+            {uploading ? "Uploading..." : "Upload"}
           </label>
           {preview && preview !== logo && (
             <button
               onClick={handleRemove}
               className="text-white hover:text-red-500 text-sm flex items-center gap-1"
+              disabled={uploading}
             >
               <FiTrash2 size={16} /> Remove
             </button>
@@ -73,6 +112,7 @@ const UploadCard = ({ title, size, image, onUpload, onRemove }) => {
           accept="image/*"
           className="hidden"
           onChange={handleFileChange}
+          disabled={uploading}
         />
       </div>
     </div>
@@ -94,7 +134,7 @@ export default function SettingsUpload() {
       />
       <UploadCard
         title="Favicon"
-        size="194 * 53"
+        size="32 * 32"
         image={favicon}
         onUpload={(img) => setFavicon(img)}
         onRemove={() => setFavicon(null)}
