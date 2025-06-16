@@ -51,11 +51,12 @@ const IndexDepthPage = () => {
       const indexData = {
         "NIFTY 50": res.data.NIFTY,
         BANKNIFTY: res.data.BANKNIFTY,
-        MIDCAP: res.data.MIDCPNIFTY,
+        MIDCAP: res.data.MIDCAP,
         SENSEX: res.data.SENSEX,
         FINNIFTY: res.data.FINNIFTY,
         "NIFTY MID": { pts: 0, per: 0 },
       };
+      console.log("Index Data : ", indexData);
       setAllIndexPts(indexData);
     } catch (error) {
       console.log(error);
@@ -112,7 +113,6 @@ const IndexDepthPage = () => {
 
   const totalStocks = gainers + losers;
   const gainersPercentage = totalStocks > 0 ? (gainers / totalStocks) * 100 : 0;
-
   return (
     <>
       <div className="flex justify-between items-center mt-8">
@@ -135,56 +135,74 @@ const IndexDepthPage = () => {
             <option className="bg-[#000A2D]" value="SENSEX">
               Sensex
             </option>
+            <option className="bg-[#000A2D]" value="BANKNIFTY">
+              BankNifty
+            </option>
+            <option className="bg-[#000A2D]" value="MIDCAP">
+              Midcap
+            </option>
+            <option className="bg-[#000A2D]" value="FINNIFTY">
+              Finnifty
+            </option>
           </select>
         </div>
       </div>
-
-      <section className="mt-10 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2">
-          <div className="flex md:flex-row flex-col md:justify-between md:items-center">
-            <div className="flex justify-evenly items-center md:w-[40%] dark:bg-db-secondary w-full bg-db-primary rounded-lg py-2 px-4">
-              <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
-                {contribution.indexName}
-              </h4>
-              <span className="text-xl font-medium">
-                <p>
-                  {allIndexPts[contribution.indexName].pts >= 0 ? "up" : "down"}{" "}
-                  by{" "}
-                  {Math.abs(allIndexPts[contribution.indexName].pts.toFixed(2))}{" "}
-                  pts ({allIndexPts[contribution.indexName].per}%)
-                </p>
-              </span>
-            </div>
-
-            <div className="md:w-[60%] w-full dark:bg-db-secondary bg-db-primary px-4 py-2 rounded-lg">
-              <p>Gainers/Losers</p>
-
-              <div className="w-full h-2 bg-[#9B3B44] mt-2 rounded-full">
-                <div
-                  className="h-2 bg-[#269F3C] rounded-full"
-                  style={{ width: `${gainersPercentage}%` }}
-                />
-              </div>
-
-              <div className="text-xs flex justify-between mt-1">
-                <span className="flex items-center">
-                  <GoDotFill className="text-green-500" /> Gainers: {gainers}
-                </span>
-                <span className="flex items-center">
-                  <GoDotFill className="text-red-500" /> Losers: {losers}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 w-full flex justify-center">
-            <OptionDataDonutChart
-              contributor={contribution}
-              allIndexPts={allIndexPts}
-            />
-          </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <p className="ml-4 text-xl">Loading chart...</p>
         </div>
-      </section>
+      ) : (
+        <section className="mt-10 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+          <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2">
+            <div className="flex md:flex-row flex-col md:justify-between md:items-center">
+              <div className="flex justify-evenly items-center md:w-[40%] dark:bg-db-secondary w-full bg-db-primary rounded-lg py-2 px-4">
+                <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
+                  {contribution.indexName}
+                </h4>
+                <span className="text-xl font-medium">
+                  <p>
+                    {allIndexPts[contribution.indexName].pts >= 0
+                      ? "up"
+                      : "down"}{" "}
+                    by{" "}
+                    {Math.abs(
+                      allIndexPts[contribution.indexName].pts.toFixed(2)
+                    )}{" "}
+                    pts ({allIndexPts[contribution.indexName].per}%)
+                  </p>
+                </span>
+              </div>
+
+              <div className="md:w-[60%] w-full dark:bg-db-secondary bg-db-primary px-4 py-2 rounded-lg">
+                <p>Gainers/Losers</p>
+
+                <div className="w-full h-2 bg-[#9B3B44] mt-2 rounded-full">
+                  <div
+                    className="h-2 bg-[#269F3C] rounded-full"
+                    style={{ width: `${gainersPercentage}%` }}
+                  />
+                </div>
+
+                <div className="text-xs flex justify-between mt-1">
+                  <span className="flex items-center">
+                    <GoDotFill className="text-green-500" /> Gainers: {gainers}
+                  </span>
+                  <span className="flex items-center">
+                    <GoDotFill className="text-red-500" /> Losers: {losers}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 w-full flex justify-center">
+              <OptionDataDonutChart
+                contributor={contribution}
+                allIndexPts={allIndexPts}
+              />
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 };

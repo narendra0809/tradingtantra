@@ -1,3 +1,5 @@
+import { getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
+
 export function convertToIST(unixTimestamp) {
   const date = new Date(unixTimestamp);
   const minutes = date.getMinutes();
@@ -73,14 +75,13 @@ export const formatDateString = (date) => {
 export const getFormattedTime = () => {
   const date = new Date();
 
+  date.setMinutes(date.getMinutes() - 3);
   const minutes = date.getMinutes();
   const roundedMinutes = Math.floor(minutes / 3) * 3;
+  date.setMinutes(roundedMinutes, 0, 0);
 
-  const roundedDate = new Date(date);
-  roundedDate.setMinutes(roundedMinutes, 0, 0);
-
-  return roundedDate.toLocaleTimeString("en-US", {
-    hour: "numeric",
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
     hour12: true,

@@ -4,8 +4,11 @@ import { fetchAndSaveAllUnderlyings } from "../services/optionChain.service.js";
 class OptionChainJob {
   constructor() {
     this.task = null;
+    this.flag = false;
   }
-
+  setFlag() {
+    this.flag = true;
+  }
   start() {
     if (this.task) return;
 
@@ -14,7 +17,7 @@ class OptionChainJob {
       async () => {
         try {
           console.log("Running option chain data fetch...");
-          await fetchAndSaveAllUnderlyings();
+          await fetchAndSaveAllUnderlyings(this.flag);
         } catch (error) {
           console.error("Error in option chain job:", error);
         }

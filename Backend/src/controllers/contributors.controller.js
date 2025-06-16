@@ -4,8 +4,10 @@ import { StocksDetail1 } from "../models/stocksDetail.model.js";
 
 export const getIndexValue = async (indexName) => {
   try {
+    const newIdx =
+      indexName === "MIDCAP" ? "MIDCPNIFTY" : indexName.split(" ")[0];
     const res = await IndexCandles.find({
-      indexName: indexName.split(" ")[0],
+      indexName: newIdx,
       interval: "3m",
     }).sort({ updatedAt: -1 });
     return res[0].close;

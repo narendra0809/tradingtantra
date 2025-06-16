@@ -7,7 +7,14 @@ import {
 import { isMarketOpen } from "../utils/marketUtils.js";
 import { convertToIST, delay } from "../utils/dateUtils.js";
 import config from "../config/optionChain.config.js";
-import { NiftyOptionChain, BankNiftyOptionChain, FinniftyOptionChain, MidcpNiftyOptionChain, SensexOptionChain } from "../models/optionChain.model.js";
+import {
+  NiftyOptionChain,
+  BankNiftyOptionChain,
+  FinniftyOptionChain,
+  MidcpNiftyOptionChain,
+  SensexOptionChain,
+} from "../models/optionChain.model.js";
+import optionChainJob from "../jobs/optionChain.job.js";
 
 // Map of underlying names to their respective models
 const modelMap = {
@@ -22,16 +29,17 @@ const modelMap = {
 async function deleteOldOrExpiredData() {
   try {
     const today = new Date();
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfToday = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate()
+    );
 
     for (const underlyingName of Object.keys(modelMap)) {
       const Model = modelMap[underlyingName];
-      // Delete data where expiry date is before today or fetchDate is before today
+
       await Model.deleteMany({
-        $or: [
-          { expiry: { $lt: startOfToday.toISOString().split("T")[0] } }, // Expired data
-          { fetchDate: { $lt: startOfToday } }, // Old fetchDate data
-        ],
+        expiry: { $lt: startOfToday.toISOString().split("T")[0] },
       });
       console.log(`Deleted old/expired data for ${underlyingName}`);
     }
@@ -41,8 +49,12 @@ async function deleteOldOrExpiredData() {
 }
 
 // Main function to fetch and save option chain data for all underlyings
-export async function fetchAndSaveAllUnderlyings() {
+export async function fetchAndSaveAllUnderlyings(flag) {
   const today = new Date();
+  if (!flag) {
+    await deleteOldOrExpiredData();
+    optionChainJob.setFlag();
+  }
   if (await isTradingHoliday(today)) {
     console.log("Market is closed today (holiday)");
     return { status: "skipped", reason: "market_holiday" };
@@ -52,9 +64,6 @@ export async function fetchAndSaveAllUnderlyings() {
     console.log("Market is currently closed");
     return { status: "skipped", reason: "market_closed" };
   }
-
-  // Delete old or expired data before fetching new data
-  // await deleteOldOrExpiredData();
 
   console.log(`Fetching option chain data at ${convertToIST(Date.now())}`);
 

@@ -1,10 +1,7 @@
 import moment from "moment-timezone";
 import IndexCandles from "../models/indexCandles.model.js";
 import axios from "axios";
-import {
-  getMinuteDifference,
-  getPreviousTradingDay,
-} from "../controllers/liveMarketData.controller.js";
+import { getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
 
 const indices = [
   { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
@@ -38,14 +35,21 @@ const formatDateForAPI = (date) => {
 const getIntervalStart = (timestamp, intervalMinutes) => {
   const date = moment.unix(timestamp).tz("Asia/Kolkata");
   const minute = date.minute();
-  const intervalStartMinute = Math.floor(minute / intervalMinutes) * intervalMinutes;
+  const intervalStartMinute =
+    Math.floor(minute / intervalMinutes) * intervalMinutes;
   return date
     .set({ minute: intervalStartMinute, second: 0, millisecond: 0 })
     .unix();
 };
 
 // Merge last 9 one-minute candles into 3 three-minute candles and handle after-market close
-const mergeCandles = (data, intervalMinutes, currentTime, indexName, tradingDay) => {
+const mergeCandles = (
+  data,
+  intervalMinutes,
+  currentTime,
+  indexName,
+  tradingDay
+) => {
   const mergedCandles = [];
   const candlesPerInterval = intervalMinutes;
   const candlesToProcess = 9; // Process last 9 one-minute candles
@@ -53,7 +57,9 @@ const mergeCandles = (data, intervalMinutes, currentTime, indexName, tradingDay)
   const tradingDayStart = moment
     .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
     .startOf("day");
-  const tradingDayEnd = tradingDayStart.clone().set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+  const tradingDayEnd = tradingDayStart
+    .clone()
+    .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
   const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
   const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
 
@@ -73,7 +79,7 @@ const mergeCandles = (data, intervalMinutes, currentTime, indexName, tradingDay)
   const intervalGroups = {};
   for (let i = 0; i < slicedData.open.length; i++) {
     const timestamp = slicedData.timestamp[i];
-    
+
     // Skip if timestamp is from previous day
     if (timestamp < tradingDayStartUnix) {
       continue;
@@ -132,7 +138,7 @@ const mergeCandles = (data, intervalMinutes, currentTime, indexName, tradingDay)
       .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
       .set({ hour: 15, minute: 27, second: 0, millisecond: 0 })
       .format("DD/MM/YYYY, hh:mm:ss A");
-   
+
     mergedCandles.push({
       close: afterMarketClose,
       lastClose: afterMarketClose,
@@ -194,7 +200,13 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
 };
 
 // Process and save candles for an index
-const processIndexCandles = async (index, apiData, currentTime, interval, tradingDay) => {
+const processIndexCandles = async (
+  index,
+  apiData,
+  currentTime,
+  interval,
+  tradingDay
+) => {
   if (!apiData) {
     console.log(`No data to process for ${index.name} (${interval})`);
     return;
@@ -204,8 +216,12 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
     let candles = [];
     let afterMarketClose = null;
 
-    const tradingDayStart = moment.tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata").startOf("day");
-    const tradingDayEnd = tradingDayStart.clone().set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+    const tradingDayStart = moment
+      .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
+      .startOf("day");
+    const tradingDayEnd = tradingDayStart
+      .clone()
+      .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
     const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
     const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
 
@@ -244,7 +260,11 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
             const diffMinutes = (actualTimestampUnix - prevTimestampUnix) / 60;
             if (diffMinutes !== intervalMinutes) {
               console.warn(
-                `Unexpected interval for ${index.name} (${interval}): ${diffMinutes} minutes at ${unixToIST(actualTimestampUnix)}`
+                `Unexpected interval for ${
+                  index.name
+                } (${interval}): ${diffMinutes} minutes at ${unixToIST(
+                  actualTimestampUnix
+                )}`
               );
               return null;
             }
@@ -287,19 +307,20 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
 
       if (candle.isAfterMarketUpdate) {
         // Update existing candle with after-market close
-        const updateResult = await IndexCandles.updateOne(
-          query,
-          {
-            $set: {
-              close: candle.close,
-              lastClose: candle.lastClose,
-            },
-          }
-        );
+        const updateResult = await IndexCandles.updateOne(query, {
+          $set: {
+            close: candle.close,
+            lastClose: candle.lastClose,
+          },
+        });
         if (updateResult.matchedCount > 0) {
-          console.log(`Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`);
+          console.log(
+            `Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`
+          );
         } else {
-          console.warn(`No ${interval} candle found to update at ${candle.timestamp} for ${index.name}`);
+          console.warn(
+            `No ${interval} candle found to update at ${candle.timestamp} for ${index.name}`
+          );
           // Save as new candle with default values
           const indexCandle = new IndexCandles({
             indexName: index.name,
@@ -313,7 +334,9 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
             timestamp: candle.timestamp,
           });
           await indexCandle.save();
-          console.log(`Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`);
+          console.log(
+            `Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`
+          );
         }
       } else {
         // Save new candle if it doesn't exist
@@ -331,12 +354,17 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
             timestamp: candle.timestamp,
           });
           await indexCandle.save();
-          console.log(`Saved ${interval} candle for ${index.name} at ${candle.timestamp}`);
+          console.log(
+            `Saved ${interval} candle for ${index.name} at ${candle.timestamp}`
+          );
         }
       }
     }
   } catch (error) {
-    console.error(`Error processing ${index.name} candles for ${interval}:`, error);
+    console.error(
+      `Error processing ${index.name} candles for ${interval}:`,
+      error
+    );
   }
 };
 
@@ -349,7 +377,13 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
     for (const interval of intervals) {
       const apiData = await fetchDhanData(index, interval, fromDate, toDate);
       if (apiData) {
-        await processIndexCandles(index, apiData, currentTime, interval, toDate);
+        await processIndexCandles(
+          index,
+          apiData,
+          currentTime,
+          interval,
+          toDate
+        );
       }
       await delay(150);
     }
@@ -357,12 +391,27 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
   console.log("All indices processed successfully");
 };
 
+export const deleteOldIndexData = async () => {
+  try {
+    const previousDay = await getPreviousTradingDay(new Date());
+    await IndexCandles.deleteMany({
+      createdAt: { $lt: previousDay },
+    });
+  } catch (error) {
+    console.log("Error deleting index candles old data :", error);
+  }
+};
+
 // Main function to run the fetch and process
+
 export const runFetchForIndexCandles = async () => {
   try {
     const today = moment().tz("Asia/Kolkata");
     const currentDate = formatDateForAPI(today);
-
+    const time = moment().format("hh:mm:ss A");
+    if (time >= "09:15:00 AM" && time <= "09:18:00 AM") {
+      await deleteOldIndexData();
+    }
     // Only fetch and process current day's data
     await fetchAndProcessAllIndices(currentDate, currentDate);
   } catch (error) {

@@ -4,9 +4,8 @@ import Chart from "react-apexcharts";
 const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
   const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
 
-  // Sort contributions by absolute points in descending order and take top 10
   const topContributors = contributor.contributions
-    .sort((a, b) => Math.abs(b.points) - Math.abs(a.points)) // Sort by absolute points
+    .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
     .slice(0, 10)
     .map((item) => ({
       name: item.displayName,
@@ -14,26 +13,19 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
       percent: Math.abs((item.points / indexPts) * 100),
     }));
 
-  // Calculate sum of points for "Others" (beyond top 10)
   const otherContributionsPoints = contributor.contributions
     .slice(10)
     .reduce((sum, item) => sum + item.points, 0);
 
-  // Calculate "Others" percentage based on the sum of points
   const otherContributionsPercent = parseFloat(
     Math.abs((otherContributionsPoints / indexPts) * 100).toFixed(2)
   );
 
-  // Prepare chart series
   const chartSeries =
     otherContributionsPercent > 0
-      ? [
-          ...topContributors.map((s) => s.percent),
-          otherContributionsPercent,
-        ]
+      ? [...topContributors.map((s) => s.percent), otherContributionsPercent]
       : topContributors.map((s) => s.percent);
 
-  // Prepare chart labels
   const chartLabels =
     otherContributionsPercent > 0
       ? [
@@ -46,28 +38,27 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
           (s) => `${s.name} (${s.points > 0 ? "+" : ""}${s.points})`
         );
 
-  // Updated color scheme with normal green/red and gradient based on contribution
   const getColor = (percent, points) => {
-    const maxPercent = Math.max(...topContributors.map((s) => s.percent), otherContributionsPercent);
-    const intensity = percent / (maxPercent || 1); // Scale from 0 to 1 based on contribution size
+    const maxPercent = Math.max(
+      ...topContributors.map((s) => s.percent),
+      otherContributionsPercent
+    );
+    const intensity = percent / (maxPercent || 1);
 
     if (points > 0) {
-      // Positive contributions - green with varying opacity
-      const opacity = 0.4 + intensity * 0.6; // Range from 0.4 to 1.0
+      const opacity = 0.4 + intensity * 0.6;
       return `rgba(76, 175, 80, ${opacity})`;
     } else {
-      // Negative contributions - red with varying opacity
-      const opacity = 0.4 + intensity * 0.6; // Range from 0.4 to 1.0
+      const opacity = 0.4 + intensity * 0.6;
       return `rgba(244, 67, 54, ${opacity})`;
     }
   };
 
-  // Prepare chart colors, including "Others" color based on its points
   const chartColors =
     otherContributionsPercent > 0
       ? [
           ...topContributors.map((s) => getColor(s.percent, s.points)),
-          getColor(otherContributionsPercent, otherContributionsPoints), // Color based on points
+          getColor(otherContributionsPercent, otherContributionsPoints),
         ]
       : topContributors.map((s) => getColor(s.percent, s.points));
 
@@ -157,7 +148,6 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
   return (
     <div className="w-full">
       <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
-        {/* Donut Chart - Left side on large screens */}
         <div className="w-full lg:w-1/2 xl:w-2/5 flex justify-center">
           <div className="w-full max-w-md">
             <Chart
@@ -170,7 +160,6 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
           </div>
         </div>
 
-        {/* Custom Legend - Right side on large screens */}
         <div className="w-full lg:w-1/2 xl:w-3/5">
           <div
             className="rounded-lg p-4 h-96 overflow-y-auto"
@@ -212,8 +201,14 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
                     style={{
                       backgroundColor:
                         otherContributionsPoints > 0
-                          ? getColor(otherContributionsPercent, otherContributionsPoints)
-                          : getColor(otherContributionsPercent, otherContributionsPoints),
+                          ? getColor(
+                              otherContributionsPercent,
+                              otherContributionsPoints
+                            )
+                          : getColor(
+                              otherContributionsPercent,
+                              otherContributionsPoints
+                            ),
                     }}
                   />
                   <span className="text-white flex-1">
@@ -221,7 +216,9 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
                   </span>
                   <span
                     className={`ml-2 font-medium ${
-                      otherContributionsPoints > 0 ? "text-green-400" : "text-red-400"
+                      otherContributionsPoints > 0
+                        ? "text-green-400"
+                        : "text-red-400"
                     }`}
                   >
                     {otherContributionsPoints > 0 ? "+" : ""}

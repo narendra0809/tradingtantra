@@ -70,7 +70,9 @@ const saveMarketData = async () => {
         },
       });
     } catch (err) {
-      console.error(`❌ Error preparing data for ${securityId}: ${err.message}`);
+      console.error(
+        `❌ Error preparing data for ${securityId}: ${err.message}`
+      );
       errorCount++;
     }
   }
@@ -294,15 +296,15 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
       // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
-  if (isLastCandle1525) {
-    tenMinCandles.push({
-      timestamp: lastCandle.timestamp,
-      open: lastCandle.open,
-      high: lastCandle.high,
-      low: lastCandle.low,
-      close: lastCandle.close,
-    });
-  }
+      if (isLastCandle1525) {
+        tenMinCandles.push({
+          timestamp: lastCandle.timestamp,
+          open: lastCandle.open,
+          high: lastCandle.high,
+          low: lastCandle.low,
+          close: lastCandle.close,
+        });
+      }
       if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
         tenMinCandles.push({
           timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
@@ -317,7 +319,6 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   }
 
   // Add 15:25 as standalone 10-minute candle
-
 
   // Sort by timestamp
   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
