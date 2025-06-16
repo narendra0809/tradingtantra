@@ -51,30 +51,43 @@ const saveMarketData = async () => {
   let successCount = 0;
   let errorCount = 0;
 
+  const bulkOps = [];
+
   for (const [securityId, marketData] of marketDataBuffer.entries()) {
     if (!marketData || !marketData.length || !marketData[0]) continue;
 
-    const turnover = calculateTurnover(
-      marketData[0].avgTradePrice,
-      marketData[0].volume
-    );
-
     try {
-      await MarketDetailData.findOneAndUpdate(
-        { date: todayDate, securityId },
-        { $set: { data: marketData, turnover } },
-        { upsert: true, new: true }
+      const turnover = calculateTurnover(
+        marketData[0].avgTradePrice,
+        marketData[0].volume
       );
-      successCount++;
+
+      bulkOps.push({
+        updateOne: {
+          filter: { date: todayDate, securityId },
+          update: { $set: { data: marketData, turnover } },
+          upsert: true,
+        },
+      });
     } catch (err) {
-      console.error(`❌ DB error for ${securityId}: ${err.message}`);
+      console.error(`❌ Error preparing data for ${securityId}: ${err.message}`);
       errorCount++;
     }
   }
 
-  console.log(
-    `✅ Saved to DB | Success: ${successCount}, Errors: ${errorCount}`
-  );
+  if (bulkOps.length > 0) {
+    try {
+      const result = await MarketDetailData.bulkWrite(bulkOps);
+      successCount = result.upsertedCount + result.modifiedCount;
+      console.log(
+        `✅ Saved to DB | Success: ${successCount}, Errors: ${errorCount}`
+      );
+    } catch (err) {
+      console.error(`❌ Bulk write error: ${err.message}`);
+      errorCount += bulkOps.length;
+    }
+  }
+
   marketDataBuffer.clear();
   receivedSecurityIds.clear();
   isProcessingSave = false;

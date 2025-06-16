@@ -66,11 +66,6 @@ const runFiveMinDataTask = async () => {
     return;
   }
 
-  // Only run every 5 mins
-  if (minutes % 5 !== 0) {
-    console.log(`[${now.toISO()}] Not a 5-minute interval. Skipping.`);
-    return;
-  }
 
   try {
     const fromDate = now.minus({ days: 1 }).toISODate();
@@ -135,12 +130,12 @@ const initializeTasks = async () => {
   await runLiveDataTask();
 };
 
-cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataTask, {
+cron.schedule("*/3 9-15 * * 1-5", runFiveMinDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
 
-cron.schedule("* 9-15 * * 1-5", runLiveDataTask, {
+cron.schedule("*/2 9-15 * * 1-5", runLiveDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
