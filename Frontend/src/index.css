@@ -31,6 +31,11 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.react-calendar__tile.holiday-tile {
+  background-color: #df08f3 !important; 
+  color: white !important;
+}
+
 .neon-button {
   box-shadow: inset 0 0 20px rgba(0, 86, 245, 0.8), inset 0 0 30px rgba(0, 162, 255, 0.6), 0 0 20px rgba(0, 162, 255, 0.9);
   transition: 0.3s;

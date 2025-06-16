@@ -1,5 +1,5 @@
-import { FiCamera, FiMail, FiUser } from "react-icons/fi";
-import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
+import { FiMail, FiUser } from "react-icons/fi";
+
 const EditProfile = () => {
   return (
     <div className="max-w-xl mx-auto p-6 dark:bg-db-primary bg-db-primary rounded-xl mt-16 ">
@@ -21,87 +21,54 @@ const EditProfile = () => {
       </div>
 
       <div className="space-y-4">
-        <div className="md:flex justify-between block">
-          <div>
-            <label className="text-sm dark:text-gray-400 text-gray-700 ">
-              First Name
-            </label>
-            <div className="flex items-center dark:bg-[#151B2D]  border   bg-transparent  dark:border-transparent  p-2 rounded-md mt-1">
-              <FiUser className="text-gray-500 ml-2" />
-              <input
-                type="text"
-                placeholder="John"
-                className="bg-transparent outline-none  px-2 w-full"
-              />
+        <form>
+          <div className="md:flex justify-between block">
+            <div className="mb-1">
+              <label className="text-sm dark:text-gray-400 text-gray-700 ">
+                First Name
+              </label>
+              <div className="flex items-center dark:bg-[#151B2D]  border   bg-transparent  dark:border-transparent  p-2 rounded-md mt-1">
+                <FiUser className="text-gray-500 ml-2" />
+                <input
+                  type="text"
+                  placeholder="John"
+                  className="bg-transparent outline-none  px-2 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="mb-1">
+              <label className="text-sm dark:text-gray-400 text-gray-700 ">
+                Last Name
+              </label>
+              <div className="flex items-center dark:bg-[#151B2D] bg-transparent border dark:border-transparent  p-2 rounded-md mt-1">
+                <FiUser className="text-gray-500 ml-2" />
+                <input
+                  type="text"
+                  placeholder="Carter"
+                  className="bg-transparent outline-none  px-2 w-full"
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <label className="text-sm dark:text-gray-400 text-gray-700 ">
-              Last Name
+              Email Address
             </label>
             <div className="flex items-center dark:bg-[#151B2D] bg-transparent border dark:border-transparent  p-2 rounded-md mt-1">
-              <FiUser className="text-gray-500 ml-2" />
+              <FiMail className="text-gray-500 ml-2" />
               <input
-                type="text"
-                placeholder="Carter"
+                type="email"
+                placeholder="example@youremail.com"
                 className="bg-transparent outline-none  px-2 w-full"
               />
             </div>
           </div>
-        </div>
-
-        <div>
-          <label className="text-sm dark:text-gray-400 text-gray-700 ">
-            Email Address
-          </label>
-          <div className="flex items-center dark:bg-[#151B2D] bg-transparent border dark:border-transparent  p-2 rounded-md mt-1">
-            <FiMail className="text-gray-500 ml-2" />
-            <input
-              type="email"
-              placeholder="example@youremail.com"
-              className="bg-transparent outline-none  px-2 w-full"
-            />
+          <div className="w-full text-center mt-5">
+            <button className="bg-primary w-full rounded-lg p-2">Submit</button>
           </div>
-        </div>
-
-        <div className="flex gap-6">
-          <div>
-            <label className="text-sm dark:text-gray-400 text-gray-700 ">
-              Photo
-            </label>
-            <div>
-              <img
-                src={user}
-                alt="Profile"
-                className="w-10 h-10 rounded-full"
-              />
-            </div>
-
-            <button className="bg-transparent text-[#1A68FF] text-[12px] cursor-pointer">
-              Delete
-            </button>
-          </div>
-          <div className="mt-2 flex flex-col w-full items-center border border-dashed dark:border-gray-500 p-6 rounded-md dark:bg-[#151B2D] bg-transparent  ">
-            <div className="text-center">
-              <FiCamera className="text-gray-500 text-3xl mx-auto" />
-              <p className="text-sm mt-2 dark:text-gray-400 text-gray-600 ">
-                <label className="text-blue-400 cursor-pointer">
-                  Click to upload
-                  <input
-                    type="file"
-                    // onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </label>{" "}
-                or drag and drop
-              </p>
-              <p className="text-xs dark:text-gray-500 text-gray-700">
-                SVG, PNG, JPG or GIF (max. 800 * 400px)
-              </p>
-            </div>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   );

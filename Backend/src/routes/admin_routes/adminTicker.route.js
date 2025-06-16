@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 router.post("/add-ticker", verifyAdmin, addTicker);
-router.get("/get-tickers", verifyAdmin, getTicker);
+router.get("/get-tickers", getTicker);
 router.put("/edit-ticker", verifyAdmin, editTicker);
 router.delete("/delete-ticker", verifyAdmin, deleteTicker);
 

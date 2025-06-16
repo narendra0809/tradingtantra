@@ -14,6 +14,7 @@ import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
+import holidaysRoutes from "./src/routes/holidays.route.js";
 import adminAuthRoutes from "./src/routes/admin_routes/adminAuth.route.js";
 import transactionsRoutes from "./src/routes/admin_routes/transactions.route.js";
 import updatesRoutes from "./src/routes/admin_routes/adminUpdates.route.js";
@@ -75,12 +76,17 @@ app.get("/", (req, res) => {
 app.use(compression());
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api", stocksRoutes);
-app.use("/api", subcriptionValidityRoutes);
-app.use("/api", feedbackRoute);
-app.use("/api", isSubscribedRoute);
-app.use("/api", swingTradeRoutes);
-app.use("/api", optionClockRoutes);
+app.use(
+  "/api",
+  stocksRoutes,
+  subcriptionValidityRoutes,
+  feedbackRoute,
+  isSubscribedRoute,
+  swingTradeRoutes,
+  optionClockRoutes,
+  optionClockRoutes,
+  holidaysRoutes
+);
 
 // Admin Routes :
 app.use("/api/admin/auth", adminAuthRoutes);

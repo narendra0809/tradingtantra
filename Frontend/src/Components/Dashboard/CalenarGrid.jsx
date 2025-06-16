@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable react/prop-types */
 import clsx from "clsx";
 import { Tooltip } from "react-tooltip";
 
@@ -6,7 +6,6 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
   const startDate = selectedDateRange?.[0]?.startDate || new Date();
   const endDate = selectedDateRange?.[0]?.endDate || new Date();
 
-  console.log("tradeData", tradeData);
   const startYear = startDate.getFullYear();
   const endYear = endDate.getFullYear();
   const startMonth = startDate.getMonth() + 1;
@@ -69,19 +68,23 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
           return entryDate === dateString;
         }) || [];
 
-      // console.log("tradesForDate", tradesForDate);
+      // Find holiday for this specific date
+      // const holiday = holidays?.find(
+      //   (h) => new Date(h.date).toISOString().split("T")[0] === dateString
+      // );
+
       // Sum up total profit/loss for the day if multiple trades exist
       const totalValue = tradesForDate.reduce(
         (sum, t) => sum + t.totalProfitOrLoss,
         0
       );
 
-      // console.log("totalValue", totalValue);
       data.push({
         date: dateString,
         value: totalValue,
         profitLossPercentage: tradesForDate.profitLossPercentage,
-        trades: tradesForDate, // Store all trades for tooltip
+        trades: tradesForDate,
+        // holiday: holiday || null, // Include holiday data
         column: currentColumn,
         row: currentRow,
       });
@@ -178,7 +181,9 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
                               key={index}
                               className={clsx(
                                 "w-2 h-2 flex justify-center mt-1 font-bold cursor-pointer",
-                                getColor(entry.value)
+                                entry.holiday
+                                  ? "bg-yellow-500"
+                                  : getColor(entry.value)
                               )}
                               data-tooltip-id={entry.date}
                               onClick={() => handleDateClick(entry.date)}
@@ -186,6 +191,17 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
                               <Tooltip id={entry.date} place="top">
                                 {entry.date}
                                 <br />
+                                {entry.holiday ? (
+                                  <div>
+                                    <strong>
+                                      Holiday: {entry.holiday.description}
+                                    </strong>
+                                    <br />
+                                    Exchanges Closed:{" "}
+                                    {entry.holiday.closed_exchanges.join(", ")}
+                                    <br />
+                                  </div>
+                                ) : null}
                                 {entry.trades.length > 0
                                   ? entry.trades.map((trade, idx) => (
                                       <div key={idx}>
@@ -232,6 +248,8 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
           <div className="bg-[#33D026] w-2 h-2 rounded-[2px]"></div>
           <div className="bg-[#4CAF50] w-2 h-2 rounded-[2px]"></div>
           <div className="text-[10px] font-medium">Max Profit</div>
+          {/* <div className="ml-4 text-[10px] font-medium">Holiday</div>
+          <div className="bg-yellow-500 w-2 h-2 rounded-[2px]"></div> */}
         </div>
       </div>
     </section>

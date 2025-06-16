@@ -37,7 +37,7 @@ export const editTicker = async (req, res) => {
 
 export const getTicker = async (req, res) => {
   try {
-    const tickers = await Ticker.find();
+    const tickers = await Ticker.find().select("proName description");
     res.status(200).json({ success: true, tickers });
   } catch (error) {
     console.log(error);

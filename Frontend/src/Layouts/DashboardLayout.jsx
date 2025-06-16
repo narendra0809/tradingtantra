@@ -1,13 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Sidebar from "../Components/Dashboard/Sidebar";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "../Components/Dashboard/Header";
 import Footer from "../Components/Web/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { TickerTape } from "react-ts-tradingview-widgets";
-import { tickerSymbol } from "../utils/tickerSymbol";
+// import { tickerSymbol } from "../utils/tickerSymbol";
 import { toggleSideBar } from "../contexts/Redux/Slices/sidebarTogglerSlice";
+import axios from "axios";
+import { ADMIN_SERVER_URI } from "../pages/AdminPages/Home";
 
 const DashboardLayout = () => {
   const theme = useSelector((state) => state.theme.theme);
@@ -15,7 +17,20 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const mainContentRef = useRef(null);
+  const [tickers, setTickers] = useState([]);
 
+  const fetchTickers = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-tickers`);
+      setTickers(res.data?.tickers || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickers();
+  }, []);
   // Handle theme changes
   useEffect(() => {
     if (theme === "dark") {
@@ -81,7 +96,7 @@ const DashboardLayout = () => {
         <TickerTape
           colorTheme={`${theme === "dark" ? "dark" : "light"}`}
           isTransparent={true}
-          symbols={tickerSymbol}
+          symbols={tickers}
         />
         <Outlet />
         <Footer />

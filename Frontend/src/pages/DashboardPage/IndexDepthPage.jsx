@@ -115,8 +115,8 @@ const IndexDepthPage = () => {
   const gainersPercentage = totalStocks > 0 ? (gainers / totalStocks) * 100 : 0;
   return (
     <>
-      <div className="flex justify-between items-center mt-8">
-        <div className="flex items-center">
+      <div className="flex flex-col items-center gap-6 md:flex-row lg:flex-row md:justify-between lg:justify-between mt-8">
+        <div className="flex items-center justify-center">
           <h1 className="text-3xl font-medium mr-2">Index Depth</h1>{" "}
           <FcCandleSticks />{" "}
           <span className="text-lg font-light ml-4">How to use</span>{" "}
@@ -159,11 +159,13 @@ const IndexDepthPage = () => {
                 <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
                   {contribution.indexName}
                 </h4>
-                <span className="text-xl font-medium">
+                <span className="ml-3 text-xl font-medium">
                   <p>
-                    {allIndexPts[contribution.indexName].pts >= 0
-                      ? "up"
-                      : "down"}{" "}
+                    {allIndexPts[contribution.indexName].pts >= 0 ? (
+                      <span className="text-green-500">UP</span>
+                    ) : (
+                      <span className="text-red-500">DOWN</span>
+                    )}{" "}
                     by{" "}
                     {Math.abs(
                       allIndexPts[contribution.indexName].pts.toFixed(2)

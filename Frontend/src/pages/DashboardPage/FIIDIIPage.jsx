@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, Suspense, useRef } from "react";
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";

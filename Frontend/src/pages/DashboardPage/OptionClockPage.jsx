@@ -27,7 +27,7 @@ const OptionClockPage = () => {
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
-
+  const [currTime, setCurrTime] = useState("");
   const fetchIndexData = async (index) => {
     try {
       const response = await fetchData(
@@ -74,7 +74,7 @@ const OptionClockPage = () => {
       });
 
       setAllIndexData(newData);
-      // Set default expiry for Nifty50 if available
+
       if (newData.Nifty50?.expiries?.length > 0) {
         setSelectedExpiry(() => newData.Nifty50.expiries[0]);
       }
@@ -94,10 +94,10 @@ const OptionClockPage = () => {
 
   useEffect(() => {
     if (selectedExpiry && firstRender) {
-      getDataByIndexAndExpiry(`9:15-15:30`);
+      getDataByIndexAndExpiry(`9:15-${currTime}`);
       setFirstRender(false);
     }
-  }, [selectedExpiry]);
+  }, [selectedExpiry, currTime]);
 
   const handleIndexChange = (e) => {
     const index = e.target.value;
@@ -126,37 +126,6 @@ const OptionClockPage = () => {
         const expectedExpiry = data.expiry;
         const timeStamp = data.timestamp.trim();
         if (expectedExpiry !== selectedExpiry) return false;
-        // if (timeStamp == startTime) {
-        //   console.log("Start Time  Expected expiry : ", expectedExpiry);
-        // }
-        // console.log("TimeStamp : ", timeStamp);
-        // console.log("endTime : ", endTime);
-        // if (timeStamp == endTime) {
-        //   console.log("End Time  Expected expiry : ", expectedExpiry);
-        // }
-        // console.log("Expiry : ", expectedExpiry);
-
-        // let currDate = new Date();
-        // const dayNum = currDate.getDay();
-        // if (dayNum === 6) {
-        //   currDate = getPreviousDate(currDate);
-        // } else if (dayNum === 0) {
-        //   currDate = getPreviousDate(getPreviousDate(currDate));
-        // }
-
-        // const formatter = new Intl.DateTimeFormat("en-US", {
-        //   month: "2-digit",
-        //   day: "2-digit",
-        //   year: "numeric",
-        // });
-
-        // let formattedDate = formatter.format(currDate).slice(1).split("/");
-        // if (formattedDate[1].charAt(0) === "0") {
-        //   formattedDate[1] = formattedDate[1].charAt(1);
-        // }
-        // formattedDate = formattedDate.join("/");
-
-        // if (date !== formattedDate) return false;
 
         const { totalOiCE: totalCE, totalOiPE: totalPE } = getTotalOi(data);
         totalOiCE = totalOiCE + totalCE;
@@ -271,6 +240,10 @@ const OptionClockPage = () => {
     );
   };
 
+  const setTime = (time) => {
+    setCurrTime(time);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -338,7 +311,10 @@ const OptionClockPage = () => {
 
       {/* time range slider section */}
       <section>
-        <TimeRangeSlider getDataByIndexAndExpiry={getDataByIndexAndExpiry} />
+        <TimeRangeSlider
+          getDataByIndexAndExpiry={getDataByIndexAndExpiry}
+          setTime={setTime}
+        />
       </section>
 
       {/* oi clock charts section*/}
