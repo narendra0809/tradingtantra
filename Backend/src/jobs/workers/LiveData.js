@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 import { startWebSocket } from "../../controllers/liveMarketData.controller.js";
 import dotenv from "dotenv";
+import { DateTime } from "luxon";
 
 dotenv.config();
 
@@ -10,22 +11,25 @@ const connection = {
   password: process.env.REDIS_PASSWORD,
 };
 
-function isWithinTradingHours() {
-  const now = new Date();
-  const start = new Date();
-  const end = new Date();
+export const isMarketTime = () => {
+  const now = DateTime.now().setZone("Asia/Kolkata");
+  const hour = now.hour;
+  const minute = now.minute;
 
-  start.setHours(9, 15, 0); // 9:15 AM
-  end.setHours(15, 40, 0); // 3:35 PM
-
-  return now >= start && now <= end;
-}
+  if (hour < 9 || (hour === 9 && minute < 15)) {
+    return false;
+  }
+  if (hour > 15 || (hour === 15 && minute >= 40)) {
+    return false;
+  }
+  return true;
+};
 
 new Worker(
   "liveData",
   async () => {
     try {
-      if (isWithinTradingHours()) {
+      if (isMarketTime()) {
         console.log("⛷️ Running live data fetch within market hours...");
         await startWebSocket();
       } else {
