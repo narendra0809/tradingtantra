@@ -51,45 +51,30 @@ const saveMarketData = async () => {
   let successCount = 0;
   let errorCount = 0;
 
-  const bulkOps = [];
-
   for (const [securityId, marketData] of marketDataBuffer.entries()) {
     if (!marketData || !marketData.length || !marketData[0]) continue;
 
-    try {
-      const turnover = calculateTurnover(
-        marketData[0].avgTradePrice,
-        marketData[0].volume
-      );
+    const turnover = calculateTurnover(
+      marketData[0].avgTradePrice,
+      marketData[0].volume
+    );
 
-      bulkOps.push({
-        updateOne: {
-          filter: { date: todayDate, securityId },
-          update: { $set: { data: marketData, turnover } },
-          upsert: true,
-        },
-      });
-    } catch (err) {
-      console.error(
-        `❌ Error preparing data for ${securityId}: ${err.message}`
+    try {
+      await MarketDetailData.findOneAndUpdate(
+        { date: todayDate, securityId },
+        { $set: { data: marketData, turnover } },
+        { upsert: true, new: true }
       );
+      successCount++;
+    } catch (err) {
+      console.error(`❌ DB error for ${securityId}: ${err.message}`);
       errorCount++;
     }
   }
 
-  if (bulkOps.length > 0) {
-    try {
-      const result = await MarketDetailData.bulkWrite(bulkOps);
-      successCount = result.upsertedCount + result.modifiedCount;
-      console.log(
-        `✅ Saved to DB | Success: ${successCount}, Errors: ${errorCount}`
-      );
-    } catch (err) {
-      console.error(`❌ Bulk write error: ${err.message}`);
-      errorCount += bulkOps.length;
-    }
-  }
-
+  console.log(
+    `✅ Saved to DB | Success: ${successCount}, Errors: ${errorCount}`
+  );
   marketDataBuffer.clear();
   receivedSecurityIds.clear();
   isProcessingSave = false;
@@ -296,15 +281,15 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
       // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
-      if (isLastCandle1525) {
-        tenMinCandles.push({
-          timestamp: lastCandle.timestamp,
-          open: lastCandle.open,
-          high: lastCandle.high,
-          low: lastCandle.low,
-          close: lastCandle.close,
-        });
-      }
+  if (isLastCandle1525) {
+    tenMinCandles.push({
+      timestamp: lastCandle.timestamp,
+      open: lastCandle.open,
+      high: lastCandle.high,
+      low: lastCandle.low,
+      close: lastCandle.close,
+    });
+  }
       if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
         tenMinCandles.push({
           timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
@@ -319,6 +304,7 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   }
 
   // Add 15:25 as standalone 10-minute candle
+
 
   // Sort by timestamp
   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
@@ -512,7 +498,7 @@ const getData = async () => {
         }
       }
 
-      await delay(200);
+      await delay(150);
     }
 
     console.log("Total Count for 5mins : ", totalCount);
@@ -618,7 +604,7 @@ const getData = async () => {
         }
       }
 
-      await delay(200);
+      await delay(150);
     }
     console.log("Total Count for 15 mins : ", totalCount);
     await runFetchForIndexCandles(fromDate, toDate);

@@ -31,7 +31,7 @@ const formatDateForAPI = (date) => {
   return moment(date).format("DD-MM-YYYY");
 };
 
-// Get the interval start timestamp
+// Get the 3-minute interval start timestamp
 const getIntervalStart = (timestamp, intervalMinutes) => {
   const date = moment.unix(timestamp).tz("Asia/Kolkata");
   const minute = date.minute();
@@ -151,8 +151,7 @@ const mergeCandles = (
 };
 
 // Fetch data from Dhan API for a specific interval
-const fetchDhanData = async (index, interval, fromDate, toDate, retryCount = 0) => {
-  const maxRetries = 3;
+const fetchDhanData = async (index, interval, fromDate, toDate) => {
   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
@@ -184,15 +183,18 @@ const fetchDhanData = async (index, interval, fromDate, toDate, retryCount = 0) 
       close: response.data.close,
       timestamp: response.data.timestamp,
     };
+
     return obj;
   } catch (error) {
-    if (error.response?.status === 429 && retryCount < maxRetries) {
-      const retryAfter = error.response.headers["retry-after"]
-        ? parseInt(error.response.headers["retry-after"]) * 1000
-        : 150 * (retryCount + 1);
-      await delay(retryAfter);
-      return fetchDhanData(index, interval, fromDate, toDate, retryCount + 1);
+    if (error.response?.status === 429) {
+      console.warn(`Rate limit hit for ${index.name}. Retrying after 1s...`);
+      await delay(150);
+      return fetchDhanData(index, interval, fromDate, toDate);
     }
+    console.error(
+      `Error fetching ${interval} data for ${index.name}:`,
+      error.response?.data || error.message
+    );
     return null;
   }
 };
@@ -206,6 +208,7 @@ const processIndexCandles = async (
   tradingDay
 ) => {
   if (!apiData) {
+    console.log(`No data to process for ${index.name} (${interval})`);
     return;
   }
 
@@ -256,6 +259,13 @@ const processIndexCandles = async (
             const prevTimestampUnix = slicedData.timestamp[i - 1];
             const diffMinutes = (actualTimestampUnix - prevTimestampUnix) / 60;
             if (diffMinutes !== intervalMinutes) {
+              console.warn(
+                `Unexpected interval for ${
+                  index.name
+                } (${interval}): ${diffMinutes} minutes at ${unixToIST(
+                  actualTimestampUnix
+                )}`
+              );
               return null;
             }
           }
@@ -303,7 +313,14 @@ const processIndexCandles = async (
             lastClose: candle.lastClose,
           },
         });
-        if (updateResult.matchedCount === 0) {
+        if (updateResult.matchedCount > 0) {
+          console.log(
+            `Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`
+          );
+        } else {
+          console.warn(
+            `No ${interval} candle found to update at ${candle.timestamp} for ${index.name}`
+          );
           // Save as new candle with default values
           const indexCandle = new IndexCandles({
             indexName: index.name,
@@ -318,7 +335,7 @@ const processIndexCandles = async (
           });
           await indexCandle.save();
           console.log(
-            `Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close: close=${candle.close}`
+            `Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`
           );
         }
       } else {
@@ -338,14 +355,15 @@ const processIndexCandles = async (
           });
           await indexCandle.save();
           console.log(
-            `Saved ${interval} candle for ${index.name} at ${candle.timestamp}: open=${candle.open}, high=${candle.high}, low=${candle.low}, close=${candle.close}`
+            `Saved ${interval} candle for ${index.name} at ${candle.timestamp}`
           );
         }
       }
     }
   } catch (error) {
     console.error(
-      `Error processing ${index.name} candles for ${interval}: ${error.message}`
+      `Error processing ${index.name} candles for ${interval}:`,
+      error
     );
   }
 };
@@ -370,44 +388,42 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
       await delay(150);
     }
   }
+  console.log("All indices processed successfully");
 };
 
 export const deleteOldIndexData = async () => {
   try {
     const previousDay = await getPreviousTradingDay(new Date());
-    const cutoffDate = moment(previousDay).tz("Asia/Kolkata").startOf("day").toDate();
-    const result = await IndexCandles.deleteMany({
-      createdAt: { $lt: cutoffDate },
+
+    // Set time to 00:00:00 to match entire date
+    const deleteBefore = new Date(previousDay);
+    deleteBefore.setHours(0, 0, 0, 0); // normalize to start of day
+
+    await IndexCandles.deleteMany({
+      createdAt: { $lt: deleteBefore },
     });
-    console.log(`Deleted ${result.deletedCount} index candles older than ${moment(cutoffDate).format("YYYY-MM-DD")}`);
+
+    console.log("✅ Old index candle data deleted before", deleteBefore.toISOString());
   } catch (error) {
-    console.error(`Error deleting index candles old data: ${error.message}`);
+    console.log("❌ Error deleting index candles old data:", error);
   }
 };
 
+
 // Main function to run the fetch and process
+
 export const runFetchForIndexCandles = async () => {
   try {
     const today = moment().tz("Asia/Kolkata");
     const currentDate = formatDateForAPI(today);
-    const time = moment().tz("Asia/Kolkata");
-
-    // Time window: 11:50 AM to 1:00 PM to include 12:35 PM
-    const startTime = moment()
-      .tz("Asia/Kolkata")
-      .set({ hour: 11, minute: 50, second: 0 });
-    const endTime = moment()
-      .tz("Asia/Kolkata")
-      .set({ hour: 13, minute: 0, second: 0 });
-
-    if (time.isBetween(startTime, endTime)) {
+    const time = moment().format("hh:mm:ss A");
+    if (time >= "09:15:00 AM" && time <= "09:18:00 AM") {
       await deleteOldIndexData();
     }
-
-    // Fetch and process current day's data
+    // Only fetch and process current day's data
     await fetchAndProcessAllIndices(currentDate, currentDate);
   } catch (error) {
-    console.error(`Error in runFetchForIndexCandles: ${error.message}`);
+    console.error("Error in runFetchForIndexCandles:", error);
     throw error;
   }
 };
