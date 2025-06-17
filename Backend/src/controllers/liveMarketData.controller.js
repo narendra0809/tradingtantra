@@ -498,7 +498,7 @@ const getData = async () => {
         }
       }
 
-      await delay(150);
+      await delay(200);
     }
 
     console.log("Total Count for 5mins : ", totalCount);
@@ -604,7 +604,7 @@ const getData = async () => {
         }
       }
 
-      await delay(150);
+      await delay(200);
     }
     console.log("Total Count for 15 mins : ", totalCount);
     await runFetchForIndexCandles(fromDate, toDate);
