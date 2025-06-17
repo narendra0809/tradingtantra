@@ -141,17 +141,6 @@ const AdminLogin = () => {
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
-
-        {/* <div className="text-center text-sm ">
-          Don&apos;t have an account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/signup")}
-            className="text-[#6290FF] hover:text-[#6290FF] font-medium"
-          >
-            Sign Up
-          </button>
-        </div> */}
       </form>
     </WrapperPage>
   );

@@ -125,7 +125,9 @@ export default function OurStrategyAdmin() {
           <tbody>
             {videos.length === 0 ? (
               <tr>
-                <td className="text-center">No videos found !</td>
+                <td colSpan="5" className="py-4 px-2 text-center text-gray-400">
+                  No vidoes found.
+                </td>
               </tr>
             ) : (
               videos.map((video, index) => (

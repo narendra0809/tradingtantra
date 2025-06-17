@@ -12,7 +12,6 @@ import { lotSize } from "../../constants/constants";
 
 const OptionClockPage = () => {
   const { fetchData } = useFetchData();
-  const [firstRender, setFirstRender] = useState(true);
   const [allIndexData, setAllIndexData] = useState({
     Nifty50: { data: [], expiries: [] },
     BankNifty: { data: [], expiries: [] },
@@ -27,7 +26,6 @@ const OptionClockPage = () => {
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
-  const [currTime, setCurrTime] = useState("");
   const fetchIndexData = async (index) => {
     try {
       const response = await fetchData(
@@ -91,13 +89,6 @@ const OptionClockPage = () => {
     };
     initializeData();
   }, []);
-
-  useEffect(() => {
-    if (selectedExpiry && firstRender) {
-      getDataByIndexAndExpiry(`9:15-${currTime}`);
-      setFirstRender(false);
-    }
-  }, [selectedExpiry, currTime]);
 
   const handleIndexChange = (e) => {
     const index = e.target.value;
@@ -174,7 +165,7 @@ const OptionClockPage = () => {
       TotalOiChangeCE += data.oiChangeCE;
       TotalOiChangePE += data.oiChangePE;
     });
-    console.log({ TotalOiChangeCE, TotalOiChangePE });
+
     return { TotalOiChangeCE, TotalOiChangePE };
   };
 
@@ -238,10 +229,6 @@ const OptionClockPage = () => {
     return Array.from(mergedMap.values()).sort(
       (a, b) => a.strikePrice - b.strikePrice
     );
-  };
-
-  const setTime = (time) => {
-    setCurrTime(time);
   };
 
   if (loading) {
@@ -311,15 +298,12 @@ const OptionClockPage = () => {
 
       {/* time range slider section */}
       <section>
-        <TimeRangeSlider
-          getDataByIndexAndExpiry={getDataByIndexAndExpiry}
-          setTime={setTime}
-        />
+        <TimeRangeSlider getDataByIndexAndExpiry={getDataByIndexAndExpiry} />
       </section>
 
       {/* oi clock charts section*/}
       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
-        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-3">
+        <div className="dark:bg-db-primary bg-db-primary rounded-lg lg:p-3 md:p-3">
           {chartLoading ? (
             <div className="flex justify-center items-center h-64">
               {/* <LoadingSpinner /> */}

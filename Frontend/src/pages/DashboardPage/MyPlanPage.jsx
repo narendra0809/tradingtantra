@@ -7,8 +7,8 @@ import BuyPlanPage from "../WebPage/BuyPlanPage";
 import Cookies from "js-cookie";
 
 const MyPlanPage = () => {
-  // const isSubscribed = Cookies.get("isSubscribed");
-  const isSubscribed = true;
+  const isSubscribed = Boolean(Cookies.get("isSubscribed"));
+
   const { fetchData } = useFetchData();
   const { user } = useAuth();
   const [userSub, setUserSub] = useState({
@@ -35,8 +35,11 @@ const MyPlanPage = () => {
       console.log(error);
     }
   };
+
   useEffect(() => {
-    fetchUserSubDetails();
+    if (isSubscribed) {
+      fetchUserSubDetails();
+    }
   }, []);
   return (
     <>

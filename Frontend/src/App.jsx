@@ -60,6 +60,7 @@ import SettingsUpload from "./pages/AdminPages/SettingsUpload";
 import OurStrategyAdmin from "./pages/AdminPages/OurStrategyAdmin";
 import Dashboard from "./pages/AdminPages/Dashboard";
 import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
+import StockDetails from "./pages/AdminPages/StockDetails";
 
 const App = () => {
   return (
@@ -150,6 +151,7 @@ const App = () => {
                     <Route path="updates" element={<Updates />} />
                     <Route path="data-api" element={<DataAPI />} />
                     <Route path="our-strategy" element={<OurStrategyAdmin />} />
+                    <Route path="stockdetails" element={<StockDetails />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="setting" element={<SettingsUpload />} />
                   </Route>

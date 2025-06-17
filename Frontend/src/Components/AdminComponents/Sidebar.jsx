@@ -32,6 +32,7 @@ const menuItems = [
   { name: "Updates", icon: updatesImg, path: "updates" },
   { name: "Data API", icon: dataApiImg, path: "data-api" },
   { name: "Our Strategy", icon: strategyImg, path: "our-strategy" },
+  { name: "Stock Details", icon: strategyImg, path: "stockdetails" },
   { name: "Profile", icon: profileImg, path: "profile" },
   { name: "Setting", icon: settingImg, path: "setting" },
 ];
@@ -39,7 +40,7 @@ const menuItems = [
 const Sidebar = ({ closeSidebar }) => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
-
+  console.log("Location  : ", location.pathname);
   return (
     <aside
       className={`${
@@ -84,7 +85,8 @@ const Sidebar = ({ closeSidebar }) => {
             replace
             key={index}
             className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
-              location.pathname === item.path
+              location.pathname ===
+              `${item.path === "/admin" ? item.path : `/admin/${item.path}`}`
                 ? "bg-[#10172a] text-blue-400"
                 : "hover:bg-[#10172a] text-white"
             }`}

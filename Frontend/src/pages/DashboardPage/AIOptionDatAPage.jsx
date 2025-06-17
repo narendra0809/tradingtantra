@@ -96,10 +96,9 @@ const AIOptionDataPage = () => {
       const indexData = {
         "NIFTY 50": res.data.NIFTY,
         BANKNIFTY: res.data.BANKNIFTY,
-        MIDCAP: res.data.MIDCPNIFTY,
+        MIDCAP: res.data.MIDCAP,
         SENSEX: res.data.SENSEX,
         FINNIFTY: res.data.FINNIFTY,
-        "NIFTY MID": { pts: 0, per: 0 },
       };
       setAllIndexPts(indexData);
     } catch (error) {
@@ -434,7 +433,7 @@ const AIOptionDataPage = () => {
           <div className="dark:bg-db-primary bg-db-primary   rounded-lg p-4 h-full ">
             {/* heading */}
             <div className="flex gap-4 items-center ">
-              <h1 className="text-2xl font-medium ">Nifty 50</h1>
+              <h1 className="text-2xl font-medium ">{selectedIndex}</h1>
 
               <span className="flex gap-1 items-center text-base font-light text-white">
                 How to Use <FaPlayCircle className="text-[#0256F5]" />{" "}
@@ -455,27 +454,10 @@ const AIOptionDataPage = () => {
         {/* second card */}
         <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
           <div className="h-full dark:bg-db-primary bg-db-primary rounded-lg">
-            <div className="flex flex-col items-center gap-5">
+            <div className="flex flex-col items-center h-[400px] gap-5">
               {meterData.map((item, index) => (
                 <GaugeMeter key={index} title={item.title} totalOI={totalOI} />
               ))}
-            </div>
-
-            <div className="flex justify-center gap-4 items-center mt-8">
-              {/* <h1 className="text-2xl font-medium ">Money Flux</h1> */}
-
-              <span className="flex gap-1 items-center text-base font-light ">
-                {/* How to Use <FaPlayCircle className="text-[#0256F5]" />{" "} */}
-              </span>
-
-              {/* <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white"> */}
-              {/* <GoDotFill /> */}
-              {/* Live */}
-              {/* </span> */}
-
-              <div className="rounded-lg overflow-hidden h-[200px] mt-4">
-                {/* <TreemapChart/> */}
-              </div>
             </div>
           </div>
         </div>

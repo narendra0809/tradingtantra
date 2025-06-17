@@ -86,7 +86,7 @@ const Updates = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0E17] text-white p-4 md:p-6">
+    <div className="min-h-screen bg-[#000A2D] text-white p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         {/* Updates Table */}
         <div className="mb-8 bg-[#0F1629] rounded-2xl shadow-xl overflow-hidden">

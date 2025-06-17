@@ -7,6 +7,10 @@ export const getSubcriptionValidity = async (req, res) => {
     const userSub = await UserSubscription.findOne({
       userId,
     });
+    if (!userSub) {
+      res.status(403).json({ success: false, isSubscribed: false });
+      return;
+    }
 
     const userData = {
       startDate: userSub.startDate,
