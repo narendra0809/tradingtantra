@@ -57,12 +57,13 @@ export const AdminAuthProvider = ({ children }) => {
       await axios.post(
         `${SERVER_URI}/admin/auth/logout`,
         {},
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
     } catch (error) {
       console.error("Error logging out:", error);
     }
-
     localStorage.removeItem("adminToken");
     setAdmin(null);
     navigate("/admin", { replace: true });

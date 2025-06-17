@@ -70,7 +70,11 @@ const OiClockChart = ({ data: chartData }) => {
   const marginBottom = isMobile ? 80 : 60;
 
   return (
-    <div className={`w-full overflow-x-auto`}>
+    <div
+      className={`w-full overflow-x-auto overflow-y-hidden ${
+        isMobile && "h-[350px]"
+      }`}
+    >
       <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-db-primary lg:p-3 md:p-5 rounded-lg">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 import axios from "axios";
 
@@ -63,6 +64,7 @@ export const AuthProvider = ({ children }) => {
         {},
         { withCredentials: true }
       );
+      Cookies.remove("isSubscribed");
     } catch (error) {
       console.error("Error logging out:", error);
     }

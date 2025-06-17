@@ -18,10 +18,6 @@ export const postUpdates = async (req, res) => {
 
 export const getUpdates = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
-      res.status(401).send("Unauthorized Access !");
-    }
-
     const updates = await Update.find();
     res.status(200).json({ success: true, updates });
   } catch (error) {

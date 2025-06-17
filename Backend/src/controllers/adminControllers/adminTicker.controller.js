@@ -38,7 +38,12 @@ export const editTicker = async (req, res) => {
 export const getTicker = async (req, res) => {
   try {
     const tickers = await Ticker.find().select("proName description");
-    res.status(200).json({ success: true, tickers });
+
+    const newTickers = tickers.map((tick) => ({
+      proName: tick.proName,
+      title: tick.description,
+    }));
+    res.status(200).json({ success: true, tickers: newTickers });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "internal server error" });

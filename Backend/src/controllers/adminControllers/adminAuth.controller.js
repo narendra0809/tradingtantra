@@ -42,7 +42,7 @@ export const adminLogin = async (req, res) => {
 
     res
       .status(200)
-      .cookie("accessToken", token, options)
+      .cookie("adminAccessToken", token, options)
       .json({
         success: true,
         token,

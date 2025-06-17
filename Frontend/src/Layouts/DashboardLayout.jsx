@@ -6,7 +6,7 @@ import Header from "../Components/Dashboard/Header";
 import Footer from "../Components/Web/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { TickerTape } from "react-ts-tradingview-widgets";
-// import { tickerSymbol } from "../utils/tickerSymbol";
+
 import { toggleSideBar } from "../contexts/Redux/Slices/sidebarTogglerSlice";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "../pages/AdminPages/Home";
@@ -17,7 +17,28 @@ const DashboardLayout = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const mainContentRef = useRef(null);
-  const [tickers, setTickers] = useState([]);
+  const [tickers, setTickers] = useState([
+    {
+      proName: "FOREXCOM:SPXUSD",
+      title: "S&P 500",
+    },
+    {
+      proName: "FOREXCOM:NSXUSD",
+      title: "Nasdaq 100",
+    },
+    {
+      proName: "FX_IDC:EURUSD",
+      title: "EUR/USD",
+    },
+    {
+      description: "BTC/USD",
+      proName: "BITSTAMP:BTCUSD",
+    },
+    {
+      description: "ETH/USD",
+      proName: "BITSTAMP:ETHUSD",
+    },
+  ]);
 
   const fetchTickers = async () => {
     try {
@@ -94,9 +115,19 @@ const DashboardLayout = () => {
       >
         <Header />
         <TickerTape
-          colorTheme={`${theme === "dark" ? "dark" : "light"}`}
+          colorTheme={theme === "dark" ? "dark" : "light"}
           isTransparent={true}
+          displayMode="regular"
           symbols={tickers}
+          showSymbolLogo={true}
+          locale="en"
+          autosize
+          container_id="tradingview-widget-container"
+          style={{
+            height: "46px",
+            width: "100%",
+            margin: "0 auto",
+          }}
         />
         <Outlet />
         <Footer />

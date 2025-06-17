@@ -10,8 +10,6 @@ import DisclosuresPage from "./pages/WebPage/DisclosuresPage";
 import TermsAndConditionPage from "./pages/WebPage/TermsAndConditionPage";
 import PrivacyPolicyPage from "./pages/WebPage/PrivacyPolicyPage";
 import FAQPage from "./pages/WebPage/FAQPage";
-import RenewPlanPage from "./pages/WebPage/RenewPlanPage";
-import BuyPlanPage from "./pages/WebPage/BuyPlanPage";
 import WebLayout from "./Layouts/WebLayout";
 import DashboardLayout from "./Layouts/DashboardLayout";
 import Homepage from "./pages/DashboardPage/Homepage";
@@ -95,8 +93,8 @@ const App = () => {
                     element={<PrivacyPolicyPage />}
                   />
                   <Route path="/faq" element={<FAQPage />} />
-                  <Route path="/renew-plan" element={<RenewPlanPage />} />
-                  <Route path="/buy-plan" element={<BuyPlanPage />} />
+                  {/* <Route path="/renew-plan" element={<RenewPlanPage />} />
+                  <Route path="/buy-plan" element={<BuyPlanPage />} /> */}
                   <Route path="/testimonial" element={<Testimonials />} />
                 </Route>
 

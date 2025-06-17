@@ -3,7 +3,7 @@ import Admin from "../models/adminModels/admin.model.js";
 
 const verifyAdmin = async (req, res, next) => {
   try {
-    const token = req?.cookies?.accessToken;
+    const token = req?.cookies?.adminAccessToken;
 
     if (!token) {
       return res

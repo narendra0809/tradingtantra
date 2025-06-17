@@ -7,6 +7,6 @@ import {
 const router = express.Router();
 
 router.post("/post-update", verifyAdmin, postUpdates);
-router.get("/get-updates", verifyAdmin, getUpdates);
+router.get("/get-updates", getUpdates);
 
 export default router;
