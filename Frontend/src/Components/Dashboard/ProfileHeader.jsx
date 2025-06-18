@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-
 import profileBgCover from "../../assets/Images/Dashboard/homepage/profileBgCover.png";
 import userImg from "../../assets/Images/Dashboard/HeaderImg/user.png";
 import { useAuth } from "../../contexts/AuthContext";

@@ -66,11 +66,7 @@ export const AdminAuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem("adminToken");
       setAdmin(null);
-      if (import.meta.env.PROD === "production") {
-        window.location.href = "/admin/login";
-      } else {
-        navigate("/admin/login", { replace: true });
-      }
+      navigate("/admin/login", { replace: true });
     }
   };
 

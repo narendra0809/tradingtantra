@@ -31,12 +31,9 @@ export const adminLogin = async (req, res) => {
     const token = jwt.sign({ adminId: admin._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1d",
     });
-
     const options = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "PRODUCTION",
       maxAge: 24 * 60 * 60 * 1000,
     };
 
@@ -61,8 +58,7 @@ export const adminLogout = async (req, res) => {
   try {
     const options = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === "PRODUCTION",
     };
 
     res.status(200).clearCookie("adminAccessToken", options).json({

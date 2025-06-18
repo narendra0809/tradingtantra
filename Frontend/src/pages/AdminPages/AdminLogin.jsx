@@ -12,7 +12,7 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { data, error, fetchData } = useFetchData();
-  const { login } = useAdminAuth();
+  const { login, admin } = useAdminAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +55,12 @@ const AdminLogin = () => {
   };
 
   useEffect(() => {
+    if (admin) {
+      navigate("/admin", { replace: true });
+    }
+  }, [admin, navigate]);
+
+  useEffect(() => {
     if (data?.success) {
       login(data.token);
       navigate("/admin");
@@ -62,7 +68,6 @@ const AdminLogin = () => {
   }, [data]);
 
   useEffect(() => {
-    console.log(error);
     if (error) {
       if (error.data?.message === "User not Exist, please sign up") {
         setFormErrors({
