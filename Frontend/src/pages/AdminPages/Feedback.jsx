@@ -23,7 +23,6 @@ const Feedback = () => {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-feedbacks`, {
         withCredentials: true,
       });
-      console.log(res.data.feedbacks);
       setFeedbacks(res.data.feedbacks);
     } catch (error) {
       console.log(error);
@@ -41,9 +40,10 @@ const Feedback = () => {
   };
 
   const filteredData = feedbacks.filter((item) => {
-    console.log(item);
     const formattedDate = formatDate(selectedDate);
-    const matchesDate = selectedDate ? item.date === formattedDate : true;
+    const matchesDate = selectedDate
+      ? formatDate(item.createdAt.split("T")[0]) === formattedDate
+      : true;
     const matchesSearch =
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -15,8 +15,8 @@ export const addTicker = async (req, res) => {
 export const deleteTicker = async (req, res) => {
   try {
     const { id } = req.query;
-    const _id = new mongoose.Types.ObjectId(id);
-    await Ticker.findByIdAndDelete(_id);
+
+    await Ticker.findByIdAndDelete(new mongoose.Types.ObjectId(id));
     res.status(200).json({ success: true, message: "ticker deleted !" });
   } catch (error) {
     console.log(error);
@@ -42,6 +42,7 @@ export const getTicker = async (req, res) => {
     const newTickers = tickers.map((tick) => ({
       proName: tick.proName,
       title: tick.description,
+      _id: tick._id,
     }));
     res.status(200).json({ success: true, tickers: newTickers });
   } catch (error) {

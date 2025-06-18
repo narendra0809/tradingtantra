@@ -5,6 +5,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import useFetchData from "../../utils/useFetchData";
 import BuyPlanPage from "../WebPage/BuyPlanPage";
 import Cookies from "js-cookie";
+import { ArrowBigLeft } from "lucide-react";
+import RenewPlanPage from "../WebPage/RenewPlanPage";
 
 const MyPlanPage = () => {
   const { fetchData } = useFetchData();
@@ -15,6 +17,7 @@ const MyPlanPage = () => {
     endDate: "",
     status: "",
   });
+  const [showRenewModal, setShowRenewModal] = useState(false);
 
   const fetchUserSubDetails = async () => {
     try {
@@ -55,10 +58,24 @@ const MyPlanPage = () => {
       </div>
 
       <h3 className="text-xl text-blue-400 text-center font-semibold px-6 py-2">
-        {isSubscribed ? "My Plan" : "Not Subscribed Yet? Buy Subscription Now"}
+        {!showRenewModal && isSubscribed
+          ? "My Plan"
+          : !showRenewModal && "Not Subscribed Yet? Buy Subscription Now"}
       </h3>
       <div className="dark:bg-db-primary bg-db-primary rounded-[20px] mx-auto py-6">
-        {isSubscribed ? (
+        {showRenewModal && (
+          <button
+            onClick={() => setShowRenewModal(false)}
+            className="flex items-center gap-1 text-lg ml-5 hover:font-bold"
+          >
+            <ArrowBigLeft />
+            <span>Back</span>
+          </button>
+        )}
+        {showRenewModal && (
+          <RenewPlanPage setShowRenewModal={setShowRenewModal} />
+        )}
+        {!showRenewModal && isSubscribed ? (
           <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A]">
             <div>
               <h4 className="text-xl font-semibold">Diamonds</h4>
@@ -67,12 +84,15 @@ const MyPlanPage = () => {
                 View Transaction Details
               </p>
             </div>
-            <button className="bg-[#0155F3] text-white font-light py-2 px-2.5 h-fit rounded">
+            <button
+              onClick={() => setShowRenewModal(true)}
+              className="bg-[#0155F3] text-white font-light py-2 px-2.5 h-fit rounded"
+            >
               Renew
             </button>
           </div>
         ) : (
-          <BuyPlanPage />
+          !showRenewModal && <BuyPlanPage />
         )}
       </div>
     </>

@@ -95,9 +95,13 @@ const logIn = async (req, res) => {
       isSubscribed = true;
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, displayName: user.displayName },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     const options = {
       httpOnly: true,

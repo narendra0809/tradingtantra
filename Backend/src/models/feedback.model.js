@@ -6,10 +6,6 @@ const FeedbackSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    number: {
-      type: Number,
-      required: true,
-    },
     message: {
       type: String,
       required: true,

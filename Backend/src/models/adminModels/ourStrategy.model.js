@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const OurStrategySchema = new mongoose.Schema(
   {
-    thumbnail: {
+    thumbnailUrl: {
       type: String,
       required: true,
     },
@@ -10,7 +10,11 @@ const OurStrategySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    link: {
+    description: {
+      type: String,
+      required: true,
+    },
+    videoUrl: {
       type: String,
       required: true,
     },

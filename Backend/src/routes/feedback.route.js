@@ -5,7 +5,7 @@ import feedback, { getFeedbacks } from "../controllers/feedback.controller.js";
 
 const router = express.Router();
 
-router.post("/feedback", verifyUser, feedback);
+router.post("/post-feedback", verifyUser, feedback);
 router.get("/admin/get-feedbacks", verifyAdmin, getFeedbacks);
 
 export default router;

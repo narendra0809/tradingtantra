@@ -2,9 +2,9 @@ import Feedback from "../models/feedback.model.js";
 
 const feedback = async (req, res) => {
   try {
-    const { name, number, message, category, image } = req.body;
+    const { name, message, category, image } = req.body;
 
-    if (!feedback) {
+    if (!name || !message || !category) {
       return res
         .status(400)
         .json({ success: false, message: "Feedback is required" });
@@ -15,7 +15,6 @@ const feedback = async (req, res) => {
     const newFeedback = await Feedback.create({
       userId,
       name,
-      number,
       message,
       category,
       image,

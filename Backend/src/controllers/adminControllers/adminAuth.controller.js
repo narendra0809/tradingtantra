@@ -65,7 +65,7 @@ export const adminLogout = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     };
 
-    res.status(200).clearCookie("accessToken", options).json({
+    res.status(200).clearCookie("adminAccessToken", options).json({
       success: true,
       message: "logged out successfully",
     });
@@ -82,10 +82,8 @@ export const updateAdminPassword = async (req, res) => {
     if (!req.admin || !req.admin.id)
       res.status(401).send("Unauthorized Access !");
     const { password } = req.body;
-    console.log(password);
     const salt = await bcrypt.genSalt(10);
     const hashedPass = await bcrypt.hash(password, salt);
-    console.log(hashedPass);
     await Admin.findByIdAndUpdate(req.admin.id, { password: hashedPass });
     res.status(200).json({
       success: true,

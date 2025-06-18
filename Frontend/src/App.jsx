@@ -93,8 +93,6 @@ const App = () => {
                     element={<PrivacyPolicyPage />}
                   />
                   <Route path="/faq" element={<FAQPage />} />
-                  {/* <Route path="/renew-plan" element={<RenewPlanPage />} />
-                  <Route path="/buy-plan" element={<BuyPlanPage />} /> */}
                   <Route path="/testimonial" element={<Testimonials />} />
                 </Route>
 

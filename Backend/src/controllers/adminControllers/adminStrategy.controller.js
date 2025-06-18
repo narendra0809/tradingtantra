@@ -6,8 +6,13 @@ export const postStrategy = async (req, res) => {
     if (!req.admin || !req.admin.id) {
       res.status(401).send("Unauthorized Access !");
     }
-    const { title, thumbnail, link } = req.body;
-    const video = await OurStrategy.create({ title, link, thumbnail });
+    const { title, description, videoUrl, thumbnailUrl } = req.body;
+    const video = await OurStrategy.create({
+      title,
+      description,
+      videoUrl,
+      thumbnailUrl,
+    });
     res.status(200).json({ success: true, video });
   } catch (error) {
     console.log(error);
@@ -23,7 +28,7 @@ export const editStrategy = async (req, res) => {
         .json({ success: false, message: "Unauthorized Access!" });
     }
 
-    const { title, thumbnail, link, _id } = req.body;
+    const { title, description, videoUrl, thumbnailUrl, _id } = req.body;
 
     if (!_id) {
       return res.status(400).json({
@@ -47,7 +52,7 @@ export const editStrategy = async (req, res) => {
 
     const updatedVideo = await OurStrategy.findByIdAndUpdate(
       idStr,
-      { title, link, thumbnail },
+      { title, description, videoUrl, thumbnailUrl },
       { new: true, runValidators: true }
     );
 
@@ -87,9 +92,6 @@ export const deleteStrategy = async (req, res) => {
 
 export const getStrategy = async (req, res) => {
   try {
-    if (!req.admin || !req.admin.id) {
-      res.status(401).send("Unauthorized Access !");
-    }
     const videos = await OurStrategy.find();
     res.status(200).json({ success: true, videos });
   } catch (error) {

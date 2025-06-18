@@ -167,9 +167,16 @@ const IndexDepthPage = () => {
                       <span className="text-red-500">DOWN</span>
                     )}{" "}
                     by{" "}
-                    {Math.abs(
-                      allIndexPts[contribution.indexName].pts.toFixed(2)
-                    )}{" "}
+                    <span
+                      className={`${
+                        allIndexPts[contribution.indexName].pts < 0
+                          ? "text-red-500"
+                          : "text-green-500"
+                      }`}
+                    >
+                      {" "}
+                      {allIndexPts[contribution.indexName].pts}
+                    </span>{" "}
                     pts ({allIndexPts[contribution.indexName].per}%)
                   </p>
                 </span>

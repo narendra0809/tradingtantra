@@ -1,32 +1,46 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import folderimg from "../../assets/Images/Dashboard/FeedbackImg/folderImg.png";
 import { CiUser } from "react-icons/ci";
-import { MdOutlinePhone } from "react-icons/md";
-import useFetchData from "../../utils/useFetchData";
+// import { MdOutlinePhone } from "react-icons/md";
 import { Loader } from "lucide-react";
-
+import axios from "axios";
+const URI = import.meta.env.VITE_SERVER_URI;
 const FeedBackPage = () => {
   const fileInputRef = useRef(null);
-
-  const { data, loading, error, fetchData } = useFetchData();
-
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    number: "",
     category: "",
-    message: "",
+    feedback: "",
   });
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
-    await fetchData("feedback", "POST", formData);
-
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${URI}/post-feedback`,
+        {
+          name: formData.name,
+          category: formData.category,
+          message: formData.feedback,
+        },
+        { withCredentials: true }
+      );
+      if (res.status !== 200) {
+        throw new Error(res.statusText);
+      }
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
     setFormData({
       name: "",
       number: "",
       category: "",
-      message: "",
+      feedback: "",
     });
   };
 
@@ -40,22 +54,22 @@ const FeedBackPage = () => {
   };
 
   return (
-    <div className="dark:bg-db-primary relative bg-db-primary  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
+    <div className="bg-db-primary relative  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
       {loading && (
         <Loader className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
       )}
-      <h4 className="text-3xl font-medium font-Inter ">Feed Back</h4>
+      <h4 className="text-3xl text-center font-medium font-Inter">Feed Back</h4>
       <div className="w-full mt-10">
         <form
           className="flex items-center justify-between flex-wrap w-full space-y-4"
           onSubmit={handleFormSubmit}
         >
-          <div className="flex flex-col items-start dark:text-[#C9CFE5] text-gray-800 w-full space-y-2">
-            <label className="font-Inter  text-sm font-light" htmlFor="name">
+          <div className="flex flex-col items-start text-white w-full space-y-2">
+            <label className="text" htmlFor="name">
               Name
             </label>
-            <div className="flex items-center gap-2 dark:placeholder:text-[#C9CFE5] placeholder:text-gray-800 dark:text-white text-black dark:bg-[#151B2D] border dark:border-none border-black  rounded-lg px-2 w-full py-2">
-              <CiUser className="text-xl dark:text-[#C9CFE5]" />
+            <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+              <CiUser className="text-xl dark:text-white" />
               <input
                 type="text"
                 placeholder="Jhon"
@@ -66,12 +80,12 @@ const FeedBackPage = () => {
               />
             </div>
           </div>
-          <div className="flex flex-col items-start dark:text-[#C9CFE5] w-full space-y-2">
-            <label htmlFor="phone" className="font-Inter  text-sm font-light">
+          {/* <div className="flex flex-col items-start dark:text-white w-full space-y-2">
+            <label htmlFor="phone" className="font-Inter text-sm font-light">
               Whatsapp Number
             </label>
-            <div className="flex items-center gap-2 dark:placeholder:text-[#C9CFE5]  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
-              <MdOutlinePhone className="text-xl dark:text-[#c9cfe5]" />
+            <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+              <MdOutlinePhone className="text-xl dark:text-white" />
               <input
                 type="text"
                 placeholder="+91 xxxx-xxxx-xx"
@@ -83,15 +97,15 @@ const FeedBackPage = () => {
                 className="outline-none border-none bg-transparent w-full"
               />
             </div>
-          </div>
-          <div className="flex flex-col items-start dark:text-[#C9CFE5] w-full space-y-2">
+          </div> */}
+          <div className="flex flex-col items-start dark:text-white w-full space-y-2">
             <label
               htmlFor="category"
               className="font-Inter  text-sm font-light"
             >
               Select Category
             </label>
-            <div className="flex items-center gap-2 dark:placeholder:text-[#C9CFE5]  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+            <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
               <input
                 type="text"
                 placeholder="Select Category"
@@ -103,7 +117,7 @@ const FeedBackPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col items-center dark:text-[#C9CFE5] w-full space-y-5 dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 py-2">
+          <div className="flex flex-col items-center dark:text-white w-full space-y-5 dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 py-2">
             <img className="w-16 h-16" src={folderimg} />
             <p className="text-base font-Inter font-light ">
               Choose Your File to upload
@@ -124,17 +138,17 @@ const FeedBackPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col items-start dark:text-[#C9CFE5] w-full space-y-2">
+          <div className="flex flex-col items-start dark:text-white w-full space-y-2">
             <label
               htmlFor="feedback"
               className="font-Inter  text-sm font-light"
             >
               Feedback
             </label>
-            <div className="flex items-center gap-2 dark:placeholder:text-[#C9CFE5]  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+            <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
               <textarea
-                name="message"
-                value={formData.message}
+                name="feedback"
+                value={formData.feedback}
                 onChange={handleChange}
                 placeholder="Enter Your Feedback Here"
                 className="outline-none border-none bg-transparent w-full resize-none h-30"
@@ -145,7 +159,7 @@ const FeedBackPage = () => {
             className="w-full bg-primary mt-5 py-5 rounded-lg"
             type="submit"
           >
-            Send message
+            Send feedback
           </button>
         </form>
       </div>

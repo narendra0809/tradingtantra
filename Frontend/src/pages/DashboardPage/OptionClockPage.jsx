@@ -9,9 +9,12 @@ import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
 import { convertTo12HourFormat, parseTime } from "../../utils/utils";
 import { lotSize } from "../../constants/constants";
-
+import Cookies from "js-cookie";
+import { useAuth } from "../../contexts/AuthContext";
+import Lock from "../../Components/Dashboard/Lock";
 const OptionClockPage = () => {
   const { fetchData } = useFetchData();
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [allIndexData, setAllIndexData] = useState({
     Nifty50: { data: [], expiries: [] },
     BankNifty: { data: [], expiries: [] },
@@ -26,6 +29,8 @@ const OptionClockPage = () => {
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
+  const { user } = useAuth();
+
   const fetchIndexData = async (index) => {
     try {
       const response = await fetchData(
@@ -82,6 +87,15 @@ const OptionClockPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const checkSubscription = () => {
+      const Subscribed = Cookies.get("isSubscribed") === "true";
+      setIsSubscribed(Subscribed);
+    };
+
+    checkSubscription();
+  }, []);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -298,7 +312,10 @@ const OptionClockPage = () => {
 
       {/* time range slider section */}
       <section>
-        <TimeRangeSlider getDataByIndexAndExpiry={getDataByIndexAndExpiry} />
+        <TimeRangeSlider
+          getDataByIndexAndExpiry={getDataByIndexAndExpiry}
+          isSubscribed={isSubscribed}
+        />
       </section>
 
       {/* oi clock charts section*/}
@@ -320,7 +337,13 @@ const OptionClockPage = () => {
                 </div>
 
                 <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
-                  <OiClockChart data={currData} />
+                  {isSubscribed ? (
+                    <OiClockChart data={currData} />
+                  ) : (
+                    <div className="w-full h-[500px]">
+                      <Lock />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -333,7 +356,13 @@ const OptionClockPage = () => {
                         <FcCandleSticks />
                       </span>
                     </div>
-                    <OiClockChartTwo data={totalOiChanges} />
+                    {isSubscribed ? (
+                      <OiClockChartTwo data={totalOiChanges} />
+                    ) : (
+                      <div className="w-full h-[500px]">
+                        <Lock />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -354,10 +383,16 @@ const OptionClockPage = () => {
                         <p>Bears Total OI</p>
                       </div>
                     </div>
-                    <OiClockChartThree
-                      data={totalOi}
-                      selectedIndex={selectedIndex}
-                    />
+                    {isSubscribed ? (
+                      <OiClockChartThree
+                        data={totalOi}
+                        selectedIndex={selectedIndex}
+                      />
+                    ) : (
+                      <div className="w-full h-[500px]">
+                        <Lock />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

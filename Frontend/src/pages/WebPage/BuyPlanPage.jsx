@@ -34,7 +34,7 @@ const BuyPlanPage = () => {
     lastName: "",
     country: "",
     state: "",
-    phoneNumber: Number,
+    phoneNumber: "",
     email: "",
     confirmEmail: "",
   });
@@ -127,7 +127,11 @@ const BuyPlanPage = () => {
       return;
     }
     try {
-      const res = await fetchData("payment/createorder", "POST", formValues);
+      const res = await fetchData(
+        `payment/createorder?renew=${false}`,
+        "POST",
+        formValues
+      );
       if (res.status !== 200) {
         throw new Error("Failed to create order !");
       }
@@ -166,7 +170,7 @@ const BuyPlanPage = () => {
   const verifyPayment = async (paymentResponse) => {
     try {
       const res = await fetchData(
-        "payment/verify-payment",
+        `payment/verify-payment?renew=${false}`,
         "POST",
         paymentResponse
       );
@@ -188,203 +192,270 @@ const BuyPlanPage = () => {
     setFormErrors({ ...formErrors, isAgreed: "" });
   };
   return (
-    <>
-      <div className="xl:w-[70%] md:w-[90%] w-full mx-auto bg-[#01071C] md:px-8 px-4 md:py-8 py-4 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] flex sm:flex-row flex-col items-start gap-5 ">
-        <div className="sm:w-[60%] w-full">
-          <div className="flex flex-col md:space-y-10 space-y-5">
-            <h3 className="text-2xl font-medium">Don’t Just Trade Dominate</h3>
-            <p className="bg-primary rounded-lg md:text-2xl text-xl font-thin px-3 py-2 md:w-1/2 w-4/5">
-              CRYSTAL (Rs. 3999)
-            </p>
-            <p className="md:text-2xl text-xl font-bold">
-              Duration: 6 months + 6 Months Free
-            </p>
-          </div>
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="bg-[#01071C] rounded-xl border border-[#0256f550] overflow-hidden shadow-lg">
+        <div className="flex flex-col lg:flex-row">
+          {/* Left Column - Form */}
+          <div className="lg:w-3/5 p-6 lg:p-8">
+            <div className="mb-8">
+              <h3 className="text-2xl font-medium text-white mb-2">
+                Don&apos;t Just Trade, Dominate
+              </h3>
+              <div className="bg-primary rounded-lg text-2xl font-thin px-4 py-3 inline-block">
+                CRYSTAL (Rs. 3999)
+              </div>
+              <p className="text-xl font-bold text-white mt-4">
+                Duration: 6 months + 6 Months Free
+              </p>
+            </div>
 
-          <div className=" md:mt-15 mt-8">
-            <form onSubmit={handleSubmit}>
-              <div className="flex items-center justify-between flex-wrap  text-white md:space-y-6 space-y-3">
-                <input
-                  onChange={handleChange}
-                  name="firstName"
-                  type="text"
-                  placeholder="First Name*"
-                  value={formData.firstName}
-                  className="sm:w-[45%] w-full  bg-[#000A2D] py-2 rounded-lg px-3"
-                />
-                {formErrors.firstName && (
-                  <span className="bg-red-400 rounded-lg p-2 ">
-                    {formErrors.firstName}
-                  </span>
-                )}
-                <input
-                  type="text"
-                  onChange={handleChange}
-                  name="lastName"
-                  value={formData.lastName}
-                  placeholder="Last Name*"
-                  className="sm:w-[45%] w-full   bg-[#000A2D] py-2 rounded-lg px-3"
-                />
-                {formErrors.lastName && (
-                  <span className="bg-red-400 rounded-lg p-2 ">
-                    {formErrors.lastName}
-                  </span>
-                )}
-
-                <select
-                  name="country"
-                  className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
-                  value={selectedCountry}
-                  onChange={handleCountryChange}
-                >
-                  <option value="" disabled>
-                    Select Country
-                  </option>
-                  {countries.map((country, index) => (
-                    <option key={index} value={country.country}>
-                      {country.country}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  name="state"
-                  className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
-                  value={selectedState}
-                  onChange={handleStateChange}
-                  disabled={!selectedCountry}
-                >
-                  <option value="" disabled>
-                    Select State
-                  </option>
-                  {states.length > 0 ? (
-                    states.map((state, index) => (
-                      <option key={index} value={state.name}>
-                        {state.name}
-                      </option>
-                    ))
-                  ) : (
-                    <option disabled>No states available</option>
-                  )}
-                </select>
-
-                <div className="w-full flex items-center gap-2">
-                  <p className="px-2 w-[15%] text-center py-2 bg-[#000A2D] rounded-lg">
-                    {countryCode || "+91"}
-                  </p>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
                   <input
-                    type="number"
-                    name="phoneNumber"
                     onChange={handleChange}
-                    value={formData.phoneNumber}
-                    placeholder="Whatsapp Number*"
-                    className="w-[85%] bg-[#000A2D] py-2 rounded-lg px-3"
+                    name="firstName"
+                    type="text"
+                    placeholder="First Name*"
+                    value={formData.firstName}
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
                   />
+                  {formErrors.firstName && (
+                    <span className="text-red-400 text-sm">
+                      {formErrors.firstName}
+                    </span>
+                  )}
                 </div>
 
-                <input
-                  type="email"
-                  onChange={handleChange}
-                  name="email"
-                  value={formData.email}
-                  placeholder="G-Mail Id*"
-                  className="w-full bg-[#000A2D] py-2 rounded-lg px-3"
-                />
-                {formErrors.email && (
-                  <span className="bg-red-400 rounded-lg p-2 ">
-                    {formErrors.email}
-                  </span>
-                )}
-                <input
-                  onChange={handleChange}
-                  name="confirmEmail"
-                  value={formData.confirmEmail}
-                  type="email"
-                  placeholder="Re-enter G-Mail Id"
-                  className="w-full bg-[#000A2D] py-2 rounded-lg px-3"
-                />
-                {formErrors.confirmEmail && (
-                  <span className="bg-red-400 rounded-lg p-2 ">
-                    {formErrors.confirmEmail}
-                  </span>
-                )}
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    onChange={handleChange}
+                    name="lastName"
+                    value={formData.lastName}
+                    placeholder="Last Name*"
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+                  />
+                  {formErrors.lastName && (
+                    <span className="text-red-400 text-sm">
+                      {formErrors.lastName}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <select
+                    name="country"
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+                    value={selectedCountry}
+                    onChange={handleCountryChange}
+                  >
+                    <option value="" disabled className="text-gray-400">
+                      Select Country
+                    </option>
+                    {countries.map((country, index) => (
+                      <option
+                        key={index}
+                        value={country.country}
+                        className="bg-[#000A2D]"
+                      >
+                        {country.country}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <select
+                    name="state"
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0256F5] disabled:opacity-50"
+                    value={selectedState}
+                    onChange={handleStateChange}
+                    disabled={!selectedCountry}
+                  >
+                    <option value="" disabled className="text-gray-400">
+                      Select State
+                    </option>
+                    {states.length > 0 ? (
+                      states.map((state, index) => (
+                        <option
+                          key={index}
+                          value={state.name}
+                          className="bg-[#000A2D]"
+                        >
+                          {state.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled className="bg-[#000A2D]">
+                        No states available
+                      </option>
+                    )}
+                  </select>
+                </div>
+
+                <div className="space-y-1 md:col-span-2">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-[#000A2D] py-3 px-4 rounded-lg text-white w-24 text-center">
+                      {countryCode || "+91"}
+                    </div>
+                    <input
+                      type="number"
+                      name="phoneNumber"
+                      onChange={handleChange}
+                      value={formData.phoneNumber}
+                      placeholder="Whatsapp Number*"
+                      className="flex-1 bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1 md:col-span-2">
+                  <input
+                    type="email"
+                    onChange={handleChange}
+                    name="email"
+                    value={formData.email}
+                    placeholder="G-Mail Id*"
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+                  />
+                  {formErrors.email && (
+                    <span className="text-red-400 text-sm">
+                      {formErrors.email}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1 md:col-span-2">
+                  <input
+                    onChange={handleChange}
+                    name="confirmEmail"
+                    value={formData.confirmEmail}
+                    type="email"
+                    placeholder="Re-enter G-Mail Id"
+                    className="w-full bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+                  />
+                  {formErrors.confirmEmail && (
+                    <span className="text-red-400 text-sm">
+                      {formErrors.confirmEmail}
+                    </span>
+                  )}
+                </div>
               </div>
-              <button type="submit" id="formSubmit"></button>
+
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  onChange={handleCheck}
+                  checked={isChecked}
+                  className="mt-1 w-5 h-5"
+                  name="TandC"
+                />
+                <div>
+                  <label htmlFor="TandC" className="text-white">
+                    I agree with terms & Condition
+                  </label>
+                  {formErrors?.isAgreed && (
+                    <span className="block text-red-400 text-sm mt-1">
+                      {formErrors?.isAgreed}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-6"
+                onClick={handleClick}
+              >
+                <img
+                  src={pay}
+                  alt="Pay Now"
+                  className="w-full max-w-md mx-auto cursor-pointer hover:opacity-90 transition-opacity"
+                />
+              </button>
             </form>
           </div>
-        </div>
 
-        {/* Payment Information */}
-        <div className="sm:w-[40%] w-full bg-[#72A3FD] rounded-2xl  p-5">
-          <h5 className="text-primary font-bold text-xl">
-            Payment Information
-          </h5>
+          {/* Right Column - Payment Info */}
+          <div className="lg:w-2/5 bg-[#72A3FD] p-6 lg:p-8 rounded-r-xl">
+            <div className="h-full flex flex-col">
+              <h5 className="text-[#01071C] font-bold text-2xl mb-6">
+                Payment Information
+              </h5>
 
-          <div className="w-full flex justify-between items-center text-black text-sm font-thin md:mt-10 mt-5 ">
-            <p>Amount</p>
-            <p>&#8377;3388.98</p>
-          </div>
-          <div className="w-full flex justify-between items-center text-black text-sm font-thin md:mt-5 mt-2">
-            <p>GST @18%</p>
-            <p>&#8377;610.02</p>
-          </div>
-          <div className="w-full flex justify-between items-center text-black text-sm font-thin md:mt-5 mt-2">
-            <p>Amount Payable</p>
-            <p>&#8377;3,999</p>
-          </div>
-          <div className="flex flex-col  md:space-y-5 space-y-2 text-black md:my-10 my-5">
-            <div className="flex items-center gap-3">
-              <img src={lock} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">
-                Get Instant Access Now
-              </p>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between items-center">
+                  <p className="text-[#01071C]">Plan Amount</p>
+                  <p className="text-[#01071C] font-medium">₹3388.98</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-[#01071C]">GST @18%</p>
+                  <p className="text-[#01071C] font-medium">₹610.02</p>
+                </div>
+                <div className="flex justify-between items-center border-t border-[#01071C] pt-4 mt-2">
+                  <p className="text-[#01071C] font-bold text-lg">
+                    Total Payable
+                  </p>
+                  <p className="text-[#01071C] font-bold text-lg">₹3,999</p>
+                </div>
+              </div>
+
+              <div className="space-y-4 mt-4">
+                <h6 className="text-[#01071C] font-semibold text-lg">
+                  Plan Includes:
+                </h6>
+                <div className="flex items-center space-x-3">
+                  <img src={lock} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">
+                    Full access to all trading strategies
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={play} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">Daily market analysis videos</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={doc} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">
+                    Exclusive trading tools & indicators
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={shild} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">Risk management guides</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={play} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">Live trading sessions weekly</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={doc} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">
+                    Portfolio building techniques
+                  </p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={shild} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">Priority customer support</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <img src={lock} alt="" className="w-5 h-5" />
+                  <p className="text-[#01071C]">Market trend alerts</p>
+                </div>
+              </div>
+              {/* 
+              <div className="mt-6 pt-4 border-t border-[#01071C]">
+                <p className="text-[#01071C] text-sm">
+                  * 7-day money back guarantee
+                </p>
+                <p className="text-[#01071C] text-sm mt-1">* Cancel anytime</p>
+              </div> */}
             </div>
-            <div className="flex items-center gap-3">
-              <img src={doc} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">
-                Watch Tutorials Inside
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <img src={play} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">
-                View All Strategies
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <img src={shild} alt="" className="md:w-6 w-4 md:h-6 h-4" />
-              <p className="md:text-base text-sm font-normal">
-                Prepare For Tomorrow
-              </p>
-            </div>
           </div>
-          <div className="flex items-center gap-2 text-black">
-            <input
-              type="checkbox"
-              onChange={handleCheck}
-              checked={isChecked}
-              className="w-4 h-4"
-              name="TandC"
-            />
-            <label htmlFor="TandC" className="md:text-xl text-xs">
-              I agree with terms & Condition
-            </label>
-            {formErrors?.isAgreed && (
-              <span className="bg-red-400 rounded-lg p-2">
-                {formErrors?.isAgreed}
-              </span>
-            )}
-          </div>
-          <button onClick={handleClick}>
-            <img
-              src={pay}
-              alt=""
-              className="w-4/5 cursor-pointer mt-5 mx-auto"
-            />
-          </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

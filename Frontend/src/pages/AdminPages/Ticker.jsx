@@ -10,6 +10,7 @@ const Ticker = () => {
   const [formData, setFormData] = useState({
     proName: "",
     description: "",
+    _id: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
 
@@ -20,6 +21,7 @@ const Ticker = () => {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-tickers`, {
         withCredentials: true,
       });
+      console.log(res.data.tickers);
       setTickers(res.data.tickers || []);
     } catch (error) {
       console.error("Error fetching tickers:", error);
@@ -31,7 +33,7 @@ const Ticker = () => {
       setFormData(tickers[index]);
       setEditingIndex(index);
     } else {
-      setFormData({ proName: "", description: "" });
+      setFormData({ proName: "", description: "", _id: "" });
       setEditingIndex(null);
     }
     setModalOpen(true);
@@ -39,7 +41,7 @@ const Ticker = () => {
 
   const closeModal = () => {
     setModalOpen(false);
-    setFormData({ proName: "", description: "" });
+    setFormData({ proName: "", description: "", _id: "" });
     setEditingIndex(null);
   };
 
@@ -57,7 +59,6 @@ const Ticker = () => {
           { withCredentials: true }
         );
       } else {
-        console.log(formData);
         await axios.post(`${ADMIN_SERVER_URI}/add-ticker`, formData, {
           withCredentials: true,
         });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import vthumb from "../../assets/adminImages/homapage/our.png";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+// import vthumb from "../../assets/adminImages/homapage/our.png";
+import { FiEdit, FiTrash2, FiXCircle } from "react-icons/fi";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
 
@@ -8,11 +8,23 @@ export default function OurStrategyAdmin() {
   const [videos, setVideos] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ title: "", link: "", _id: "" });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    videoUrl: "",
+    thumbnailUrl: "",
+    _id: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   const openAddModal = () => {
-    setFormData({ title: "", link: "", _id: "" });
+    setFormData({
+      title: "",
+      description: "",
+      videoUrl: "",
+      thumbnailUrl: "",
+      _id: "",
+    });
     setIsEditing(false);
     setModalOpen(true);
   };
@@ -20,7 +32,9 @@ export default function OurStrategyAdmin() {
   const openEditModal = (index) => {
     setFormData({
       title: videos[index].title,
-      link: videos[index].link,
+      description: videos[index].description,
+      videoUrl: videos[index].videoUrl,
+      thumbnailUrl: videos[index].thumbnailUrl,
       _id: videos[index]._id,
     });
     setIsEditing(true);
@@ -47,13 +61,18 @@ export default function OurStrategyAdmin() {
   };
 
   const saveVideo = async () => {
-    const { title, link } = formData;
-    if (!title.trim() || !link.trim()) {
+    const { title, description, videoUrl, thumbnailUrl } = formData;
+    if (
+      !title.trim() ||
+      !videoUrl.trim() ||
+      !description.trim() ||
+      !thumbnailUrl.trim()
+    ) {
       alert("Please fill in all fields.");
       return;
     }
     try {
-      const newVideo = { ...formData, thumbnail: vthumb };
+      const newVideo = { ...formData };
       if (isEditing) {
         const res = await axios.put(
           `${ADMIN_SERVER_URI}/edit-strategy`,
@@ -63,9 +82,7 @@ export default function OurStrategyAdmin() {
         if (res.status !== 200) {
           throw new Error("Error while saving video !");
         }
-        setVideos((prev) =>
-          prev.map((vid) => (vid._id === newVideo._id ? newVideo : vid))
-        );
+        fetchVideos();
       } else {
         const res = await axios.post(
           `${ADMIN_SERVER_URI}/post-strategy`,
@@ -75,7 +92,7 @@ export default function OurStrategyAdmin() {
         if (res.status !== 200) {
           throw new Error("Error while saving video !");
         }
-        setVideos([...videos, newVideo]);
+        fetchVideos();
       }
     } catch (error) {
       console.log(error);
@@ -89,7 +106,7 @@ export default function OurStrategyAdmin() {
       await axios.delete(`${ADMIN_SERVER_URI}/delete-strategy?id=${id}`, {
         withCredentials: true,
       });
-      setVideos((prev) => prev.filter((vid) => vid._id !== id));
+      fetchVideos();
     } catch (error) {
       console.log(error);
     }
@@ -116,9 +133,10 @@ export default function OurStrategyAdmin() {
         <table className="w-full min-w-[600px] text-left">
           <thead>
             <tr className="text-blue-400 border-b border-blue-900">
-              <th className="py-3 px-4">Thumbnail</th>
               <th className="py-3 px-4">Title</th>
-              <th className="py-3 px-4">Video Link</th>
+              <th className="py-3 px-4">Description</th>
+              <th className="py-3 px-4">Video Url</th>
+              <th className="py-3 px-4">Thumbnail Url</th>
               <th className="py-3 px-4">Actions</th>
             </tr>
           </thead>
@@ -132,21 +150,24 @@ export default function OurStrategyAdmin() {
             ) : (
               videos.map((video, index) => (
                 <tr key={index} className="border-b border-blue-900">
-                  <td className="py-3 px-4">
-                    <img
-                      src={video.thumbnail}
-                      alt="thumbnail"
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
-                  </td>
                   <td className="py-3 px-4">{video.title}</td>
+                  <td className="py-3 px-4">{video.description}</td>
                   <td className="py-3 px-4 break-all text-blue-300">
                     <a
-                      href={video.link}
+                      href={video.videoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {video.link}
+                      {video.videoUrl}
+                    </a>
+                  </td>
+                  <td className="py-3 px-4 break-all text-blue-300">
+                    <a
+                      href={video.thumbnailUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {video.thumbnailUrl}
                     </a>
                   </td>
                   <td className="py-3 px-4">
@@ -174,11 +195,17 @@ export default function OurStrategyAdmin() {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 backdrop-blur-2xl bg-opacity-60 flex items-center justify-center z-50 px-4">
           <div className="bg-[#030B2B] text-white p-6 rounded-2xl w-full max-w-md">
-            <h3 className="text-center text-xl font-semibold mb-6">
-              {isEditing ? "Edit Video" : "Add Video"}
-            </h3>
+            <div className="flex justify-end items-center gap-35">
+              <h3 className="text-xl font-semibold">
+                {isEditing ? "Edit Video" : "Add Video"}
+              </h3>
+              <FiXCircle
+                onClick={() => setModalOpen(false)}
+                className="text-2xl hover:cursor-pointer"
+              />
+            </div>
             <div className="space-y-5">
               <div>
                 <label className="text-blue-400 text-sm">Title</label>
@@ -192,26 +219,37 @@ export default function OurStrategyAdmin() {
                 />
               </div>
               <div>
-                <label className="text-blue-400 text-sm">Link</label>
+                <label className="text-blue-400 text-sm">Description</label>
                 <input
                   type="text"
-                  name="link"
-                  value={formData.link}
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Enter Video Title"
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-blue-400 text-sm">Video Url</label>
+                <input
+                  type="text"
+                  name="videoUrl"
+                  value={formData.videoUrl}
                   onChange={handleChange}
                   placeholder="Enter Video Link"
                   className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
                 />
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 border border-dashed border-gray-300 flex items-center justify-center text-lg">
-                  +
-                </div>
-                <p className="text-sm text-gray-300">
-                  Choose Your Video to upload
-                </p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-md">
-                  Browser File
-                </button>
+              <div>
+                <label className="text-blue-400 text-sm">Thumbnail Url</label>
+                <input
+                  type="text"
+                  name="thumbnailUrl"
+                  value={formData.thumbnailUrl}
+                  onChange={handleChange}
+                  placeholder="Enter Video Link"
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                />
               </div>
               <button
                 onClick={saveVideo}

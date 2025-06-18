@@ -63,10 +63,15 @@ export const AdminAuthProvider = ({ children }) => {
       );
     } catch (error) {
       console.error("Error logging out:", error);
+    } finally {
+      localStorage.removeItem("adminToken");
+      setAdmin(null);
+      if (import.meta.env.PROD === "production") {
+        window.location.href = "/admin/login";
+      } else {
+        navigate("/admin/login", { replace: true });
+      }
     }
-    localStorage.removeItem("adminToken");
-    setAdmin(null);
-    navigate("/admin", { replace: true });
   };
 
   return (

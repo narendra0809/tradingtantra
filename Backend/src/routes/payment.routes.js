@@ -2,6 +2,7 @@ import express from "express";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
 import {
   createOrder,
+  renewPlan,
   verifyPayment,
 } from "../controllers/payment.controllers.js";
 import { razporpayWebhook } from "../controllers/webhook.controller.js";
@@ -10,6 +11,7 @@ const router = express.Router();
 
 router.post("/createorder", verifyUser, createOrder);
 router.post("/verify-payment", verifyPayment);
+router.post("/renew-plan", verifyUser, renewPlan);
 
 //webhook
 

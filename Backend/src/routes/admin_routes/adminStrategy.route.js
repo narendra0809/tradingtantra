@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/post-strategy", verifyAdmin, postStrategy);
 router.put("/edit-strategy", verifyAdmin, editStrategy);
-router.get("/get-strategy", verifyAdmin, getStrategy);
+router.get("/get-strategy", getStrategy);
 router.delete("/delete-strategy", verifyAdmin, deleteStrategy);
 
 export default router;

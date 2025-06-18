@@ -29,7 +29,9 @@ const WebLayout = () => {
 
   return (
     <>
-      <TickerTape colorTheme="dark" isTransparent={true} symbols={tickers} />
+      <div className="">
+        <TickerTape colorTheme="dark" isTransparent={true} symbols={tickers} />
+      </div>
       <Header />
       <main className="w-full px-[5%] cursor-default">
         <Outlet />

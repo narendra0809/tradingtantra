@@ -1,9 +1,11 @@
 /* eslint-disable react/prop-types */
 
 import profileBgCover from "../../assets/Images/Dashboard/homepage/profileBgCover.png";
-import user from "../../assets/Images/Dashboard/HeaderImg/user.png";
+import userImg from "../../assets/Images/Dashboard/HeaderImg/user.png";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ProfileHeader = () => {
+  const { user } = useAuth();
   return (
     <div className="w-full h-[200px] relative  dark:bg-db-primary bg-db-primary rounded-lg overflow-hidden mb-6">
       {/* Background Section */}
@@ -20,7 +22,7 @@ const ProfileHeader = () => {
         <div className="flex items-center gap-4 absolute left-5 top-[45%]">
           {/* Profile Picture */}
           <img
-            src={user}
+            src={userImg}
             alt="Profile"
             className="w-16 h-16 rounded-full border-4 border-[#0A0F2C] "
           />
@@ -28,7 +30,7 @@ const ProfileHeader = () => {
           {/* User Info */}
           <div>
             <h2 className="text-white text-lg font-semibold mb-2">
-              JuliusCesar1014
+              {user.displayName}
             </h2>
             <p className="text-gray-400 font-medium text-sm flex items-center mt-2">
               Active now
@@ -38,18 +40,6 @@ const ProfileHeader = () => {
             </p>
           </div>
         </div>
-
-        {/* Action Buttons
-        {location.pathname === "/dashboard/profile" && (
-          <div className="flex gap-2">
-            <button
-              className={`flex items-center gap-1 text-white px-4 py-2 rounded-md text-sm  transition`}
-            >
-              Edit Profile
-              <FiEdit />
-            </button>
-          </div>
-        )} */}
       </div>
     </div>
   );

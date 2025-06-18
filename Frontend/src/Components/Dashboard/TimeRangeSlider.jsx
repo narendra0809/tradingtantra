@@ -201,7 +201,7 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { useMediaQuery } from "react-responsive";
 
-const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
+const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
   const isMobile = useMediaQuery({ maxWidth: 767 });
   const minTime = 9.25;
   const maxTime = 15.5;
@@ -360,7 +360,10 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry }) => {
           const newRange = formatRange(range);
           if (newRange) getDataByIndexAndExpiry(newRange);
         }}
-        className="bg-[#0E5FF6] text-white md:px-6 md:py-8 px-5 py-2 rounded-lg"
+        disabled={isSubscribed}
+        className={`${
+          isSubscribed ? "bg-[#0E5FF6]" : "bg-gray-500"
+        } text-white md:px-6 md:py-8 px-5 py-2 rounded-lg`}
       >
         Go
       </button>
