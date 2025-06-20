@@ -2,6 +2,7 @@
 import { MongoClient } from "mongodb";
 import cron from "node-cron";
 import dotenv from "dotenv";
+import { DateTime } from "luxon";
 
 // 2. Load .env config (e.g. DB_URI)
 dotenv.config();
@@ -9,7 +10,23 @@ dotenv.config();
 const uri = process.env.DB_URI; // Your MongoDB connection string
 const client = new MongoClient(uri);
 
-// 3. Check if today is a working day (1st to 5th, Mon–Fri, not a holiday)
+// 3. Check if current time is within market hours (9:15 AM to 3:40 PM IST)
+export const isMarketTime = () => {
+  const now = DateTime.now().setZone("Asia/Kolkata");
+  const hour = now.hour;
+  const minute = now.minute;
+
+  // Market hours: 9:15 AM to 3:40 PM IST
+  if (hour < 9 || (hour === 9 && minute < 15)) {
+    return false; // Before 9:15 AM
+  }
+  if (hour > 15 || (hour === 15 && minute > 40)) {
+    return false; // After 3:40 PM
+  }
+  return true;
+};
+
+// 4. Check if today is a working day (1st to 5th, Mon–Fri, not a holiday)
 async function isMarketWorkingDay() {
   const today = new Date();
   const date = today.getDate(); // 1–31
@@ -30,7 +47,7 @@ async function isMarketWorkingDay() {
       date: { $gte: startOfDay, $lte: endOfDay },
     });
 
-    // Agar holiday mila to false return karenge (market closed)
+    // If holiday found, market is closed
     return !holiday;
   } catch (err) {
     console.error("🛑 Error checking holiday:", err);
@@ -40,7 +57,7 @@ async function isMarketWorkingDay() {
   }
 }
 
-// 4. Remove duplicate entries in `data` array and keep only latest one
+// 5. Remove duplicate entries in `data` array and keep only latest one
 async function keepOnlyLatestMarketData() {
   const localClient = new MongoClient(uri);
   let duplicateDataCleaned = 0;
@@ -63,7 +80,7 @@ async function keepOnlyLatestMarketData() {
         curr.lastTradeTime > latest.lastTradeTime ? curr : latest
       );
 
-      // Agar ek se zyada entry hai, to clean karo
+      // If more than one entry, clean it
       if (doc.data.length > 1) {
         duplicateDataCleaned++;
         bulkOps.push({
@@ -120,24 +137,30 @@ async function keepOnlyLatestMarketData() {
   }
 }
 
-// 5. Schedule CRON Job to run every 2 mins between 9:15 AM and 3:32 PM (Mon–Fri)
+// 6. Run market cleanup job
 const runMarketCleanupJob = async () => {
-  const now = new Date();
-  const hr = now.getHours();
-  const min = now.getMinutes();
-  const totalMinutes = hr * 60 + min;
+  // Check if it's within market hours
+  if (!isMarketTime()) {
+    console.log("⛔ Outside market hours (9:15 AM–3:40 PM IST), skipping cleanup");
+    return;
+  }
 
+  // Check if it's a market working day
+  const isMarketRunning = await isMarketWorkingDay();
+  if (!isMarketRunning) {
+    console.log("⛔ Market closed (weekend, holiday, or not 1–5), skipping cleanup");
+    return;
+  }
+
+  // Run cleanup
+  console.log("✅ Running market cleanup job");
   await keepOnlyLatestMarketData();
 };
 
-// ✅ Scheduled job every minute between 9 AM to 6 PM, Monday to Friday
+// 7. Ensure timezone is set to IST
+process.env.TZ = "Asia/Kolkata";
 
-// From 9:10 to 9:59
-cron.schedule("15-59 9 * * 1-5", runMarketCleanupJob);
-
-// From 10:00 to 14:59
-cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob);
-
-// From 15:00 to 15:40
-cron.schedule("0-45 15 * * 1-5", runMarketCleanupJob);
-
+// 8. Schedule CRON job every 30 seconds from 9:15 AM to 3:40 PM IST, Monday to Friday
+cron.schedule("*/30 15-59 9 * * 1-5", runMarketCleanupJob); // 9:15:00, 9:15:30, ..., 9:59:30
+cron.schedule("*/30 * 10-14 * * 1-5", runMarketCleanupJob); // 10:00:00, 10:00:30, ..., 14:59:30
+cron.schedule("*/30 0-40 15 * * 1-5", runMarketCleanupJob); // 15:00:00, 15:00:30, ..., 15:40:00

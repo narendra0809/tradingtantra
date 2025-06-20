@@ -21,7 +21,7 @@ export const isMarketTime = () => {
   if (hour < 9 || (hour === 9 && minute < 15)) {
     return false;
   }
-  if (hour > 20 || (hour === 20 && minute >= 40)) {
+  if (hour > 15 || (hour === 15 && minute >= 40)) {
     return false;
   }
   return true;

@@ -45,7 +45,7 @@ const isWithinMarketHours = () => {
 
   return (
     (hours > 9 || (hours === 9 && minutes >= 15)) &&
-    (hours < 20 || (hours === 20 && minutes <= 40))
+    (hours < 15 || (hours === 15 && minutes <= 40))
   );
 };
 
@@ -130,7 +130,7 @@ const initializeTasks = async () => {
   await runLiveDataTask();
 };
 
-cron.schedule("*/3 9-20 * * 1-5", runFiveMinDataTask, {
+cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });

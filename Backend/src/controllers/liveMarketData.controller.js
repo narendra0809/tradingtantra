@@ -9,6 +9,7 @@ import FifteenMinCandles from "../models/fifteenMinCandles.model.js";
 import redis from "../config/redisClient.js";
 import MarketHoliday from "../models/holidays.model.js";
 import { runFetchForIndexCandles } from "../services/indexCandles.service.js";
+
 const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
 const CLIENT_ID = process.env.DHAN_CLIENT_ID;
 const WS_URL = `wss://api-feed.dhan.co?version=2&token=${ACCESS_TOKEN}&clientId=${CLIENT_ID}&authType=2`;
@@ -36,7 +37,7 @@ const fetchSecurityIds = async () => {
 const splitIntoBatches = (array, batchSize) => {
   const batches = [];
   for (let i = 0; i < array.length; i += batchSize) {
-    batches.push(array.slice(i + 0, i + batchSize));
+    batches.push(array.slice(i, i + batchSize));
   }
   return batches;
 };
@@ -83,7 +84,6 @@ const saveMarketData = async () => {
 const saveToRedis = async (securityId, data) => {
   try {
     await redis.set(`market:${securityId}`, JSON.stringify(data));
-    // Optional TTL: await redis.expire(`market:${securityId}`, 300);
   } catch (err) {
     console.error(`❌ Redis Save Error for ${securityId}: ${err.message}`);
   }
@@ -144,7 +144,6 @@ async function startWebSocket() {
         marketDataBuffer.get(securityId).push(marketData);
         receivedSecurityIds.add(securityId);
 
-        // ✅ Check if all expected security IDs received at least one data
         if (receivedSecurityIds.size === totalSecurityIds) {
           console.log("✅ All market data received. Saving to Redis...");
           isProcessingSave = true;
@@ -177,6 +176,7 @@ async function startWebSocket() {
     setTimeout(startWebSocket, 4000);
   });
 }
+
 const formatTimestamp = (unixTimestamp) => {
   const date = new Date(unixTimestamp * 1000);
   const options = {
@@ -225,93 +225,6 @@ export const getPreviousTradingDay = async (date) => {
   }
 };
 
-// const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
-//   let tenMinCandles = [];
-//   let allFiveMinCandles = [...fiveMinCandles];
-
-//   // Validate data consistency
-//   const minLength = Math.min(
-//     allFiveMinCandles.length,
-//     allFiveMinCandles.filter((c) => c.open != null).length,
-//     allFiveMinCandles.filter((c) => c.high != null).length,
-//     allFiveMinCandles.filter((c) => c.low != null).length,
-//     allFiveMinCandles.filter((c) => c.close != null).length
-//   );
-//   if (minLength < allFiveMinCandles.length) {
-//     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
-//   }
-
-//   // Check if last candle is complete
-//   if (allFiveMinCandles.length > 0) {
-//     const lastCandleTimestamp =
-//       allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
-//     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
-//     if (minuteDiff < 5) {
-//       allFiveMinCandles.pop();
-//     }
-//   }
-
-//   // Sort candles by timestamp
-//   allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
-
-//   // Check if last candle is 15:25
-//   let isLastCandle1525 = false;
-//   let lastCandle = null;
-//   if (allFiveMinCandles.length > 0) {
-//     lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
-//     const lastCandleDate = new Date(lastCandle.timestamp * 1000);
-//     const lastHours = lastCandleDate.getHours();
-//     const lastMinutes = lastCandleDate.getMinutes();
-//     isLastCandle1525 = lastHours === 15 && lastMinutes === 25;
-//   }
-
-//   // Merge 5-minute candles into 10-minute candles (odd + even minutes)
-//   for (let i = 0; i < allFiveMinCandles.length - 1; i++) {
-//     const firstCandle = allFiveMinCandles[i];
-//     const secondCandle = allFiveMinCandles[i + 1];
-
-//     if (secondCandle) {
-//       const firstCandleDate = new Date(firstCandle.timestamp * 1000);
-//       const secondCandleDate = new Date(secondCandle.timestamp * 1000);
-//       const firstMinutes = firstCandleDate.getMinutes();
-//       const secondMinutes = secondCandleDate.getMinutes();
-//       const timeDiffMinutes =
-//         (secondCandleDate - firstCandleDate) / (1000 * 60);
-
-//       // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
-//       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
-//       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
-//   if (isLastCandle1525) {
-//     tenMinCandles.push({
-//       timestamp: lastCandle.timestamp,
-//       open: lastCandle.open,
-//       high: lastCandle.high,
-//       low: lastCandle.low,
-//       close: lastCandle.close,
-//     });
-//   }
-//       if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
-//         tenMinCandles.push({
-//           timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
-//           open: firstCandle.open,
-//           high: Math.max(firstCandle.high, secondCandle.high),
-//           low: Math.min(firstCandle.low, secondCandle.low),
-//           close: secondCandle.close,
-//         });
-//         i++; // Skip second candle
-//       }
-//     }
-//   }
-
-//   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
-
-//   // Return last 5 complete 10-minute candles
-//   if (tenMinCandles.length >= 5) {
-//     return tenMinCandles.slice(-5);
-//   } else {
-//     return null;
-//   }
-// };
 const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   let tenMinCandles = [];
   let allFiveMinCandles = [...fiveMinCandles];
@@ -374,13 +287,8 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     const lastCandleDate = new Date(lastCandle.timestamp * 1000);
     const isLastCandle1525 = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
     if (isLastCandle1525) {
-      // Adjust timestamp to 15:30 (market close)
-      const marketCloseTimestamp = new Date(lastCandleDate);
-      marketCloseTimestamp.setMinutes(30);
-      marketCloseTimestamp.setSeconds(0);
-      marketCloseTimestamp.setMilliseconds(0);
       tenMinCandles.push({
-        timestamp: lastCandle.timestamp, // Convert to seconds
+        timestamp: lastCandle.timestamp,
         open: lastCandle.open,
         high: lastCandle.high,
         low: lastCandle.low,
@@ -389,7 +297,7 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     }
   }
 
-  // Sort and return up to last 5 complete 10-minute candles, or fewer if 15:25 is included
+  // Sort and return up to last 5 complete 10-minute candles
   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
   if (tenMinCandles.length > 0) {
     return tenMinCandles.slice(-Math.min(5, tenMinCandles.length));
@@ -397,6 +305,115 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     return null;
   }
 };
+
+const mergeToFifteenMinCandles = (securityId, fiveMinCandles, currentTime) => {
+  let fifteenMinCandles = [];
+  let allFiveMinCandles = [...fiveMinCandles];
+
+  // Validate data consistency
+  const minLength = Math.min(
+    allFiveMinCandles.length,
+    allFiveMinCandles.filter((c) => c.open != null).length,
+    allFiveMinCandles.filter((c) => c.high != null).length,
+    allFiveMinCandles.filter((c) => c.low != null).length,
+    allFiveMinCandles.filter((c) => c.close != null).length
+  );
+  if (minLength < allFiveMinCandles.length) {
+    allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
+  }
+
+  // Check if last candle is complete, but preserve 15:25 candle
+  if (allFiveMinCandles.length > 0) {
+    const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleDate = new Date(lastCandleTimestamp * 1000);
+    const isMarketCloseCandle = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
+    const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
+    if (minuteDiff < 5 && !isMarketCloseCandle) {
+      allFiveMinCandles.pop();
+    }
+  }
+
+  // Sort candles by timestamp
+  allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+
+  // Define valid 15-minute start times and their expected 5-minute candle minutes
+  const minuteCombinations = {
+    15: [15, 20, 25], // e.g., 9:15 + 9:20 + 9:25
+    30: [30, 35, 40], // e.g., 9:30 + 9:35 + 9:40
+    45: [45, 50, 55], // e.g., 9:45 + 9:50 + 9:55
+    0: [0, 5, 10],   // e.g., 10:00 + 10:05 + 10:10
+  };
+  const tradingStartHour = 9;
+  const tradingEndHour = 15;
+
+  // Merge 5-minute candles into 15-minute candles
+  for (let i = 0; i <= allFiveMinCandles.length - 3; i++) {
+    const firstCandle = allFiveMinCandles[i];
+    const secondCandle = allFiveMinCandles[i + 1];
+    const thirdCandle = allFiveMinCandles[i + 2];
+
+    if (firstCandle && secondCandle && thirdCandle) {
+      const firstCandleDate = new Date(firstCandle.timestamp * 1000);
+      const secondCandleDate = new Date(secondCandle.timestamp * 1000);
+      const thirdCandleDate = new Date(thirdCandle.timestamp * 1000);
+      const firstHour = firstCandleDate.getHours();
+      const firstMinutes = firstCandleDate.getMinutes();
+      const secondMinutes = secondCandleDate.getMinutes();
+      const thirdMinutes = thirdCandleDate.getMinutes();
+      const timeDiffToSecond = (secondCandleDate - firstCandleDate) / (1000 * 60);
+      const timeDiffToThird = (thirdCandleDate - firstCandleDate) / (1000 * 60);
+
+      // Check if the first candle is at a valid 15-minute boundary
+      const isValidStart =
+        (Object.keys(minuteCombinations).map(Number).includes(firstMinutes) &&
+         firstHour >= tradingStartHour &&
+         firstHour <= tradingEndHour) ||
+        (firstHour === 15 && firstMinutes === 15);
+
+      // Validate the minute combinations
+      let expectedMinutes = [];
+      if (firstHour === 15 && firstMinutes === 15) {
+        expectedMinutes = [15, 20, 25]; // Special case for 15:15 + 15:20 + 15:25
+      } else {
+        expectedMinutes = minuteCombinations[firstMinutes];
+      }
+
+      const isValidCombination =
+        expectedMinutes &&
+        firstMinutes === expectedMinutes[0] &&
+        secondMinutes === expectedMinutes[1] &&
+        thirdMinutes === expectedMinutes[2];
+
+      // Ensure candles are consecutive (5-minute intervals) and match the expected combination
+      if (
+        timeDiffToSecond === 5 &&
+        timeDiffToThird === 10 &&
+        isValidStart &&
+        isValidCombination
+      ) {
+        fifteenMinCandles.push({
+          timestamp: firstCandle.timestamp,
+          open: firstCandle.open,
+          high: Math.max(firstCandle.high, secondCandle.high, thirdCandle.high),
+          low: Math.min(firstCandle.low, secondCandle.low, thirdCandle.low),
+          close: thirdCandle.close,
+        });
+        i += 2; // Skip the next two candles since they are used
+      }
+    }
+  }
+
+  // Sort and return up to last 5 complete 15-minute candles
+  fifteenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+  if (fifteenMinCandles.length >= 5) {
+    return fifteenMinCandles.slice(-5);
+  } else if (fifteenMinCandles.length > 0) {
+    return fifteenMinCandles.slice(-Math.min(5, fifteenMinCandles.length));
+  } else {
+    return null;
+  }
+};
+
 const getData = async () => {
   console.log("Start time : ", new Date().toLocaleTimeString());
   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
@@ -414,7 +431,7 @@ const getData = async () => {
     // Get previous trading day for fromDate
     const prevTradingDay = await getPreviousTradingDay(currentTime);
     const prevDateStr = prevTradingDay.toISOString().slice(0, 10);
-    const fromDate = `${prevDateStr} 09:30:00`;
+    const fromDate = `${prevDateStr} 09:15:00`;
     const normalizedFromDate = fromDate;
 
     // Validate date range
@@ -439,12 +456,12 @@ const getData = async () => {
       .toISOString()
       .slice(0, 10)
       .replace(/-/g, "-");
-    const prevFromDate = `${prevDateStrForFetch} 09:30:00`;
+    const prevFromDate = `${prevDateStrForFetch} 09:15:00`;
     const prevToDate = `${prevDateStrForFetch} 15:30:00`;
-    // await runFetchForIndexCandles(fromDate, toDate);
+    await runFetchForIndexCandles(fromDate, toDate);
 
     let totalCount = 0;
-    // Process 5-Minute and 10-Minute Candles
+    // Process 5-Minute and Derived Candles
     for (let i = 0; i < securityIds.length; i++, totalCount++) {
       const id = securityIds[i];
       let allCandles = [];
@@ -486,8 +503,8 @@ const getData = async () => {
 
       completeCandles = allCandles;
 
-      // If fewer than 12 complete candles, fetch previous day's data
-      if (completeCandles.length < 12) {
+      // If fewer than 15 complete candles, fetch previous day's data
+      if (completeCandles.length < 20) {
         rawData = await fetchHistoricalData(
           id,
           prevFromDate,
@@ -509,9 +526,9 @@ const getData = async () => {
         }
       }
 
-      // Process 5-Minute Candles (12 Complete)
-      if (completeCandles.length >= 12) {
-        completeCandles = completeCandles.slice(-12);
+      // Process 5-Minute Candles (15 Complete for 15-min candle creation)
+      if (completeCandles.length >= 15) {
+        completeCandles = completeCandles.slice(-15);
         const formattedData = {
           securityId: id,
           timestamp: completeCandles.map((c) => formatTimestamp(c.timestamp)),
@@ -535,7 +552,6 @@ const getData = async () => {
             },
             { upsert: true }
           );
-          // console.log(`[MongoDB] 5-min data saved for ${id}`);
         } catch (error) {
           console.error(
             `[MongoDB] Error saving 5-min data for ${id}: ${error.message}`
@@ -578,117 +594,49 @@ const getData = async () => {
             );
           }
         }
-      }
 
-      await delay(200);
-    }
-
-    console.log("Total Count for 5mins : ", totalCount);
-
-    totalCount = 0;
-
-    // Process 15-Minute Candles
-    for (let i = 0; i < securityIds.length; i++, totalCount++) {
-      const id = securityIds[i];
-      let allCandles = [];
-      let completeCandles = [];
-
-      // Fetch today's 15-minute data
-      let rawData = await fetchHistoricalData(
-        id,
-        normalizedFromDate,
-        normalizedToDate,
-        i,
-        "15"
-      );
-      if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-        allCandles.push(
-          ...rawData.timestamp.map((ts, idx) => ({
-            timestamp: ts,
-            open: rawData.open[idx],
-            high: rawData.high[idx],
-            low: rawData.low[idx],
-            close: rawData.close[idx],
-          }))
-        );
-      } else {
-        continue;
-      }
-
-      // Check if last candle is complete (≥ 15 minutes difference)
-      if (allCandles.length > 0) {
-        const lastCandleTimestamp = allCandles[allCandles.length - 1].timestamp;
-        const minuteDiff = getMinuteDifference(
-          currentTime,
-          lastCandleTimestamp
-        );
-        if (minuteDiff < 15) {
-          allCandles.pop();
-        }
-      }
-
-      completeCandles = allCandles;
-
-      // If fewer than 5 complete candles, fetch previous day's data
-      if (completeCandles.length < 5) {
-        rawData = await fetchHistoricalData(
+        // Merge 5-minute candles into 15-minute candles
+        const fifteenMinCandles = mergeToFifteenMinCandles(
           id,
-          prevFromDate,
-          prevToDate,
-          i,
-          "15"
+          completeCandles,
+          currentTime
         );
-        if (rawData && rawData.timestamp && rawData.timestamp.length > 0) {
-          allCandles.unshift(
-            ...rawData.timestamp.map((ts, idx) => ({
-              timestamp: ts,
-              open: rawData.open[idx],
-              high: rawData.high[idx],
-              low: rawData.low[idx],
-              close: rawData.close[idx],
-            }))
-          );
-          completeCandles = allCandles;
-        }
-      }
+        if (fifteenMinCandles) {
+          const formattedFifteenMinData = {
+            securityId: id,
+            timestamp: fifteenMinCandles.map((c) => formatTimestamp(c.timestamp)),
+            open: fifteenMinCandles.map((c) => c.open),
+            high: fifteenMinCandles.map((c) => c.high),
+            low: fifteenMinCandles.map((c) => c.low),
+            close: fifteenMinCandles.map((c) => c.close),
+          };
 
-      // Process 15-Minute Candles (5 Complete)
-      if (completeCandles.length >= 5) {
-        completeCandles = completeCandles.slice(-5);
-        const formattedData = {
-          securityId: id,
-          timestamp: completeCandles.map((c) => formatTimestamp(c.timestamp)),
-          open: completeCandles.map((c) => c.open),
-          high: completeCandles.map((c) => c.high),
-          low: completeCandles.map((c) => c.low),
-          close: completeCandles.map((c) => c.close),
-        };
-
-        try {
-          await FifteenMinCandles.updateOne(
-            { securityId: id },
-            {
-              $set: {
-                timestamp: formattedData.timestamp,
-                open: formattedData.open,
-                high: formattedData.high,
-                low: formattedData.low,
-                close: formattedData.close,
+          try {
+            await FifteenMinCandles.updateOne(
+              { securityId: id },
+              {
+                $set: {
+                  timestamp: formattedFifteenMinData.timestamp,
+                  open: formattedFifteenMinData.open,
+                  high: formattedFifteenMinData.high,
+                  low: formattedFifteenMinData.low,
+                  close: formattedFifteenMinData.close,
+                },
               },
-            },
-            { upsert: true }
-          );
-          // console.log(`[MongoDB] 15-min data saved for ${id}`);
-        } catch (error) {
-          console.error(
-            `[MongoDB] Error saving 15-min data for ${id}: ${error.message}`
-          );
+              { upsert: true }
+            );
+          } catch (error) {
+            console.error(
+              `[MongoDB] Error saving 15-min data for ${id}: ${error.message}`
+            );
+          }
         }
       }
 
-      await delay(200);
+      await delay(500);
     }
-    console.log("Total Count for 15 mins : ", totalCount);
+
+    console.log("Total Count for 5mins and derived candles : ", totalCount);
     console.log("End Time : ", new Date().toLocaleTimeString());
   } catch (error) {
     console.error("[Main] Error in getData:", error.message);
