@@ -527,8 +527,8 @@ const getData = async () => {
       }
 
       // Process 5-Minute Candles (15 Complete for 15-min candle creation)
-      if (completeCandles.length >= 15) {
-        completeCandles = completeCandles.slice(-15);
+      if (completeCandles.length >= 5) {
+        completeCandles = completeCandles.slice(-5);
         const formattedData = {
           securityId: id,
           timestamp: completeCandles.map((c) => formatTimestamp(c.timestamp)),
