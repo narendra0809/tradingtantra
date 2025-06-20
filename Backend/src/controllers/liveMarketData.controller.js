@@ -225,6 +225,93 @@ export const getPreviousTradingDay = async (date) => {
   }
 };
 
+// const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
+//   let tenMinCandles = [];
+//   let allFiveMinCandles = [...fiveMinCandles];
+
+//   // Validate data consistency
+//   const minLength = Math.min(
+//     allFiveMinCandles.length,
+//     allFiveMinCandles.filter((c) => c.open != null).length,
+//     allFiveMinCandles.filter((c) => c.high != null).length,
+//     allFiveMinCandles.filter((c) => c.low != null).length,
+//     allFiveMinCandles.filter((c) => c.close != null).length
+//   );
+//   if (minLength < allFiveMinCandles.length) {
+//     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
+//   }
+
+//   // Check if last candle is complete
+//   if (allFiveMinCandles.length > 0) {
+//     const lastCandleTimestamp =
+//       allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+//     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
+//     if (minuteDiff < 5) {
+//       allFiveMinCandles.pop();
+//     }
+//   }
+
+//   // Sort candles by timestamp
+//   allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+
+//   // Check if last candle is 15:25
+//   let isLastCandle1525 = false;
+//   let lastCandle = null;
+//   if (allFiveMinCandles.length > 0) {
+//     lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
+//     const lastCandleDate = new Date(lastCandle.timestamp * 1000);
+//     const lastHours = lastCandleDate.getHours();
+//     const lastMinutes = lastCandleDate.getMinutes();
+//     isLastCandle1525 = lastHours === 15 && lastMinutes === 25;
+//   }
+
+//   // Merge 5-minute candles into 10-minute candles (odd + even minutes)
+//   for (let i = 0; i < allFiveMinCandles.length - 1; i++) {
+//     const firstCandle = allFiveMinCandles[i];
+//     const secondCandle = allFiveMinCandles[i + 1];
+
+//     if (secondCandle) {
+//       const firstCandleDate = new Date(firstCandle.timestamp * 1000);
+//       const secondCandleDate = new Date(secondCandle.timestamp * 1000);
+//       const firstMinutes = firstCandleDate.getMinutes();
+//       const secondMinutes = secondCandleDate.getMinutes();
+//       const timeDiffMinutes =
+//         (secondCandleDate - firstCandleDate) / (1000 * 60);
+
+//       // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
+//       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
+//       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
+//   if (isLastCandle1525) {
+//     tenMinCandles.push({
+//       timestamp: lastCandle.timestamp,
+//       open: lastCandle.open,
+//       high: lastCandle.high,
+//       low: lastCandle.low,
+//       close: lastCandle.close,
+//     });
+//   }
+//       if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
+//         tenMinCandles.push({
+//           timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
+//           open: firstCandle.open,
+//           high: Math.max(firstCandle.high, secondCandle.high),
+//           low: Math.min(firstCandle.low, secondCandle.low),
+//           close: secondCandle.close,
+//         });
+//         i++; // Skip second candle
+//       }
+//     }
+//   }
+
+//   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
+
+//   // Return last 5 complete 10-minute candles
+//   if (tenMinCandles.length >= 5) {
+//     return tenMinCandles.slice(-5);
+//   } else {
+//     return null;
+//   }
+// };
 const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   let tenMinCandles = [];
   let allFiveMinCandles = [...fiveMinCandles];
@@ -241,12 +328,13 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     allFiveMinCandles = allFiveMinCandles.slice(0, minLength);
   }
 
-  // Check if last candle is complete
+  // Check if last candle is complete, but preserve 15:25 candle
   if (allFiveMinCandles.length > 0) {
-    const lastCandleTimestamp =
-      allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleDate = new Date(lastCandleTimestamp * 1000);
+    const isMarketCloseCandle = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
-    if (minuteDiff < 5) {
+    if (minuteDiff < 5 && !isMarketCloseCandle) {
       allFiveMinCandles.pop();
     }
   }
@@ -254,45 +342,22 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   // Sort candles by timestamp
   allFiveMinCandles.sort((a, b) => a.timestamp - b.timestamp);
 
-  // Check if last candle is 15:25
-  let isLastCandle1525 = false;
-  let lastCandle = null;
-  if (allFiveMinCandles.length > 0) {
-    lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
-    const lastCandleDate = new Date(lastCandle.timestamp * 1000);
-    const lastHours = lastCandleDate.getHours();
-    const lastMinutes = lastCandleDate.getMinutes();
-    isLastCandle1525 = lastHours === 15 && lastMinutes === 25;
-  }
-
   // Merge 5-minute candles into 10-minute candles (odd + even minutes)
   for (let i = 0; i < allFiveMinCandles.length - 1; i++) {
     const firstCandle = allFiveMinCandles[i];
     const secondCandle = allFiveMinCandles[i + 1];
-
     if (secondCandle) {
       const firstCandleDate = new Date(firstCandle.timestamp * 1000);
       const secondCandleDate = new Date(secondCandle.timestamp * 1000);
       const firstMinutes = firstCandleDate.getMinutes();
       const secondMinutes = secondCandleDate.getMinutes();
-      const timeDiffMinutes =
-        (secondCandleDate - firstCandleDate) / (1000 * 60);
-
-      // Check if first candle is odd minute (e.g., 15, 25, 35) and second is even (e.g., 20, 30, 40)
+      const timeDiffMinutes = (secondCandleDate - firstCandleDate) / (1000 * 60);
       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
-  if (isLastCandle1525) {
-    tenMinCandles.push({
-      timestamp: lastCandle.timestamp,
-      open: lastCandle.open,
-      high: lastCandle.high,
-      low: lastCandle.low,
-      close: lastCandle.close,
-    });
-  }
+
       if (timeDiffMinutes === 5 && isOddMinute && isEvenMinute) {
         tenMinCandles.push({
-          timestamp: firstCandle.timestamp, // Use odd minute timestamp (e.g., 15:15)
+          timestamp: firstCandle.timestamp,
           open: firstCandle.open,
           high: Math.max(firstCandle.high, secondCandle.high),
           low: Math.min(firstCandle.low, secondCandle.low),
@@ -303,20 +368,35 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     }
   }
 
-  // Add 15:25 as standalone 10-minute candle
+  // Handle 15:25 candle as a standalone 10-minute candle ending at 15:30
+  if (allFiveMinCandles.length > 0) {
+    const lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
+    const lastCandleDate = new Date(lastCandle.timestamp * 1000);
+    const isLastCandle1525 = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
+    if (isLastCandle1525) {
+      // Adjust timestamp to 15:30 (market close)
+      const marketCloseTimestamp = new Date(lastCandleDate);
+      marketCloseTimestamp.setMinutes(30);
+      marketCloseTimestamp.setSeconds(0);
+      marketCloseTimestamp.setMilliseconds(0);
+      tenMinCandles.push({
+        timestamp: lastCandle.timestamp, // Convert to seconds
+        open: lastCandle.open,
+        high: lastCandle.high,
+        low: lastCandle.low,
+        close: lastCandle.close,
+      });
+    }
+  }
 
-
-  // Sort by timestamp
+  // Sort and return up to last 5 complete 10-minute candles, or fewer if 15:25 is included
   tenMinCandles.sort((a, b) => a.timestamp - b.timestamp);
-
-  // Return last 5 complete 10-minute candles
-  if (tenMinCandles.length >= 5) {
-    return tenMinCandles.slice(-5);
+  if (tenMinCandles.length > 0) {
+    return tenMinCandles.slice(-Math.min(5, tenMinCandles.length));
   } else {
     return null;
   }
 };
-
 const getData = async () => {
   console.log("Start time : ", new Date().toLocaleTimeString());
   const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
@@ -361,6 +441,8 @@ const getData = async () => {
       .replace(/-/g, "-");
     const prevFromDate = `${prevDateStrForFetch} 09:30:00`;
     const prevToDate = `${prevDateStrForFetch} 15:30:00`;
+    // await runFetchForIndexCandles(fromDate, toDate);
+
     let totalCount = 0;
     // Process 5-Minute and 10-Minute Candles
     for (let i = 0; i < securityIds.length; i++, totalCount++) {
@@ -607,7 +689,6 @@ const getData = async () => {
       await delay(200);
     }
     console.log("Total Count for 15 mins : ", totalCount);
-    await runFetchForIndexCandles(fromDate, toDate);
     console.log("End Time : ", new Date().toLocaleTimeString());
   } catch (error) {
     console.error("[Main] Error in getData:", error.message);
