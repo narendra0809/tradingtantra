@@ -503,7 +503,7 @@ const getData = async () => {
 
       completeCandles = allCandles;
 
-      // If fewer than 15 complete candles, fetch previous day's data
+      // If fewer than 20 complete candles, fetch previous day's data
       if (completeCandles.length < 20) {
         rawData = await fetchHistoricalData(
           id,
@@ -526,9 +526,9 @@ const getData = async () => {
         }
       }
 
-      // Process 5-Minute Candles (15 Complete for 15-min candle creation)
+      // Process 5-Minute Candles (limit to last 5 for saving)
       if (completeCandles.length >= 5) {
-        completeCandles = completeCandles.slice(-5);
+        completeCandles = completeCandles.slice(-5); // Save only the last 5 candles
         const formattedData = {
           securityId: id,
           timestamp: completeCandles.map((c) => formatTimestamp(c.timestamp)),
@@ -558,10 +558,10 @@ const getData = async () => {
           );
         }
 
-        // Merge 5-minute candles into 10-minute candles
+        // Merge 5-minute candles into 10-minute candles (using all available candles)
         const tenMinCandles = mergeToTenMinCandles(
           id,
-          completeCandles,
+          allCandles, // Use all candles for merging
           currentTime
         );
         if (tenMinCandles) {
@@ -595,10 +595,10 @@ const getData = async () => {
           }
         }
 
-        // Merge 5-minute candles into 15-minute candles
+        // Merge 5-minute candles into 15-minute candles (using all available candles)
         const fifteenMinCandles = mergeToFifteenMinCandles(
           id,
-          completeCandles,
+          allCandles, // Use all candles for merging
           currentTime
         );
         if (fifteenMinCandles) {
@@ -633,7 +633,7 @@ const getData = async () => {
         }
       }
 
-      await delay(500);
+      await delay(200);
     }
 
     console.log("Total Count for 5mins and derived candles : ", totalCount);
