@@ -162,9 +162,9 @@ async function startWebSocket() {
           console.log("✅ All market data received. Saving to Redis...");
           isProcessingSave = true;
 
-          for (const [secId, data] of marketDataBuffer.entries()) {
-            await saveToRedis(secId, data);
-          }
+          // for (const [secId, data] of marketDataBuffer.entries()) {
+          //   await saveToRedis(secId, data);
+          // }
 
           console.log("⏳ Waiting 5 minutes before saving to MongoDB...");
           setTimeout(async () => {
