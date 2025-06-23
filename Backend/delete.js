@@ -33,7 +33,8 @@ async function isMarketWorkingDay() {
   const day = today.getDay(); // 0 = Sunday, 6 = Saturday
 
   // Not between 1st–5th OR it's Sat/Sun → market closed
-  if (date < 1 || date > 5 || day === 0 || day === 6) return false;
+  if (day === 0 || day === 6) 
+    return false;
 
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
   const endOfDay = new Date(today.setHours(23, 59, 59, 999));
