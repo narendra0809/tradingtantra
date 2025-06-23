@@ -145,7 +145,7 @@ async function startWebSocket() {
     if (isProcessingSave) return;
 
     try {
-      console.log("📥 Received message:", data.toString());
+      // console.log("📥 Received message:", data.toString());
       const marketData = parseBinaryData(data);
 
       if (marketData && marketData.securityId) {
