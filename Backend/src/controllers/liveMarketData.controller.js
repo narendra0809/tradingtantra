@@ -22,17 +22,10 @@ let marketDataBuffer = new Map();
 let receivedSecurityIds = new Set();
 let totalSecurityIds = 0;
 let isProcessingSave = false;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const baseDelay = 4000;
 
-const fetchSecurityIds = async () => {
-  try {
-    const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
-    securityIdList = stocks.map((stock) => stock.SECURITY_ID);
-    totalSecurityIds = securityIdList.length;
-  } catch (error) {
-    console.error("❌ Error fetching security IDs:", error);
-    throw error;
-  }
-};
 
 const splitIntoBatches = (array, batchSize) => {
   const batches = [];
@@ -89,7 +82,25 @@ const saveToRedis = async (securityId, data) => {
   }
 };
 
+
+const fetchSecurityIds = async () => {
+  try {
+    const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
+    securityIdList = stocks.map((stock) => stock.SECURITY_ID);
+    totalSecurityIds = securityIdList.length;
+    console.log(`📋 Fetched ${totalSecurityIds} security IDs`);
+  } catch (error) {
+    console.error("❌ Error fetching security IDs:", error);
+    throw error;
+  }
+};
+
 async function startWebSocket() {
+  if (reconnectAttempts >= maxReconnectAttempts) {
+    console.error("❌ Max reconnection attempts reached. Stopping.");
+    return;
+  }
+
   console.log("🔄 Fetching security IDs...");
   await fetchSecurityIds();
 
@@ -98,8 +109,9 @@ async function startWebSocket() {
     return;
   }
 
-  const batchSize = 100;
+  const batchSize = 50; // Reduced batch size
   const securityIdBatches = splitIntoBatches(securityIdList, batchSize);
+  console.log(`📋 Total batches: ${securityIdBatches.length}`);
 
   const ws = new WebSocket(WS_URL, {
     perMessageDeflate: false,
@@ -108,6 +120,7 @@ async function startWebSocket() {
 
   ws.on("open", () => {
     console.log("✅ Connected to WebSocket");
+    reconnectAttempts = 0; // Reset on successful connection
 
     securityIdBatches.forEach((batch, index) => {
       setTimeout(() => {
@@ -123,8 +136,8 @@ async function startWebSocket() {
         };
 
         ws.send(JSON.stringify(subscriptionRequest));
-        console.log(`📩 Subscribed Batch ${index + 1}`);
-      }, index * 5000);
+        console.log(`📩 Subscribed Batch ${index + 1} with ${batch.length} securities`);
+      }, index * 10000); // Increased delay
     });
   });
 
@@ -132,6 +145,7 @@ async function startWebSocket() {
     if (isProcessingSave) return;
 
     try {
+      console.log("📥 Received message:", data.toString());
       const marketData = parseBinaryData(data);
 
       if (marketData && marketData.securityId) {
@@ -155,6 +169,7 @@ async function startWebSocket() {
           console.log("⏳ Waiting 5 minutes before saving to MongoDB...");
           setTimeout(async () => {
             await saveMarketData();
+            isProcessingSave = false; // Reset flag after saving
           }, 5 * 60 * 1000);
         }
       } else {
@@ -167,13 +182,20 @@ async function startWebSocket() {
 
   ws.on("error", (error) => {
     console.error("❌ WebSocket Error:", error.message);
+    if (error.message.includes("429")) {
+      console.warn("⚠️ Rate limit hit. Waiting longer before reconnecting...");
+    }
   });
 
   ws.on("close", () => {
-    console.log("🔄 WebSocket disconnected. Reconnecting...");
+    console.log("🔄 WebSocket disconnected. Closing connection...");
+    ws.close();
     isProcessingSave = false;
     receivedSecurityIds.clear();
-    setTimeout(startWebSocket, 4000);
+    reconnectAttempts++;
+    const delay = baseDelay * Math.pow(2, reconnectAttempts);
+    console.log(`🔄 Reconnecting in ${delay / 1000} seconds...`);
+    setTimeout(startWebSocket, delay);
   });
 }
 

@@ -135,7 +135,7 @@ cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataTask, {
   timezone: "Asia/Kolkata",
 });
 
-cron.schedule("*/2 9-15 * * 1-5", runLiveDataTask, {
+cron.schedule("* 9-15 * * 1-5", runLiveDataTask, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
