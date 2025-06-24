@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import "./delete.js";
 import "./src/config/passport.js";
-import optionChainJob from "./src/jobs/optionChain.job.js";
 import { fetchAndSaveAllUnderlyings } from "./src/services/optionChain.service.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
@@ -102,7 +101,7 @@ app.use(
   adminTickerRoutes
 );
 
-// Add this before the server starts
+
 app.get("/api/option-chain/trigger", async (req, res) => {
   try {
     console.log("Manually triggering option chain fetch...");
@@ -127,7 +126,6 @@ connectDB()
   .then(() => {
     server.listen(PORT, () => {
       console.log("Server started on port", PORT);
-      optionChainJob.start();
       smartMoneyActionJob.start();
     });
   })
@@ -135,7 +133,6 @@ connectDB()
     console.error("Failed to connect to DB", error);
   });
 process.on("SIGINT", () => {
-  optionChainJob.stop();
   smartMoneyActionJob.stop();
   server.close(() => {
     console.log("Server closed");
