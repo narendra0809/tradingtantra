@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { convertTo12HourFormat, parseTime } from "../../utils/utils";
 import { lotSize } from "../../constants/constants";
 import Cookies from "js-cookie";
-import { useAuth } from "../../contexts/AuthContext";
+// import { useAuth } from "../../contexts/AuthContext";
 import Lock from "../../Components/Dashboard/Lock";
 const OptionClockPage = () => {
   const { fetchData } = useFetchData();
@@ -29,7 +29,7 @@ const OptionClockPage = () => {
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   const fetchIndexData = async (index) => {
     try {
@@ -180,7 +180,10 @@ const OptionClockPage = () => {
       TotalOiChangePE += data.oiChangePE;
     });
 
-    return { TotalOiChangeCE, TotalOiChangePE };
+    return {
+      TotalOiChangeCE: TotalOiChangeCE.toFixed(2),
+      TotalOiChangePE: TotalOiChangePE.toFixed(2),
+    };
   };
 
   const processData = (startTime, endTime) => {

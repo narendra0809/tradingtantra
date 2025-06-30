@@ -13,7 +13,6 @@ export const getTransactionDetails = async (req, res) => {
     for (const sub of usersSubs) {
       const user = await User.findById(sub.userId);
       if (!user) continue;
-
       const payment = await Payment.findById(sub.paymentId);
       if (!payment) continue;
 

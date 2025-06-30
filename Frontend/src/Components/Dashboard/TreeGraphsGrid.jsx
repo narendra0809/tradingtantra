@@ -30,7 +30,12 @@ const TreeGraphsGrid = ({ data, loading }) => {
   useEffect(() => {
     setSectorWiseData(data.sectorWiseData);
   }, [data]);
-
+  // Object.entries(sectorWiseData).forEach(([sector, values]) => {
+  //   values.forEach((obj) => {
+  //     obj.percentageChange = obj.percentageChange.toFixed(2);
+  //     obj.xelement = obj.xelement.toFixed(2);
+  //   });
+  // });
   return (
     <>
       <div className="lg:block">

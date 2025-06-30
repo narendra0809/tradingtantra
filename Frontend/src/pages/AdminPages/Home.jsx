@@ -118,12 +118,13 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="flex bg-black min-h-screen relative text-white overflow-x-hidden">
+    <div className="flex bg-black min-h-screen relative text-white overflow-hidden">
+      {" "}
+      {/* Changed from overflow-x-hidden to overflow-hidden */}
       {/* Desktop Sidebar */}
       <div className="hidden md:block border-r border-gray-800 bg-[#0c0c1d]">
         <Sidebar closeSidebar={closeSidebar} />
       </div>
-
       {/* Mobile Sidebar */}
       {sidebarOpen && (
         <>
@@ -133,22 +134,24 @@ const Home = () => {
             onClick={closeSidebar}
           />
           {/* Slide-in Sidebar */}
-          <div
-            className={`${
-              !sidebarOpen && "hidden"
-            } fixed top-0 left-0 w-64 h-full bg-[#0c0c1d] z-50 shadow-lg`}
-          >
+          <div className="fixed top-0 left-0 w-64 h-full bg-[#0c0c1d] z-50 shadow-lg">
             <Sidebar closeSidebar={closeSidebar} />
           </div>
         </>
       )}
-
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        <Topbar onToggleSidebar={toggleSidebar} />
-        <MarketTicker />
-
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div className="flex-1 flex flex-col min-w-0">
+        {" "}
+        {/* Added min-w-0 */}
+        <div className="sticky top-0 z-30">
+          {" "}
+          {/* Wrapped Topbar in sticky container */}
+          <Topbar onToggleSidebar={toggleSidebar} />
+          <MarketTicker />
+        </div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 min-w-0">
+          {" "}
+          {/* Added min-w-0 */}
           <Outlet
             context={{
               admin: admin,

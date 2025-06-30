@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 
@@ -16,13 +17,13 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
   const getRoundedTime = () => {
     const now = new Date();
     const hours = now.getHours();
-    const minutes = Math.floor(now.getMinutes() / 5) * 5;
+    const minutes = Math.floor(now.getMinutes() / 3) * 3;
     const decimalTime = parseFloat((hours + minutes / 60).toFixed(2));
     return Math.min(decimalTime, maxTime);
   };
 
   const [currentTime, setCurrentTime] = useState(getRoundedTime());
-  const [range, setRange] = useState([minTime, getRoundedTime()]);
+  const [range, setRange] = useState([minTime, currentTime]);
 
   const timeLabels = [];
   let currTime = minTime;
@@ -169,7 +170,9 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
         onClick={handleGoClick}
         disabled={!isSubscribed}
         className={`${
-          isSubscribed ? "bg-[#0E5FF6] hover:bg-[#0b4cd1]" : "bg-gray-500 cursor-not-allowed"
+          isSubscribed
+            ? "bg-[#0E5FF6] hover:bg-[#0b4cd1]"
+            : "bg-gray-500 cursor-not-allowed"
         } text-white md:px-6 md:py-8 px-5 py-2 rounded-lg transition-colors`}
       >
         Go

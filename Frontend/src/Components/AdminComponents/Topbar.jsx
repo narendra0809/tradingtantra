@@ -10,25 +10,31 @@ const Topbar = ({ onToggleSidebar }) => {
   const { logout } = useAdminAuth();
 
   return (
-    <div className="bg-[#060818]  w-full max-w-[100%] text-white px-2 py-3 border-b border-[#1a1f33] shadow-sm">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div className="bg-[#060818] w-full text-white px-4 py-3 border-b border-[#1a1f33] shadow-sm">
+      <div className="flex items-center justify-between w-full min-w-0">
+        {" "}
+        {/* Added min-w-0 */}
+        {/* Left side - Menu and Dashboard button */}
+        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+          {" "}
+          {/* Added overflow-hidden */}
           <button
             onClick={() => onToggleSidebar()}
-            className="md:hidden text-white text-2xl p-1"
+            className="md:hidden text-white text-2xl p-1 flex-shrink-0"
           >
             <FiMenu />
           </button>
-
           <button
             onClick={() => navigate("/admin")}
-            className="bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-xs px-4 py-1 rounded-md hover:opacity-90 transition-all border border-blue-500"
+            className="bg-gradient-to-r from-[#3B82F6] to-[#60A5FA] text-white text-xs px-4 py-1 rounded-md hover:opacity-90 transition-all border border-blue-500 whitespace-nowrap truncate"
           >
             Go to Dashboard
           </button>
         </div>
-
-        <div className="flex items-center gap-3 flex-wrap justify-end">
+        {/* Right side - Profile */}
+        <div className="flex-shrink-0 ml-2">
+          {" "}
+          {/* Simplified and added flex-shrink-0 */}
           <div className="relative">
             <img
               src="https://i.pravatar.cc/32"
@@ -64,5 +70,4 @@ const Topbar = ({ onToggleSidebar }) => {
     </div>
   );
 };
-
 export default Topbar;

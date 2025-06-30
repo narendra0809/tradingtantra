@@ -49,7 +49,7 @@ const MyPlanPage = () => {
     } else {
       setIsSubscribed(false);
     }
-  }, [user]);
+  }, []);
 
   return (
     <>

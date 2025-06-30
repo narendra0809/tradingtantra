@@ -5,7 +5,7 @@ import UserSubscription from "../models/userSubscription.model.js";
 import UserOrders from "../models/userOrders.model.js";
 
 const createOrder = async (req, res) => {
-  const { renew } = req.query;
+  const renew = req.query.renew === "true";
   if (!renew) {
     const { firstName, lastName, email, phoneNumber, country, state } =
       req.body;
@@ -66,7 +66,7 @@ const createOrder = async (req, res) => {
 
 const verifyPayment = async (req, res) => {
   try {
-    const { renew } = req.query;
+    const renew = req.query.renew === "true";
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
       req.body;
 
@@ -97,7 +97,6 @@ const verifyPayment = async (req, res) => {
     }
 
     transaction.transactionId = razorpay_payment_id;
-
     await transaction.save();
     if (!renew) {
       const userSubscription = new UserSubscription({
@@ -107,10 +106,8 @@ const verifyPayment = async (req, res) => {
         status: "active",
         paymentId: transaction._id,
       });
-
-      await userSubscription.save();
+      await UserSubscription.create(userSubscription);
     }
-
     res.status(200).json({
       success: true,
       message: "Payment verified, Subscription Activated!",

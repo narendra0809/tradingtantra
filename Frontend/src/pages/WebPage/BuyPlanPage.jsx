@@ -150,10 +150,20 @@ const BuyPlanPage = () => {
           contact: data.phoneNumber,
         },
         handler: async (response) => {
-          const isVerified = await verifyPayment(response);
-          if (!isVerified) return;
-          Cookies.set("isSubscribed", true, { expires: 1 });
-          navigate("/dashboard/plan", { replace: true });
+          try {
+            const isVerified = await verifyPayment(response);
+            if (isVerified) {
+              Cookies.set("isSubscribed", true, { expires: 1 });
+              navigate("/dashboard/plan", { replace: true });
+            } else {
+              alert("Payment verification failed. Please contact support.");
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error);
+            alert(
+              "Error verifying payment. Please check your subscription status."
+            );
+          }
         },
         theme: {
           color: "#F37254",
@@ -161,6 +171,9 @@ const BuyPlanPage = () => {
       };
 
       const rzp = new Razorpay(options);
+      rzp.on("payment.failed", (response) => {
+        alert(`Payment failed: ${response.error.description}`);
+      });
       rzp.open();
     } catch (error) {
       console.log("Error doing payment : ", error.message);
