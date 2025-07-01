@@ -30,42 +30,35 @@ const TreeGraphsGrid = ({ data, loading }) => {
   useEffect(() => {
     setSectorWiseData(data.sectorWiseData);
   }, [data]);
-  // Object.entries(sectorWiseData).forEach(([sector, values]) => {
-  //   values.forEach((obj) => {
-  //     obj.percentageChange = obj.percentageChange.toFixed(2);
-  //     obj.xelement = obj.xelement.toFixed(2);
-  //   });
-  // });
+
   return (
-    <>
-      <div className="lg:block">
-        <div className="parent">
-          <Suspense fallback={<div></div>}>
-            {Object.entries(sectorWiseData || {}).map(
-              ([sector, values], index) => (
-                <div
-                  key={index}
-                  className={`${
-                    graphTitles[index % graphTitles.length]?.class
-                  } w-full h-full mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
-                >
-                  <div className="w-full flex flex-col dark:bg-db-primary bg-db-primary rounded-md overflow-hidden">
-                    <h1 className="text-base px-2.5">{sector}</h1>
-                    <div className="flex-grow w-full">
-                      {loading ? (
-                        <Loader />
-                      ) : (
-                        <TreemapChart data={values.slice(0, 10)} />
-                      )}
-                    </div>
+    <div className="lg:block">
+      <div className="parent">
+        <Suspense fallback={<div></div>}>
+          {Object.entries(sectorWiseData || {}).map(
+            ([sector, values], index) => (
+              <div
+                key={index}
+                className={`${
+                  graphTitles[index % graphTitles.length]?.class
+                } w-full h-full dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
+              >
+                <div className="w-full flex flex-col bg-db-primary rounded-md overflow-hidden">
+                  <h1 className="text-base px-2.5 py-2">{sector}</h1>
+                  <div className="flex-grow w-full">
+                    {loading ? (
+                      <Loader />
+                    ) : (
+                      <TreemapChart data={values.slice(0, 10)} />
+                    )}
                   </div>
                 </div>
-              )
-            )}
-          </Suspense>
-        </div>{" "}
+              </div>
+            )
+          )}
+        </Suspense>
       </div>
-    </>
+    </div>
   );
 };
 

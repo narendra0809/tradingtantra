@@ -21,8 +21,12 @@ const OiClockChartThree = ({ data, selectedIndex }) => {
   ];
   const pcr = (formattedData[1].value / formattedData[0].value).toFixed(2);
   return (
-    <div className="dark:bg-db-secondary  bg-db-primary min-h-[375px] rounded-lg text-white shadow-lg w-full  ">
-      <div className="flex justify-between items-center">
+    <div className="bg-db-primary min-h-[375px] rounded-lg text-white shadow-lg w-full  ">
+      <div
+        className={`flex ${
+          isMobile ? "flex-col" : "flex-row"
+        } justify-between items-center`}
+      >
         {/* Donut Chart */}
         <PieChart width={300} height={400}>
           <Pie
@@ -42,7 +46,7 @@ const OiClockChartThree = ({ data, selectedIndex }) => {
         </PieChart>
 
         {/* OI Details */}
-        <div className={`${isMobile ? "text-sm" : "text-lg"} space-y-2`}>
+        <div className={`${"text-lg"} space-y-2`}>
           <div className="mt-4 flex flex-col items-center ">
             <div className="flex gap-3">
               <p

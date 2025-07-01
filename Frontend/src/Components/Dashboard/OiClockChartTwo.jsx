@@ -72,6 +72,7 @@
 
 // export default OiClockChartTwo;
 /* eslint-disable react/prop-types */
+import { useMediaQuery } from "react-responsive";
 import {
   BarChart,
   Bar,
@@ -97,6 +98,7 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const OiClockChartTwo = ({ data: chartData }) => {
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   const formattedData = [
     {
       name: "CE",
@@ -111,7 +113,11 @@ const OiClockChartTwo = ({ data: chartData }) => {
   ];
 
   return (
-    <div className="w-full h-[375px] dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
+    <div
+      className={`w-full h-[375px] bg-db-primary ${
+        isMobile ? "" : "p-5"
+      } rounded-lg shadow-lg`}
+    >
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={formattedData}

@@ -678,8 +678,8 @@ const OptionClockPage = () => {
           </span>
         </div>
 
-        <div className="flex gap-4">
-          <div className="relative border border-[#0E5FF6] w-fit rounded-lg px-4 py-2 ">
+        <div className="flex justify-between gap-4">
+          <div className="flex items-center relative border border-[#0E5FF6] w-fit rounded-lg px-3 py-1">
             <label className="text-sm">Index:</label>
             <select
               onChange={handleIndexChange}
@@ -705,7 +705,7 @@ const OptionClockPage = () => {
             </select>
           </div>
 
-          <div className="relative border border-[#0E5FF6] w-fit rounded-lg px-4 py-2">
+          <div className="flex items-center relative border border-[#0E5FF6] w-fit rounded-lg px-3 py-1">
             <label className="text-sm">Expiry:</label>
             <select
               id="expiry"

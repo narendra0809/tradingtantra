@@ -26,8 +26,7 @@ const Header = () => {
 
   const dispatch = useDispatch();
 
-  const { logout } = useAuth();
-
+  const { user, logout } = useAuth();
   // const themeToggler = () => {
   //   if (isDarkMode === "dark") {
   //     setIsDarkMode("light");
@@ -142,7 +141,7 @@ const Header = () => {
               <div className="flex items-center gap-3">
                 <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
                 <div>
-                  <p className="text-sm">JuliusCesar1014</p>
+                  <p className="text-sm">{user.displayName}</p>
                   <div className="text-xs flex gap-3 items-center">
                     <p>Active now</p>
                     <p className="text-white bg-primary px-2 text-[10px] rounded-full text-xs">

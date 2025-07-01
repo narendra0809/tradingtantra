@@ -74,7 +74,6 @@ export const formatDateString = (date) => {
 
 export const getFormattedTime = () => {
   const date = new Date();
-
   date.setMinutes(date.getMinutes() - 3);
   const minutes = date.getMinutes();
   const roundedMinutes = Math.floor(minutes / 3) * 3;

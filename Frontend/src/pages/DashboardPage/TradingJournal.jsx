@@ -1,8 +1,8 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef } from "react";
 import CalendarGrid from "../../Components/Dashboard/CalenarGrid";
-
 import "react-calendar/dist/Calendar.css";
 import { FaInfoCircle, FaCalendarAlt } from "react-icons/fa";
 import useFetchData from "../../utils/useFetchData";
@@ -10,6 +10,27 @@ import { tickerSymbol } from "../../utils/tickerSymbol";
 import axios from "axios";
 
 const URI = import.meta.env.VITE_SERVER_URI;
+
+// Reusable Modal Component
+const Modal = ({ isOpen, onClose, title, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 backdrop-blur-3xl bg-opacity-50 z-50 flex justify-center items-center p-4">
+      <div className="w-full max-w-[600px] rounded-md dark:bg-db-primary bg-db-primary p-4 md:p-7 border dark:border-transparent border-white shadow-md">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg md:text-2xl font-medium">{title}</h3>
+          <span
+            onClick={onClose}
+            className="text-xl md:text-2xl font-extrabold cursor-pointer"
+          >
+            X
+          </span>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};
 
 const TradingJournal = () => {
   const today = new Date();
@@ -98,6 +119,9 @@ const TradingJournal = () => {
 
   const handleAddTradeSubmit = async () => {
     setShowAddTrade(false);
+    if (!tradeData.symbol) {
+      tradeData.symbol = tickerSymbol[0].proName;
+    }
     await fetchData("auth/add-trade", "POST", tradeData);
     setReload(!reload);
   };
@@ -166,243 +190,257 @@ const TradingJournal = () => {
     fetchHolidays();
   }, []);
 
-  if (loading) return <div>Loading trades...</div>;
-  if (error) return <div>Error: {error.data.message}</div>;
+  if (loading)
+    return <div className="text-center text-white">Loading trades...</div>;
+  if (error)
+    return (
+      <div className="text-center text-red-500">
+        Error: {error.data.message}
+      </div>
+    );
 
   return (
-    <div className="container mx-auto">
-      <h1 className="font-semibold text-3xl my-5">Trading Journal</h1>
+    <div className="container mx-auto max-w-full px-4">
+      <h1 className="font-semibold text-2xl md:text-3xl my-4 md:my-5">
+        Trading Journal
+      </h1>
 
-      <div className="flex justify-between items-center mb-5 gap-4">
-        <button className="text-sm px-3 py-2 border border-primary text-primary rounded-[5px]">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 md:mb-5 gap-2 md:gap-4">
+        <button className="text-xs md:text-sm px-2 md:px-3 py-1.5 md:py-2 border border-primary text-primary rounded-[5px] w-full md:w-auto">
           How To Use Trading Journal?
         </button>
-        <div className="flex gap-2.5">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-2.5 w-full md:w-auto">
           <div className="relative">
             <button
-              className="text-sm font-normal bg-primary rounded-[5px] py-2 px-3"
+              className="text-xs md:text-sm font-normal bg-primary rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto"
               onClick={() => setShowAddTrade(!showAddTrade)}
             >
               Add Trade (+)
             </button>
-            {showAddTrade && (
-              <div
-                ref={addTradeRef}
-                className="absolute top-15 -right-25 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-primary p-7"
-              >
-                <div className="flex justify-between">
-                  <h3 className="text-2xl font-medium">Add Trade :</h3>
-                  <span
-                    onClick={() => setShowAddTrade(false)}
-                    className="text-2xl font-extrabold cursor-pointer"
-                  >
-                    X
-                  </span>
-                </div>
-                <div className="mt-10">
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Select Date Range* :</p>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="text-base cursor-pointer"
-                        onClick={() => setDateRangeType("long")}
-                      >
-                        Long
-                      </div>
-                      <div
-                        onClick={() =>
-                          setDateRangeType(() =>
-                            dateRangeType === "short" ? "long" : "short"
-                          )
-                        }
-                        className="w-14 h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
-                      >
-                        <div
-                          className={`w-6 h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
-                            dateRangeType === "short" ? "translate-x-6" : ""
-                          }`}
-                        />
-                      </div>
-                      <div
-                        className="text-base cursor-pointer"
-                        onClick={() => setDateRangeType("short")}
-                      >
-                        Short
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Entry Date & Time* :</p>
-                    <input
-                      ref={startInputRef}
-                      type="date"
-                      value={formatDateForInput(tradeData.entryDate)}
-                      onChange={(e) => handleTradeDateChange(e, "entryDate")}
-                      onClick={() => handleInputClick(startInputRef)}
-                      className="dark:bg-[#00114E] bg-db-primary dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white rounded-sm px-3 py-1 w-[60%]"
-                    />
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Exit Date & Time* :</p>
-                    <input
-                      ref={endInputRef}
-                      type="date"
-                      value={formatDateForInput(tradeData.exitDate)}
-                      onChange={(e) => handleTradeDateChange(e, "exitDate")}
-                      onClick={() => handleInputClick(endInputRef)}
-                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white"
-                    />
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Symbol/Ticker* :</p>
-                    <select
-                      name="symbol"
-                      value={tradeData?.symbol}
-                      onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
-                      placeholder="Enter symbol/ticker"
-                    >
-                      {tickerSymbol.map((symbol, index) => (
-                        <option key={index} value={symbol.proName}>
-                          {symbol.proName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Entry Price* :</p>
-                    <input
-                      type="number"
-                      name="entryPrice"
-                      value={tradeData?.entryPrice}
-                      onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
-                      placeholder="Enter entry price"
-                    />
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Exit Price* :</p>
-                    <input
-                      type="number"
-                      name="exitPrice"
-                      value={tradeData?.exitPrice}
-                      onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
-                      placeholder="Enter exit price"
-                    />
-                  </div>
-                  <div className="flex items-center mb-5 justify-between w-full">
-                    <p className="text-lg font-normal">Quantity* :</p>
-                    <input
-                      type="number"
-                      name="quantity"
-                      value={tradeData?.quantity}
-                      onChange={handleTradeInputChange}
-                      className="dark:bg-[#00114E] dark:placeholder:text-[#C9CFE5] placeholder:text-white bg-db-primary rounded-sm px-3 py-1 w-[60%]"
-                      placeholder="Enter quantity"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  className="bg-primary w-full text-white rounded-md py-2 mt-10"
-                  onClick={handleAddTradeSubmit}
-                >
-                  Submit
-                </button>
-              </div>
-            )}
           </div>
           <div className="relative">
             <button
-              className="text-sm font-normal flex items-center gap-2 bg-[#0256F5] rounded-[5px] py-2 px-3"
+              className="text-xs md:text-sm font-normal flex items-center justify-center md:justify-start gap-2 bg-[#0256F5] rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto"
               onClick={() => setShowDateRange(!showDateRange)}
             >
-              Date Range Selector
+              <p>Date Range Selector</p>
               <FaCalendarAlt />
             </button>
-            {showDateRange && (
-              <div
-                ref={dateRangeRef}
-                className="absolute top-15 right-5 shadow-md w-[600px] z-50 rounded-md dark:bg-db-primary bg-db-primary p-7 border dark:border-transparent border-white"
-              >
-                <div className="flex justify-between">
-                  <h3 className="text-2xl font-medium">Select Date Range :</h3>
-                  <span
-                    onClick={() => setShowDateRange(false)}
-                    className="text-2xl font-extrabold cursor-pointer"
-                  >
-                    X
-                  </span>
-                </div>
-                <div className="flex items-center mt-10 gap-14">
-                  <p className="text-lg font-normal">Select Date Range* :</p>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="text-base cursor-pointer"
-                      onClick={() => setDateRangeType("long")}
-                    >
-                      Long
-                    </div>
-                    <div
-                      onClick={() =>
-                        setDateRangeType(() =>
-                          dateRangeType === "short" ? "long" : "short"
-                        )
-                      }
-                      className="w-14 h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
-                    >
-                      <div
-                        className={`w-6 h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
-                          dateRangeType === "short" ? "translate-x-6" : ""
-                        }`}
-                      />
-                    </div>
-                    <div
-                      className="text-base cursor-pointer"
-                      onClick={() => setDateRangeType("short")}
-                    >
-                      Short
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center my-10 justify-between w-full">
-                  <p className="text-lg font-normal">Entry Date & Time* :</p>
-                  <input
-                    ref={startInputRef}
-                    type="date"
-                    value={formatDateForInput(tempDates.startDate)}
-                    onChange={(e) => handleDateChange(e, "start")}
-                    onClick={() => handleInputClick(startInputRef)}
-                    className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%]"
-                  />
-                </div>
-                <div className="flex items-center w-full justify-between">
-                  <p className="text-lg font-normal">Exit Date & Time* :</p>
-                  <input
-                    ref={endInputRef}
-                    type="date"
-                    value={formatDateForInput(tempDates?.endDate)}
-                    onChange={(e) => handleDateChange(e, "end")}
-                    onClick={() => handleInputClick(endInputRef)}
-                    className="dark:bg-[#00114E] bg-db-primary rounded-sm px-3 py-1 w-[60%]"
-                  />
-                </div>
-
-                <button
-                  className="bg-primary w-full text-white rounded-md py-2 mt-10"
-                  onClick={handleApply}
-                >
-                  Apply
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
+      <Modal
+        isOpen={showAddTrade}
+        onClose={() => setShowAddTrade(false)}
+        title="Add Trade"
+      >
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Select Date Range* :
+            </p>
+            <div className="flex items-center gap-2">
+              <div
+                className="text-sm md:text-base cursor-pointer"
+                onClick={() => setDateRangeType("long")}
+              >
+                Long
+              </div>
+              <div
+                onClick={() =>
+                  setDateRangeType(() =>
+                    dateRangeType === "short" ? "long" : "short"
+                  )
+                }
+                className="w-12 md:w-14 h-5 md:h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
+              >
+                <div
+                  className={`w-5 md:w-6 h-5 md:h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
+                    dateRangeType === "short"
+                      ? "translate-x-6 md:translate-x-8"
+                      : ""
+                  }`}
+                />
+              </div>
+              <div
+                className="text-sm md:text-base cursor-pointer"
+                onClick={() => setDateRangeType("short")}
+              >
+                Short
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Entry Date & Time* :
+            </p>
+            <input
+              ref={startInputRef}
+              type="date"
+              value={formatDateForInput(tradeData.entryDate)}
+              onChange={(e) => handleTradeDateChange(e, "entryDate")}
+              onClick={() => handleInputClick(startInputRef)}
+              className="dark:bg-[#00114E] bg-db-primary dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%]"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Exit Date & Time* :
+            </p>
+            <input
+              ref={endInputRef}
+              type="date"
+              value={formatDateForInput(tradeData.exitDate)}
+              onChange={(e) => handleTradeDateChange(e, "exitDate")}
+              onClick={() => handleInputClick(endInputRef)}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white text-white"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Symbol/Ticker* :
+            </p>
+            <select
+              name="symbol"
+              value={tradeData?.symbol}
+              onChange={handleTradeInputChange}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+              placeholder="Enter symbol/ticker"
+            >
+              {tickerSymbol.map((symbol, index) => (
+                <option key={index} value={symbol.proName}>
+                  {symbol.proName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Entry Price* :
+            </p>
+            <input
+              type="number"
+              name="entryPrice"
+              value={tradeData?.entryPrice}
+              onChange={handleTradeInputChange}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+              placeholder="Enter entry price"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Exit Price* :
+            </p>
+            <input
+              type="number"
+              name="exitPrice"
+              value={tradeData?.exitPrice}
+              onChange={handleTradeInputChange}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%] dark:placeholder:text-[#C9CFE5] placeholder:text-white"
+              placeholder="Enter exit price"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Quantity* :
+            </p>
+            <input
+              type="number"
+              name="quantity"
+              value={tradeData?.quantity}
+              onChange={handleTradeInputChange}
+              className="dark:bg-[#00114E] dark:placeholder:text-[#C9CFE5] placeholder:text-white bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%]"
+              placeholder="Enter quantity"
+            />
+          </div>
+          <button
+            className="bg-primary w-full text-white rounded-md py-1.5 md:py-2 mt-4 md:mt-10"
+            onClick={handleAddTradeSubmit}
+          >
+            Submit
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showDateRange}
+        onClose={() => setShowDateRange(false)}
+        title="Select Date Range"
+      >
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Select Date Range* :
+            </p>
+            <div className="flex items-center gap-2">
+              <div
+                className="text-sm md:text-base cursor-pointer"
+                onClick={() => setDateRangeType("long")}
+              >
+                Long
+              </div>
+              <div
+                onClick={() =>
+                  setDateRangeType(() =>
+                    dateRangeType === "short" ? "long" : "short"
+                  )
+                }
+                className="w-12 md:w-14 h-5 md:h-6 dark:bg-[#00114e] bg-db-primary rounded-[5px] flex items-center p-1 cursor-pointer transition-all"
+              >
+                <div
+                  className={`w-5 md:w-6 h-5 md:h-6 bg-primary rounded-[5px] shadow-md transform transition-all ${
+                    dateRangeType === "short"
+                      ? "translate-x-6 md:translate-x-8"
+                      : ""
+                  }`}
+                />
+              </div>
+              <div
+                className="text-sm md:text-base cursor-pointer"
+                onClick={() => setDateRangeType("short")}
+              >
+                Short
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Entry Date & Time* :
+            </p>
+            <input
+              ref={startInputRef}
+              type="date"
+              value={formatDateForInput(tempDates.startDate)}
+              onChange={(e) => handleDateChange(e, "start")}
+              onClick={() => handleInputClick(startInputRef)}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%]"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between w-full">
+            <p className="text-sm md:text-lg font-normal mb-2 md:mb-0">
+              Exit Date & Time* :
+            </p>
+            <input
+              ref={endInputRef}
+              type="date"
+              value={formatDateForInput(tempDates?.endDate)}
+              onChange={(e) => handleDateChange(e, "end")}
+              onClick={() => handleInputClick(endInputRef)}
+              className="dark:bg-[#00114E] bg-db-primary rounded-sm px-2 md:px-3 py-1 w-full md:w-[60%]"
+            />
+          </div>
+          <button
+            className="bg-primary w-full text-white rounded-md py-1.5 md:py-2 mt-4 md:mt-10"
+            onClick={handleApply}
+          >
+            Apply
+          </button>
+        </div>
+      </Modal>
+
       <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-        <div className="dark:bg-db-primary bg-db-primary rounded-md p-2.5">
+        <div className="dark:bg-db-primary bg-db-primary rounded-md p-2 md:p-2.5">
           <CalendarGrid
             setSelectedDate={setSelectedDate}
             selectedDateRange={[dateRange]}
@@ -410,13 +448,13 @@ const TradingJournal = () => {
             holidays={holidays}
           />
 
-          <div className="my-2.5">
+          <div className="my-2 md:my-2.5">
             <section className="lg:col-span-2 bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-db-primary rounded-md p-2.5">
-                <h5 className="font-normal text-2xl text-center mb-6">
+              <div className="dark:bg-db-secondary bg-db-primary rounded-md p-2 md:p-2.5">
+                <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Statistics
                 </h5>
-                <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 w-[90%] mx-auto mb-5">
+                <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
                   {[
                     "Total P&L",
                     "Total Trades",
@@ -429,15 +467,15 @@ const TradingJournal = () => {
                   ].map((stat, index) => (
                     <div
                       key={stat}
-                      className={`dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-4 py-5 ${
+                      className={`dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 ${
                         index >= 4 ? "sm:col-span-2" : ""
                       }`}
                     >
-                      <p className="flex items-center gap-3">
-                        <p className="text-sm">{stat}</p>
+                      <p className="flex items-center gap-2 md:gap-3">
+                        <p className="text-xs md:text-sm">{stat}</p>
                         <FaInfoCircle />
                       </p>
-                      <p>
+                      <p className="text-sm md:text-base">
                         {stat === "Total P&L"
                           ? data.summary?.totalProfitLoss
                           : stat === "Total Trades"
@@ -463,20 +501,20 @@ const TradingJournal = () => {
             </section>
           </div>
 
-          <div className="grid md:grid-cols-2 grid-cols-1 gap-2.5">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-2.5">
             <section className="bg-[#000A2D] p-px rounded-md">
-              <div className="rounded-md p-2.5">
-                <h5 className="font-normal text-2xl text-center mb-6">
+              <div className="rounded-md p-2 md:p-2.5">
+                <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Top Winner
                 </h5>
-                <div className="grid md:grid-cols-3 grid-cols-1 gap-5 w-[90%] mx-auto mb-5">
+                <div className="grid md:grid-cols-3 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
                   {data?.topWinnersLosers?.top3Winners.map((data, index) => (
                     <div
                       key={index}
-                      className="dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-4 py-5 gap-2"
+                      className="dark:bg-db-primary bg-db-primary flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
                     >
-                      <p className="text-sm">Winner {index + 1}</p>
-                      <p>{data.symbol}</p>
+                      <p className="text-xs md:text-sm">Winner {index + 1}</p>
+                      <p className="text-sm md:text-base">{data.symbol}</p>
                     </div>
                   ))}
                 </div>
@@ -484,18 +522,18 @@ const TradingJournal = () => {
             </section>
 
             <section className="bg-[#000A2D] p-px rounded-md">
-              <div className="rounded-md p-2.5">
-                <h5 className="font-normal text-2xl text-center mb-6">
+              <div className="rounded-md p-2 md:p-2.5">
+                <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Top Loser
                 </h5>
-                <div className="grid md:grid-cols-3 grid-cols-1 gap-5 w-[90%] mx-auto mb-5">
+                <div className="grid md:grid-cols-3 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
                   {data?.topWinnersLosers?.top3Losers.map((data, index) => (
                     <div
                       key={index}
-                      className="bg-db-primary flex flex-col items-center rounded-md px-4 py-5 gap-2"
+                      className="bg-db-primary flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
                     >
-                      <p className="text-sm">Loser {index + 1}</p>
-                      <p>{data.symbol}</p>
+                      <p className="text-xs md:text-sm">Loser {index + 1}</p>
+                      <p className="text-sm md:text-base">{data.symbol}</p>
                     </div>
                   ))}
                 </div>

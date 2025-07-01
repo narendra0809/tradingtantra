@@ -33,7 +33,7 @@ const Header = () => {
           isScrolled ? "bg-[#02000E]/90 backdrop-blur-md py-2" : "py-4"
         }`}
       >
-        <div className="mx-auto flex justify-between items-center text-white xl:px-20 sm:px-10 px-5 py-4">
+        <div className="mx-auto flex justify-between items-center text-white xl:px-20 px-1 py-4">
           {/* Logo */}
           <div className="xl:w-auto lg:w-42 sm:w-40 w-30">
             <Link to="/">
@@ -59,12 +59,12 @@ const Header = () => {
           <div className="flex sm:gap-5 gap-4 items-center">
             <button
               onClick={() => navigate("/login")}
-              className="neon-button sm:text-base text-sm bg-black cursor-pointer font-semibold px-6 py-3 rounded-[20px]"
+              className="neon-button text-[11px] md:text-lg lg:text-lg bg-black cursor-pointer font-semibold px-3 py-3 rounded-[20px]"
             >
               Login
             </button>
             <button
-              className="neon-button text-sm lg:text-lg bg-black cursor-pointer font-semibold px-3 py-3 rounded-[20px]"
+              className="neon-button text-nowrap text-[11px] md:text-lg lg:text-lg bg-black cursor-pointer font-semibold px-3 py-3 rounded-[20px]"
               onClick={() => {
                 const section = document.getElementById("buy-now-section");
                 if (section) {
