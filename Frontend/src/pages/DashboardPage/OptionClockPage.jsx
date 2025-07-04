@@ -417,7 +417,11 @@ import OiClockChartTwo from "../../Components/Dashboard/OiClockChartTwo";
 import OiClockChartThree from "../../Components/Dashboard/OiClockChartThree";
 import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
-import { convertTo12HourFormat, parseTime } from "../../utils/utils";
+import {
+  convertTo12HourFormat,
+  getLatestTradingDay,
+  parseTime,
+} from "../../utils/utils";
 import { lotSize } from "../../constants/constants";
 import Cookies from "js-cookie";
 // import { useAuth } from "../../contexts/AuthContext";
@@ -534,6 +538,7 @@ const OptionClockPage = () => {
 
     let totalOiCE = 0;
     let totalOiPE = 0;
+
     try {
       const startTime = convertTo12HourFormat(range.split("-")[0]);
       const endTime = convertTo12HourFormat(range.split("-")[1]);
@@ -552,7 +557,12 @@ const OptionClockPage = () => {
       filteredData = filteredData.sort(
         (a, b) => parseTime(a.timestamp.trim()) - parseTime(b.timestamp.trim())
       );
-
+      if (
+        !checkIfDataIsLatest(filteredData[0].updatedAt) ||
+        !checkIfDataIsLatest(filteredData[1].updatedAt)
+      ) {
+        throw new Error("Data is not available");
+      }
       const processedData = processData(filteredData[0], filteredData[1]);
 
       setTotalOiChanges(getTotalOIChange(processedData));
@@ -562,11 +572,17 @@ const OptionClockPage = () => {
       });
       setCurrData(processedData.length > 0 ? processedData : []);
     } catch (error) {
-      console.log("Error in filtering data:", error);
+      console.log(error);
       setCurrData([]);
     } finally {
       setChartLoading(false);
     }
+  };
+
+  const checkIfDataIsLatest = (updatedAt) => {
+    const convertedDate = new Date(updatedAt).toLocaleDateString();
+    const latestTradingDate = getLatestTradingDay().toLocaleDateString();
+    return convertedDate === latestTradingDate;
   };
 
   const getTotalOi = (data) => {

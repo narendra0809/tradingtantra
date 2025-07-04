@@ -5,7 +5,7 @@ import React, { useEffect, useState, Suspense } from "react";
 const TreemapChart = React.lazy(() => import("./TreemapChart"));
 const Loader = React.lazy(() => import("../Loader"));
 
-const TreeGraphsGrid = ({ data, loading }) => {
+const TreeGraphsGrid = ({ data, loading, handleGoToTable }) => {
   const graphTitles = [
     { title: "Energy", class: "div19" },
     { title: "Auto", class: "div20" },
@@ -28,34 +28,48 @@ const TreeGraphsGrid = ({ data, loading }) => {
   const [sectorWiseData, setSectorWiseData] = useState([]);
 
   useEffect(() => {
-    setSectorWiseData(data.sectorWiseData);
+    const sortedData = Object.entries(data.sectorWiseData).sort((a, b) => {
+      const nameA = a[0].toLowerCase();
+      const nameB = b[0].toLowerCase();
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
+    });
+    setSectorWiseData(sortedData);
   }, [data]);
 
   return (
     <div className="lg:block">
       <div className="parent">
         <Suspense fallback={<div></div>}>
-          {Object.entries(sectorWiseData || {}).map(
-            ([sector, values], index) => (
-              <div
-                key={index}
-                className={`${
-                  graphTitles[index % graphTitles.length]?.class
-                } w-full h-full dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
-              >
-                <div className="w-full flex flex-col bg-db-primary rounded-md overflow-hidden">
+          {sectorWiseData.map(([sector, values], index) => (
+            <div
+              key={index}
+              className={`${
+                graphTitles[index % graphTitles.length]?.class
+              } w-full h-full dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
+            >
+              <div className="w-full flex flex-col bg-db-primary rounded-md overflow-hidden">
+                <button
+                  className="text-left"
+                  onClick={() => handleGoToTable(sector)}
+                >
                   <h1 className="text-base px-2.5 py-2">{sector}</h1>
-                  <div className="flex-grow w-full">
-                    {loading ? (
-                      <Loader />
-                    ) : (
-                      <TreemapChart data={values.slice(0, 10)} />
-                    )}
-                  </div>
+                </button>
+                <div className="flex-grow w-full">
+                  {loading ? (
+                    <Loader />
+                  ) : (
+                    <TreemapChart data={values.slice(0, 10)} />
+                  )}
                 </div>
               </div>
-            )
-          )}
+            </div>
+          ))}
         </Suspense>
       </div>
     </div>

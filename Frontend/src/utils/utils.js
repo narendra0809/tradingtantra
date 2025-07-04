@@ -76,3 +76,28 @@ export const marketHours = () => {
   // Check if current time is within market hours
   return currentTime >= openTime && currentTime <= closeTime;
 };
+
+export const getLatestTradingDay = () => {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const isPreMarket =
+    (hours === 0 && minutes >= 0) ||
+    (hours > 0 && hours < 9) ||
+    (hours === 9 && minutes < 15);
+
+  let currentDateObj = new Date(now);
+
+  if (isPreMarket) {
+    currentDateObj.setDate(currentDateObj.getDate() - 1);
+  }
+
+  const adjustedDay = currentDateObj.getDay();
+
+  if (adjustedDay === 0) {
+    currentDateObj.setDate(currentDateObj.getDate() - 2);
+  } else if (adjustedDay === 6) {
+    currentDateObj.setDate(currentDateObj.getDate() - 1);
+  }
+  return currentDateObj;
+};

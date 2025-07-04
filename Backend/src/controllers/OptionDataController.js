@@ -163,7 +163,7 @@ class OptionDataController {
       const data = await OptionChainModel.find({
         underlyingName: new RegExp(`^${underlyingName}$`, "i"),
       })
-        .select("timestamp strikeData lastPrice expiry")
+        .select("timestamp strikeData lastPrice expiry updatedAt")
         .sort({ timestamp: 1 })
         .lean();
 
@@ -175,7 +175,6 @@ class OptionDataController {
 
       // Get unique expiries
       const expiries = [...new Set(data.map((item) => item.expiry))];
-
       res.json({
         count: data.length,
         expiries,
@@ -251,7 +250,7 @@ class OptionDataController {
           error: "No intraday data found in the given time range",
         });
       }
-
+      console.log(intradayData);
       res.json({
         count: intradayData.length,
         data: intradayData.map(({ parsedTimestamp, ...rest }) => rest),

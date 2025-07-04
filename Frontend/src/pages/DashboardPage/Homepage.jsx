@@ -45,8 +45,7 @@ const Homepage = () => {
   return (
     <>
       <HomePageGridLayout />
-
-      <section className="w-full space-y-5 ">
+      <section className="w-full space-y-5">
         {cards.map((card, index) => (
           <div
             key={index}

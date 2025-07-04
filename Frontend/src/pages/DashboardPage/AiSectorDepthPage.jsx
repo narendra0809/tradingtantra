@@ -48,7 +48,6 @@ const AiSectorDepthPage = () => {
         throw new Error("Fetch failed for Sector Depth Action!");
       }
       const data = response.data;
-
       setData(data);
       setSectorWiseData(data.sectorWiseData);
     } catch (error) {
@@ -135,6 +134,12 @@ const AiSectorDepthPage = () => {
     };
   }, [isMarketHours, isSubscribed]);
 
+  const handleGoToTable = (title) => {
+    document
+      .getElementById(title)
+      .scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg h-auto ">
@@ -164,7 +169,11 @@ const AiSectorDepthPage = () => {
                   <Loader />
                 </div>
               ) : (
-                <TreeGraphsGrid data={data} />
+                <TreeGraphsGrid
+                  data={data}
+                  loading={loading}
+                  handleGoToTable={handleGoToTable}
+                />
               )}
             </>
           )}
@@ -197,7 +206,10 @@ const AiSectorDepthPage = () => {
                     <Loader />
                   </div>
                 ) : (
-                  <AISectorChart data={sectorWiseData} />
+                  <AISectorChart
+                    data={sectorWiseData}
+                    handleGoToTable={handleGoToTable}
+                  />
                 )}
               </>
             )}

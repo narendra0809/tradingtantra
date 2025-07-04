@@ -35,7 +35,6 @@ const TreemapChart = ({ data }) => {
     volume: item.xelement,
     change: item.percentageChange ?? 0,
   }));
-
   // Calculate tooltip position with boundary checks
   const calculateTooltipPosition = (x, y) => {
     if (!containerRef.current) return { x, y };
@@ -69,7 +68,6 @@ const TreemapChart = ({ data }) => {
 
     return { x: adjustedX, y: adjustedY };
   };
-
   return (
     <div
       className="w-full h-full bg-[#01071C] rounded-lg relative"
@@ -84,40 +82,44 @@ const TreemapChart = ({ data }) => {
             if (!root || depth === 0) return null;
             const stock = transformedData[index];
             if (!stock) return null;
-
             return (
-              <g
-                onMouseEnter={() =>
-                  setTooltip({
-                    x,
-                    y,
-                    name: stock.name,
-                    volume: stock.volume,
-                    change: stock.change,
-                  })
-                }
-                onMouseLeave={() => setTooltip(null)}
+              <a
+                target="_blank"
+                href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.name}&interval=5`}
               >
-                <rect
-                  x={x}
-                  y={y}
-                  width={width}
-                  height={height}
-                  fill={getColor(stock.change)}
-                  stroke="#01071C"
-                  strokeWidth="1"
-                />
-                <text
-                  x={x + width / 2}
-                  y={y + height / 2}
-                  textAnchor="middle"
-                  fill="white"
-                  fontSize={width < 40 ? "10" : "12"}
-                  fontWeight="bold"
+                <g
+                  onMouseEnter={() =>
+                    setTooltip({
+                      x,
+                      y,
+                      name: stock.name,
+                      volume: stock.volume,
+                      change: stock.change,
+                    })
+                  }
+                  onMouseLeave={() => setTooltip(null)}
                 >
-                  {width < 70 ? stock.name.charAt(0) : stock.name}
-                </text>
-              </g>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    fill={getColor(stock.change)}
+                    stroke="#01071C"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={x + width / 2}
+                    y={y + height / 2}
+                    textAnchor="middle"
+                    fill="white"
+                    fontSize={width < 40 ? "10" : "12"}
+                    fontWeight="bold"
+                  >
+                    {width < 70 ? stock.name.charAt(0) : stock.name}
+                  </text>
+                </g>
+              </a>
             );
           }}
         />

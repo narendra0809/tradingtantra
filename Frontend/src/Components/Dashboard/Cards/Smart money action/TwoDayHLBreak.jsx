@@ -190,7 +190,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                           <td className="py-3 text-left text-sm font-semibold">
                             <a
                               target="_blank"
-                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=D`}
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=5`}
                             >
                               {stock?.underlyingSymbol}
                             </a>
