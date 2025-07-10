@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "backend",
       script: "app.js",
-      max_memory_restart: "256M",
+      max_memory_restart: "1024M",
       autorestart: true,
       watch: false,
       restart_delay: 0, // restart immediately after crash
@@ -15,15 +15,14 @@ module.exports = {
     {
       name: "option-chain",
       script: "chain.js",
-      autorestart: true,
       max_memory_restart: "512M",
+      autorestart: true,
       watch: false,
-      restart_delay: 0,
-      cron_restart: "10 9 * * 1-5", // restart immediately after crash
+      restart_delay: 0, // restart immediately after crash
+      cron_restart: "10 9 * * 1-5", // restart at 9:10 AM, Mon-Fri
       env: {
         NODE_ENV: "production",
       },
     },
   ],
 };
-

@@ -329,17 +329,17 @@ const dailyCandleReversal = async (req, res) => {
 };
 const AIContraction = async (req, res) => {
   try {
-    // 1. Get last 7 trading days (for comparison)
+    // 1. Get last 5 trading days
     const tradingDays = await MarketDetailData.aggregate([
       { $group: { _id: "$date" } },
       { $sort: { _id: -1 } },
-      { $limit: 7 },
+      { $limit: 5 },
     ]);
 
-    if (tradingDays.length < 7) {
+    if (tradingDays.length < 5) {
       return (
-        res?.status(400).json({ message: "Need at least 7 trading days" }) || {
-          message: "Need at least 7 trading days",
+        res?.status(400).json({ message: "Need at least 5 trading days" }) || {
+          message: "Need at least 5 trading days",
         }
       );
     }
@@ -369,7 +369,7 @@ const AIContraction = async (req, res) => {
     );
     const stockMap = new Map(stocks.map((s) => [s.SECURITY_ID, s]));
 
-    // 4. Organize data by security and calculate candle sizes
+    // 4. Organize data by security
     const securityData = new Map();
 
     marketData.forEach((entry) => {
@@ -389,10 +389,8 @@ const AIContraction = async (req, res) => {
         high: candleData.dayHigh,
         low: candleData.dayLow,
         latestPrice: candleData.latestTradedPrice,
-        // Calculate candle body size (absolute difference between open and close)
-        bodySize: Math.abs(candleData.dayOpen - candleData.latestTradedPrice),
-        // Calculate total candle range (high - low)
         totalRange: candleData.dayHigh - candleData.dayLow,
+        body: Math.abs(candleData.dayOpen - candleData.dayClose), // Calculate body
       });
     });
 
@@ -400,8 +398,8 @@ const AIContraction = async (req, res) => {
     const bulkOps = [];
 
     for (const [securityId, data] of securityData) {
-      // Skip if we don't have all 7 days
-      if (data.candles.length < 7) continue;
+      // Skip if we don't have all 5 days
+      if (data.candles.length < 5) continue;
 
       const stock = stockMap.get(securityId);
       if (!stock) continue;
@@ -411,20 +409,33 @@ const AIContraction = async (req, res) => {
         (a, b) => new Date(b.date) - new Date(a.date)
       );
 
+      // Get the 5th day's candle (index 4 since sorted newest first)
+      const fifthDayCandle = sortedCandles[4];
+      const fifthDayHigh = fifthDayCandle.high;
+      const fifthDayLow = fifthDayCandle.low;
+
+      // Get the current day's candle (index 0)
       const currentCandle = sortedCandles[0];
-      const previousCandles = sortedCandles.slice(1);
+      const currentRange = currentCandle.totalRange;
+      const currentBody = currentCandle.body;
 
-      // Check if current candle is the smallest in both body size and total range
-      const isSmallestBody = previousCandles.every(
-        (c) => currentCandle.bodySize < c.bodySize
-      );
+      // Check if candles from day 4, 3, 2, and 1 (current) are within 5th day's range
+      const isWithinFifthDayRange = sortedCandles.slice(0, 4).every((candle) => {
+        return candle.high <= fifthDayHigh && candle.low >= fifthDayLow;
+      });
 
-      const isSmallestRange = previousCandles.every(
-        (c) => currentCandle.totalRange < c.totalRange
-      );
+      // Check if current day's range is smaller than all previous days (2, 3, 4)
+      const isSmallestRange = sortedCandles.slice(1, 4).every((candle) => {
+        return currentRange < candle.totalRange;
+      });
 
-      // Only consider if both body and range are smallest
-      if (isSmallestBody && isSmallestRange) {
+      // Check if current day's body is the smallest among the last 4 days (1, 2, 3, 4)
+      const isSmallestBody = sortedCandles.slice(1, 5).every((candle) => {
+        return currentBody < candle.body;
+      });
+
+      // If all conditions are met
+      if (isWithinFifthDayRange && isSmallestRange && isSmallestBody) {
         const prevClose = sortedCandles[1].close;
         const percentageChange =
           ((currentCandle.latestPrice - prevClose) / prevClose) * 100;
@@ -438,8 +449,10 @@ const AIContraction = async (req, res) => {
                 UNDERLYING_SYMBOL: stock.UNDERLYING_SYMBOL,
                 SYMBOL_NAME: stock.SYMBOL_NAME,
                 percentageChange: parseFloat(percentageChange.toFixed(2)),
-                currentBodySize: currentCandle.bodySize.toFixed(2),
                 currentRange: currentCandle.totalRange.toFixed(2),
+                currentBody: currentBody.toFixed(2),
+                fifthDayHigh: fifthDayHigh.toFixed(2),
+                fifthDayLow: fifthDayLow.toFixed(2),
                 timestamp: getFormattedISTDate(),
               },
             },

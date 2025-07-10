@@ -22,23 +22,30 @@ const AISectorChart = ({ data, handleGoToTable }) => {
     []
   );
 
-  useEffect(() => {
-    const updatedData = Object.entries(data)
-      .filter(([sector]) => sector !== "Uncategorized")
-      .map(([sector, values]) => {
-        let totalPercentage = values.reduce(
-          (sum, element) => sum + element.percentageChange,
-          0
-        );
-        const averagePercentageChange = totalPercentage / values.length;
-        return {
-          name: sector,
-          value: Number(averagePercentageChange.toFixed(2)),
-        };
-      });
+useEffect(() => {
+  const updatedData = Object.entries(data)
+    .filter(([sector]) => sector !== "Uncategorized")
+    .map(([sector, values]) => {
+      let totalPercentage = values.reduce(
+        (sum, element) => sum + element.percentageChange,
+        0
+      );
+      const averagePercentageChange = totalPercentage / values.length;
+      return {
+        name: sector,
+        value: Number(averagePercentageChange.toFixed(2)),
+      };
+    })
+    // Sort by value (descending) and then alphabetically by name for equal values
+    .sort((a, b) => {
+      if (a.value === b.value) {
+        return a.name.localeCompare(b.name); // Alphabetical sort for same value
+      }
+      return b.value - a.value; // Sort by value in descending order
+    });
 
-    setSectorWisePercentageChange(updatedData);
-  }, [data]);
+  setSectorWisePercentageChange(updatedData);
+}, [data]);
 
   const renderCustomXAxisTick = ({ x, y, payload }) => {
     return (
