@@ -4,11 +4,11 @@ import axios from "axios";
 import { getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
 
 const indices = [
-  { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
-  { name: "BANKNIFTY", scrip: "25", seg: "IDX_I", stepSize: 100 },
-  { name: "FINNIFTY", scrip: "27", seg: "IDX_I", stepSize: 50 },
-  { name: "MIDCPNIFTY", scrip: "442", seg: "IDX_I", stepSize: 75 },
-  { name: "SENSEX", scrip: "51", seg: "IDX_I", stepSize: 100 },
+    { name: 'NIFTY', scrip: "13", seg: 'IDX_I', stepSize: 75 }, // Nifty 50: Between 25-75, 50 is standard
+    { name: 'BANKNIFTY', scrip: "25", seg: 'IDX_I', stepSize: 30 }, // Bank Nifty: Between 15-30, 25 for finer control
+    { name: 'MIDCPNIFTY', scrip: "442", seg: 'IDX_I', stepSize: 120 }, // Nifty Midcap Select: Between 50-120, 75 for balance
+    { name: 'FINNIFTY', scrip: "27", seg: 'IDX_I', stepSize: 65 }, // Nifty Financial Services: Between 25-65, 45 as mid-point
+    { name: 'SENSEX', scrip: "51", seg: 'IDX_I', stepSize: 30 },
 ];
 
 // Dhan API configuration

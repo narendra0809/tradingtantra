@@ -158,11 +158,8 @@ const runMarketCleanupJob = async () => {
   await keepOnlyLatestMarketData();
 };
 
-// 7. Ensure timezone is set to IST
 process.env.TZ = "Asia/Kolkata";
 
-// 8. Schedule CRON job every 30 seconds from 9:15 AM to 3:40 PM IST, Monday to Friday
-// Schedule CRON job every 1 minute from 9:15 AM to 3:40 PM IST, Monday to Friday
-cron.schedule("15-59 9 * * 1-5", runMarketCleanupJob); // 9:15, 9:16, ..., 9:59
-cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob); // 10:00, 10:01, ..., 14:59
-cron.schedule("0-40 15 * * 1-5", runMarketCleanupJob); // 15:00, 15:01, ..., 15:40
+cron.schedule("15-59 9 * * 1-5", runMarketCleanupJob); 
+cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob); 
+cron.schedule("0-40 15 * * 1-5", runMarketCleanupJob); 
