@@ -37,11 +37,11 @@ async function deleteOldOrExpiredData() {
 
     for (const underlyingName of Object.keys(modelMap)) {
       const Model = modelMap[underlyingName];
-
-      await Model.deleteMany({
-        expiry: { $lt: startOfToday.toISOString().split("T")[0] },
+      const result = await Model.deleteMany({
+        expiry: { $lte: startOfToday.toISOString().split("T")[0] },
       });
-      console.log(`Deleted old/expired data for ${underlyingName}`);
+
+      console.log(`Deleted ${result.deletedCount} old/expired records for ${underlyingName}`);
     }
   } catch (error) {
     console.error(`Error deleting old/expired data: ${error.message}`);
