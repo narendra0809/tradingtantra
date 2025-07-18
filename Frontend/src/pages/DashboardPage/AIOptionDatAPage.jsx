@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
@@ -7,8 +9,14 @@ import CandleChart from "../../Components/Dashboard/CandleChart";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
 import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
-import { lotSize } from "../../constants/constants";
+import { lotSize, lotSize1 } from "../../constants/constants";
 import axios from "axios";
+import {
+  convertTo12HourFormat,
+  generateTimeRanges,
+  getLatestTradingDay,
+  parseTime,
+} from "../../utils/utils";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const contributeIndex = {
@@ -33,6 +41,7 @@ const meterData = [
 
 const AIOptionDataPage = () => {
   const { fetchData } = useFetchData();
+  const [volumes, setVolumes] = useState([]);
   const [allIndexPts, setAllIndexPts] = useState({
     "NIFTY 50": { pts: 0, per: 0 },
     BANKNIFTY: { pts: 0, per: 0 },
@@ -122,10 +131,6 @@ const AIOptionDataPage = () => {
         throw new Error("Error fetching index candles data");
       }
       setIndexCandles(response.data);
-      console.log("Fetched indexCandles:", response.data);
-      console.log("Available intervals:", [
-        ...new Set(response.data.map((candle) => candle.interval)),
-      ]);
     } catch (error) {
       console.error(`Error fetching index candles data:`, error);
       setIndexCandles([]);
@@ -251,14 +256,12 @@ const AIOptionDataPage = () => {
         )
       ),
     ];
-    console.log("Unique Dates (from createdAt):", uniqueDates);
 
     const latestDate = uniqueDates.sort((a, b) => {
       const dateA = moment(a, "DD/MM/YYYY").valueOf();
       const dateB = moment(b, "DD/MM/YYYY").valueOf();
       return dateB - dateA;
     })[0];
-    console.log("Latest Date:", latestDate);
 
     if (!latestDate) {
       console.warn("No valid dates found in indexCandles");
@@ -282,11 +285,6 @@ const AIOptionDataPage = () => {
       );
     });
 
-    console.log(
-      `Filtered Candles for ${selectedIndex}, ${selectedIntervalString}:`,
-      filteredData
-    );
-
     if (filteredData.length === 0) {
       console.warn(
         `No candles found for ${selectedIndex} on ${latestDate} with interval ${selectedIntervalString}`
@@ -299,7 +297,6 @@ const AIOptionDataPage = () => {
     }
 
     const candles = convertCandlesForDisplaying(filteredData);
-    console.log("Converted Candles for Chart:", candles);
     setCurrentCandles(candles);
   };
 
@@ -362,6 +359,137 @@ const AIOptionDataPage = () => {
         };
       })
       .filter((candle) => candle !== null);
+  };
+
+  const generateVolumnes = () => {
+    const ranges = generateTimeRanges("9:15", "15:30", selectedInterval);
+    const volumes = ranges.map((range) => {
+      const { TotalOiChangeCE, TotalOiChangePE } =
+        getVolumeByIndexAndExpiry(range);
+      if (isNaN(TotalOiChangeCE) || isNaN(TotalOiChangePE)) return 0;
+      return Math.abs(Number(TotalOiChangeCE) - Number(TotalOiChangePE));
+    });
+    setVolumes(volumes);
+  };
+
+  useEffect(() => {
+    const generate = () => {
+      if (selectedExpiry && allIndexData) {
+        generateVolumnes();
+      }
+    };
+    generate();
+  }, [selectedIndex, selectedExpiry, allIndexData, selectedInterval]);
+
+  const getVolumeByIndexAndExpiry = (range) => {
+    const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])?.[
+      selectedIndex
+    ];
+
+    const indexData = allIndexData[currentIndexName]?.data?.data || [];
+    let totalOiCE = 0;
+    let totalOiPE = 0;
+    const startTime = convertTo12HourFormat(range.split("-")[0]);
+    const endTime = convertTo12HourFormat(range.split("-")[1]);
+    let filteredData = indexData.filter((data) => {
+      const expectedExpiry = data.expiry;
+      const timeStamp = data.timestamp.trim();
+      if (expectedExpiry !== selectedExpiry) return false;
+
+      const { totalOiCE: totalCE, totalOiPE: totalPE } = getTotalOi(data);
+      totalOiCE = totalOiCE + totalCE;
+      totalOiPE = totalOiPE + totalPE;
+
+      return timeStamp === startTime || timeStamp === endTime;
+    });
+
+    filteredData = filteredData.sort(
+      (a, b) => parseTime(a.timestamp.trim()) - parseTime(b.timestamp.trim())
+    );
+    const processedData = processData(filteredData[0], filteredData[1]);
+    const changes = getTotalOIChange(processedData);
+    return changes;
+  };
+
+  const getTotalOIChange = (processedData) => {
+    let TotalOiChangeCE = 0;
+    let TotalOiChangePE = 0;
+    processedData.forEach((data) => {
+      TotalOiChangeCE += data.oiChangeCE;
+      TotalOiChangePE += data.oiChangePE;
+    });
+
+    return {
+      TotalOiChangeCE: TotalOiChangeCE.toFixed(2),
+      TotalOiChangePE: TotalOiChangePE.toFixed(2),
+    };
+  };
+
+  const processData = (startTime, endTime) => {
+    if (!startTime || !endTime) return [];
+    const createStrikeMap = (data) => {
+      const map = {};
+      data.strikeData.forEach((strike) => {
+        const key = `${strike.strikePrice}-${strike.optionType}`;
+        map[key] = strike;
+      });
+      return map;
+    };
+
+    const startTimeMap = createStrikeMap(startTime);
+    const endTimeMap = createStrikeMap(endTime);
+
+    const mergedMap = new Map();
+
+    const allKeys = new Set([
+      ...Object.keys(startTimeMap),
+      ...Object.keys(endTimeMap),
+    ]);
+    allKeys.forEach((key) => {
+      const [strikePrice, optionType] = key.split("-");
+      const price = parseFloat(strikePrice);
+
+      const morning = startTimeMap[key];
+      const evening = endTimeMap[key];
+
+      if (!morning || !evening) return;
+      const oiChange = Math.abs(
+        (evening.oi - morning.oi) / lotSize1[selectedIndex]
+      );
+      const priceChange = evening.lastPrice - morning.lastPrice;
+
+      const mapKey = price;
+      if (!mergedMap.has(mapKey)) {
+        mergedMap.set(mapKey, {
+          strikePrice: price,
+          oiChangeCE: 0,
+          oiChangePE: 0,
+          priceChangeCE: 0,
+          priceChangePE: 0,
+        });
+      }
+
+      const existing = mergedMap.get(mapKey);
+
+      if (optionType === "CE") {
+        existing.oiChangeCE = oiChange;
+        existing.priceChangeCE = priceChange;
+      } else {
+        existing.oiChangePE = oiChange;
+        existing.priceChangePE = priceChange;
+      }
+
+      mergedMap.set(mapKey, existing);
+    });
+    return Array.from(mergedMap.values()).sort(
+      (a, b) => a.strikePrice - b.strikePrice
+    );
+  };
+
+  const checkIfDataIsLatest = (updatedAt) => {
+    const convertedDate = new Date(updatedAt).toLocaleDateString();
+    const latestTradingDate = getLatestTradingDay().toLocaleDateString();
+    return convertedDate === latestTradingDate;
   };
 
   const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])[
@@ -490,7 +618,7 @@ const AIOptionDataPage = () => {
               {noDataMessage ? (
                 <p className="text-center text-white">{noDataMessage}</p>
               ) : (
-                <CandleChart candles={currentCandles} />
+                <CandleChart candles={currentCandles} volumes={volumes} />
               )}
             </div>
           </div>

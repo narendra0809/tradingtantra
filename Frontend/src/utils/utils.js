@@ -101,3 +101,46 @@ export const getLatestTradingDay = () => {
   }
   return currentDateObj;
 };
+
+export function generateTimeRanges(startTime, endTime, intervalMinutes) {
+  const ranges = [];
+
+  // Parse start time
+  let [startHour, startMinute] = startTime.split(":").map(Number);
+
+  // Parse end time
+  let [endHour, endMinute] = endTime.split(":").map(Number);
+
+  let currentHour = startHour;
+  let currentMinute = startMinute;
+
+  while (
+    currentHour < endHour ||
+    (currentHour === endHour && currentMinute <= endMinute)
+  ) {
+    // Format current time
+    const start = `${currentHour}:${currentMinute.toString().padStart(2, "0")}`;
+
+    // Add interval
+    currentMinute += intervalMinutes;
+
+    // Handle hour overflow
+    while (currentMinute >= 60) {
+      currentMinute -= 60;
+      currentHour += 1;
+    }
+
+    // Format end time
+    const end = `${currentHour}:${currentMinute.toString().padStart(2, "0")}`;
+
+    // Only add if we haven't passed the end time
+    if (
+      currentHour < endHour ||
+      (currentHour === endHour && currentMinute <= endMinute)
+    ) {
+      ranges.push(`${start}-${end}`);
+    }
+  }
+
+  return ranges;
+}

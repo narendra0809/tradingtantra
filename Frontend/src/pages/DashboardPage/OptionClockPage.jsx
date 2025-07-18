@@ -533,7 +533,6 @@ const OptionClockPage = () => {
       console.log("Missing parameters - waiting for data to load");
       return;
     }
-
     setChartLoading(true);
 
     let totalOiCE = 0;

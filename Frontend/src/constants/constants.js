@@ -170,3 +170,10 @@ export const lotSize = {
   Midcap: 120,
   Sensex: 20,
 };
+export const lotSize1 = {
+  NIFTY: 75,
+  BANKNIFTY: 30,
+  FINNIFTY: 65,
+  MIDCPNIFTY: 120,
+  SENSEX: 20,
+};
