@@ -131,7 +131,7 @@ const RenewPlanPage = ({ setShowRenewModal }) => {
 
   return (
     <>
-      <div className="xl:w-[70%] w-[90%] mx-auto bg-[#01071C] px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] ">
+      <div className="xl:w-[70%] w-[90%] mx-auto bg-[#01071C] not-dark:bg-primary-light px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] not-dark:text-white">
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col space-y-5 ">
             <h3 className="md:text-5xl sm:text-3xl text-xl font-bold">
@@ -153,7 +153,7 @@ const RenewPlanPage = ({ setShowRenewModal }) => {
             {/* Country Dropdown */}
             <select
               name="country"
-              className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
+              className="sm:w-[45%] w-full px-4 bg-[#000A2D] not-dark:bg-primary py-2 rounded-lg"
               value={selectedCountry}
               onChange={handleCountryChange}
             >
@@ -170,7 +170,7 @@ const RenewPlanPage = ({ setShowRenewModal }) => {
             {/* State Dropdown */}
             <select
               name="state"
-              className="sm:w-[45%] w-full px-4 bg-[#000A2D] py-2 rounded-lg"
+              className="sm:w-[45%] w-full px-4 bg-[#000A2D] not-dark:bg-primary py-2 rounded-lg"
               value={selectedState}
               onChange={handleStateChange}
               disabled={!selectedCountry} // Disable if no country is selected

@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 // Plugin to display text inside the doughnut segments
 const textInsidePlugin = {
   id: "textInside",
-  afterDatasetsDraw(chart, args, options) {
+  afterDatasetsDraw(chart) {
     const { ctx, data } = chart;
     ctx.save();
     data.datasets.forEach((dataset, i) => {
@@ -143,7 +144,7 @@ const SIPCalculator = ({ calculator }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary  rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light  rounded-md mt-10 not-dark:text-white">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <div className=" w-full grid grid-cols-2 gap-x-10 gap-y-8">
             <div className="flex flex-col space-y-[50px]">
@@ -155,7 +156,7 @@ const SIPCalculator = ({ calculator }) => {
                       ? "Monthly Investment*"
                       : "Total Investment*"}
                   </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-db-primary  w-20 text-center">
+                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light  w-20 text-center">
                     <span>₹</span>
                     <input
                       type="number"
@@ -182,7 +183,7 @@ const SIPCalculator = ({ calculator }) => {
                   <label className="text-lg font-abcRepro font-light ">
                     Expected Return p.a. (%)*
                   </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-db-primary w-20 text-center">
+                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
                     <input
                       type="number"
                       className="text-xs outline-none w-full"
@@ -211,7 +212,7 @@ const SIPCalculator = ({ calculator }) => {
                   <label className="text-lg font-abcRepro font-light  ">
                     Time Period (Years)*
                   </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-db-primary w-20 text-center">
+                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
                     <input
                       type="number"
                       className="text-xs w-full outline-none"
@@ -246,7 +247,7 @@ const SIPCalculator = ({ calculator }) => {
           {/* Buttons */}
           <div className="flex justify-between items-center gap-10 mt-[82px] ">
             <button
-              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
               onClick={() => {
                 setInitialAmount(500);
                 setExpectedReturn(1);
@@ -272,7 +273,7 @@ const SIPCalculator = ({ calculator }) => {
       </div>
 
       {/* Result Display */}
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary   rounded-md mt-5">
+      <div className="not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light   rounded-md mt-5">
         <div className="flex justify-between items-center">
           <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
           <button

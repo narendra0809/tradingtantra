@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const EMICalculator = ({ calculator }) => {
+const EMICalculator = () => {
   const [loanAmount, setLoanAmount] = useState(500);
   const [interest, setInterest] = useState(1);
   const [duration, setDuration] = useState(1);
@@ -82,7 +82,7 @@ const EMICalculator = ({ calculator }) => {
   };
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
         <form className="space-y-6">
           <div className="grid grid-cols-2 gap-y-8">
             <div className="flex flex-col space-y-[50px]">
@@ -95,7 +95,7 @@ const EMICalculator = ({ calculator }) => {
                     type="number"
                     value={loanAmount}
                     onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary "
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light "
                     min="100"
                     max="10000"
                     step="100"
@@ -122,7 +122,7 @@ const EMICalculator = ({ calculator }) => {
                     type="number"
                     value={interest}
                     onChange={(e) => setInterest(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary"
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
                     min="1"
                     max="40"
                     step="0.1"
@@ -149,7 +149,7 @@ const EMICalculator = ({ calculator }) => {
                     type="number"
                     value={duration}
                     onChange={(e) => setDuration(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-db-primary"
+                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
                     min="1"
                     max="30"
                     step="1"
@@ -182,7 +182,7 @@ const EMICalculator = ({ calculator }) => {
           <div className="flex justify-between items-center gap-10 mt-[82px]">
             <button
               onClick={handleClear}
-              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
             >
               Clear
             </button>
@@ -195,7 +195,7 @@ const EMICalculator = ({ calculator }) => {
           </div>
         </form>
       </div>
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary  rounded-md mt-5">
+      <div className=" not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
         <div className="flex justify-between items-center">
           <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
           <button

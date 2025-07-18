@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import { BsStars } from "react-icons/bs";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -133,7 +134,7 @@ const CAGRCalculator = ({ calculator }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary   rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light not-dark:text-white rounded-md mt-10">
         <form className="space-y-6">
           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
             <div className="flex flex-col space-y-[30px]">
@@ -228,7 +229,7 @@ const CAGRCalculator = ({ calculator }) => {
             <button
               type="button"
               onClick={handleClear}
-              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
             >
               Clear
             </button>
@@ -243,7 +244,7 @@ const CAGRCalculator = ({ calculator }) => {
         </form>
       </div>
 
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary rounded-md mt-5">
+      <div className="not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         {calculator === "CAGR" ? (
           <div className="mt-[30px] flex w-full justify-between items-center font-abcRepro text-2xl font-light">

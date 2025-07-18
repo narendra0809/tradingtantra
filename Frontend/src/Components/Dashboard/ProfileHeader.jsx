@@ -5,7 +5,7 @@ import { useAuth } from "../../contexts/AuthContext";
 const ProfileHeader = () => {
   const { user } = useAuth();
   return (
-    <div className="w-full h-[200px] relative  dark:bg-db-primary bg-db-primary rounded-lg overflow-hidden mb-6">
+    <div className="w-full h-[200px] relative  dark:bg-db-primary bg-primary-light rounded-lg overflow-hidden mb-6">
       {/* Background Section */}
       <div className="relative h-[60%] w-full">
         <img
@@ -16,7 +16,7 @@ const ProfileHeader = () => {
       </div>
 
       {/* Profile Content */}
-      <div className="dark:bg-db-secondary bg-db-primary p-4 flex items-center justify-end h-[40%]">
+      <div className="dark:bg-db-secondary bg-primary-light p-4 flex items-center justify-end h-[40%]">
         <div className="flex items-center gap-4 absolute left-5 top-[45%]">
           {/* Profile Picture */}
           <img

@@ -57,7 +57,7 @@ const OiClockChart = ({ data: chartData }) => {
 
   if (chartData.length === 0) {
     return (
-      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
+      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-primary-light p-5 rounded-lg shadow-lg">
         <p>Loading or missing data...</p>
       </div>
     );
@@ -75,7 +75,7 @@ const OiClockChart = ({ data: chartData }) => {
         isMobile && "h-[350px]"
       }`}
     >
-      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-db-primary lg:p-3 md:p-5 rounded-lg">
+      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-primary-light lg:p-3 md:p-5 rounded-lg">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}

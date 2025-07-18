@@ -132,9 +132,9 @@ const OurStrategy = () => {
 
 const StrategyVideoCard = ({ strategyVideo }) => {
   return (
-    <div className="w-[75%] bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-lg">
-      <div className="bg-db-primary dark:bg-db-primary rounded-lg p-4 h-full flex flex-col">
-        <div className="flex-grow dark:bg-[#02000E] bg-db-primary rounded-lg flex items-center justify-center mb-4">
+    <div className="w-[75%] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-lg not-dark:text-white">
+      <div className="bg-primary-light dark:bg-db-primary rounded-lg p-4 h-full flex flex-col">
+        <div className="flex-grow dark:bg-[#02000E] bg-primary-light rounded-lg flex items-center justify-center mb-4">
           <div className="relative text-center p-4">
             <p
               className="uppercase text-[20px] sm:text-[24px] md:text-[30px] lg:text-[40px] xl:text-[50px] text-[#ED9B2F] font-bold"

@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import {
   BarChart,
@@ -11,6 +12,7 @@ import {
 
 const CustomBarChart = ({ data }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const theme = useSelector((state) => state.theme.theme);
 
   const renderCustomXAxisTick = ({ x, y, payload }) => {
     return (
@@ -39,7 +41,7 @@ const CustomBarChart = ({ data }) => {
         overflowX: isMobile ? "auto" : "hidden",
         overflowY: "hidden",
       }}
-      className="dark:bg-db-secondary bg-db-primary"
+      className="dark:bg-db-secondary bg-primary-light"
     >
       <div
         style={{
@@ -63,7 +65,8 @@ const CustomBarChart = ({ data }) => {
                 <ReferenceLine y={0} stroke="#ccc" strokeWidth={1.5} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#000A2D",
+                    color: "#fff",
+                    backgroundColor: theme === "dark" ? "#000A2D" : "#273d8f",
                     borderRadius: "5px",
                     borderColor: "#ccc",
                     fontSize: isMobile ? 10 : 12,

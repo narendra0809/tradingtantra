@@ -134,9 +134,6 @@ export const getAllIndexPoints = async (req, res) => {
   const currentTimestamp = `${currentDateStr}, ${currTime}`;
   const previousTimestamp = `${previousDateStr}, 03:27:00 PM`;
 
-  console.log(currentTimestamp);
-  console.log(previousTimestamp);
-
   const result = await IndexCandles.find({
     $or: [{ timestamp: previousTimestamp }, { timestamp: currentTimestamp }],
     interval: "3m",

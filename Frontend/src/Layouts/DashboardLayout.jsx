@@ -58,7 +58,7 @@ const DashboardLayout = () => {
       document.body.style.backgroundColor = "#02000E";
       document.body.style.color = "#fff";
     } else {
-      document.body.style.backgroundColor = "#ededf0";
+      document.body.style.backgroundColor = "#E3EBFF";
       document.body.style.color = "#000";
     }
   }, [theme]);
@@ -114,21 +114,23 @@ const DashboardLayout = () => {
         className="w-full overflow-y-auto overflow-x-hidden scrollbar-hidden transition-all duration-300 ease-linear"
       >
         <Header />
-        <TickerTape
-          colorTheme={theme === "dark" ? "dark" : "light"}
-          isTransparent={true}
-          displayMode="regular"
-          symbols={tickers}
-          showSymbolLogo={true}
-          locale="en"
-          autosize
-          container_id="tradingview-widget-container"
-          style={{
-            height: "46px",
-            width: "100%",
-            margin: "0 auto",
-          }}
-        />
+        <div
+          className={`w-full mt-2 h-12 ${
+            theme === "dark"
+              ? "bg-transparent border-none"
+              : "bg-[#273D8F] border border-[#8EA7EC] rounded-lg"
+          }`}
+        >
+          <TickerTape
+            colorTheme="dark"
+            isTransparent={true}
+            displayMode="regular"
+            symbols={tickers}
+            showSymbolLogo={true}
+            locale="en"
+            container_id="tradingview-widget-container"
+          />
+        </div>
         <Outlet />
         <Footer />
       </main>

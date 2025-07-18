@@ -18,7 +18,7 @@ const CandleChart = ({ candles }) => {
       isUp
     };
   });
-
+  console.log("Enchancde Candles  :", enhancedCandles)
   const labelStyle = {
     color: theme === "dark" ? "white" : "black",
   };

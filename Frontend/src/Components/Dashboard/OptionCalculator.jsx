@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const OptionCalculator = () => {
   const [tradingCapital, setTradingCapital] = useState("");
@@ -34,12 +34,12 @@ const OptionCalculator = () => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
         <form className="space-y-6" onSubmit={calculateQuantity}>
           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
             <div className="flex flex-col space-y-3">
               <label className="text-lg font-light">Index</label>
-              <select className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black">
+              <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
                 <option>Nifty</option>
                 <option>Bank Nifty</option>
                 <option>Sensex</option>
@@ -81,7 +81,7 @@ const OptionCalculator = () => {
             ))}
             <div className="flex flex-col space-y-3">
               <label className="text-lg font-light">Strike Condition</label>
-              <select className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black">
+              <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
                 <option>Less Than</option>
                 <option>Greater Than</option>
               </select>
@@ -91,7 +91,7 @@ const OptionCalculator = () => {
             <button
               type="button"
               onClick={clearFields}
-              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
             >
               Clear
             </button>
@@ -101,7 +101,7 @@ const OptionCalculator = () => {
           </div>
         </form>
       </div>
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary  rounded-md mt-5">
+      <div className="not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
         <h4 className="text-3xl font-light">Result:</h4>
         <div className="mt-[30px] flex w-full justify-between items-center text-2xl font-light">
           <p>Quantity:</p>

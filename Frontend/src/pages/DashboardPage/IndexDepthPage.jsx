@@ -4,6 +4,7 @@ import axios from "axios";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
+import indexImage from "../../assets/Images/index-line.png";
 import { useEffect, useState } from "react";
 const URI = import.meta.env.VITE_SERVER_URI;
 
@@ -129,19 +130,34 @@ const IndexDepthPage = () => {
             id="index"
             className="bg-transparent focus:outline-none"
           >
-            <option className="bg-[#000A2D]" value="NIFTY 50">
+            <option
+              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              value="NIFTY 50"
+            >
               Nifty50
             </option>
-            <option className="bg-[#000A2D]" value="SENSEX">
+            <option
+              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              value="SENSEX"
+            >
               Sensex
             </option>
-            <option className="bg-[#000A2D]" value="BANKNIFTY">
+            <option
+              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              value="BANKNIFTY"
+            >
               BankNifty
             </option>
-            <option className="bg-[#000A2D]" value="MIDCAP">
+            <option
+              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              value="MIDCAP"
+            >
               Midcap
             </option>
-            <option className="bg-[#000A2D]" value="FINNIFTY">
+            <option
+              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              value="FINNIFTY"
+            >
               Finnifty
             </option>
           </select>
@@ -152,10 +168,18 @@ const IndexDepthPage = () => {
           <p className="ml-4 text-xl">Loading chart...</p>
         </div>
       ) : (
-        <section className="mt-10 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-          <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2">
+        <section className="mt-10 bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+          <div className="bg-db-primary not-dark:bg-primary-light rounded-lg p-2">
             <div className="flex md:flex-row flex-col md:justify-between md:items-center">
-              <div className="flex justify-evenly items-center md:w-[40%] dark:bg-db-secondary w-full bg-db-primary rounded-lg py-2 px-4">
+              <div
+                className={`bg-db-secondary not-dark:bg-primary-light flex justify-evenly items-center md:w-[40%] w-full h-28 rounded-lg py-2 px-4 mr-2`}
+                style={{
+                  backgroundImage: `url(${indexImage})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
                 <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
                   {contribution.indexName}
                 </h4>
@@ -165,8 +189,7 @@ const IndexDepthPage = () => {
                       <span className="text-green-500">UP</span>
                     ) : (
                       <span className="text-red-500">DOWN</span>
-                    )}{" "}
-                    by{" "}
+                    )}
                     <span
                       className={`${
                         allIndexPts[contribution.indexName].pts < 0
@@ -175,28 +198,36 @@ const IndexDepthPage = () => {
                       }`}
                     >
                       {" "}
-                      {allIndexPts[contribution.indexName].pts}
+                      {allIndexPts[contribution.indexName].pts > 0
+                        ? `+${allIndexPts[contribution.indexName].pts}`
+                        : allIndexPts[contribution.indexName].pts}
                     </span>{" "}
-                    pts ({allIndexPts[contribution.indexName].per}%)
+                    <span className="not-dark:text-white">
+                      pts (
+                      {allIndexPts[contribution.indexName].per > 0
+                        ? `+${allIndexPts[contribution.indexName].per}`
+                        : allIndexPts[contribution.indexName].per}
+                      %)
+                    </span>
                   </p>
                 </span>
               </div>
 
-              <div className="md:w-[60%] w-full dark:bg-db-secondary bg-db-primary px-4 py-2 rounded-lg">
-                <p>Gainers/Losers</p>
+              <div className="md:w-[60%] w-full bg-db-secondary  not-dark:bg-primary-light px-4 py-2 rounded-lg">
+                <p className="text-xl  not-dark:text-white">Gainers/Losers</p>
 
-                <div className="w-full h-2 bg-[#9B3B44] mt-2 rounded-full">
+                <div className="w-full h-3 bg-[#9B3B44] my-4 rounded-full">
                   <div
-                    className="h-2 bg-[#269F3C] rounded-full"
+                    className="h-3 bg-[#269F3C] rounded-full"
                     style={{ width: `${gainersPercentage}%` }}
                   />
                 </div>
 
-                <div className="text-xs flex justify-between mt-1">
-                  <span className="flex items-center">
+                <div className="text-sm flex justify-between mb-2">
+                  <span className="flex items-center not-dark:text-white">
                     <GoDotFill className="text-green-500" /> Gainers: {gainers}
                   </span>
-                  <span className="flex items-center">
+                  <span className="flex items-center not-dark:text-white">
                     <GoDotFill className="text-red-500" /> Losers: {losers}
                   </span>
                 </div>

@@ -49,7 +49,7 @@ const Homepage = () => {
         {cards.map((card, index) => (
           <div
             key={index}
-            className="flex lg:flex-row flex-col gap-5 p-4 dark:bg-db-primary bg-db-primary rounded-[10px] min-h-[200px]"
+            className="flex lg:flex-row flex-col gap-5 p-4 dark:bg-db-primary bg-[#BACEFF] rounded-[10px] min-h-[200px]"
           >
             {/* Image Section */}
             <img
@@ -59,7 +59,7 @@ const Homepage = () => {
             />
 
             {/* Text Section */}
-            <div className="dark:bg-db-secondary bg-db-primary rounded-[10px] p-4 flex-1 flex flex-col justify-start gap-10">
+            <div className="dark:bg-db-secondary bg-[#B2B2FF] rounded-[10px] p-4 flex-1 flex flex-col justify-start gap-10">
               <h5 className="md:text-2xl text-xl font-medium">{card.title}</h5>
               <p className="md:text-xl text-base font-light">{card.desc}</p>
             </div>

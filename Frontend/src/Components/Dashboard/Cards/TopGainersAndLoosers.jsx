@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { FaSearch } from "react-icons/fa";
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
 import topGainers from "../../../assets/Images/Dashboard/marketdepthpage/topGainers.png";
@@ -62,8 +61,8 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
   };
 
   return (
-    <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-db-primary rounded-lg p-2">
+    <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
+      <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -73,26 +72,22 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
                 Top Gainers <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2">
+              <p className="dark:text-gray-400 text-sm flex items-center gap-2 not-dark:text-white">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
                   Live
                 </span>
               </p>
             </div>
           </div>
-
-          <button className="p-2 rounded-lg transition bg-gradient-to-b from-[#085AF5] to-[#73A3FE]">
-            <FaSearch />
-          </button>
         </div>
 
         {/* Table Section */}
-        <div className="bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-primary p-2 relative">
+        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {isSubscribed === "false" ? (
@@ -100,8 +95,8 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-primary z-10">
-                    <tr className="dark:text-gray-300 text-gray-800">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
+                    <tr className="dark:text-gray-300 text-white">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -168,12 +163,19 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                              className="not-dark:text-white"
                             >
                               {stock?.stockSymbol}
                             </a>
                           </td>
                           <td className="text-lg">
-                            <FcCandleSticks />
+                            <a
+                              target="_blank"
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                              className="not-dark:text-white"
+                            >
+                              <FcCandleSticks />
+                            </a>
                           </td>
                           <td className="text-center">
                             <span
@@ -181,19 +183,22 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full`}
+                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
                             >
                               {stock?.percentageChange}
                             </span>
                           </td>
-                          <td className="text-right text-xs">
+                          <td className="text-right text-xs not-dark:text-white">
                             {stock?.xElement?.toFixed(2)}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="text-center py-4">
+                        <td
+                          colSpan="4"
+                          className="text-center py-4 not-dark:text-white"
+                        >
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>
@@ -261,8 +266,8 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
   };
 
   return (
-    <div className="relative w-full h-[360px] bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-db-primary rounded-lg p-2">
+    <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
+      <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -272,26 +277,22 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2">
+              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
                 Top Loosers <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2">
+              <p className="dark:text-gray-400 text-sm flex items-center gap-2 not-dark:text-white">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
                   Live
                 </span>
               </p>
             </div>
           </div>
-
-          <button className="p-2 rounded-lg transition bg-gradient-to-b from-[#085AF5] to-[#73A3FE]">
-            <FaSearch />
-          </button>
         </div>
 
         {/* Table Section */}
-        <div className="bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-db-primary p-2 relative">
+        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {isSubscribed === "false" ? (
@@ -299,8 +300,8 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-db-primary z-10">
-                    <tr className="dark:text-gray-300 text-gray-800">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
+                    <tr className="dark:text-gray-300 text-white">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -367,12 +368,19 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                              className="not-dark:text-white"
                             >
                               {stock?.stockSymbol}
                             </a>
                           </td>
                           <td className="text-lg">
-                            <FcCandleSticks />
+                            <a
+                              target="_blank"
+                              href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
+                              className="not-dark:text-white"
+                            >
+                              <FcCandleSticks />
+                            </a>
                           </td>
                           <td className="text-center">
                             <span
@@ -380,19 +388,22 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full`}
+                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
                             >
                               {stock?.percentageChange}
                             </span>
                           </td>
-                          <td className="text-right text-xs">
+                          <td className="text-right text-xs not-dark:text-white">
                             {stock?.xElement?.toFixed(2)}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="4" className="text-center py-4">
+                        <td
+                          colSpan="4"
+                          className="text-center py-4 not-dark:text-white"
+                        >
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>

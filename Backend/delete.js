@@ -33,8 +33,7 @@ async function isMarketWorkingDay() {
   const day = today.getDay(); // 0 = Sunday, 6 = Saturday
 
   // Not between 1st–5th OR it's Sat/Sun → market closed
-  if (day === 0 || day === 6) 
-    return false;
+  if (day === 0 || day === 6) return false;
 
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
   const endOfDay = new Date(today.setHours(23, 59, 59, 999));
@@ -142,14 +141,18 @@ async function keepOnlyLatestMarketData() {
 const runMarketCleanupJob = async () => {
   // Check if it's within market hours
   if (!isMarketTime()) {
-    console.log("⛔ Outside market hours (9:15 AM–3:40 PM IST), skipping cleanup");
+    console.log(
+      "⛔ Outside market hours (9:15 AM-3:40 PM IST), skipping cleanup"
+    );
     return;
   }
 
   // Check if it's a market working day
   const isMarketRunning = await isMarketWorkingDay();
   if (!isMarketRunning) {
-    console.log("⛔ Market closed (weekend, holiday, or not 1–5), skipping cleanup");
+    console.log(
+      "⛔ Market closed (weekend, holiday, or not 1-5), skipping cleanup"
+    );
     return;
   }
 
@@ -160,6 +163,6 @@ const runMarketCleanupJob = async () => {
 
 process.env.TZ = "Asia/Kolkata";
 
-cron.schedule("15-59 9 * * 1-5", runMarketCleanupJob); 
-cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob); 
-cron.schedule("0-40 15 * * 1-5", runMarketCleanupJob); 
+cron.schedule("15-59 9 * * 1-5", runMarketCleanupJob);
+cron.schedule("* 10-14 * * 1-5", runMarketCleanupJob);
+cron.schedule("0-40 15 * * 1-5", runMarketCleanupJob);

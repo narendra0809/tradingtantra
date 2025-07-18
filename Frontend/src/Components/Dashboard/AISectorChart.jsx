@@ -22,30 +22,30 @@ const AISectorChart = ({ data, handleGoToTable }) => {
     []
   );
 
-useEffect(() => {
-  const updatedData = Object.entries(data)
-    .filter(([sector]) => sector !== "Uncategorized")
-    .map(([sector, values]) => {
-      let totalPercentage = values.reduce(
-        (sum, element) => sum + element.percentageChange,
-        0
-      );
-      const averagePercentageChange = totalPercentage / values.length;
-      return {
-        name: sector,
-        value: Number(averagePercentageChange.toFixed(2)),
-      };
-    })
-    // Sort by value (descending) and then alphabetically by name for equal values
-    .sort((a, b) => {
-      if (a.value === b.value) {
-        return a.name.localeCompare(b.name); // Alphabetical sort for same value
-      }
-      return b.value - a.value; // Sort by value in descending order
-    });
+  useEffect(() => {
+    const updatedData = Object.entries(data)
+      .filter(([sector]) => sector !== "Uncategorized")
+      .map(([sector, values]) => {
+        let totalPercentage = values.reduce(
+          (sum, element) => sum + element.percentageChange,
+          0
+        );
+        const averagePercentageChange = totalPercentage / values.length;
+        return {
+          name: sector,
+          value: Number(averagePercentageChange.toFixed(2)),
+        };
+      })
+      // Sort by value (descending) and then alphabetically by name for equal values
+      .sort((a, b) => {
+        if (a.value === b.value) {
+          return a.name.localeCompare(b.name); // Alphabetical sort for same value
+        }
+        return b.value - a.value; // Sort by value in descending order
+      });
 
-  setSectorWisePercentageChange(updatedData);
-}, [data]);
+    setSectorWisePercentageChange(updatedData);
+  }, [data]);
 
   const renderCustomXAxisTick = ({ x, y, payload }) => {
     return (
@@ -55,7 +55,7 @@ useEffect(() => {
           y={0}
           dy={10}
           textAnchor={isMobile ? "end" : "middle"}
-          fill={theme === "dark" ? "#fff" : "#000"}
+          fill={"#fff"}
           fontSize={isMobile ? 10 : 12}
         >
           {payload.value}
@@ -97,7 +97,7 @@ useEffect(() => {
   // Handle empty data state
   if (sectorWisePercentageChange.length === 0) {
     return (
-      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
+      <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-primary-light p-5 rounded-lg shadow-lg">
         <p>Loading or missing data...</p>
       </div>
     );
@@ -114,7 +114,7 @@ useEffect(() => {
         isMobile ? "h-[350px]" : "h-[500px]"
       }`}
     >
-      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-db-primary p-0 md:p-5 lg:p-3 rounded-lg shadow-lg">
+      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-primary-light p-0 md:p-5 lg:p-3 rounded-lg shadow-lg">
         <ResponsiveContainer width="100%" height={450}>
           <BarChart
             data={sectorWisePercentageChange}
@@ -131,29 +131,26 @@ useEffect(() => {
               tick={renderCustomXAxisTick}
               interval={0}
               height={xAxisHeight}
-              stroke={theme === "dark" ? "#fff" : "#000"}
+              stroke={"#fff"}
             />
             <YAxis
               type="number"
-              stroke={theme === "dark" ? "#fff" : "#000"}
+              stroke={"#fff"}
               tick={{ fontSize: isMobile ? 10 : 12 }}
               width={isMobile ? 30 : 40}
             />
             <Tooltip
               cursor={{ fill: "rgba(255,255,255,0.1)" }}
               contentStyle={{
-                backgroundColor: "#000A2D",
+                backgroundColor: theme === "dark" ? "#000A2D" : "#273d8f",
                 borderRadius: "5px",
                 borderColor: theme === "dark" ? "#fff" : "#000",
                 fontSize: isMobile ? 10 : 14,
+                color: "white",
               }}
               itemStyle={{ color: "#fff" }}
             />
-            <ReferenceLine
-              y={0}
-              stroke={theme === "dark" ? "#fff" : "#000"}
-              strokeWidth={1}
-            />
+            <ReferenceLine y={0} stroke={"#fff"} strokeWidth={1} />
             <Bar
               dataKey="value"
               barSize={barSize}

@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useRef, useEffect } from "react";
 import { IoTriangle } from "react-icons/io5";
 
 const LearnFromUsPage = () => {
@@ -53,14 +54,14 @@ const LearnFromUsPage = () => {
 
   return (
     <>
-      <div className="w-full mx-auto ">
-        <h2 className="font-abcRepro font-semibold text-3xl my-10">
+      <div className="w-full mx-auto not-dark:text-white">
+        <h2 className="font-abcRepro font-semibold text-3xl my-10 not-dark:text-black">
           Learn From Us
         </h2>
         {data.map((data, index) => (
           <div
             key={index}
-            className="dark:bg-db-primary bg-db-primary  mb-3 rounded-2xl border border-[#0256f535] "
+            className="dark:bg-db-primary bg-primary-light  mb-3 rounded-2xl border border-[#0256f535] "
           >
             {/* Question Section */}
             <div

@@ -261,7 +261,7 @@
 //       {/* sector depth section */}
 //       <section className="mt-5 flex md:justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4">
 //         <div className="flex gap-4 items-center">
-//           <h1 className="text-3xl font-bold">Sector Depth</h1>
+//           <h1 className="text-3xl font-bold not-dark:text-white">Sector Depth</h1>
 //           <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs">
 //             <GoDotFill />
 //             Live
@@ -323,7 +323,7 @@
 
 //       {/* oi clock charts section*/}
 //       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
-//         <div className="dark:bg-db-primary bg-db-primary rounded-lg lg:p-3 md:p-3">
+//         <div className="dark:bg-db-primary bg-primary-light rounded-lg lg:p-3 md:p-3">
 //           {chartLoading ? (
 //             <div className="flex justify-center items-center h-64">
 //               {/* <LoadingSpinner /> */}
@@ -331,7 +331,7 @@
 //             </div>
 //           ) : (
 //             <>
-//               <div className="dark:bg-db-primary bg-db-primaryrounded-lg ">
+//               <div className="dark:bg-db-primary bg-primary-light ">
 //                 <div className="flex items-center gap-2">
 //                   <h2 className="text-3xl font-bold ">OI Clock </h2>{" "}
 //                   <span>
@@ -352,7 +352,7 @@
 
 //               <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
 //                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-//                   <div className="dark:bg-db-secondary bg-db-primary rounded-lg p-3">
+//                   <div className="dark:bg-db-secondary bg-primary-light rounded-lg p-3">
 //                     <div className="flex items-center gap-2">
 //                       <h2 className="text-3xl font-medium">OI Net Position</h2>{" "}
 //                       <span className="text-xl">
@@ -370,7 +370,7 @@
 //                 </div>
 
 //                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-//                   <div className="dark:bg-db-secondary bg-db-primary px-3 rounded-lg h-full">
+//                   <div className="dark:bg-db-secondary bg-primary-light px-3 rounded-lg h-full">
 //                     <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
 //                       <div className="flex gap-2 items-center text-xl">
 //                         <h2 className="text-3xl font-medium">OI Clock</h2>{" "}
@@ -703,19 +703,34 @@ const OptionClockPage = () => {
               className="bg-transparent focus:outline-none"
               value={selectedIndex}
             >
-              <option className="bg-[#000A2D]" value="Nifty50">
+              <option
+                className="bg-[#000A2D]  not-dark:bg-primary-light not-dark:text-white"
+                value="Nifty50"
+              >
                 Nifty50
               </option>
-              <option className="bg-[#000A2D]" value="BankNifty">
+              <option
+                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                value="BankNifty"
+              >
                 BankNifty
               </option>
-              <option className="bg-[#000A2D]" value="FinNifty">
+              <option
+                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                value="FinNifty"
+              >
                 FinNifty
               </option>
-              <option className="bg-[#000A2D]" value="Midcap">
+              <option
+                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                value="Midcap"
+              >
                 Midcap
               </option>
-              <option className="bg-[#000A2D]" value="Sensex">
+              <option
+                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                value="Sensex"
+              >
                 Sensex
               </option>
             </select>
@@ -730,7 +745,11 @@ const OptionClockPage = () => {
               onChange={handleExpiryChange}
             >
               {currentExpiries.map((expiry) => (
-                <option key={expiry} className="bg-[#000A2D]" value={expiry}>
+                <option
+                  key={expiry}
+                  className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                  value={expiry}
+                >
                   {expiry}
                 </option>
               ))}
@@ -749,7 +768,7 @@ const OptionClockPage = () => {
 
       {/* oi clock charts section*/}
       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
-        <div className="dark:bg-db-primary bg-db-primary rounded-lg lg:p-3 md:p-3">
+        <div className="dark:bg-db-primary bg-primary-light rounded-lg lg:p-3 md:p-3">
           {chartLoading ? (
             <div className="flex justify-center items-center h-64">
               {/* <LoadingSpinner /> */}
@@ -757,7 +776,7 @@ const OptionClockPage = () => {
             </div>
           ) : (
             <>
-              <div className="dark:bg-db-primary bg-db-primaryrounded-lg ">
+              <div className="dark:bg-db-primary bg-primary-light ">
                 <div className="flex items-center gap-2">
                   <h2 className="text-3xl font-bold ">OI Clock </h2>{" "}
                   <span>
@@ -778,7 +797,7 @@ const OptionClockPage = () => {
 
               <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                  <div className="dark:bg-db-secondary bg-db-primary rounded-lg p-3">
+                  <div className="dark:bg-db-secondary bg-primary-light rounded-lg p-3">
                     <div className="flex items-center gap-2">
                       <h2 className="text-3xl font-medium">OI Net Position</h2>{" "}
                       <span className="text-xl">
@@ -796,7 +815,7 @@ const OptionClockPage = () => {
                 </div>
 
                 <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                  <div className="dark:bg-db-secondary bg-db-primary px-3 rounded-lg h-full">
+                  <div className="dark:bg-db-secondary bg-primary-light px-3 rounded-lg h-full">
                     <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2">
                       <div className="flex gap-2 items-center text-xl">
                         <h2 className="text-3xl font-medium">OI Clock</h2>{" "}

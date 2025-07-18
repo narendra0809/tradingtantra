@@ -111,7 +111,7 @@
 //   return (
 //     <div className="flex md:flex-row flex-col gap-4 items-center mt-5 w-full">
 //       <div className="dark:bg-gradient-to-br from-[#0108B1] to-[#02000E] w-full p-px rounded-lg">
-//         <div className="w-full p-4 dark:bg-db-primary bg-db-primary rounded-lg">
+//         <div className="w-full p-4 dark:bg-db-primary bg-primary-light rounded-lg">
 //           <div className="relative">
 //             <div
 //               className={`absolute -top-8 ${
@@ -211,7 +211,8 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
     // Get current day and time
     const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     const isWeekday = currentDay >= 1 && currentDay <= 5; // Monday to Friday
-    const isMarketOpen = decimalTime >= marketOpen && decimalTime <= marketClose;
+    const isMarketOpen =
+      decimalTime >= marketOpen && decimalTime <= marketClose;
 
     // If current time is after market close or on a non-trading day, return maxTime (3:30 PM)
     if (!isWeekday || decimalTime > marketClose) {
@@ -316,7 +317,7 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
   return (
     <div className="flex md:flex-row flex-col gap-4 items-center mt-5 w-full">
       <div className="dark:bg-gradient-to-br from-[#0108B1] to-[#02000E] w-full p-px rounded-lg">
-        <div className="w-full p-4 dark:bg-db-primary bg-db-primary rounded-lg">
+        <div className="w-full p-4 dark:bg-db-primary bg-primary-light rounded-lg">
           <div className="relative">
             <div
               className={`absolute -top-8 ${

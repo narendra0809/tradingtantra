@@ -121,17 +121,18 @@ const FIIDIIPage = () => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold mt-8">FII/DII</h1>
       {error && (
         <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
           {error}
         </div>
       )}
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2">
+        <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2">
           <div>
             <div className="flex gap-4 items-center">
-              <h1 className="text-3xl font-bold">FII/DII</h1>
+              <h1 className="text-3xl font-bold not-dark:text-white">
+                FII/DII
+              </h1>
               <span className="text-xl">
                 <FcCandleSticks />
               </span>
@@ -139,7 +140,7 @@ const FIIDIIPage = () => {
                 <GoDotFill />
                 Live
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 not-dark:text-white">
                 How to use <FaPlayCircle className="text-[#0256F5]" />
               </span>
             </div>

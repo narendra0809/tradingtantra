@@ -38,7 +38,7 @@
 //   ];
 
 //   return (
-//     <div className="w-full h-[375px] dark:bg-db-secondary bg-db-primary p-5 rounded-lg shadow-lg">
+//     <div className="w-full h-[375px] dark:bg-db-secondary bg-primary-light p-5 rounded-lg shadow-lg">
 //       <ResponsiveContainer width="100%" height="100%">
 //         <BarChart
 //           data={formattedData}
@@ -114,7 +114,7 @@ const OiClockChartTwo = ({ data: chartData }) => {
 
   return (
     <div
-      className={`w-full h-[375px] bg-db-primary ${
+      className={`w-full h-[375px] bg-db-primary not-dark:bg-primary-light ${
         isMobile ? "" : "p-5"
       } rounded-lg shadow-lg`}
     >

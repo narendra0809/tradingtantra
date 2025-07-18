@@ -62,11 +62,11 @@ const MyPlanPage = () => {
           ? "My Plan"
           : !showRenewModal && "Not Subscribed Yet? Buy Subscription Now"}
       </h3>
-      <div className="dark:bg-db-primary bg-db-primary rounded-[20px] mx-auto py-6">
+      <div className="dark:bg-db-primary bg-primary-light rounded-[20px] mx-auto py-6">
         {showRenewModal && (
           <button
             onClick={() => setShowRenewModal(false)}
-            className="flex items-center gap-1 text-lg ml-5 hover:font-bold"
+            className="flex items-center gap-1 text-lg ml-5 hover:font-bold not-dark:text-white"
           >
             <ArrowBigLeft />
             <span>Back</span>
@@ -76,7 +76,7 @@ const MyPlanPage = () => {
           <RenewPlanPage setShowRenewModal={setShowRenewModal} />
         )}
         {!showRenewModal && isSubscribed ? (
-          <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A]">
+          <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] not-dark:text-white">
             <div>
               <h4 className="text-xl font-semibold">Diamonds</h4>
               <p className="font-light">Valid till: {userSub.endDate}</p>

@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
 
 const Sidebar = () => {
+  // const theme = useSelector((state) => state.theme.theme);
   const [isSubscribed, setIsSubscribed] = useState(null);
 
   useEffect(() => {
@@ -48,13 +49,13 @@ const Sidebar = () => {
       <div className="w-fit">
         {/* Sidebar */}
         <div
-          className={`bg-[#000517]    text-[#D7E3FF] border border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
+          className={`bg-[#000517] not-dark:bg-[#273D8F] text-[#D7E3FF] not-dark:text-[#FFFFFF] border border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
             isOpen ? "w-64" : "w-20"
           }`}
         >
           {/* Fixed Header */}
-          <div className="border-b-2 border-transparent bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border">
-            <div className="flex items-center w-full h-fit justify-center bg-[#000517]   py-5">
+          <div className="dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#273D8F]">
+            <div className="flex items-center w-full h-fit justify-center bg-[#000517] not-dark:bg-[#273D8F]  py-5">
               {isOpen ? (
                 <img src={logo} alt="logo" />
               ) : (
@@ -113,7 +114,7 @@ const Sidebar = () => {
                   isOpen={isOpen}
                   path={"/dashboard/option-clock"}
                 />
-               
+
                 <NavItem
                   icon={indexDepth}
                   label="Index Depth"
@@ -126,7 +127,7 @@ const Sidebar = () => {
                   isOpen={isOpen}
                   path={"/dashboard/option-data"}
                 />
-                 <NavItem
+                <NavItem
                   icon={FiiDii}
                   label="FII / DII Data"
                   isOpen={isOpen}
@@ -197,7 +198,7 @@ const Sidebar = () => {
 
       {/* Close Button (Fixed) */}
       <div
-        className={` w-fit h-fit border flex items-center rounded-lg justify-center border-[#000B34] ml-1 bg-[#000517]  ${
+        className={` w-fit h-fit border flex items-center rounded-lg justify-center border-[#000B34] ml-1 bg-[#000517] not-dark:bg-[#273D8F] ${
           isOpen ? "block" : "hidden"
         }`}
       >
@@ -213,24 +214,37 @@ const Sidebar = () => {
 };
 
 const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
+  const theme = useSelector((state) => state.theme.theme);
+
   return (
     <NavLink
       to={path}
-      className={({ isActive }) =>
-        ` 
-    cursor-pointer flex
-    ${
-      isActive
-        ? "bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-2 border-primary"
-        : "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
-    }`
-      }
-      end
+      end={path === "/dashboard"} // Exact matching only for dashboard
+      className={({ isActive }) => {
+        console.log(`NavItem: ${label}, isActive: ${isActive}, path: ${path}`); // Debug log
+        return `flex cursor-pointer items-center transition-all duration-300 ease-in-out
+          ${
+            isActive
+              ? theme === "dark"
+                ? "dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500"
+                : "bg-[#5d75cec3] border-l-4 border-blue-500"
+              : theme === "dark"
+              ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
+              : "hover:bg-[#90a6f7]"
+          } text-${theme === "dark" ? "white" : "white"}`;
+      }}
     >
       <li
-        className={`flex  items-center justify-between w-full  px-4 py-2  rounded-md cursor-pointer text-base font-medium space-x-4 hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] transition-all duration-300 ease-in-out  `}
+        className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4
+          transition-all duration-300 ease-in-out
+          text-${theme === "dark" ? "white" : "white"}
+          ${
+            theme === "dark"
+              ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
+              : "hover:bg-[#273D8F]/80"
+          }`}
       >
-        <span className="flex items-center space-x-2 ">
+        <span className="flex items-center space-x-2">
           <img src={icon} alt={label} className="w-auto h-5" />
           {isOpen && <span>{label}</span>}
         </span>

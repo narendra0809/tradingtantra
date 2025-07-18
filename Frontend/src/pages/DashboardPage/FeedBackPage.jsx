@@ -54,7 +54,7 @@ const FeedBackPage = () => {
   };
 
   return (
-    <div className="bg-db-primary relative  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
+    <div className="bg-db-primary not-dark:bg-primary-light not-dark:text-white relative  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
       {loading && (
         <Loader className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
       )}

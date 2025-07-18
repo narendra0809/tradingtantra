@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useEffect, useState } from "react";
 import GaugeChart from "react-gauge-chart";
 import { useRisk } from "../../contexts/RiskContext";
 
@@ -69,7 +70,7 @@ const RiskCalculator = ({ calculator }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-db-primary  rounded-md mt-10">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-x-6 gap-y-8">
             {[
@@ -120,7 +121,7 @@ const RiskCalculator = ({ calculator }) => {
           <div className="flex justify-between items-center gap-10 mt-[50px]">
             <button
               type="button"
-              className="dark:bg-[#72A2FE] bg-white py-2 rounded-md w-4/5"
+              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
               onClick={handleClear}
             >
               Clear
@@ -131,7 +132,7 @@ const RiskCalculator = ({ calculator }) => {
           </div>
         </form>
       </div>
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-db-primary rounded-md mt-5">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5 not-dark:text-white">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         <div className="mt-[30px] space-y-5">
           <div className="flex w-full justify-between items-center font-abcRepro text-2xl font-light">
@@ -162,11 +163,11 @@ const RiskCalculatorRight = () => {
   }, [riskLevel]);
 
   return (
-    <>
+    <div className="not-dark:text-white">
       <h1 className="text-2xl font-medium text-wrap">
         Risk/Position Size Calculator
       </h1>
-      <div className="relative flex flex-col items-center">
+      <div className="mt-7 relative flex flex-col items-center">
         {/* Gauge Chart */}
         <GaugeChart
           id="gauge-chart"
@@ -189,15 +190,15 @@ const RiskCalculatorRight = () => {
         </h2>
       </div>
       <p className="text-2xl font-normal text-wrap">
-        Calculating risk before entering a trade is important to ensure traders'
-        capital safety.
+        Calculating risk before entering a trade is important to ensure
+        traders&apos; capital safety.
       </p>
       <p className="text-wrap text-lg font-light">
         To use this risk calculator, enter your account capital and the
         percentage of your account you wish to risk. Our calculator will suggest
         position sizes based on the information you provide.
       </p>
-    </>
+    </div>
   );
 };
 

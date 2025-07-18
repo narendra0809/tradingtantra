@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useState } from "react";
 import CAGRImg from "../../assets/Images/Dashboard/calculators/CRGRImg.png";
 import EMIImg from "../../assets/Images/Dashboard/calculators/EMIImg.png";
 import OptionImg from "../../assets/Images/Dashboard/calculators/OptionImg.png";
@@ -46,27 +47,27 @@ const CalculatorsPage = () => {
     <>
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-10 mt-10  ">
         {/* Left Section */}
-        <div className="lg:col-span-2 dark:bg-db-primary bg-db-primary border border-[#0256f550] p-5 rounded-md">
+        <div className="lg:col-span-2 dark:bg-db-primary bg-primary-light border border-[#0256f550] p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between items-center">
             {selectedCalculator === "Risk" ? (
-              <h5 className="font-abcRepro text-3xl font-medium">
+              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
                 Risk Calculator
               </h5>
             ) : selectedCalculator === "CAGR" ? (
-              <h5 className="font-abcRepro text-3xl font-medium">
+              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
                 CAGR Calculator
               </h5>
             ) : selectedCalculator === "SIP" ? (
-              <h5 className="font-abcRepro text-3xl font-medium">
+              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
                 SIP Calculator
               </h5>
             ) : selectedCalculator === "EMI" ? (
-              <h5 className="font-abcRepro text-3xl font-medium">
+              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
                 EMI Calculator
               </h5>
             ) : (
-              <h5 className="font-abcRepro text-3xl font-medium">
+              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
                 Option Calculator
               </h5>
             )}
@@ -77,7 +78,7 @@ const CalculatorsPage = () => {
                 {/* Calculator Toggle */}
                 {selectedCalculator === "Risk" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("Equity")}
                   >
                     Equity
@@ -85,7 +86,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "CAGR" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("CAGR")}
                   >
                     CAGR
@@ -93,7 +94,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "SIP" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("SIP")}
                   >
                     SIP
@@ -120,7 +121,7 @@ const CalculatorsPage = () => {
                 {/* Option Toggle */}
                 {selectedCalculator === "Risk" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("F&O")}
                   >
                     F&O
@@ -128,7 +129,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "CAGR" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("Reverse CAGR")}
                   >
                     Reverse CAGR
@@ -136,7 +137,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "SIP" && (
                   <p
-                    className="cursor-pointer"
+                    className="cursor-pointer not-dark:text-white"
                     onClick={() => setCalculator("LUMPSUM")}
                   >
                     LUMPSUM
@@ -147,14 +148,14 @@ const CalculatorsPage = () => {
           </div>
 
           {/* Calculator Selection Buttons */}
-          <div className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide mt-8">
+          <div className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide mt-8 not-dark:text-white">
             <div className="flex space-x-4 w-max">
               {calculators.map((calc) => (
                 <button
                   key={calc}
-                  className={`p-2.5 rounded-sm dark:hover:bg-primary hover:bg-db-primary   transition-all ${
+                  className={`p-2.5 rounded-sm dark:hover:bg-primary-light hover:bg-primary   transition-all ${
                     selectedCalculator === calc
-                      ? "dark:bg-primary bg-db-primary"
+                      ? "dark:bg-primary-light bg-primary"
                       : ""
                   }`}
                   onClick={() => handelCalculatorChange(calc)}
@@ -180,7 +181,7 @@ const CalculatorsPage = () => {
         </div>
 
         {/* Right Section  */}
-        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-db-primary border border-[#0256f550]  space-y-[45px]">
+        <div className="not-dark:text-white flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light border border-[#0256f550]  space-y-[45px]">
           {selectedCalculator === "Risk" ? (
             <RiskCalculatorRight />
           ) : selectedCalculator === "CAGR" ? (
@@ -251,25 +252,25 @@ const CalculatorsPage = () => {
       <>
         {selectedCalculator === "Risk" ? (
           <>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white ">
+              <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Risk calculator?
                 </h2>
                 <div className="space-y-6">
                   <p className="text-base font-light">
-                    One of the most important tools in a trader's bag is risk
-                    management. Proper position sizing is key to managing risk
-                    and to avoid blowing out your account on a single trade. If
-                    your position size is too limited or too wide, you may end
-                    up taking a lot of risks or end up taking not enough for you
-                    to profit from a trade.
+                    One of the most important tools in a trader&apos;s bag is
+                    risk management. Proper position sizing is key to managing
+                    risk and to avoid blowing out your account on a single
+                    trade. If your position size is too limited or too wide, you
+                    may end up taking a lot of risks or end up taking not enough
+                    for you to profit from a trade.
                   </p>
                   <p className="text-base font-light">
                     Knowing your risk position is critical to establishing a
                     winning strategy. Our calculator helps you make trading
-                    decisions based on intellect and not emotion. That's how you
-                    trade like a pro.
+                    decisions based on intellect and not emotion. That&apos;s
+                    how you trade like a pro.
                   </p>
                   <p className="text-base font-light">
                     With a few simple inputs, our calculator will help you find
@@ -282,18 +283,18 @@ const CalculatorsPage = () => {
                 </h2>
                 <div className="space-y-6">
                   <p className="text-base font-light">
-                    Account capital : Pretty straightforward, traders just need
+                    Account capital : Pretty straightforward, traders just need
                     to input their account capital.
                   </p>
                   <p className="text-base font-light">
-                    Risk per trade (%) : This is a crucial field. Here you have
+                    Risk per trade (%) : This is a crucial field. Here you have
                     to put the risk you are wiling to take on that trade in
                     terms of % of your account capital.
                     <br />
                     All Pro traders take risk in a range of 1-5% per trade.
                   </p>
                   <p className="text-base font-light">
-                    Stoploss in rupee : Here, traders should input the maximum
+                    Stoploss in rupee : Here, traders should input the maximum
                     number of points they are willing to risk, or lose, in a
                     trade, to protect the account capital in case the market
                     goes against their position.
@@ -304,51 +305,51 @@ const CalculatorsPage = () => {
                     Rs. So here you are stoploss is (250 - 200) = Rs. 50
                   </p>
                   <p className="text-base font-light">
-                    Lot size : If you are trading in F&O enter the lot size of
+                    Lot size : If you are trading in F&O enter the lot size of
                     instrument you are taking trade in.
                   </p>
                 </div>
               </div>{" "}
             </section>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to use this Calculator?
                 </h2>
                 <h2 className="text-base font-semibold mb-5">For Equity:</h2>
                 <ul>
                   <li className="text-base font-light ">
-                    Let's say you have purchased Reliance at 2500.
+                    Let&apos;s say you have purchased Reliance at 2500.
                   </li>
                   <li className="text-base font-light ">
-                    Your Account Capital is 1,00,000
+                    Your Account Capital is 1,00,000
                   </li>
                   <li className="text-base font-light ">
-                    You are willing to take Risk per trade is 2%
+                    You are willing to take Risk per trade is 2%
                   </li>
                   <li className="text-base font-light mb-6">
                     You are planning to exit Reliance if it goes down below
-                    2430, so stoploss in rupees is 70
+                    2430, so stoploss in rupees is 70
                   </li>
                   <li className="text-base font-light ">
-                    Total quantity you can enter with =
+                    Total quantity you can enter with =
                   </li>
                   <li className="text-base font-light mb-6 ">
                     Account capital × Risk per trade (%) / 100 / Stoploss in
                     rupees = (1,00,000) × (2) / 100 / 70 = 28.57 ≈ 28
                   </li>
                   <li className="text-base font-light ">
-                    Now amount at risk = Total quantity × stoploss = 28 × 70 =
+                    Now amount at risk = Total quantity × stoploss = 28 × 70 =
                     1960
                   </li>
                 </ul>
                 <h2 className="text-lg font-sebasebold my-[30px]">For F&O:</h2>
                 <ul>
                   <li className="text-base font-light ">
-                    Let's say you have a capital of 1,00,000
+                    Let&apos;s say you have a capital of 1,00,000
                   </li>
                   <li className="text-base font-light mb-6 ">
-                    Account Capital = 1,00,000
+                    Account Capital = 1,00,000
                   </li>
                   <li className="text-base font-light ">
                     Now you are willing to take 2% risk per trade. That is the
@@ -359,7 +360,7 @@ const CalculatorsPage = () => {
                     = 2% of 1,00,000 = 2000
                   </li>
                   <li className="text-base font-light ">
-                    So, Risk Per Trade (%) = 2%
+                    So, Risk Per Trade (%) = 2%
                   </li>
                   <li className="text-base font-light ">
                     You are trading in BankNifty CE
@@ -367,7 +368,7 @@ const CalculatorsPage = () => {
                   <li className="text-base font-light ">
                     Lot size of BankNIfty is 25
                   </li>
-                  <li className="text-base font-light mb-6">Lot size = 25</li>
+                  <li className="text-base font-light mb-6">Lot size = 25</li>
                   <li className="text-base font-light ">
                     Now you have bought the BankNIfty CE at 250 rupees and as
                     per your analysis if BankNifty CE goes below 215 level, you
@@ -375,7 +376,7 @@ const CalculatorsPage = () => {
                     35
                   </li>
                   <li className="text-base font-light mb-6 ">
-                    So, Stoploss in rupee = 35
+                    So, Stoploss in rupee = 35
                   </li>
                   <li className="text-base font-light ">
                     Here as you are trading in Derivative, you have to buy/sell
@@ -388,17 +389,17 @@ const CalculatorsPage = () => {
                     Risk per Lot = Lot Size × Stoploss in Rupee = 25 × 35 = 875
                   </li>
                   <li className="text-base font-light ">
-                    Now, No of lots you can trade = Risk per trade in rupee /
+                    Now, No of lots you can trade = Risk per trade in rupee /
                     Risk per Lot
                   </li>
                   <li className="text-base font-light mb-6 ">
                     = 2% of capital / (25 × 35) = 2000 / 875 = 2.28 ≈ 2 lots
                   </li>
                   <li className="text-base font-light mb-6">
-                    Total Quantity = No. of lots × Lot Size = 2 × 25 = 50
+                    Total Quantity = No. of lots × Lot Size = 2 × 25 = 50
                   </li>
                   <li className="text-base font-light ">
-                    Amount at risk = No. of Lots × Risk per Lot = 2 × 875 = 1750
+                    Amount at risk = No. of Lots × Risk per Lot = 2 × 875 = 1750
                   </li>
                 </ul>
               </div>
@@ -406,8 +407,8 @@ const CalculatorsPage = () => {
           </>
         ) : selectedCalculator === "CAGR" ? (
           <>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Compound Annual Growth Rate (CAGR)?
                 </h2>
@@ -424,8 +425,8 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
 
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to calculate CAGR?
                 </h2>
@@ -448,7 +449,7 @@ const CalculatorsPage = () => {
                   </li>
                 </ul>
                 <h2 className="text-lg font-sebasebold my-[30px]">
-                  CAGR = (FA / IA) 1 / n - 1
+                  CAGR = (FA / IA) 1 / n - 1
                 </h2>
 
                 <p className="text-base font-light ">
@@ -456,14 +457,16 @@ const CalculatorsPage = () => {
                   investment, IA stands for the present value of the investment,
                   and n stands for the number of years of investment.
                 </p>
-                <p className="text-lg font-light ">Let's take an example:</p>
+                <p className="text-lg font-light ">
+                  Let&apos;s take an example:
+                </p>
                 <p className="text-base font-light ">
                   Imagine you invested Rs.20000 in a mutual fund in 2015. The
                   investment will be worth Rs.35000 in 2020. Using the formula,
                   the CAGR of this mutual fund investment will be-
                 </p>
                 <h2 className="text-lg font-sebasebold my-[30px]">
-                  CAGR = (35000 / 20000)(1/5) - 1 = 11.84%
+                  CAGR = (35000 / 20000)(1/5) - 1 = 11.84%
                 </h2>
                 <p className="text-base font-light ">
                   Here, that means the mutual fund investment gave you an
@@ -482,8 +485,8 @@ const CalculatorsPage = () => {
               </div>
             </section>
 
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   Advantages of using CAGR
                 </h2>
@@ -514,8 +517,8 @@ const CalculatorsPage = () => {
           </>
         ) : selectedCalculator === "SIP" ? (
           <>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is SIP calculator?
                 </h2>
@@ -558,8 +561,8 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
 
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-              <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
+            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   How to calculate SIP investments?
                 </h2>
@@ -618,8 +621,8 @@ const CalculatorsPage = () => {
         ) : (
           selectedCalculator === "EMI" && (
             <>
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+                <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-5">
                     What is EMI calculator?
                   </h2>
@@ -647,7 +650,7 @@ const CalculatorsPage = () => {
                     <p className="text-base font-light">Term of the Loan</p>
                   </div>
                 </div>{" "}
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary px-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-primary-light px-[30px] rounded-md  ">
                   <h2 className="text-lg font-semibold mb-5">Loan Amount:-</h2>
                   <div className="space-y-6">
                     <p className="text-base font-light">
@@ -658,7 +661,7 @@ const CalculatorsPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary p-[30px] rounded-md  ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                   <h2 className="text-lg font-semibold mb-5">
                     Rate of Interest:-
                   </h2>
@@ -671,7 +674,7 @@ const CalculatorsPage = () => {
                     </p>
                   </div>
                 </div>
-                <div className="font-abcRepro dark:bg-db-primary  bg-db-primary  rounded-md px-[30px] pb-[30px] ">
+                <div className="font-abcRepro dark:bg-db-primary  bg-primary-light  rounded-md px-[30px] pb-[30px] ">
                   <h2 className="text-lg font-semibold mb-5">
                     Term of the Loan:-
                   </h2>
@@ -697,8 +700,8 @@ const CalculatorsPage = () => {
                 </div>{" "}
               </section>
 
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2">
-                <div className="font-abcRepro dark:bg-db-primary bg-db-primary  p-[30px] rounded-md  ">
+              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+                <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-[25px]">
                     Formula:-
                   </h2>

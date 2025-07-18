@@ -2,7 +2,7 @@ import { FiMail, FiUser } from "react-icons/fi";
 
 const EditProfile = () => {
   return (
-    <div className="max-w-xl mx-auto p-6 bg-db-primary rounded-xl mt-16 shadow-lg shadow-gray-800/20">
+    <div className="max-w-xl mx-auto p-6 bg-db-primary not-dark:bg-primary-light rounded-xl mt-16 shadow-lg shadow-gray-800/20">
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold flex items-center gap-2 text-white">
@@ -16,31 +16,31 @@ const EditProfile = () => {
       {/* Form */}
       <form className="space-y-6">
         {/* Name Fields - Responsive Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2 not-dark:text-white">
               First Name
             </label>
-            <div className="flex items-center bg-[#151B2D] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
-              <FiUser className="text-gray-400 mr-3" />
+            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#738ce7] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+              <FiUser className="text-gray-400 mr-3 not-dark:text-white" />
               <input
                 type="text"
                 placeholder="John"
-                className="bg-transparent outline-none w-full text-white placeholder-gray-500"
+                className="bg-transparent  outline-none w-full text-white placeholder-gray-500 not-dark:placeholder-white"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2 not-dark:text-white">
               Last Name
             </label>
-            <div className="flex items-center bg-[#151B2D] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
-              <FiUser className="text-gray-400 mr-3" />
+            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#738ce7] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+              <FiUser className="text-gray-400 mr-3 not-dark:text-white" />
               <input
                 type="text"
                 placeholder="Carter"
-                className="bg-transparent outline-none w-full text-white placeholder-gray-500"
+                className="bg-transparent outline-none w-full text-white placeholder-gray-500 not-dark:placeholder-white"
               />
             </div>
           </div>
@@ -48,15 +48,15 @@ const EditProfile = () => {
 
         {/* Email Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2 not-dark:text-white">
             Email Address
           </label>
-          <div className="flex items-center bg-[#151B2D] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
-            <FiMail className="text-gray-400 mr-3" />
+          <div className="flex items-center bg-[#151B2D] not-dark:bg-[#738ce7] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+            <FiMail className="text-gray-400 mr-3 not-dark:text-white" />
             <input
               type="email"
               placeholder="example@youremail.com"
-              className="bg-transparent outline-none w-full text-white placeholder-gray-500"
+              className="bg-transparent outline-none w-full text-white placeholder-gray-500 not-dark:placeholder-white"
             />
           </div>
         </div>

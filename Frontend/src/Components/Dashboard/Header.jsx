@@ -11,7 +11,7 @@ import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
 import myPlan from "../../assets/Images/Dashboard/HeaderImg/myPlan.svg";
 import myProfile from "../../assets/Images/Dashboard/HeaderImg/myProfile.svg";
 import feedBack from "../../assets/Images/Dashboard/HeaderImg/feedBack.svg";
-import logout from "../../assets/Images/Dashboard/HeaderImg/logout.svg"; // Placeholder for logout icon
+
 import darkThemeIcon from "../../assets/Images/Dashboard/HeaderImg/darkThemeIcon.png"; // Placeholder, replace with actual path
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png"; // Placeholder, replace with actual path
 
@@ -66,7 +66,7 @@ const Header = () => {
   }, [profileDropDown]); // Dependency on profileDropDown to add/remove listener dynamically
 
   return (
-    <div className="bg-[#000517] border mt-2.5  border-[#000B34] h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between">
+    <div className="bg-[#000517] border mt-2.5  border-[#000B34] h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-[#273D8F]">
       <div className="w-1/2 flex items-center gap-2">
         <button
           onMouseEnter={() => setHovered(true)}
@@ -132,7 +132,7 @@ const Header = () => {
             alt=""
           />
           {profileDropDown && (
-            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary  text-white right-0 top-15 z-20">
+            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary not-dark:bg-primary-light  text-white right-0 top-15 z-20">
               <div className="flex items-center gap-3">
                 <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
                 <div>

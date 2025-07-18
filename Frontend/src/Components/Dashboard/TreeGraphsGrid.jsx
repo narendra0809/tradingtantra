@@ -51,11 +51,11 @@ const TreeGraphsGrid = ({ data, loading, handleGoToTable }) => {
               key={index}
               className={`${
                 graphTitles[index % graphTitles.length]?.class
-              } w-full h-full dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-md flex`}
+              } w-full h-full dark:bg-gradient-to-br dark:from-[#0009B2] dark:to-[#02000E] p-px rounded-md flex bg-gradient-to-br from-[#000006] to-[#0d0928]`}
             >
-              <div className="w-full flex flex-col bg-db-primary rounded-md overflow-hidden">
+              <div className="w-full flex flex-col dark:bg-db-primary bg-primary-light rounded-md overflow-hidden">
                 <button
-                  className="text-left"
+                  className="text-left not-dark:text-white"
                   onClick={() => handleGoToTable(sector)}
                 >
                   <h1 className="text-base px-2.5 py-2">{sector}</h1>

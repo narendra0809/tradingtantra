@@ -143,13 +143,15 @@ const AiSectorDepthPage = () => {
   return (
     <>
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg h-auto ">
-        <div className="dark:bg-db-primary bg-db-primary rounded-lg p-2 h-auto pb-12">
+        <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 h-auto pb-12">
           <div className="flex gap-4 items-center">
-            <h1 className="text-3xl font-bold">AI Sector Depth</h1>
+            <h1 className="text-3xl font-bold not-dark:text-white">
+              AI Sector Depth
+            </h1>
             <span className="text-xl">
               <FcCandleSticks />
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 not-dark:text-white">
               How to use <FaPlayCircle className="text-[#0256F5]" />
             </span>
             <span className="flex items-center px-2 py-px rounded-full w-fit text-white bg-[#0256F5] text-xs">
@@ -181,20 +183,20 @@ const AiSectorDepthPage = () => {
       </section>
 
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <div className="dark:bg-[#000517] bg-db-primary rounded-lg p-2">
+        <div className="dark:bg-[#000517] bg-primary-light rounded-lg p-2">
           <div className="flex gap-4 items-center mb-4">
-            <h2 className="text-2xl font-semibold mb-2">
+            <h2 className="text-2xl font-semibold mb-2 not-dark:text-white">
               AI Sector Depth Chart
             </h2>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 not-dark:text-white">
               {" "}
               <GoDotFill className="text-[#0256F5]" /> Active
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 not-dark:text-white">
               How to use <FaPlayCircle className="text-[#0256F5]" />
             </span>
           </div>
-          <div className="w-full bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
+          <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
             {isSubscribed === "false" ? (
               <div className="w-full h-[300px]">
                 <Lock />

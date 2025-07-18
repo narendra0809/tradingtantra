@@ -175,7 +175,7 @@ const UpdatesPageDashboard = () => {
   }, []);
   return (
     <>
-      <div className="w-full h-auto p-6 mt-10 md:p-10 border-2 border-[#0256F5] rounded-lg">
+      <div className="w-full h-auto p-6 mt-10 md:p-10 border-2 border-[#0256F5] rounded-lg not-dark:bg-primary-light not-dark:text-white">
         {updates.map((item, index) => (
           <div
             key={index}
@@ -203,7 +203,7 @@ const UpdatesPageDashboard = () => {
                 {item.category}
               </p>
             </div>
-            <p className="text-sm dark:text-[#FFFFFF80] text-wrap md:flex-1">
+            <p className="text-sm dark:text-[#ffffffe9] text-wrap md:flex-1">
               {item.description}
             </p>
           </div>
