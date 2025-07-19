@@ -869,7 +869,7 @@ const CandleChart = ({ candles, volumes }) => {
       },
     },
     title: {
-      text: "Candlestick with Volume",
+      text: "Candlestick with OI Change",
       align: "left",
       style: {
         color: labelStyle.color,
