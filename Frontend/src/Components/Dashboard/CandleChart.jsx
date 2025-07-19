@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable no-unused-vars */
 // /* eslint-disable react/prop-types */
 // import Chart from "react-apexcharts";
@@ -812,6 +813,7 @@
 
 // export default CandleChart;
 
+import { useEffect } from "react";
 import Chart from "react-apexcharts";
 import { useSelector } from "react-redux";
 
@@ -926,9 +928,9 @@ const CandleChart = ({ candles, volumes }) => {
       shared: false,
       intersect: true,
       custom: ({ _, dataPointIndex }) => {
+        console.log("candle");
         const candle = enhancedCandles[dataPointIndex];
         if (!candle) return "";
-
         const [open, high, low, close] = candle.y.map(Number);
         const isUp = close >= open;
         const color = isUp
@@ -1073,7 +1075,10 @@ const CandleChart = ({ candles, volumes }) => {
   ];
 
   return (
-    <div id="chart-container" style={{ padding: 0, margin: 0 }}>
+    <div
+      id="chart-container"
+      style={{ height: "100%", width: "100%", padding: 0, margin: 0 }}
+    >
       <Chart
         options={chartOptions}
         series={series}

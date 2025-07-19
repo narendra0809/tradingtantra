@@ -219,9 +219,8 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
   return (
     <NavLink
       to={path}
-      end={path === "/dashboard"} // Exact matching only for dashboard
+      end={path === "/dashboard"}
       className={({ isActive }) => {
-        console.log(`NavItem: ${label}, isActive: ${isActive}, path: ${path}`); // Debug log
         return `flex cursor-pointer items-center transition-all duration-300 ease-in-out
           ${
             isActive
