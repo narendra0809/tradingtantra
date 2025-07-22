@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { isProduction } from "../controllers/adminControllers/adminServer.controller";
+import { isProduction } from "../controllers/adminControllers/adminServer.controller.js";
 export const initiateRestart = (pm2Command) => {
   setTimeout(() => {
     exec(pm2Command, (error, stdout, stderr) => {
