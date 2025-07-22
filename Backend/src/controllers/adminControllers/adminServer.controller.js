@@ -1,5 +1,5 @@
 import { initiateRestart } from "../../utils/server-restart.js";
-export const isProduction = process.env.NODE_ENV === "DEVELOPMENT";
+export const isProduction = process.env.NODE_ENV === "PRODUCTION";
 export const pm2Command = isProduction
   ? "pm2 restart all"
   : "pm2 restart dev-backend";
