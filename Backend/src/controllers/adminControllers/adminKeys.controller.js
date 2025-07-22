@@ -3,6 +3,8 @@ import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import DataApi from "../../models/adminModels/dataApi.model.js";
+import { initiateRestart } from "../../utils/server-restart.js";
+import { pm2Command } from "./adminServer.controller.js";
 export const getAdminPaymentKeys = async (req, res) => {
   try {
     if (!req.admin?.id) {
@@ -142,6 +144,8 @@ export const updateDataApiKeys = async (req, res) => {
     const envUpdateResult = updateEnvFile(envUpdates);
     if (!envUpdateResult) {
       console.warn(".env file not updated for DHAN");
+    } else {
+      initiateRestart(pm2Command);
     }
     return res.status(200).json({
       success: true,

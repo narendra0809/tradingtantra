@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import Lock from "./Lock";
 
 // Plugin to display text inside the doughnut segments
 const textInsidePlugin = {
@@ -37,7 +38,7 @@ const textInsidePlugin = {
 
 ChartJS.register(ArcElement, Tooltip, Legend, textInsidePlugin);
 
-const SIPCalculator = ({ calculator }) => {
+const SIPCalculator = ({ calculator, isSubscribed }) => {
   const [initialAmount, setInitialAmount] = useState(500);
   const [expectedReturn, setExpectedReturn] = useState(1);
   const [duration, setDuration] = useState(1);
@@ -145,131 +146,137 @@ const SIPCalculator = ({ calculator }) => {
   return (
     <div>
       <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light  rounded-md mt-10 not-dark:text-white">
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-          <div className=" w-full grid grid-cols-2 gap-x-10 gap-y-8">
-            <div className="flex flex-col space-y-[50px]">
-              {/* Investment Input */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light  ">
-                    {calculator === "SIP"
-                      ? "Monthly Investment*"
-                      : "Total Investment*"}
-                  </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light  w-20 text-center">
-                    <span>₹</span>
-                    <input
-                      type="number"
-                      className="text-xs w-full outline-none"
-                      value={initialAmount}
-                      onChange={(e) => setInitialAmount(Number(e.target.value))}
-                    />
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <div className=" w-full grid grid-cols-2 gap-x-10 gap-y-8">
+              <div className="flex flex-col space-y-[50px]">
+                {/* Investment Input */}
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light  ">
+                      {calculator === "SIP"
+                        ? "Monthly Investment*"
+                        : "Total Investment*"}
+                    </label>
+                    <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light  w-20 text-center">
+                      <span>₹</span>
+                      <input
+                        type="number"
+                        className="text-xs w-full outline-none"
+                        value={initialAmount}
+                        onChange={(e) =>
+                          setInitialAmount(Number(e.target.value))
+                        }
+                      />
+                    </div>
                   </div>
+                  <input
+                    type="range"
+                    min="100"
+                    max="100000"
+                    step="100"
+                    value={initialAmount}
+                    onChange={(e) => setInitialAmount(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="100000"
-                  step="100"
-                  value={initialAmount}
-                  onChange={(e) => setInitialAmount(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
-                />
-              </div>
 
-              {/* Expected Return Input */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light ">
-                    Expected Return p.a. (%)*
-                  </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
-                    <input
-                      type="number"
-                      className="text-xs outline-none w-full"
-                      value={expectedReturn}
-                      onChange={(e) =>
-                        setExpectedReturn(Number(e.target.value))
-                      }
-                    />
-                    <span>%</span>
+                {/* Expected Return Input */}
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light ">
+                      Expected Return p.a. (%)*
+                    </label>
+                    <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
+                      <input
+                        type="number"
+                        className="text-xs outline-none w-full"
+                        value={expectedReturn}
+                        onChange={(e) =>
+                          setExpectedReturn(Number(e.target.value))
+                        }
+                      />
+                      <span>%</span>
+                    </div>
                   </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="40"
+                    step="0.1"
+                    value={expectedReturn}
+                    onChange={(e) => setExpectedReturn(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="40"
-                  step="0.1"
-                  value={expectedReturn}
-                  onChange={(e) => setExpectedReturn(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
-                />
-              </div>
 
-              {/* Duration Input */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light  ">
-                    Time Period (Years)*
-                  </label>
-                  <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
-                    <input
-                      type="number"
-                      className="text-xs w-full outline-none"
-                      value={duration}
-                      onChange={(e) => setDuration(Number(e.target.value))}
-                    />
-                    <span>Yr</span>
+                {/* Duration Input */}
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light  ">
+                      Time Period (Years)*
+                    </label>
+                    <div className="flex gap-2 p-2 rounded-sm dark:bg-db-primary bg-primary-light w-20 text-center">
+                      <input
+                        type="number"
+                        className="text-xs w-full outline-none"
+                        value={duration}
+                        onChange={(e) => setDuration(Number(e.target.value))}
+                      />
+                      <span>Yr</span>
+                    </div>
                   </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    step="1"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="30"
-                  step="1"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
+              </div>
+              <div className="w-full">
+                <Doughnut
+                  data={chartData}
+                  options={chartOptions}
+                  plugins={[textInsidePlugin]}
+                  width={"324px"}
+                  height={"324px"}
                 />
               </div>
             </div>
-            <div className="w-full">
-              <Doughnut
-                data={chartData}
-                options={chartOptions}
-                plugins={[textInsidePlugin]}
-                width={"324px"}
-                height={"324px"}
-              />
-            </div>
-          </div>
 
-          {/* Buttons */}
-          <div className="flex justify-between items-center gap-10 mt-[82px] ">
-            <button
-              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
-              onClick={() => {
-                setInitialAmount(500);
-                setExpectedReturn(1);
-                setDuration(1);
-                setCalculatedValues({
-                  investedAmount: 0,
-                  estimatedReturns: 0,
-                  totalValue: 0,
-                });
-              }}
-            >
-              Clear
-            </button>
-            <button
-              className="bg-primary py-2 rounded-md w-4/5"
-              type="button"
-              onClick={handleCalculate}
-            >
-              Calculate
-            </button>
-          </div>
-        </form>
+            {/* Buttons */}
+            <div className="flex justify-between items-center gap-10 mt-[82px] ">
+              <button
+                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+                onClick={() => {
+                  setInitialAmount(500);
+                  setExpectedReturn(1);
+                  setDuration(1);
+                  setCalculatedValues({
+                    investedAmount: 0,
+                    estimatedReturns: 0,
+                    totalValue: 0,
+                  });
+                }}
+              >
+                Clear
+              </button>
+              <button
+                className="bg-primary py-2 rounded-md w-4/5"
+                type="button"
+                onClick={handleCalculate}
+              >
+                Calculate
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Result Display */}

@@ -98,7 +98,7 @@
 //         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
 //           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#273D8F] p-2 relative">
 //             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
-//               {isSubscribed === "false" ? (
+//               {isSubscribed  ? (
 //                 <Lock />
 //               ) : (
 //                 <table className="w-full">
@@ -307,7 +307,7 @@
 //         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
 //           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#273D8F] p-2 relative">
 //             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
-//               {isSubscribed === "false" ? (
+//               {isSubscribed  ? (
 //                 <Lock />
 //               ) : (
 //                 <table className="w-full">
@@ -528,7 +528,7 @@ const DayHigh = ({
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#273D8F] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
-              {isSubscribed === "false" ? (
+              {!isSubscribed ? (
                 <Lock />
               ) : (
                 <table className="w-full">
@@ -742,7 +742,7 @@ const DayLow = ({
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#273D8F] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
-              {isSubscribed === "false" ? (
+              {!isSubscribed ? (
                 <Lock />
               ) : (
                 <table className="w-full">

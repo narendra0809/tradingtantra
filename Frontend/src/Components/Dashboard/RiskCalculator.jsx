@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import GaugeChart from "react-gauge-chart";
 import { useRisk } from "../../contexts/RiskContext";
+import Lock from "./Lock";
 
-const RiskCalculator = ({ calculator }) => {
+const RiskCalculator = ({ calculator, isSubscribed }) => {
   const [formData, setFormData] = useState({
     ACcapital: "",
     RPTrade: "",
@@ -71,67 +72,75 @@ const RiskCalculator = ({ calculator }) => {
   return (
     <div>
       <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8">
-            {[
-              {
-                label: "Account Capital*",
-                name: "ACcapital",
-                placeholder: "Enter Capital Amount",
-              },
-              {
-                label: "Risk Per Trade (%)*",
-                name: "RPTrade",
-                placeholder: "Enter Risk per Trade",
-              },
-              {
-                label: "Stoploss (in Rupees)*",
-                name: "stoploss",
-                placeholder: "Enter Stoploss",
-              },
-              ...(calculator !== "Equity"
-                ? [
-                    {
-                      label: "Lot Size*",
-                      name: "lotSize",
-                      placeholder: "Enter Lot Size",
-                    },
-                  ]
-                : []),
-            ].map(({ label, name, placeholder }) => (
-              <div key={name} className="flex flex-col items-start space-y-3">
-                <label
-                  className="text-lg font-abcRepro font-light"
-                  htmlFor={name}
-                >
-                  {label}
-                </label>
-                <input
-                  type="number"
-                  name={name}
-                  value={formData[name]}
-                  onChange={handleChange}
-                  required
-                  className="pb-3 w-full bg-transparent outline-none border-b border-white"
-                  placeholder={placeholder}
-                />
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-between items-center gap-10 mt-[50px]">
-            <button
-              type="button"
-              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
-              onClick={handleClear}
-            >
-              Clear
-            </button>
-            <button type="submit" className="bg-primary py-2 rounded-md w-4/5">
-              Calculate
-            </button>
-          </div>
-        </form>
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+              {[
+                {
+                  label: "Account Capital*",
+                  name: "ACcapital",
+                  placeholder: "Enter Capital Amount",
+                },
+                {
+                  label: "Risk Per Trade (%)*",
+                  name: "RPTrade",
+                  placeholder: "Enter Risk per Trade",
+                },
+                {
+                  label: "Stoploss (in Rupees)*",
+                  name: "stoploss",
+                  placeholder: "Enter Stoploss",
+                },
+                ...(calculator !== "Equity"
+                  ? [
+                      {
+                        label: "Lot Size*",
+                        name: "lotSize",
+                        placeholder: "Enter Lot Size",
+                      },
+                    ]
+                  : []),
+              ].map(({ label, name, placeholder }) => (
+                <div key={name} className="flex flex-col items-start space-y-3">
+                  <label
+                    className="text-lg font-abcRepro font-light"
+                    htmlFor={name}
+                  >
+                    {label}
+                  </label>
+                  <input
+                    type="number"
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    required
+                    className="pb-3 w-full bg-transparent outline-none border-b border-white"
+                    placeholder={placeholder}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between items-center gap-10 mt-[50px]">
+              <button
+                type="button"
+                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+                onClick={handleClear}
+              >
+                Clear
+              </button>
+              <button
+                type="submit"
+                className="bg-primary py-2 rounded-md w-4/5"
+              >
+                Calculate
+              </button>
+            </div>
+          </form>
+        )}
       </div>
+
       <div className="py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5 not-dark:text-white">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         <div className="mt-[30px] space-y-5">
@@ -149,7 +158,7 @@ const RiskCalculator = ({ calculator }) => {
   );
 };
 
-const RiskCalculatorRight = () => {
+const RiskCalculatorRight = ({ isSubscribed }) => {
   const { riskLevel } = useRisk();
   const riskPercent =
     riskLevel === "Low" ? 0.2 : riskLevel === "Medium" ? 0.4 : 0.6;
@@ -163,41 +172,49 @@ const RiskCalculatorRight = () => {
   }, [riskLevel]);
 
   return (
-    <div className="not-dark:text-white">
-      <h1 className="text-2xl font-medium text-wrap">
-        Risk/Position Size Calculator
-      </h1>
-      <div className="mt-7 relative flex flex-col items-center">
-        {/* Gauge Chart */}
-        <GaugeChart
-          id="gauge-chart"
-          nrOfLevels={5}
-          colors={["green", "orange", "red"]}
-          arcWidth={1}
-          percent={riskPercent}
-          animate={true}
-          needleColor="#1b3a4b"
-          needleBaseColor="#1b3a4b"
-          hideText={true}
-        />
+    <div className="w-full h-full">
+      {!isSubscribed ? (
+        <Lock />
+      ) : (
+        <div className="not-dark:text-white">
+          <h1 className="text-2xl font-medium text-wrap">
+            Risk/Position Size Calculator
+          </h1>
 
-        {/* "RISK" text at the bottom */}
-        <div className="absolute -top-5 transform -translate-y-1/2 text-[#12314b] font-bold text-xl">
-          {riskLevel}
+          <div className="mt-7 relative flex flex-col items-center">
+            {/* Gauge Chart */}
+
+            <GaugeChart
+              id="gauge-chart"
+              nrOfLevels={5}
+              colors={["green", "orange", "red"]}
+              arcWidth={1}
+              percent={riskPercent}
+              animate={true}
+              needleColor="#1b3a4b"
+              needleBaseColor="#1b3a4b"
+              hideText={true}
+            />
+
+            {/* "RISK" text at the bottom */}
+            <div className="absolute -top-5 transform -translate-y-1/2 text-[#12314b] font-bold text-xl">
+              {riskLevel}
+            </div>
+            <h2 className="text-center text-5xl font-extrabold  text-[#12314b]">
+              RISK
+            </h2>
+          </div>
+          <p className="text-2xl font-normal text-wrap">
+            Calculating risk before entering a trade is important to ensure
+            traders&apos; capital safety.
+          </p>
+          <p className="text-wrap text-lg font-light">
+            To use this risk calculator, enter your account capital and the
+            percentage of your account you wish to risk. Our calculator will
+            suggest position sizes based on the information you provide.
+          </p>
         </div>
-        <h2 className="text-center text-5xl font-extrabold  text-[#12314b]">
-          RISK
-        </h2>
-      </div>
-      <p className="text-2xl font-normal text-wrap">
-        Calculating risk before entering a trade is important to ensure
-        traders&apos; capital safety.
-      </p>
-      <p className="text-wrap text-lg font-light">
-        To use this risk calculator, enter your account capital and the
-        percentage of your account you wish to risk. Our calculator will suggest
-        position sizes based on the information you provide.
-      </p>
+      )}
     </div>
   );
 };

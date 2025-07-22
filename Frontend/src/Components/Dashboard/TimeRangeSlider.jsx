@@ -211,8 +211,6 @@ const TimeRangeSlider = ({ getDataByIndexAndExpiry, isSubscribed }) => {
     // Get current day and time
     const currentDay = now.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
     const isWeekday = currentDay >= 1 && currentDay <= 5; // Monday to Friday
-    const isMarketOpen =
-      decimalTime >= marketOpen && decimalTime <= marketClose;
 
     // If current time is after market close or on a non-trading day, return maxTime (3:30 PM)
     if (!isWeekday || decimalTime > marketClose) {

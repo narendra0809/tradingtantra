@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import Chart from "react-apexcharts";
+import Lock from "./Lock";
 
-const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
+const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
   const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
 
   const topContributors = contributor.contributions
@@ -149,14 +150,18 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
     <div className="w-full">
       <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
         <div className="w-full lg:w-1/2 xl:w-2/5 flex justify-center">
-          <div className="w-full max-w-md">
-            <Chart
-              options={chartData.options}
-              series={chartData.series}
-              type="donut"
-              width="100%"
-              height={400}
-            />
+          <div className="w-full max-w-md h-[400px]">
+            {!isSubscribed ? (
+              <Lock />
+            ) : (
+              <Chart
+                options={chartData.options}
+                series={chartData.series}
+                type="donut"
+                width="100%"
+                height={400}
+              />
+            )}
           </div>
         </div>
 
@@ -192,30 +197,36 @@ const OptionDataDonutChart = ({ contributor, allIndexPts }) => {
             <h3 className="text-white font-bold mb-4 text-lg">
               Top Contributors
             </h3>
-            <div className="space-y-2">
-              {topContributors.map((contributor, index) => (
-                <div
-                  key={index}
-                  className="flex items-center py-2 px-3 rounded transition-colors"
-                >
+            <div className="space-y-2 h-full">
+              {!isSubscribed ? (
+                <Lock />
+              ) : (
+                topContributors.map((contributor, index) => (
                   <div
-                    className="w-4 h-4 rounded-full mr-3"
-                    style={{ backgroundColor: chartColors[index] }}
-                  />
-                  <span className="text-white flex-1 truncate">
-                    {contributor.name}
-                  </span>
-                  <span
-                    className={`ml-2 font-medium ${
-                      contributor.points > 0 ? "text-green-400" : "text-red-400"
-                    }`}
+                    key={index}
+                    className="flex items-center py-2 px-3 rounded transition-colors"
                   >
-                    {contributor.points > 0 ? "+" : ""}
-                    {contributor.points}
-                  </span>
-                </div>
-              ))}
-              {otherContributionsPercent > 0 && (
+                    <div
+                      className="w-4 h-4 rounded-full mr-3"
+                      style={{ backgroundColor: chartColors[index] }}
+                    />
+                    <span className="text-white flex-1 truncate">
+                      {contributor.name}
+                    </span>
+                    <span
+                      className={`ml-2 font-medium ${
+                        contributor.points > 0
+                          ? "text-green-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {contributor.points > 0 ? "+" : ""}
+                      {contributor.points}
+                    </span>
+                  </div>
+                ))
+              )}
+              {isSubscribed && otherContributionsPercent > 0 && (
                 <div className="flex items-center pt-2 border-t border-gray-700 mt-2 py-2 px-3 rounded">
                   <div
                     className="w-4 h-4 rounded-full mr-3"

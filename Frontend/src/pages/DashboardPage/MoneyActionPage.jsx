@@ -134,7 +134,7 @@ const MoneyActionPage = () => {
 
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed);
+    setIsSubscribed(Subscribed === "true");
 
     const marketOpen = checkMarketHours();
     setIsMarketHours(marketOpen);

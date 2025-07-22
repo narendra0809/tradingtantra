@@ -5,9 +5,11 @@ import { useState, useEffect, useRef } from "react";
 import CalendarGrid from "../../Components/Dashboard/CalenarGrid";
 import "react-calendar/dist/Calendar.css";
 import { FaInfoCircle, FaCalendarAlt } from "react-icons/fa";
+import Cookies from "js-cookie";
 import useFetchData from "../../utils/useFetchData";
 import { tickerSymbol } from "../../utils/tickerSymbol";
 import axios from "axios";
+import Lock from "../../Components/Dashboard/Lock";
 
 const URI = import.meta.env.VITE_SERVER_URI;
 
@@ -38,6 +40,7 @@ const TradingJournal = () => {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [summary, setSummary] = useState([]);
   const startYear = currentMonth >= 3 ? currentYear : currentYear - 1;
   const startDate = new Date(startYear, 3, 1);
@@ -187,7 +190,10 @@ const TradingJournal = () => {
       console.log(error);
     }
   };
-
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
   useEffect(() => {
     fetchHolidays();
   }, []);
@@ -448,6 +454,7 @@ const TradingJournal = () => {
             selectedDateRange={[dateRange]}
             tradeData={addedTrades}
             holidays={holidays}
+            isSubscribed={isSubscribed}
           />
 
           <div className="my-2 md:my-2.5 not-dark:text-white">
@@ -456,49 +463,53 @@ const TradingJournal = () => {
                 <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Statistics
                 </h5>
-                <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
-                  {[
-                    "Total P&L",
-                    "Total Trades",
-                    "Biggest Win",
-                    "Biggest Loss",
-                    "Avg. Winner",
-                    "Avg. Loser",
-                    "Risk to Reward",
-                    "Avg. P&L",
-                  ].map((stat, index) => (
-                    <div
-                      key={stat}
-                      className={`dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 ${
-                        index >= 4 ? "sm:col-span-2" : ""
-                      }`}
-                    >
-                      <p className="flex items-center gap-2 md:gap-3">
-                        <p className="text-xs md:text-sm">{stat}</p>
-                        <FaInfoCircle />
-                      </p>
-                      <p className="text-sm md:text-base">
-                        {stat === "Total P&L"
-                          ? data.summary?.totalProfitLoss
-                          : stat === "Total Trades"
-                          ? data.summary?.totalTrade
-                          : stat === "Biggest Win"
-                          ? data.summary?.maxPL
-                          : stat === "Biggest Loss"
-                          ? data.summary?.minPL
-                          : stat === "Avg. Winner"
-                          ? data.summary?.avgW
-                          : stat === "Avg. Loser"
-                          ? data.summary?.avgL
-                          : stat === "Risk to Reward"
-                          ? data.summary?.riskToReward
-                          : stat === "Avg. P&L"
-                          ? data.summary?.averagePL
-                          : ""}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                {!isSubscribed ? (
+                  <Lock />
+                ) : (
+                  <div className="grid md:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
+                    {[
+                      "Total P&L",
+                      "Total Trades",
+                      "Biggest Win",
+                      "Biggest Loss",
+                      "Avg. Winner",
+                      "Avg. Loser",
+                      "Risk to Reward",
+                      "Avg. P&L",
+                    ].map((stat, index) => (
+                      <div
+                        key={stat}
+                        className={`dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 ${
+                          index >= 4 ? "sm:col-span-2" : ""
+                        }`}
+                      >
+                        <p className="flex items-center gap-2 md:gap-3">
+                          <p className="text-xs md:text-sm">{stat}</p>
+                          <FaInfoCircle />
+                        </p>
+                        <p className="text-sm md:text-base">
+                          {stat === "Total P&L"
+                            ? data.summary?.totalProfitLoss
+                            : stat === "Total Trades"
+                            ? data.summary?.totalTrade
+                            : stat === "Biggest Win"
+                            ? data.summary?.maxPL
+                            : stat === "Biggest Loss"
+                            ? data.summary?.minPL
+                            : stat === "Avg. Winner"
+                            ? data.summary?.avgW
+                            : stat === "Avg. Loser"
+                            ? data.summary?.avgL
+                            : stat === "Risk to Reward"
+                            ? data.summary?.riskToReward
+                            : stat === "Avg. P&L"
+                            ? data.summary?.averagePL
+                            : ""}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -510,15 +521,19 @@ const TradingJournal = () => {
                   Top Winner
                 </h5>
                 <div className="grid md:grid-cols-3 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
-                  {data?.topWinnersLosers?.top3Winners.map((data, index) => (
-                    <div
-                      key={index}
-                      className="dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
-                    >
-                      <p className="text-xs md:text-sm">Winner {index + 1}</p>
-                      <p className="text-sm md:text-base">{data.symbol}</p>
-                    </div>
-                  ))}
+                  {!isSubscribed ? (
+                    <Lock />
+                  ) : (
+                    data?.topWinnersLosers?.top3Winners.map((data, index) => (
+                      <div
+                        key={index}
+                        className="dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
+                      >
+                        <p className="text-xs md:text-sm">Winner {index + 1}</p>
+                        <p className="text-sm md:text-base">{data.symbol}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </section>
@@ -529,15 +544,19 @@ const TradingJournal = () => {
                   Top Loser
                 </h5>
                 <div className="grid md:grid-cols-3 grid-cols-1 gap-2 md:gap-5 w-full md:w-[90%] mx-auto mb-4 md:mb-5">
-                  {data?.topWinnersLosers?.top3Losers.map((data, index) => (
-                    <div
-                      key={index}
-                      className="bg-db-primary not-dark:bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
-                    >
-                      <p className="text-xs md:text-sm">Loser {index + 1}</p>
-                      <p className="text-sm md:text-base">{data.symbol}</p>
-                    </div>
-                  ))}
+                  {!isSubscribed ? (
+                    <Lock />
+                  ) : (
+                    data?.topWinnersLosers?.top3Losers.map((data, index) => (
+                      <div
+                        key={index}
+                        className="bg-db-primary not-dark:bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
+                      >
+                        <p className="text-xs md:text-sm">Loser {index + 1}</p>
+                        <p className="text-sm md:text-base">{data.symbol}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </section>

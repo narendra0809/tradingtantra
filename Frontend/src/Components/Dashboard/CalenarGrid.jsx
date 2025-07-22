@@ -1,8 +1,14 @@
 /* eslint-disable react/prop-types */
 import clsx from "clsx";
 import { Tooltip } from "react-tooltip";
+import Lock from "./Lock";
 
-const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
+const CalendarGrid = ({
+  setSelectedDate,
+  selectedDateRange,
+  tradeData,
+  isSubscribed,
+}) => {
   const startDate = selectedDateRange?.[0]?.startDate || new Date();
   const endDate = selectedDateRange?.[0]?.endDate || new Date();
 
@@ -116,129 +122,135 @@ const CalendarGrid = ({ setSelectedDate, selectedDateRange, tradeData }) => {
     <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
       <div className="p-5 dark:bg-db-secondary bg-primary-light text-white">
         <p className="text-lg font-light inline-block">Tradebook</p>
-        <div className="flex flex-col items-center">
-          <h2 className="text-center text-lg font-bold text-primary mb-6">
-            Please Select The Range To See The Data
-          </h2>
-          <div className="overflow-x-auto w-full">
-            <div className="grid grid-cols-13 sm:gap-x-5 gap-x-3 min-w-max">
-              <div></div>
-              {monthsToShow.map(({ month, year }, index) => (
-                <div
-                  key={index}
-                  className="text-center font-bold text-xs mb-5 text-white"
-                >
-                  {new Date(year, month - 1, 1).toLocaleString("default", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </div>
-              ))}
-              {Array(emptyColumns)
-                .fill(null)
-                .map((_, index) => (
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <div className="flex flex-col items-center">
+            <h2 className="text-center text-lg font-bold text-primary mb-6">
+              Please Select The Range To See The Data
+            </h2>
+            <div className="overflow-x-auto w-full">
+              <div className="grid grid-cols-13 sm:gap-x-5 gap-x-3 min-w-max">
+                <div></div>
+                {monthsToShow.map(({ month, year }, index) => (
                   <div
-                    key={`empty-${index}`}
+                    key={index}
                     className="text-center font-bold text-xs mb-5 text-white"
-                  ></div>
-                ))}
-              {daysOfWeek.map((day, rowIndex) => (
-                <>
-                  <div
-                    key={day}
-                    className={`font-bold text-[10px] ${
-                      ["Tue", "Thu", "Sat"].includes(day)
-                        ? "text-transparent"
-                        : "text-white"
-                    }`}
                   >
-                    {day}
+                    {new Date(year, month - 1, 1).toLocaleString("default", {
+                      month: "short",
+                      year: "numeric",
+                    })}
                   </div>
-                  {monthsToShow.map((_, monthIndex) => {
-                    const monthEntries = monthData[monthIndex]
-                      .filter((entry) => entry.row === rowIndex)
-                      .sort((a, b) => a.column - b.column);
+                ))}
+                {Array(emptyColumns)
+                  .fill(null)
+                  .map((_, index) => (
+                    <div
+                      key={`empty-${index}`}
+                      className="text-center font-bold text-xs mb-5 text-white"
+                    ></div>
+                  ))}
+                {daysOfWeek.map((day, rowIndex) => (
+                  <>
+                    <div
+                      key={day}
+                      className={`font-bold text-[10px] ${
+                        ["Tue", "Thu", "Sat"].includes(day)
+                          ? "text-transparent"
+                          : "text-white"
+                      }`}
+                    >
+                      {day}
+                    </div>
+                    {monthsToShow.map((_, monthIndex) => {
+                      const monthEntries = monthData[monthIndex]
+                        .filter((entry) => entry.row === rowIndex)
+                        .sort((a, b) => a.column - b.column);
 
-                    const maxColumns = Math.max(
-                      ...monthData[monthIndex].map((entry) => entry.column)
-                    );
-                    const rowSlots = [];
-
-                    for (let col = 0; col <= maxColumns; col++) {
-                      const entry = monthEntries.find(
-                        (entry) => entry.column === col
+                      const maxColumns = Math.max(
+                        ...monthData[monthIndex].map((entry) => entry.column)
                       );
-                      rowSlots.push(entry || null);
-                    }
+                      const rowSlots = [];
 
-                    const limitedSlots = rowSlots.slice(0, 6);
+                      for (let col = 0; col <= maxColumns; col++) {
+                        const entry = monthEntries.find(
+                          (entry) => entry.column === col
+                        );
+                        rowSlots.push(entry || null);
+                      }
 
-                    return (
-                      <div key={monthIndex} className="flex gap-1">
-                        {limitedSlots.map((entry, index) =>
-                          entry ? (
-                            <div
-                              key={index}
-                              className={clsx(
-                                "w-2 h-2 flex justify-center mt-1 font-bold cursor-pointer",
-                                entry.holiday
-                                  ? "bg-yellow-500"
-                                  : getColor(entry.value)
-                              )}
-                              data-tooltip-id={entry.date}
-                              onClick={() => handleDateClick(entry.date)}
-                            >
-                              <Tooltip id={entry.date} place="top">
-                                {entry.date}
-                                <br />
-                                {entry.holiday ? (
-                                  <div>
-                                    <strong>
-                                      Holiday: {entry.holiday.description}
-                                    </strong>
-                                    <br />
-                                    Exchanges Closed:{" "}
-                                    {entry.holiday.closed_exchanges.join(", ")}
-                                    <br />
-                                  </div>
-                                ) : null}
-                                {entry.trades.length > 0
-                                  ? entry.trades.map((trade, idx) => (
-                                      <div key={idx}>
-                                        {trade.symbol}:{" "}
-                                        {trade.totalProfitOrLoss > 0
-                                          ? `Profit: ₹${trade.totalProfitOrLoss}`
-                                          : trade.totalProfitOrLoss < 0
-                                          ? `Loss: ₹${Math.abs(
-                                              trade.totalProfitOrLoss
-                                            )}`
-                                          : "Neutral"}
-                                      </div>
-                                    ))
-                                  : "No trades"}
-                                {entry.trades.length > 1 && (
-                                  <div>
-                                    Total: ₹{entry.value > 0 ? "+" : ""}
-                                    {entry.value}
-                                  </div>
+                      const limitedSlots = rowSlots.slice(0, 6);
+
+                      return (
+                        <div key={monthIndex} className="flex gap-1">
+                          {limitedSlots.map((entry, index) =>
+                            entry ? (
+                              <div
+                                key={index}
+                                className={clsx(
+                                  "w-2 h-2 flex justify-center mt-1 font-bold cursor-pointer",
+                                  entry.holiday
+                                    ? "bg-yellow-500"
+                                    : getColor(entry.value)
                                 )}
-                              </Tooltip>
-                            </div>
-                          ) : (
-                            <div
-                              key={index}
-                              className="w-2 h-2 bg-transparent"
-                            ></div>
-                          )
-                        )}
-                      </div>
-                    );
-                  })}
-                </>
-              ))}
+                                data-tooltip-id={entry.date}
+                                onClick={() => handleDateClick(entry.date)}
+                              >
+                                <Tooltip id={entry.date} place="top">
+                                  {entry.date}
+                                  <br />
+                                  {entry.holiday ? (
+                                    <div>
+                                      <strong>
+                                        Holiday: {entry.holiday.description}
+                                      </strong>
+                                      <br />
+                                      Exchanges Closed:{" "}
+                                      {entry.holiday.closed_exchanges.join(
+                                        ", "
+                                      )}
+                                      <br />
+                                    </div>
+                                  ) : null}
+                                  {entry.trades.length > 0
+                                    ? entry.trades.map((trade, idx) => (
+                                        <div key={idx}>
+                                          {trade.symbol}:{" "}
+                                          {trade.totalProfitOrLoss > 0
+                                            ? `Profit: ₹${trade.totalProfitOrLoss}`
+                                            : trade.totalProfitOrLoss < 0
+                                            ? `Loss: ₹${Math.abs(
+                                                trade.totalProfitOrLoss
+                                              )}`
+                                            : "Neutral"}
+                                        </div>
+                                      ))
+                                    : "No trades"}
+                                  {entry.trades.length > 1 && (
+                                    <div>
+                                      Total: ₹{entry.value > 0 ? "+" : ""}
+                                      {entry.value}
+                                    </div>
+                                  )}
+                                </Tooltip>
+                              </div>
+                            ) : (
+                              <div
+                                key={index}
+                                className="w-2 h-2 bg-transparent"
+                              ></div>
+                            )
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <div className="flex items-center gap-1 mt-5 justify-start">
           <div className="text-[10px] font-medium">Max Loss</div>
           <div className="bg-[#C62828] w-2 h-2 rounded-[2px]"></div>

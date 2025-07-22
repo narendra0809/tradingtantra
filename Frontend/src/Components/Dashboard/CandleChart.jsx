@@ -830,7 +830,7 @@ const CandleChart = ({ candles, volumes }) => {
   }
 
   const enhancedCandles = candles.map((candle, idx) => {
-    const volume = volumes[idx] || 0;
+    const volume = volumes[idx]?.change || 0;
     const isUp = candle.y && candle.y[3] >= candle.y[0];
 
     return {
@@ -839,6 +839,7 @@ const CandleChart = ({ candles, volumes }) => {
       y: candle.y ? [...candle.y] : [0, 0, 0, 0],
       volume,
       isUp,
+      isGreen: volumes[idx]?.isGreen,
     };
   });
 
@@ -982,7 +983,7 @@ const CandleChart = ({ candles, volumes }) => {
           <span style="color: ${color}">${close.toFixed(2)}</span>
           <span style="color: ${
             theme === "dark" ? "#9CA3AF" : "#6B7280"
-          }">Volume:</span>
+          }">OI Change:</span>
           <span>${candle.volume.toLocaleString()}</span>
         </div>
       </div>
@@ -1002,15 +1003,15 @@ const CandleChart = ({ candles, volumes }) => {
       },
       bar: {
         columnWidth: "40%",
-        colors: {
-          ranges: [
-            {
-              from: 0,
-              to: Infinity,
-              color: theme === "dark" ? "#4B556366" : "#9CA3AF66",
-            },
-          ],
-        },
+        // colors: {
+        //   ranges: [
+        //     {
+        //       from: 0,
+        //       to: Infinity,
+        //       color: theme === "dark" ? "#4B556366" : "#9CA3AF66",
+        //     },
+        //   ],
+        // },
         dataLabels: {
           enabled: false,
         },
@@ -1063,7 +1064,7 @@ const CandleChart = ({ candles, volumes }) => {
       data: enhancedCandles.map((candle) => ({
         x: candle.x,
         y: candle.volume,
-        fillColor: candle.isUp
+        fillColor: candle.isGreen
           ? theme === "dark"
             ? "#10B98133"
             : "#05966933"

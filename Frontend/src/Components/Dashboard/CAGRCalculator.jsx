@@ -3,10 +3,11 @@ import { useState } from "react";
 import { BsStars } from "react-icons/bs";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import Lock from "./Lock";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const CAGRCalculator = ({ calculator }) => {
+const CAGRCalculator = ({ calculator, isSubscribed }) => {
   const [inputs, setInputs] = useState({
     initialAmount: "",
     finalAmount: "",
@@ -134,114 +135,118 @@ const CAGRCalculator = ({ calculator }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light not-dark:text-white rounded-md mt-10">
-        <form className="space-y-6">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8">
-            <div className="flex flex-col space-y-[30px]">
-              {calculator === "CAGR"
-                ? [
-                    {
-                      label: "Initial Amount*",
-                      name: "initialAmount",
-                      placeholder: "Enter Initial Capital Amount",
-                    },
-                    {
-                      label: "Final Amount*",
-                      name: "finalAmount",
-                      placeholder: "Enter Final Capital Amount",
-                    },
-                    {
-                      label: "Duration*",
-                      name: "duration",
-                      placeholder: "Enter Duration in Years",
-                    },
-                  ].map(({ label, name, placeholder }) => (
-                    <div
-                      key={name}
-                      className="flex flex-col items-start space-y-3"
-                    >
-                      <label
-                        className="text-lg font-abcRepro font-light"
-                        htmlFor={name}
+      <div className=" py-11 px-5 dark:bg-[#00114E] bg-primary-light not-dark:text-white rounded-md mt-10">
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <form className="space-y-6">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+              <div className="flex flex-col space-y-[30px]">
+                {calculator === "CAGR"
+                  ? [
+                      {
+                        label: "Initial Amount*",
+                        name: "initialAmount",
+                        placeholder: "Enter Initial Capital Amount",
+                      },
+                      {
+                        label: "Final Amount*",
+                        name: "finalAmount",
+                        placeholder: "Enter Final Capital Amount",
+                      },
+                      {
+                        label: "Duration*",
+                        name: "duration",
+                        placeholder: "Enter Duration in Years",
+                      },
+                    ].map(({ label, name, placeholder }) => (
+                      <div
+                        key={name}
+                        className="flex flex-col items-start space-y-3"
                       >
-                        {label}
-                      </label>
-                      <input
-                        type="number"
-                        name={name}
-                        value={inputs[name]}
-                        onChange={handleChange}
-                        required
-                        className="pb-3 w-full bg-transparent outline-none border-b border-white"
-                        placeholder={placeholder}
-                      />
-                    </div>
-                  ))
-                : [
-                    {
-                      label: "Initial Amount*",
-                      name: "initialAmount",
-                      placeholder: "Enter Initial Capital Amount",
-                    },
-                    {
-                      label: "CAGR (%)*",
-                      name: "CAGR",
-                      placeholder: "Enter CAGR",
-                    },
-                    {
-                      label: "Duration*",
-                      name: "duration",
-                      placeholder: "Enter Duration in Years",
-                    },
-                  ].map(({ label, name, placeholder }) => (
-                    <div
-                      key={name}
-                      className="flex flex-col items-start space-y-3"
-                    >
-                      <label
-                        className="text-lg font-abcRepro font-light"
-                        htmlFor={name}
+                        <label
+                          className="text-lg font-abcRepro font-light"
+                          htmlFor={name}
+                        >
+                          {label}
+                        </label>
+                        <input
+                          type="number"
+                          name={name}
+                          value={inputs[name]}
+                          onChange={handleChange}
+                          required
+                          className="pb-3 w-full bg-transparent outline-none border-b border-white"
+                          placeholder={placeholder}
+                        />
+                      </div>
+                    ))
+                  : [
+                      {
+                        label: "Initial Amount*",
+                        name: "initialAmount",
+                        placeholder: "Enter Initial Capital Amount",
+                      },
+                      {
+                        label: "CAGR (%)*",
+                        name: "CAGR",
+                        placeholder: "Enter CAGR",
+                      },
+                      {
+                        label: "Duration*",
+                        name: "duration",
+                        placeholder: "Enter Duration in Years",
+                      },
+                    ].map(({ label, name, placeholder }) => (
+                      <div
+                        key={name}
+                        className="flex flex-col items-start space-y-3"
                       >
-                        {label}
-                      </label>
-                      <input
-                        type="number"
-                        name={name}
-                        value={inputs[name]}
-                        onChange={handleChange}
-                        required
-                        className="pb-3 w-full bg-transparent outline-none border-b border-white"
-                        placeholder={placeholder}
-                      />
-                    </div>
-                  ))}
+                        <label
+                          className="text-lg font-abcRepro font-light"
+                          htmlFor={name}
+                        >
+                          {label}
+                        </label>
+                        <input
+                          type="number"
+                          name={name}
+                          value={inputs[name]}
+                          onChange={handleChange}
+                          required
+                          className="pb-3 w-full bg-transparent outline-none border-b border-white"
+                          placeholder={placeholder}
+                        />
+                      </div>
+                    ))}
+              </div>
+              <div>
+                <Doughnut
+                  data={chartData}
+                  options={chartOptions}
+                  plugins={[centerTextPlugin]}
+                />
+              </div>
             </div>
-            <div>
-              <Doughnut
-                data={chartData}
-                options={chartOptions}
-                plugins={[centerTextPlugin]}
-              />
-            </div>
-          </div>
 
-          <div className="flex justify-between items-center gap-10">
-            <button
-              type="button"
-              onClick={handleClear}
-              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
-            >
-              Clear
-            </button>
-            <button
-              type="submit"
-              onClick={handleCalculate}
-              className="bg-primary py-2 rounded-md w-4/5"
-            >
-              Calculate
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-between items-center gap-10">
+              <button
+                type="button"
+                onClick={handleClear}
+                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+              >
+                Clear
+              </button>
+              <button
+                type="submit"
+                onClick={handleCalculate}
+                className="bg-primary py-2 rounded-md w-4/5"
+              >
+                Calculate
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       <div className="not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5">

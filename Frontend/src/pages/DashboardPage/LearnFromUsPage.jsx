@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useRef, useEffect } from "react";
 import { IoTriangle } from "react-icons/io5";
-
+import Lock from "../../Components/Dashboard/Lock";
+import Cookies from "js-cookie";
 const LearnFromUsPage = () => {
   const [activeIndex, setActiveIndex] = useState(null);
   const contentRefs = useRef([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const toggleDetail = (index) => {
     setActiveIndex(activeIndex === index ? null : index);
@@ -52,52 +54,61 @@ const LearnFromUsPage = () => {
     contentRefs.current = contentRefs.current.slice(0, data.length);
   }, [data]);
 
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
+
   return (
     <>
-      <div className="w-full mx-auto not-dark:text-white">
+      <div className="w-full h-full mx-auto not-dark:text-white">
         <h2 className="font-abcRepro font-semibold text-3xl my-10 not-dark:text-black">
           Learn From Us
         </h2>
-        {data.map((data, index) => (
-          <div
-            key={index}
-            className="dark:bg-db-primary bg-primary-light  mb-3 rounded-2xl border border-[#0256f535] "
-          >
-            {/* Question Section */}
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          data.map((data, index) => (
             <div
-              className="py-5 px-4 cursor-pointer flex gap-2 items-center justify-between  "
-              onClick={() => toggleDetail(index)}
+              key={index}
+              className="dark:bg-db-primary bg-primary-light  mb-3 rounded-2xl border border-[#0256f535] "
             >
-              <h3 className="md:text-lg text-base font-light font-abcRepro">
-                {data.title}
-              </h3>
-              {data.desc && (
-                <span>
-                  {activeIndex === index ? (
-                    <IoTriangle className="text-lg font-semibold rotate-180" />
-                  ) : (
-                    <IoTriangle className="text-lg font-semibold" />
-                  )}
-                </span>
-              )}
-            </div>
+              {/* Question Section */}
+              <div
+                className="py-5 px-4 cursor-pointer flex gap-2 items-center justify-between  "
+                onClick={() => toggleDetail(index)}
+              >
+                <h3 className="md:text-lg text-base font-light font-abcRepro">
+                  {data.title}
+                </h3>
+                {data.desc && (
+                  <span>
+                    {activeIndex === index ? (
+                      <IoTriangle className="text-lg font-semibold rotate-180" />
+                    ) : (
+                      <IoTriangle className="text-lg font-semibold" />
+                    )}
+                  </span>
+                )}
+              </div>
 
-            {/* Answer Section */}
-            <div
-              ref={(el) => (contentRefs.current[index] = el)}
-              className={`overflow-hidden transition-[height,opacity] duration-200 ease-linear px-4  `}
-              style={{
-                height:
-                  activeIndex === index
-                    ? `${contentRefs.current[index]?.scrollHeight}px`
-                    : "0px",
-                opacity: activeIndex === index ? 1 : 0,
-              }}
-            >
-              <p className="text-base font-abcRepro py-4">{data.desc}</p>
+              {/* Answer Section */}
+              <div
+                ref={(el) => (contentRefs.current[index] = el)}
+                className={`overflow-hidden transition-[height,opacity] duration-200 ease-linear px-4  `}
+                style={{
+                  height:
+                    activeIndex === index
+                      ? `${contentRefs.current[index]?.scrollHeight}px`
+                      : "0px",
+                  opacity: activeIndex === index ? 1 : 0,
+                }}
+              >
+                <p className="text-base font-abcRepro py-4">{data.desc}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </>
   );

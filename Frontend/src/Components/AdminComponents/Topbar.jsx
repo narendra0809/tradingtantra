@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiLogOut, FiMenu } from "react-icons/fi";
 import { useAdminAuth } from "../../contexts/adminContext/AdminAuthContext";
+import ServerRestartButton from "./ServerRestartButton";
 
 const Topbar = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Topbar = ({ onToggleSidebar }) => {
           >
             Go to Dashboard
           </button>
+          <ServerRestartButton />
         </div>
         {/* Right side - Profile */}
         <div className="flex-shrink-0 ml-2">

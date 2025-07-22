@@ -31,7 +31,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed);
+    setIsSubscribed(Subscribed === "true");
   }, []);
 
   const isOpen = useSelector((state) => state.sidebar.sideBarToggler);
@@ -113,6 +113,7 @@ const Sidebar = () => {
                   label="Option Clock"
                   isOpen={isOpen}
                   path={"/dashboard/option-clock"}
+                  isSubscribed={isSubscribed}
                 />
 
                 <NavItem
@@ -120,12 +121,14 @@ const Sidebar = () => {
                   label="Index Depth"
                   isOpen={isOpen}
                   path={"/dashboard/index-depth"}
+                  isSubscribed={isSubscribed}
                 />
                 <NavItem
                   icon={AiOptionData}
                   label="AI Option Data"
                   isOpen={isOpen}
                   path={"/dashboard/option-data"}
+                  isSubscribed={isSubscribed}
                 />
                 <NavItem
                   icon={FiiDii}
@@ -248,7 +251,7 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
           {isOpen && <span>{label}</span>}
         </span>
 
-        {isSubscribed === "false" && isOpen && (
+        {!isSubscribed && isOpen && (
           <svg
             width="24"
             height="24"

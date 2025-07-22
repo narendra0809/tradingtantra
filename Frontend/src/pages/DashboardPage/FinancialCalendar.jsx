@@ -1,78 +1,17 @@
-//   const eventData = [
-//     {
-//       event: "Dividend",
-//       company: "ASTERDM",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "INDTONER",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "ASTERDM",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "INDTONER",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "ASTERDM",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "INDTONER",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "ASTERDM",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "INDTONER",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "ASTERDM",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//     {
-//       event: "Dividend",
-//       company: "INDTONER",
-//       eventDetail: "Interim Dividend - Rs. - 4,0000",
-//       img: companyLogo,
-//     },
-//   ];
-
 import { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
 import companyLogo from "../../assets/Images/Dashboard/financialCalendar/companyLogo.png";
 import { useSelector } from "react-redux";
 import axios from "axios";
-
+import Lock from "../../Components/Dashboard/Lock";
+import Cookies from "js-cookie";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const FinancialCalendar = () => {
   const [date, setDate] = useState(new Date());
   const today = new Date();
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const theme = useSelector((state) => state.theme.theme);
   const [holidays, setHolidays] = useState([]);
   const eventData = [
@@ -236,6 +175,10 @@ const FinancialCalendar = () => {
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
   }, []);
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
 
   return (
     <>
@@ -243,42 +186,48 @@ const FinancialCalendar = () => {
       <div className="w-full flex items-stretch lg:gap-y-0 gap-y-5 lg:flex-row flex-col my-5">
         {/* Left Section: Calendar */}
         <section className="rounded-lg w-full lg:max-w-md bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mr-0 lg:mr-5">
-          <div className="dark:bg-db-primary bg-primary-light w-full rounded-lg p-2.5 min-h-[400px] flex flex-col">
-            <div className="flex flex-col items-center dark:bg-db-primary bg-primary-light shadow-lg rounded-sm w-full flex-grow">
-              <Calendar
-                onChange={setDate}
-                value={date}
-                locale="en-US"
-                className={`${
-                  theme === "dark" ? "custom-calendar-dark" : "custom-calendar"
-                }`}
-                tileClassName={({ date }) => {
-                  const formattedDate = date.toISOString().split("T")[0];
-                  const day = date.getDay();
-                  const classes = [];
-                  if (date.toDateString() === today.toDateString()) {
-                    classes.push("current-date");
-                  }
-                  if (day === 0) {
-                    classes.push("sunday-tile");
-                  }
-                  if (day === 6) {
-                    classes.push("saturday-tile");
-                  }
-                  if (holidayDates.includes(formattedDate)) {
-                    classes.push("holiday-tile");
-                  }
-                  return classes.join(" ");
-                }}
-              />
-            </div>
-            <div className="grid grid-cols-3 dark:bg-db-secondary bg-primary-light mt-2.5 gap-y-2 p-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#837AFF]"></div>
-                <p className="text-xs not-dark:text-white">Holidays</p>
+          {!isSubscribed ? (
+            <Lock />
+          ) : (
+            <div className="dark:bg-db-primary bg-primary-light w-full rounded-lg p-2.5 min-h-[400px] flex flex-col">
+              <div className="flex flex-col items-center dark:bg-db-primary bg-primary-light shadow-lg rounded-sm w-full flex-grow">
+                <Calendar
+                  onChange={setDate}
+                  value={date}
+                  locale="en-US"
+                  className={`${
+                    theme === "dark"
+                      ? "custom-calendar-dark"
+                      : "custom-calendar"
+                  }`}
+                  tileClassName={({ date }) => {
+                    const formattedDate = date.toISOString().split("T")[0];
+                    const day = date.getDay();
+                    const classes = [];
+                    if (date.toDateString() === today.toDateString()) {
+                      classes.push("current-date");
+                    }
+                    if (day === 0) {
+                      classes.push("sunday-tile");
+                    }
+                    if (day === 6) {
+                      classes.push("saturday-tile");
+                    }
+                    if (holidayDates.includes(formattedDate)) {
+                      classes.push("holiday-tile");
+                    }
+                    return classes.join(" ");
+                  }}
+                />
+              </div>
+              <div className="grid grid-cols-3 dark:bg-db-secondary bg-primary-light mt-2.5 gap-y-2 p-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#837AFF]"></div>
+                  <p className="text-xs not-dark:text-white">Holidays</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </section>
         {/* Right Section: Event List */}
         <section className="rounded-lg w-full bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px">
@@ -287,28 +236,34 @@ const FinancialCalendar = () => {
               Event Date: 10 February, 2025
             </h3>
             <div className="w-full dark:bg-db-primary bg-primary-light h-[340px] overflow-y-auto scrollbar-hidden flex-grow">
-              <div className="flex flex-col gap-y-5 mt-8">
-                {eventData.map((event, index) => (
-                  <div key={index} className="space-y-2">
-                    <p className="text-primary not-dark:text-db-primary-light font-light text-base">
-                      {event.event}
-                    </p>
-                    <div className="w-full dark:bg-db-primary bg-primary-light p-2 rounded-lg flex border border-[#0356F5] justify-between">
-                      <div>
-                        <p className="text-base font-normal">{event.company}</p>
-                        <p className="text-[10px] font-light">
-                          {event.eventDetail}
-                        </p>
+              {!isSubscribed ? (
+                <Lock />
+              ) : (
+                <div className="flex flex-col gap-y-5 mt-8">
+                  {eventData.map((event, index) => (
+                    <div key={index} className="space-y-2">
+                      <p className="text-primary not-dark:text-db-primary-light font-light text-base">
+                        {event.event}
+                      </p>
+                      <div className="w-full dark:bg-db-primary bg-primary-light p-2 rounded-lg flex border border-[#0356F5] justify-between">
+                        <div>
+                          <p className="text-base font-normal">
+                            {event.company}
+                          </p>
+                          <p className="text-[10px] font-light">
+                            {event.eventDetail}
+                          </p>
+                        </div>
+                        <img
+                          src={event.img}
+                          className="w-10 h-10 rounded-full"
+                          alt=""
+                        />
                       </div>
-                      <img
-                        src={event.img}
-                        className="w-10 h-10 rounded-full"
-                        alt=""
-                      />
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -322,44 +277,57 @@ const FinancialCalendar = () => {
             </h2>
           </div>
           <div className="dark:bg-db-secondary bg-primary-light rounded-md overflow-x-auto">
-            <table className="responsive-table min-w-full">
-              <thead className="hidden md:table-header-group">
-                <tr>
-                  <th scope="col" className="text-sm font-semibold text-white">
-                    Date
-                  </th>
-                  <th scope="col" className="text-sm font-semibold text-white">
-                    Holiday Type
-                  </th>
-                  <th scope="col" className="text-sm font-semibold text-white">
-                    Description
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {holidays.length === 0 ? (
+            {!isSubscribed ? (
+              <Lock />
+            ) : (
+              <table className="responsive-table min-w-full">
+                <thead className="hidden md:table-header-group">
                   <tr>
-                    <td colSpan="3" className="no-holidays">
-                      No holidays available
-                    </td>
+                    <th
+                      scope="col"
+                      className="text-sm font-semibold text-white"
+                    >
+                      Date
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-sm font-semibold text-white"
+                    >
+                      Holiday Type
+                    </th>
+                    <th
+                      scope="col"
+                      className="text-sm font-semibold text-white"
+                    >
+                      Description
+                    </th>
                   </tr>
-                ) : (
-                  holidays.map((entry, index) => (
-                    <tr key={index}>
-                      <td data-label="Date" className="text-sm">
-                        {new Date(entry.date).toLocaleDateString()}
-                      </td>
-                      <td data-label="Holiday Type" className="text-sm">
-                        {entry.holiday_type}
-                      </td>
-                      <td data-label="Description" className="text-sm">
-                        {entry.description}
+                </thead>
+                <tbody>
+                  {holidays.length === 0 ? (
+                    <tr>
+                      <td colSpan="3" className="no-holidays">
+                        No holidays available
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    holidays.map((entry, index) => (
+                      <tr key={index}>
+                        <td data-label="Date" className="text-sm">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td data-label="Holiday Type" className="text-sm">
+                          {entry.holiday_type}
+                        </td>
+                        <td data-label="Description" className="text-sm">
+                          {entry.description}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </section>

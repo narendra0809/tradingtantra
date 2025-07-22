@@ -1,10 +1,12 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import Lock from "./Lock";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const EMICalculator = () => {
+const EMICalculator = ({ isSubscribed }) => {
   const [loanAmount, setLoanAmount] = useState(500);
   const [interest, setInterest] = useState(1);
   const [duration, setDuration] = useState(1);
@@ -83,117 +85,121 @@ const EMICalculator = () => {
   return (
     <div>
       <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
-        <form className="space-y-6">
-          <div className="grid grid-cols-2 gap-y-8">
-            <div className="flex flex-col space-y-[50px]">
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light  ">
-                    Loan Amount*
-                  </label>
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <form className="space-y-6">
+            <div className="grid grid-cols-2 gap-y-8">
+              <div className="flex flex-col space-y-[50px]">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light  ">
+                      Loan Amount*
+                    </label>
+                    <input
+                      type="number"
+                      value={loanAmount}
+                      onChange={(e) => setLoanAmount(Number(e.target.value))}
+                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light "
+                      min="100"
+                      max="10000"
+                      step="100"
+                    />
+                  </div>
                   <input
-                    type="number"
-                    value={loanAmount}
-                    onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light "
+                    type="range"
                     min="100"
                     max="10000"
                     step="100"
+                    value={loanAmount}
+                    onChange={(e) => setLoanAmount(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
-                <input
-                  type="range"
-                  min="100"
-                  max="10000"
-                  step="100"
-                  value={loanAmount}
-                  onChange={(e) => setLoanAmount(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
-                />
-              </div>
 
-              {/* Expected Return Slider */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light ">
-                    Rate Of Interest (p.a.) (%)*
-                  </label>
+                {/* Expected Return Slider */}
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light ">
+                      Rate Of Interest (p.a.) (%)*
+                    </label>
+                    <input
+                      type="number"
+                      value={interest}
+                      onChange={(e) => setInterest(Number(e.target.value))}
+                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
+                      min="1"
+                      max="40"
+                      step="0.1"
+                    />
+                  </div>
                   <input
-                    type="number"
-                    value={interest}
-                    onChange={(e) => setInterest(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
+                    type="range"
                     min="1"
                     max="40"
                     step="0.1"
+                    value={interest}
+                    onChange={(e) => setInterest(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="40"
-                  step="0.1"
-                  value={interest}
-                  onChange={(e) => setInterest(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
-                />
-              </div>
 
-              {/* Duration Slider */}
-              <div className="flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-lg font-abcRepro font-light ">
-                    Loan Tenure (Years) *
-                  </label>
+                {/* Duration Slider */}
+                <div className="flex flex-col space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-lg font-abcRepro font-light ">
+                      Loan Tenure (Years) *
+                    </label>
+                    <input
+                      type="number"
+                      value={duration}
+                      onChange={(e) => setDuration(Number(e.target.value))}
+                      className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
+                      min="1"
+                      max="30"
+                      step="1"
+                    />
+                  </div>
                   <input
-                    type="number"
-                    value={duration}
-                    onChange={(e) => setDuration(Number(e.target.value))}
-                    className="text-xs p-2 rounded-sm dark:bg-[#00114E] bg-primary-light"
+                    type="range"
                     min="1"
                     max="30"
                     step="1"
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value))}
+                    className="w-full h-1 cursor-pointer"
                   />
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="30"
-                  step="1"
-                  value={duration}
-                  onChange={(e) => setDuration(Number(e.target.value))}
-                  className="w-full h-1 cursor-pointer"
+              </div>
+
+              <div className="w-full">
+                {" "}
+                <Doughnut
+                  data={chartData}
+                  options={chartOptions}
+                  width={"324px"}
+                  height={"324px"}
                 />
               </div>
             </div>
 
-            <div className="w-full">
-              {" "}
-              <Doughnut
-                data={chartData}
-                options={chartOptions}
-                width={"324px"}
-                height={"324px"}
-              />
+            {/* Buttons */}
+            <div className="flex justify-between items-center gap-10 mt-[82px]">
+              <button
+                onClick={handleClear}
+                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+              >
+                Clear
+              </button>
+              <button
+                onClick={handleCalculate}
+                className="bg-primary py-2 rounded-md w-4/5"
+              >
+                Calculate
+              </button>
             </div>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-between items-center gap-10 mt-[82px]">
-            <button
-              onClick={handleClear}
-              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
-            >
-              Clear
-            </button>
-            <button
-              onClick={handleCalculate}
-              className="bg-primary py-2 rounded-md w-4/5"
-            >
-              Calculate
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
       <div className=" not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
         <div className="flex justify-between items-center">

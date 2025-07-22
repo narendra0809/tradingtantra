@@ -14,11 +14,12 @@ import feedBack from "../../assets/Images/Dashboard/HeaderImg/feedBack.svg";
 
 import darkThemeIcon from "../../assets/Images/Dashboard/HeaderImg/darkThemeIcon.png"; // Placeholder, replace with actual path
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png"; // Placeholder, replace with actual path
-
+import Cookies from "js-cookie";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Header = () => {
   const [hovered, setHovered] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState("dark"); // Uncommented
   const [profileDropDown, setProfileDropDown] = useState(false);
   const navigate = useNavigate();
@@ -40,6 +41,10 @@ const Header = () => {
     }
   };
 
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
   useEffect(() => {
     if (isDarkMode === "dark") {
       document.documentElement.classList.add("dark");
@@ -99,7 +104,16 @@ const Header = () => {
           onClick={() => dispatch(toggleSideBar(!isOpen))}
         />
 
-        <img src={logo} alt="logo" className="w-25 h-20 sm:hidden block" />
+        {isSubscribed ? (
+          <img src={logo} alt="logo" className="w-25 h-20 sm:hidden block" />
+        ) : (
+          <button
+            onClick={() => navigate("/dashboard/plan")}
+            className="ml-2 neon-button p-3 rounded-lg"
+          >
+            Buy Now
+          </button>
+        )}
       </div>
 
       <div className="w-1/2 flex justify-end gap-5 items-center">

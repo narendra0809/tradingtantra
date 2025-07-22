@@ -20,6 +20,7 @@ import updatesRoutes from "./src/routes/admin_routes/adminUpdates.route.js";
 import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
 import adminImageRoutes from "./src/routes/admin_routes/adminImages.route.js";
 import adminKeysRoutes from "./src/routes/admin_routes/adminKeys.route.js";
+import adminServerRoutes from "./src/routes/admin_routes/adminServer.route.js";
 import adminStrategyRoutes from "./src/routes/admin_routes/adminStrategy.route.js";
 import adminTickerRoutes from "./src/routes/admin_routes/adminTicker.route.js";
 import adminDetailsRoutes from "./src/routes/admin_routes/adminDetails.route.js";
@@ -98,9 +99,9 @@ app.use(
   adminStrategyRoutes,
   adminKeysRoutes,
   adminImageRoutes,
-  adminTickerRoutes
+  adminTickerRoutes,
+  adminServerRoutes
 );
-
 
 app.get("/api/option-chain/trigger", async (req, res) => {
   try {

@@ -179,7 +179,7 @@ const PreviousVolume = React.lazy(async () => {
 
 //   useEffect(() => {
 //     const Subscribed = Cookies.get("isSubscribed");
-//     setIsSubscribed(Subscribed);
+//     setIsSubscribed(Subscribed==="true");
 //     setLoading(true);
 
 //     if (!token) {
@@ -458,7 +458,7 @@ const MarketDepthPage = () => {
 
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed);
+    setIsSubscribed(Subscribed === "true");
 
     if (!token) {
       console.error("No token found in localStorage");
@@ -480,7 +480,7 @@ const MarketDepthPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isSubscribed === "false") return;
+    if (isSubscribed) return;
 
     let socketInstance;
     let dataPollInterval;

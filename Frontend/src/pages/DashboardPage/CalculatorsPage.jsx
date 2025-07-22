@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CAGRImg from "../../assets/Images/Dashboard/calculators/CRGRImg.png";
 import EMIImg from "../../assets/Images/Dashboard/calculators/EMIImg.png";
 import OptionImg from "../../assets/Images/Dashboard/calculators/OptionImg.png";
@@ -12,8 +12,11 @@ import CAGRCalculator from "../../Components/Dashboard/CAGRCalculator";
 import SIPCalculator from "../../Components/Dashboard/SIPCalculator";
 import EMICalculator from "../../Components/Dashboard/EMICalculator";
 import OptionCalculator from "../../Components/Dashboard/OptionCalculator";
+import Lock from "../../Components/Dashboard/Lock";
+import Cookies from "js-cookie";
 const CalculatorsPage = () => {
   const [calculator, setCalculator] = useState("Equity");
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [selectedCalculator, setSelectedCalculator] = useState("Risk");
   const [riskLevel, setRiskLevel] = useState(
     localStorage.getItem("riskLevel") || "Low"
@@ -42,11 +45,15 @@ const CalculatorsPage = () => {
   };
 
   const calculators = ["Risk", "CAGR", "SIP", "EMI", "Option"];
-
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
   return (
     <>
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-10 mt-10  ">
         {/* Left Section */}
+
         <div className="lg:col-span-2 dark:bg-db-primary bg-primary-light border border-[#0256f550] p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between items-center">
@@ -168,67 +175,97 @@ const CalculatorsPage = () => {
 
           {/* Calculator Form */}
           {selectedCalculator === "Risk" ? (
-            <RiskCalculator calculator={calculator} />
+            <RiskCalculator
+              calculator={calculator}
+              isSubscribed={isSubscribed}
+            />
           ) : selectedCalculator === "CAGR" ? (
-            <CAGRCalculator calculator={calculator} />
+            <CAGRCalculator
+              calculator={calculator}
+              isSubscribed={isSubscribed}
+            />
           ) : selectedCalculator === "SIP" ? (
-            <SIPCalculator calculator={calculator} />
+            <SIPCalculator
+              calculator={calculator}
+              isSubscribed={isSubscribed}
+            />
           ) : selectedCalculator === "EMI" ? (
-            <EMICalculator />
+            <EMICalculator isSubscribed={isSubscribed} />
           ) : (
-            selectedCalculator === "Option" && <OptionCalculator />
+            selectedCalculator === "Option" && (
+              <OptionCalculator isSubscribed={isSubscribed} />
+            )
           )}
         </div>
 
         {/* Right Section  */}
         <div className="not-dark:text-white flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light border border-[#0256f550]  space-y-[45px]">
           {selectedCalculator === "Risk" ? (
-            <RiskCalculatorRight />
+            <RiskCalculatorRight isSubscribed={isSubscribed} />
           ) : selectedCalculator === "CAGR" ? (
-            <>
-              <h1 className="text-2xl font-medium text-wrap">
-                CAGR / Reverse CAGR Calculator
-              </h1>
-              <img src={CAGRImg} />
-              <p className="text-2xl font-normal text-wrap">
-                Compound annual growth rate (CAGR) is the mean annual growth
-                rate over a specified time.
-              </p>
-              <p className="text-wrap text-lg font-light">
-                CAGR tells you the average rate of return you have earned on
-                your investments every year. CAGR is very useful for investors
-                because it is an accurate measure of investment growth (or fall)
-                over time.
-              </p>
-            </>
+            !isSubscribed ? (
+              <Lock />
+            ) : (
+              <>
+                <h1 className="text-2xl font-medium text-wrap">
+                  CAGR / Reverse CAGR Calculator
+                </h1>
+                <img src={CAGRImg} />
+                <p className="text-2xl font-normal text-wrap">
+                  Compound annual growth rate (CAGR) is the mean annual growth
+                  rate over a specified time.
+                </p>
+                <p className="text-wrap text-lg font-light">
+                  CAGR tells you the average rate of return you have earned on
+                  your investments every year. CAGR is very useful for investors
+                  because it is an accurate measure of investment growth (or
+                  fall) over time.
+                </p>
+              </>
+            )
           ) : selectedCalculator === "SIP" ? (
-            <>
-              <h1 className="text-2xl font-medium text-wrap">SIP Calculator</h1>
-              <img src={SIPImg} />
-              <p className="text-2xl font-normal text-wrap">
-                Calculating risk before enter a trade is important to ensure
-                traders capital safety.
-              </p>
-              <p className="text-wrap text-lg font-light">
-                To use this risk calculator, enter your account capital, and the
-                percentage of your account you wish to risk. Our calculator will
-                suggest position sizes based on the information you provide.
-              </p>
-            </>
+            !isSubscribed ? (
+              <Lock />
+            ) : (
+              <>
+                <h1 className="text-2xl font-medium text-wrap">
+                  SIP Calculator
+                </h1>
+                <img src={SIPImg} />
+                <p className="text-2xl font-normal text-wrap">
+                  Calculating risk before enter a trade is important to ensure
+                  traders capital safety.
+                </p>
+                <p className="text-wrap text-lg font-light">
+                  To use this risk calculator, enter your account capital, and
+                  the percentage of your account you wish to risk. Our
+                  calculator will suggest position sizes based on the
+                  information you provide.
+                </p>
+              </>
+            )
           ) : selectedCalculator === "EMI" ? (
-            <>
-              <h1 className="text-2xl font-medium text-wrap">EMI Calculator</h1>
-              <img src={EMIImg} />
-              <p className="text-2xl font-normal text-wrap">
-                Calculate your monthly Installment for your Loan with This EMI
-                calculator.
-              </p>
-              <p className="text-wrap text-lg font-light">
-                To use this Calculator, Enter the Loan Amount, The Loan tenure
-                and the rate of interest. After filling the below fields you
-                will get the amount you will have to pay per month.
-              </p>
-            </>
+            !isSubscribed ? (
+              <Lock />
+            ) : (
+              <>
+                <h1 className="text-2xl font-medium text-wrap">
+                  EMI Calculator
+                </h1>
+                <img src={EMIImg} />
+                <p className="text-2xl font-normal text-wrap">
+                  Calculate your monthly Installment for your Loan with This EMI
+                  calculator.
+                </p>
+                <p className="text-wrap text-lg font-light">
+                  To use this Calculator, Enter the Loan Amount, The Loan tenure
+                  and the rate of interest. After filling the below fields you
+                  will get the amount you will have to pay per month.
+                </p>
+              </>
+            )
+          ) : !isSubscribed ? (
+            <Lock />
           ) : (
             <>
               <h1 className="text-2xl font-medium text-wrap">

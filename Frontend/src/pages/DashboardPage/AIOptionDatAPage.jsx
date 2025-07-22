@@ -11,12 +11,14 @@ import useFetchData from "../../utils/useFetchData";
 import { useEffect, useState } from "react";
 import { lotSize, lotSize1 } from "../../constants/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import {
   convertTo12HourFormat,
   generateTimeRanges,
   getLatestTradingDay,
   parseTime,
 } from "../../utils/utils";
+import Lock from "../../Components/Dashboard/Lock";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const contributeIndex = {
@@ -42,6 +44,7 @@ const meterData = [
 const AIOptionDataPage = () => {
   const { fetchData } = useFetchData();
   const [volumes, setVolumes] = useState([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [allIndexPts, setAllIndexPts] = useState({
     "NIFTY 50": { pts: 0, per: 0 },
     BANKNIFTY: { pts: 0, per: 0 },
@@ -248,6 +251,10 @@ const AIOptionDataPage = () => {
     }
   }, [selectedIndex, selectedExpiry]);
 
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
   const filterDataByIndex = () => {
     const uniqueDates = [
       ...new Set(
@@ -367,7 +374,14 @@ const AIOptionDataPage = () => {
       const { TotalOiChangeCE, TotalOiChangePE } =
         getVolumeByIndexAndExpiry(range);
       if (isNaN(TotalOiChangeCE) || isNaN(TotalOiChangePE)) return 0;
-      return Math.abs(Number(TotalOiChangeCE) - Number(TotalOiChangePE));
+      const change = Math.abs(
+        Number(TotalOiChangeCE) - Number(TotalOiChangePE)
+      );
+      const isGreen = TotalOiChangePE > TotalOiChangeCE;
+      return {
+        change,
+        isGreen,
+      };
     });
     setVolumes(volumes);
   };
@@ -615,7 +629,9 @@ const AIOptionDataPage = () => {
               </span>
             </div>
             <div className="mt-8 h-[350px] lg:h-[88%]">
-              {noDataMessage ? (
+              {!isSubscribed ? (
+                <Lock />
+              ) : noDataMessage ? (
                 <p className="text-center text-white">{noDataMessage}</p>
               ) : (
                 <CandleChart candles={currentCandles} volumes={volumes} />
@@ -627,9 +643,17 @@ const AIOptionDataPage = () => {
         <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
           <div className="h-full dark:bg-db-primary bg-primary-light rounded-lg">
             <div className="flex flex-col items-center h-[400px] gap-5">
-              {meterData.map((item, index) => (
-                <GaugeMeter key={index} title={item.title} totalOI={totalOI} />
-              ))}
+              {!isSubscribed ? (
+                <Lock />
+              ) : (
+                meterData.map((item, index) => (
+                  <GaugeMeter
+                    key={index}
+                    title={item.title}
+                    totalOI={totalOI}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -640,6 +664,7 @@ const AIOptionDataPage = () => {
           <OptionDataDonutChart
             contributor={contribution}
             allIndexPts={allIndexPts}
+            isSubscribed={isSubscribed}
           />
         </div>
       </section>

@@ -9,11 +9,21 @@ import {
 } from "../../hooks/fetchStocksData";
 
 // Lazy load components
-const FiveDayBO = React.lazy(() => import("../../Components/Dashboard/Cards/SwingTrad/fiveDayBO"));
-const TenDayBO = React.lazy(() => import("../../Components/Dashboard/Cards/SwingTrad/tenDayBO"));
-const AICandleReversal = React.lazy(() => import("../../Components/Dashboard/Cards/SwingTrad/AICandleReversal"));
-const AIChannelBreakers = React.lazy(() => import("../../Components/Dashboard/Cards/SwingTrad/AIChannelBreakers"));
-const AIContractions = React.lazy(() => import("../../Components/Dashboard/Cards/SwingTrad/AIContraction"));
+const FiveDayBO = React.lazy(() =>
+  import("../../Components/Dashboard/Cards/SwingTrad/fiveDayBO")
+);
+const TenDayBO = React.lazy(() =>
+  import("../../Components/Dashboard/Cards/SwingTrad/tenDayBO")
+);
+const AICandleReversal = React.lazy(() =>
+  import("../../Components/Dashboard/Cards/SwingTrad/AICandleReversal")
+);
+const AIChannelBreakers = React.lazy(() =>
+  import("../../Components/Dashboard/Cards/SwingTrad/AIChannelBreakers")
+);
+const AIContractions = React.lazy(() =>
+  import("../../Components/Dashboard/Cards/SwingTrad/AIContraction")
+);
 
 const AiSwingTradesPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -126,8 +136,6 @@ const AiSwingTradesPage = () => {
           </Suspense>
         </div>
       </section>
-
-      
     </>
   );
 };

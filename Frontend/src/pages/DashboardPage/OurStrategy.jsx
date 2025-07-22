@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 // import card_1 from "../../assets/Images/Dashboard/ourStrategy/card_1.png";
 // import card_2 from "../../assets/Images/Dashboard/ourStrategy/card_2.png";
@@ -11,7 +12,8 @@ import { BsFillPlayCircleFill } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "../AdminPages/Home";
-
+import Lock from "../../Components/Dashboard/Lock";
+import Cookies from "js-cookie";
 const OurStrategy = () => {
   // const importantVideosData = [
   //   {
@@ -72,6 +74,7 @@ const OurStrategy = () => {
   //   { title: "Strategy PB", url: "" },
   // ];
   const [videos, setVideos] = useState([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   const fetchVideos = async () => {
     try {
@@ -88,12 +91,21 @@ const OurStrategy = () => {
   useEffect(() => {
     fetchVideos();
   }, []);
+
+  useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Our Strategy</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {videos.map((strategyVideo, index) => (
-          <StrategyVideoCard key={index} strategyVideo={strategyVideo} />
+          <StrategyVideoCard
+            key={index}
+            strategyVideo={strategyVideo}
+            isSubscribed={isSubscribed}
+          />
         ))}
       </div>
     </div>
@@ -130,45 +142,49 @@ const OurStrategy = () => {
 //   );
 // };
 
-const StrategyVideoCard = ({ strategyVideo }) => {
+const StrategyVideoCard = ({ strategyVideo, isSubscribed }) => {
   return (
     <div className="w-[75%] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-lg not-dark:text-white">
-      <div className="bg-primary-light dark:bg-db-primary rounded-lg p-4 h-full flex flex-col">
-        <div className="flex-grow dark:bg-[#02000E] bg-primary-light rounded-lg flex items-center justify-center mb-4">
-          <div className="relative text-center p-4">
-            <p
-              className="uppercase text-[20px] sm:text-[24px] md:text-[30px] lg:text-[40px] xl:text-[50px] text-[#ED9B2F] font-bold"
-              style={{
-                textShadow:
-                  "rgb(24 9 255) 0px 0px 20px, rgb(24 9 255) 0px 0px 20px",
-              }}
-            >
-              <img
-                width={300}
-                height={300}
-                src={strategyVideo.thumbnailUrl}
-                alt="img"
-              />
+      {!isSubscribed ? (
+        <Lock />
+      ) : (
+        <div className="bg-primary-light dark:bg-db-primary rounded-lg p-4 h-full flex flex-col">
+          <div className="flex-grow dark:bg-[#02000E] bg-primary-light rounded-lg flex items-center justify-center mb-4">
+            <div className="relative text-center p-4">
+              <p
+                className="uppercase text-[20px] sm:text-[24px] md:text-[30px] lg:text-[40px] xl:text-[50px] text-[#ED9B2F] font-bold"
+                style={{
+                  textShadow:
+                    "rgb(24 9 255) 0px 0px 20px, rgb(24 9 255) 0px 0px 20px",
+                }}
+              >
+                <img
+                  width={300}
+                  height={300}
+                  src={strategyVideo.thumbnailUrl}
+                  alt="img"
+                />
+              </p>
+              <BsFillPlayCircleFill className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#0457F5] text-4xl" />
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xl font-medium mb-4">{strategyVideo.title}</p>
+            <p className="text-lg font-medium mb-4">
+              {strategyVideo.description}
             </p>
-            <BsFillPlayCircleFill className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-[#0457F5] text-4xl" />
+            <a
+              href={strategyVideo.videoUrl}
+              target="_blank"
+              className="border cursor-pointer flex items-center justify-center gap-2 border-[#0659F6] py-2 rounded-md font-medium w-full"
+            >
+              Watch Video
+              <GoArrowRight />
+            </a>
           </div>
         </div>
-
-        <div>
-          <p className="text-xl font-medium mb-4">{strategyVideo.title}</p>
-          <p className="text-lg font-medium mb-4">
-            {strategyVideo.description}
-          </p>
-          <a
-            href={strategyVideo.videoUrl}
-            target="_blank"
-            className="border cursor-pointer flex items-center justify-center gap-2 border-[#0659F6] py-2 rounded-md font-medium w-full"
-          >
-            Watch Video
-            <GoArrowRight />
-          </a>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -94,7 +94,7 @@ const AiSectorDepthPage = () => {
 
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed);
+    setIsSubscribed(Subscribed === "true");
 
     const marketHoursCheckInterval = setInterval(() => {
       const currentlyMarketHours = checkMarketHours();
@@ -109,7 +109,7 @@ const AiSectorDepthPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isSubscribed === "false") return;
+    if (isSubscribed) return;
 
     let socketInstance;
     let apiPollInterval;
@@ -160,7 +160,7 @@ const AiSectorDepthPage = () => {
             </span>
           </div>
 
-          {isSubscribed === "false" ? (
+          {!isSubscribed ? (
             <div className="w-full h-[300px]">
               <Lock />
             </div>
@@ -197,7 +197,7 @@ const AiSectorDepthPage = () => {
             </span>
           </div>
           <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
-            {isSubscribed === "false" ? (
+            {!isSubscribed ? (
               <div className="w-full h-[300px]">
                 <Lock />
               </div>
@@ -221,24 +221,24 @@ const AiSectorDepthPage = () => {
 
       {/* shares card */}
       <section className="mt-8">
-        {isSubscribed === "false" ||
-          (!loading && (
-            <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-              <>
-                {Object.entries(sectorWiseData)
-                  .filter(([sector]) => sector !== "Uncategorized")
-                  .map(([sector, values], index) => (
-                    <StockCard
-                      key={index}
-                      title={sector}
-                      data={values}
-                      loading={loading}
-                      error={false}
-                    />
-                  ))}
-              </>
-            </div>
-          ))}
+        {!loading && (
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
+            <>
+              {Object.entries(sectorWiseData)
+                .filter(([sector]) => sector !== "Uncategorized")
+                .map(([sector, values], index) => (
+                  <StockCard
+                    key={index}
+                    title={sector}
+                    data={values}
+                    loading={loading}
+                    error={false}
+                    isSubscribed={isSubscribed}
+                  />
+                ))}
+            </>
+          </div>
+        )}
       </section>
     </>
   );

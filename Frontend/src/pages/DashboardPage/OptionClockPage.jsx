@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // /* eslint-disable react-hooks/exhaustive-deps */
 // import { GoDotFill } from "react-icons/go";
 // import TimeRangeSlider from "../../Components/Dashboard/TimeRangeSlider";
@@ -91,7 +92,7 @@
 //   useEffect(() => {
 //     const checkSubscription = () => {
 //       const Subscribed = Cookies.get("isSubscribed") === "true";
-//       setIsSubscribed(Subscribed);
+//       setIsSubscribed(Subscribed==="true");
 //     };
 
 //     checkSubscription();
@@ -340,7 +341,7 @@
 //                 </div>
 
 //                 <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
-//                   {isSubscribed ? (
+//                   {!isSubscribed  ? (
 //                     <OiClockChart data={currData} />
 //                   ) : (
 //                     <div className="w-full h-[500px]">
@@ -359,7 +360,7 @@
 //                         <FcCandleSticks />
 //                       </span>
 //                     </div>
-//                     {isSubscribed ? (
+//                     {!isSubscribed  ? (
 //                       <OiClockChartTwo data={totalOiChanges} />
 //                     ) : (
 //                       <div className="w-full h-[500px]">
@@ -386,7 +387,7 @@
 //                         <p>Bears Total OI</p>
 //                       </div>
 //                     </div>
-//                     {isSubscribed ? (
+//                     {!isSubscribed  ? (
 //                       <OiClockChartThree
 //                         data={totalOi}
 //                         selectedIndex={selectedIndex}
@@ -504,8 +505,8 @@ const OptionClockPage = () => {
 
   useEffect(() => {
     const checkSubscription = () => {
-      const Subscribed = Cookies.get("isSubscribed") === "true";
-      setIsSubscribed(Subscribed);
+      const Subscribed = Cookies.get("isSubscribed");
+      setIsSubscribed(Subscribed === "true");
     };
 
     checkSubscription();
@@ -768,12 +769,7 @@ const OptionClockPage = () => {
       {/* oi clock charts section*/}
       <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
         <div className="dark:bg-db-primary bg-primary-light rounded-lg lg:p-3 md:p-3">
-          {chartLoading ? (
-            <div className="flex justify-center items-center h-64">
-              {/* <LoadingSpinner /> */}
-              <p className="ml-4">Loading chart data...</p>
-            </div>
-          ) : (
+          {
             <>
               <div className="dark:bg-db-primary bg-primary-light ">
                 <div className="flex items-center gap-2">
@@ -844,7 +840,7 @@ const OptionClockPage = () => {
                 </div>
               </div>
             </>
-          )}
+          }
         </div>
       </section>
     </>

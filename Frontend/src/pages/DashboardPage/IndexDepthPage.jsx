@@ -5,12 +5,15 @@ import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
 import indexImage from "../../assets/Images/index-line.png";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import Lock from "../../Components/Dashboard/Lock";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const IndexDepthPage = () => {
   const [selectedIndex, setSelectedIndex] = useState("NIFTY 50");
   const [loading, setLoading] = useState(true);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [allIndexPts, setAllIndexPts] = useState({
     "NIFTY 50": {
       pts: 0,
@@ -95,6 +98,11 @@ const IndexDepthPage = () => {
   };
 
   useEffect(() => {
+    const Subscribed = Cookies.get("isSubscribed");
+    setIsSubscribed(Subscribed === "true");
+  }, []);
+
+  useEffect(() => {
     const fetchIndexPTS = async () => {
       await fetchAllIndexPts();
     };
@@ -163,7 +171,9 @@ const IndexDepthPage = () => {
           </select>
         </div>
       </div>
-      {loading ? (
+      {!isSubscribed ? (
+        <Lock />
+      ) : loading ? (
         <div className="flex justify-center items-center h-screen">
           <p className="ml-4 text-xl">Loading chart...</p>
         </div>
@@ -238,6 +248,7 @@ const IndexDepthPage = () => {
               <OptionDataDonutChart
                 contributor={contribution}
                 allIndexPts={allIndexPts}
+                isSubscribed={isSubscribed}
               />
             </div>
           </div>

@@ -1,6 +1,8 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
+import Lock from "./Lock";
 
-const OptionCalculator = () => {
+const OptionCalculator = ({ isSubscribed }) => {
   const [tradingCapital, setTradingCapital] = useState("");
   const [riskPerTrade, setRiskPerTrade] = useState("");
   const [stoploss, setStoploss] = useState("");
@@ -35,71 +37,78 @@ const OptionCalculator = () => {
   return (
     <div>
       <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
-        <form className="space-y-6" onSubmit={calculateQuantity}>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8">
-            <div className="flex flex-col space-y-3">
-              <label className="text-lg font-light">Index</label>
-              <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
-                <option>Nifty</option>
-                <option>Bank Nifty</option>
-                <option>Sensex</option>
-              </select>
-            </div>
-            <div className="flex flex-col space-y-3">
-              <label className="text-lg font-light">Trading Capital</label>
-              <input
-                type="number"
-                value={tradingCapital}
-                onChange={(e) => setTradingCapital(e.target.value)}
-                placeholder="Enter Trading Capital"
-                className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
-              />
-            </div>
-            {[
-              {
-                label: "Risk Per Trade %",
-                state: riskPerTrade,
-                setter: setRiskPerTrade,
-              },
-              {
-                label: "Stoploss Per Trade (Points)",
-                state: stoploss,
-                setter: setStoploss,
-              },
-              { label: "Price", state: price, setter: setPrice },
-            ].map(({ label, state, setter }, index) => (
-              <div key={index} className="flex flex-col space-y-3">
-                <label className="text-lg font-light">{label}</label>
+        {!isSubscribed ? (
+          <Lock />
+        ) : (
+          <form className="space-y-6" onSubmit={calculateQuantity}>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-8">
+              <div className="flex flex-col space-y-3">
+                <label className="text-lg font-light">Index</label>
+                <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
+                  <option>Nifty</option>
+                  <option>Bank Nifty</option>
+                  <option>Sensex</option>
+                </select>
+              </div>
+              <div className="flex flex-col space-y-3">
+                <label className="text-lg font-light">Trading Capital</label>
                 <input
                   type="number"
-                  value={state}
-                  onChange={(e) => setter(e.target.value)}
-                  placeholder={`Enter ${label}`}
+                  value={tradingCapital}
+                  onChange={(e) => setTradingCapital(e.target.value)}
+                  placeholder="Enter Trading Capital"
                   className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
                 />
               </div>
-            ))}
-            <div className="flex flex-col space-y-3">
-              <label className="text-lg font-light">Strike Condition</label>
-              <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
-                <option>Less Than</option>
-                <option>Greater Than</option>
-              </select>
+              {[
+                {
+                  label: "Risk Per Trade %",
+                  state: riskPerTrade,
+                  setter: setRiskPerTrade,
+                },
+                {
+                  label: "Stoploss Per Trade (Points)",
+                  state: stoploss,
+                  setter: setStoploss,
+                },
+                { label: "Price", state: price, setter: setPrice },
+              ].map(({ label, state, setter }, index) => (
+                <div key={index} className="flex flex-col space-y-3">
+                  <label className="text-lg font-light">{label}</label>
+                  <input
+                    type="number"
+                    value={state}
+                    onChange={(e) => setter(e.target.value)}
+                    placeholder={`Enter ${label}`}
+                    className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
+                  />
+                </div>
+              ))}
+              <div className="flex flex-col space-y-3">
+                <label className="text-lg font-light">Strike Condition</label>
+                <select className="pb-3 w-full bg-transparent not-dark:bg-primary-light outline-none border-b dark:border-white border-black">
+                  <option>Less Than</option>
+                  <option>Greater Than</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div className="flex justify-between items-center gap-10">
-            <button
-              type="button"
-              onClick={clearFields}
-              className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
-            >
-              Clear
-            </button>
-            <button type="submit" className="bg-primary py-2 rounded-md w-4/5">
-              Calculate
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-between items-center gap-10">
+              <button
+                type="button"
+                onClick={clearFields}
+                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+              >
+                Clear
+              </button>
+              <button
+                type="submit"
+                className="bg-primary py-2 rounded-md w-4/5"
+              >
+                Calculate
+              </button>
+            </div>
+          </form>
+        )}
       </div>
       <div className="not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
         <h4 className="text-3xl font-light">Result:</h4>

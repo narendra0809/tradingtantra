@@ -10,7 +10,7 @@ import Lock from "../Lock";
 const HighPowerStock = ({
   data = [],
   loading = false,
-  isSubscribed = "false",
+  isSubscribed = false,
   error = null,
 }) => {
   const [sortedData, setSortedData] = useState([]);
@@ -92,7 +92,7 @@ const HighPowerStock = ({
           <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
-              {isSubscribed === "false" ? (
+              {!isSubscribed ? (
                 <Lock />
               ) : (
                 <table className="w-full">

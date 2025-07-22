@@ -43,8 +43,8 @@ const MyPlanPage = () => {
 
   useEffect(() => {
     if (user?.userId) {
-      const cookieSubscribed = Boolean(Cookies.get("isSubscribed"));
-      setIsSubscribed(cookieSubscribed);
+      const cookieSubscribed = Cookies.get("isSubscribed");
+      setIsSubscribed(cookieSubscribed === "true");
       fetchUserSubDetails();
     } else {
       setIsSubscribed(false);
@@ -57,7 +57,7 @@ const MyPlanPage = () => {
         <ProfileHeader />
       </div>
 
-      <h3 className="text-xl text-blue-400 text-center font-semibold px-6 py-2">
+      <h3 className="text-2xl text-blue-400 text-center font-semibold px-6 py-2">
         {!showRenewModal && isSubscribed
           ? "My Plan"
           : !showRenewModal && "Not Subscribed Yet? Buy Subscription Now"}

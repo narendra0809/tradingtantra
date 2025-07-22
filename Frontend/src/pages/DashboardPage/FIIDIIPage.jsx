@@ -5,6 +5,7 @@ import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Lock from "../../Components/Dashboard/Lock";
 
 // Lazy load components with debugging
 const CustomBarChart = React.lazy(() => {
@@ -62,7 +63,7 @@ const FIIDIIPage = () => {
     console.log(`FIIDIIPage re-rendered ${renderCountRef.current} times`);
 
     const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed);
+    setIsSubscribed(Subscribed === "true");
 
     const fetchFiiDiiData = async (attempt = 1, maxAttempts = 3) => {
       try {
@@ -146,10 +147,14 @@ const FIIDIIPage = () => {
             </div>
             <div className="mt-4 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
               <Suspense fallback={<div>Loading chart...</div>}>
-                <CustomBarChart
-                  data={fiiDiiData.slice(0, 10)}
-                  loading={loading}
-                />
+                {!isSubscribed ? (
+                  <Lock />
+                ) : (
+                  <CustomBarChart
+                    data={fiiDiiData.slice(0, 10)}
+                    loading={loading}
+                  />
+                )}
               </Suspense>
             </div>
           </div>
@@ -157,7 +162,11 @@ const FIIDIIPage = () => {
       </section>
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
         <Suspense fallback={<div>Loading table...</div>}>
-          <FiiDiiTable data={fiiDiiData} loading={loading} />
+          <FiiDiiTable
+            data={fiiDiiData}
+            loading={loading}
+            isSubscribed={isSubscribed}
+          />
         </Suspense>
       </section>
     </>
