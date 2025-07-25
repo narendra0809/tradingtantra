@@ -19,6 +19,6 @@ const FiiDiiJob = cron.schedule("00 09 * * *", runFIIDIIJob, {
   timezone: "Asia/Kolkata",
 });
 
-console.log("📅 Scheduled FII/DII scraping job: 8:00 AM IST every day ✅");
+console.log("📅 Scheduled FII/DII scraping job: 9:00 AM IST every day ✅");
 
 export default FiiDiiJob;

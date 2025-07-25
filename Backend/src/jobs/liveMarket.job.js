@@ -142,8 +142,8 @@ cron.schedule("* 9-15 * * 1-5", runLiveDataTask, {
 
 console.log(
   `[${new Date().toISOString()}] Schedulers initialized:
-   - 5-minute data: Every 5 mins, 9:15–3:35, Mon–Fri
-   - Live data: Every minute, 9:15–3:35, Mon–Fri ✅`
+   - 5-minute data: Every 5 mins, 9:15–3:40, Mon–Fri
+   - Live data: Every minute, 9:15–3:40, Mon–Fri ✅`
 );
 
 const startup = async () => {
