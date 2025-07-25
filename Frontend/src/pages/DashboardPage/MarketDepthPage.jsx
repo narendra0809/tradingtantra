@@ -480,7 +480,7 @@ const MarketDepthPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isSubscribed) return;
+    if (!isSubscribed) return;
 
     let socketInstance;
     let dataPollInterval;

@@ -109,7 +109,7 @@ const AiSectorDepthPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isSubscribed) return;
+    if (!isSubscribed) return;
 
     let socketInstance;
     let apiPollInterval;

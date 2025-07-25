@@ -4,7 +4,7 @@ import axios from "axios";
 import { getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
 
 const indices = [
-      { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
+  { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
   { name: "BANKNIFTY", scrip: "25", seg: "IDX_I", stepSize: 100 },
   { name: "FINNIFTY", scrip: "27", seg: "IDX_I", stepSize: 50 },
   { name: "MIDCPNIFTY", scrip: "442", seg: "IDX_I", stepSize: 75 },
@@ -138,7 +138,7 @@ const mergeCandles = (
       .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
       .set({ hour: 15, minute: 27, second: 0, millisecond: 0 })
       .format("DD/MM/YYYY, hh:mm:ss A");
-
+    console.log("Target Timestamp : ", targetTimestamp);
     mergedCandles.push({
       close: afterMarketClose,
       lastClose: afterMarketClose,
@@ -403,12 +403,14 @@ export const deleteOldIndexData = async () => {
       createdAt: { $lt: deleteBefore },
     });
 
-    console.log("✅ Old index candle data deleted before", deleteBefore.toISOString());
+    console.log(
+      "✅ Old index candle data deleted before",
+      deleteBefore.toISOString()
+    );
   } catch (error) {
     console.log("❌ Error deleting index candles old data:", error);
   }
 };
-
 
 // Main function to run the fetch and process
 

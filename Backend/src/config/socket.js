@@ -14,15 +14,6 @@ import { AIMomentumCatcherTenMins } from "../controllers/liveMarketDataControlle
 import { DailyRangeBreakout } from "../controllers/liveMarketDataControllers/dailyRangeBreakout.js";
 import { dayHighLowReversal } from "../controllers/liveMarketDataControllers/dayHighLowReversal.js";
 import { twoDayHLBreak } from "../controllers/liveMarketDataControllers/twoDayHLBreak.js";
-// import {
-//   AIIntradayReversalDaily,
-//   AIIntradayReversalFiveMins,
-//   AIMomentumCatcherFiveMins,
-//   AIMomentumCatcherTenMins,
-//   DailyRangeBreakout,
-//   DayHighLowReversal,
-//   twoDayHLBreak,
-// } from "../controllers/liveMarketData.controller.js";
 import {
   AIContraction,
   dailyCandleReversal,

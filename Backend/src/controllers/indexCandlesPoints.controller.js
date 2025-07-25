@@ -138,6 +138,7 @@ export const getAllIndexPoints = async (req, res) => {
     $or: [{ timestamp: previousTimestamp }, { timestamp: currentTimestamp }],
     interval: "3m",
   });
+
   const indexs = {
     NIFTY: { currentClose: 0, lastClose: 0 },
     BANKNIFTY: { currentClose: 0, lastClose: 0 },
@@ -153,7 +154,6 @@ export const getAllIndexPoints = async (req, res) => {
       indexs[doc.indexName].lastClose = doc.close;
     }
   });
-
   const indexPoints = {};
   for (const [indexName, values] of Object.entries(indexs)) {
     const pts = Math.round(values.currentClose - values.lastClose);
