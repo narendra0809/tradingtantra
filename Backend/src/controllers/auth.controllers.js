@@ -3,7 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import sendEmail from "../utils/email.js";
+import axios from "axios";
 import UserSubscription from "../models/userSubscription.model.js";
+import { oauth2client } from "../config/googleConfig.js";
 
 //signup controller
 
@@ -133,13 +135,7 @@ const logIn = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, //for one day
-    };
-
-    res.status(200).clearCookie("accessToken", options).json({
+    res.status(200).clearCookie("accessToken").json({
       success: true,
       message: "logged out successfully",
     });
@@ -243,4 +239,75 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { signUp, logIn, logout, sendOtpForResetPassword, resetPassword };
+// GOOGLE CONTROLLERS :
+
+const googleLogin = async (req, res) => {
+  const { code } = req.query;
+  const googleRes = await oauth2client.getToken(code);
+  oauth2client.setCredentials(googleRes.tokens);
+
+  try {
+    const userRes = await axios.get(
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+    );
+    console.log(userRes.data);
+    const { email, name, given_name, family_name, id } = userRes.data;
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({
+        email: email,
+        displayName: name,
+        firstName: given_name,
+        lastName: family_name,
+        googleId: id,
+      });
+      await user.save();
+    }
+    const token = jwt.sign(
+      { userId: user._id, displayName: user.displayName },
+      process.env.JWT_SECRET_KEY,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    const subscribed = await UserSubscription.findOne({
+      userId: user._id,
+      status: "active",
+      endDate: { $gt: Date.now() },
+    });
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+    };
+
+    res
+      .status(200)
+      .cookie("accessToken", token, options)
+      .json({
+        success: true,
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+          isSubscribed: subscribed ? true : false,
+        },
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export {
+  signUp,
+  logIn,
+  logout,
+  sendOtpForResetPassword,
+  resetPassword,
+  googleLogin,
+};

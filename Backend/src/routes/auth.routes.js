@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  googleLogin,
   logIn,
   logout,
   resetPassword,
@@ -8,8 +9,6 @@ import {
 } from "../controllers/auth.controllers.js";
 
 import { check } from "express-validator";
-import passport from "passport";
-import jwt from "jsonwebtoken";
 import verifyUser from "../middlewares/verifyUser.middleware.js";
 import {
   editDisplayName,
@@ -145,46 +144,6 @@ router.post(
 );
 
 //gooole auth
-router.get(
-  "/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-    accessType: "offline",
-  })
-);
-
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    session: false,
-  }),
-  (req, res) => {
-    const token = jwt.sign(
-      { userId: req.user._id },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
-    );
-    console.log(req.user);
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, //for one day
-    };
-
-    res
-      .status(200)
-      .cookie("accessToken", token, options)
-      .json({
-        success: true,
-        token,
-        user: {
-          email: req.user.email,
-          displayName: req.user.displayName,
-        },
-      });
-  }
-);
+router.get("/google", googleLogin);
 
 export default router;

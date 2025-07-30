@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,6 +8,7 @@ import Cookies from "js-cookie";
 
 import WrapperHeader from "./WrapperHeader";
 import WrapperPage from "./WrapperPage";
+import GoogleButton from "../Components/OAuth";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -147,6 +149,13 @@ const LoginPage = () => {
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
+        <div className="w-full flex items-center my-4">
+          <div className="flex-grow border-t border-[#E8ECF4]"></div>
+          <span className="mx-4 text-gray-500">Or Login with</span>
+          <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        </div>
+
+        <GoogleButton />
 
         <div className="text-center text-sm ">
           Don&apos;t have an account?{" "}

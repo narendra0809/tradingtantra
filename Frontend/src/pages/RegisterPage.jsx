@@ -1,14 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState } from "react";
-import facebook from "../assets/Images/logos/facebook.png";
-import google from "../assets/Images/logos/google.png";
-import apple from "../assets/Images/logos/apple.png";
 import { Link, useNavigate } from "react-router-dom";
 import useFetchData from "../utils/useFetchData";
 import WrapperPage from "./WrapperPage";
 import WrapperHeader from "./WrapperHeader";
 import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import GoogleButton from "../Components/OAuth";
 
 const RegisterPage = () => {
   const [FormData, setFormData] = useState({
@@ -211,17 +209,7 @@ const RegisterPage = () => {
         <span className="mx-4 text-gray-500">Or Login with</span>
         <div className="flex-grow border-t border-[#E8ECF4]"></div>
       </div>
-      <div className="flex justify-between">
-        <button>
-          <img src={facebook} alt="" />
-        </button>
-        <button>
-          <img src={google} alt="" />
-        </button>
-        <button>
-          <img src={apple} alt="" />
-        </button>
-      </div>
+      <GoogleButton />
 
       <div className="flex gap-1 items-center justify-center mt-2">
         <p className="text-[#C7C7C7]">Already have an Account?</p>

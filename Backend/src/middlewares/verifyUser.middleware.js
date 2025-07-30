@@ -4,7 +4,6 @@ import User from "../models/user.model.js";
 const verifyUser = async (req, res, next) => {
   try {
     const token = req?.cookies?.accessToken;
-
     if (!token) {
       return res
         .status(401)
@@ -21,9 +20,7 @@ const verifyUser = async (req, res, next) => {
     }
 
     const userId = decodedToken?.userId;
-
     const user = await User.findById(userId);
-
     if (!user) {
       return res
         .status(401)
