@@ -10,6 +10,10 @@ const Topbar = ({ onToggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { logout } = useAdminAuth();
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminAccessToken");
+    window.location.href = "/admin";
+  };
   return (
     <div className="bg-[#060818] w-full text-white px-4 py-3 border-b border-[#1a1f33] shadow-sm">
       <div className="flex items-center justify-between w-full min-w-0">
@@ -55,15 +59,12 @@ const Topbar = ({ onToggleSidebar }) => {
                 >
                   <FiUser className="text-blue-400" /> <span>Profile</span>
                 </div>
-                <div
+                <button
                   className="flex items-center gap-2 px-4 py-2 hover:bg-[#1a1f33] cursor-pointer"
-                  onClick={() => {
-                    logout();
-                    setIsProfileOpen(false);
-                  }}
+                  onClick={handleLogout}
                 >
                   <FiLogOut className="text-blue-400" /> <span>Logout</span>
-                </div>
+                </button>
               </div>
             )}
           </div>

@@ -56,12 +56,8 @@ export const adminLogin = async (req, res) => {
 
 export const adminLogout = async (req, res) => {
   try {
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "PRODUCTION",
-    };
-
-    res.status(200).clearCookie("adminAccessToken", options).json({
+    res.clearCookie("adminAccessToken");
+    res.status(200).json({
       success: true,
       message: "logged out successfully",
     });

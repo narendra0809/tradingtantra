@@ -8,7 +8,7 @@ import shild from "../../assets/Images/shild.svg";
 import { useRazorpay } from "react-razorpay";
 import useFetchData from "../../utils/useFetchData";
 
-const RenewPlanPage = ({ setShowRenewModal }) => {
+const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
@@ -88,6 +88,7 @@ const RenewPlanPage = ({ setShowRenewModal }) => {
           if (!isVerified) return;
           await increaseSubscriptionValidity();
           setShowRenewModal(false);
+          onPaymentSuccess();
         },
         theme: {
           color: "#F37254",

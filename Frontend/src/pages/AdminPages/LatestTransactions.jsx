@@ -15,7 +15,7 @@ const StatusButton = ({ status }) => (
 
 const LatestTransactions = ({ transactions }) => {
   const { transactions: allTransactions } = useOutletContext();
-
+  console.log(allTransactions);
   if (!transactions) {
     transactions = allTransactions;
   }

@@ -5,7 +5,7 @@ import Topbar from "../../Components/AdminComponents/Topbar";
 import MarketTicker from "../../Components/AdminComponents/MarketTicker";
 import axios from "axios";
 import { useEffect } from "react";
-
+import { Toaster } from "react-hot-toast";
 export const ADMIN_SERVER_URI = `${import.meta.env.VITE_SERVER_URI}/admin`;
 
 const Home = () => {
@@ -125,6 +125,7 @@ const Home = () => {
       <div className="hidden md:block border-r border-gray-800 bg-[#0c0c1d]">
         <Sidebar closeSidebar={closeSidebar} />
       </div>
+      <Toaster />
       {/* Mobile Sidebar */}
       {sidebarOpen && (
         <>

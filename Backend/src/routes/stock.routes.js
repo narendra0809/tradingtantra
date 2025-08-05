@@ -29,6 +29,7 @@ import { marketDepth } from "../controllers/marketDepth/getMarketDepthData.js";
 import { getIndexCandlesData } from "../controllers/indexCandles.controller.js";
 import { getAllIndexPoints } from "../controllers/indexCandlesPoints.controller.js";
 import { getContributionInIndex } from "../controllers/contributors.controller.js";
+
 const router = express.Router();
 router.get("/get-turnover", getStocksData);
 router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);

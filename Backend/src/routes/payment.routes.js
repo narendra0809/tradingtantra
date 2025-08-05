@@ -5,7 +5,7 @@ import {
   renewPlan,
   verifyPayment,
 } from "../controllers/payment.controllers.js";
-import { razporpayWebhook } from "../controllers/webhook.controller.js";
+import { razorpayWebhook } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
 
@@ -19,6 +19,6 @@ router.post("/renew-plan", verifyUser, renewPlan);
 
 //It capture the event for payment if it is in state successfull, failed , pending etc.
 
-router.post("/webhook", razporpayWebhook);
+router.post("/webhook", razorpayWebhook);
 
 export default router;

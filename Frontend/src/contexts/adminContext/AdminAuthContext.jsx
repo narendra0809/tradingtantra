@@ -13,7 +13,7 @@ const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 
 export const AdminAuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(() => {
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("adminAccessToken");
     return token ? jwtDecode(token) : null;
   });
 
@@ -24,7 +24,7 @@ export const AdminAuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-    let token = localStorage.getItem("adminToken");
+    let token = localStorage.getItem("adminAccessToken");
 
     if (!token) {
       setAdmin(null);
@@ -47,26 +47,25 @@ export const AdminAuthProvider = ({ children }) => {
   };
 
   const login = (token) => {
-    localStorage.setItem("adminToken", token);
+    localStorage.setItem("adminAccessToken", token);
     setAdmin(jwtDecode(token));
     navigate("/admin", { replace: true });
   };
 
-  const logout = async () => {
+  const logout = () => {
     try {
-      await axios.post(
-        `${SERVER_URI}/admin/auth/logout`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      // await axios.post(
+      //   `${SERVER_URI}/admin/auth/logout`,
+      //   {},
+      //   {
+      //     withCredentials: true,
+      //   }
+      // );
+      // localStorage.removeItem("adminAccessToken");
+      // setAdmin(null);
+      // navigate("/admin/login", { replace: true });
     } catch (error) {
       console.error("Error logging out:", error);
-    } finally {
-      localStorage.removeItem("adminToken");
-      setAdmin(null);
-      navigate("/admin/login", { replace: true });
     }
   };
 

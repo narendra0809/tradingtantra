@@ -40,7 +40,6 @@ const menuItems = [
 const Sidebar = ({ closeSidebar }) => {
   const [isOpen, setIsOpen] = useState(true);
   const location = useLocation();
-  console.log("Location  : ", location.pathname);
   return (
     <aside
       className={`${

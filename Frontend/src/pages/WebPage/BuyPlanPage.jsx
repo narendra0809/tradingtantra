@@ -1,19 +1,18 @@
+/* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import axios from "axios";
 import lock from "../../assets/Images/lock.svg";
 import play from "../../assets/Images/play.svg";
 import doc from "../../assets/Images/doc.svg";
 import shild from "../../assets/Images/shild.svg";
-import { useNavigate } from "react-router-dom";
 import pay from "../../assets/Images/payImg.png";
 import { useRazorpay } from "react-razorpay";
 import useFetchData from "../../utils/useFetchData";
 import { paymentSchema } from "../../../validators/validator";
 import Cookies from "js-cookie";
 
-const BuyPlanPage = () => {
+const BuyPlanPage = ({ onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();
-  const navigate = useNavigate();
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [countryCode, setCountryCode] = useState("");
@@ -153,8 +152,8 @@ const BuyPlanPage = () => {
           try {
             const isVerified = await verifyPayment(response);
             if (isVerified) {
-              Cookies.set("isSubscribed", true, { expires: 1 });
-              navigate("/dashboard/plan", { replace: true });
+              Cookies.set("isSubscribed", true);
+              onPaymentSuccess(); // Trigger parent refetch and rerender
             } else {
               alert("Payment verification failed. Please contact support.");
             }

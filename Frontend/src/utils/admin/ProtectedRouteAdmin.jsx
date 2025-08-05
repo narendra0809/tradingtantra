@@ -15,7 +15,6 @@ const ProtectedRouteAdmin = () => {
       setLoading(false);
     })();
   }, []);
-
   if (loading) return <div>Loading...</div>;
 
   return admin ? (

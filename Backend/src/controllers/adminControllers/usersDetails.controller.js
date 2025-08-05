@@ -1,3 +1,4 @@
+import Payment from "../../models/payment.model.js";
 import User from "../../models/user.model.js";
 import UserSubscription from "../../models/userSubscription.model.js";
 import { getActiveUsersByMonth } from "../../services/userDetails.service.js";
@@ -15,7 +16,13 @@ export const getTotalUsersData = async (req, res) => {
       user.status === "active" && activeUsers++;
     });
     const inActiveUsers = totalUsers.length - activeUsers;
-    const totalAmount = totalSubcribedUsers.length * 3999;
+    const payments = await Payment.find();
+    let totalAmount = 0;
+    payments.forEach(({ status, amount }) => {
+      if (status === "success") {
+        totalAmount += amount;
+      }
+    });
     res.status(200).json({
       success: true,
       usersData: {

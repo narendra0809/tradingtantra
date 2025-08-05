@@ -23,7 +23,7 @@ export const stocksDetailSchema_UPDATED = new mongoose.Schema(
     DISPLAY_NAME: { type: String, trim: true },
     SECTOR: { type: [String], trim: true },
     weightage: {
-      type: [String],
+      type: [Object],
     },
     INDEX: { type: [String], trim: true },
   },
@@ -32,5 +32,5 @@ export const stocksDetailSchema_UPDATED = new mongoose.Schema(
 
 export const StocksDetail1 = mongoose.model(
   "StockDetails1",
-  stocksDetailSchema
+  stocksDetailSchema_UPDATED
 );
