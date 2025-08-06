@@ -2,14 +2,17 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../../Components/AdminComponents/Sidebar";
 import Topbar from "../../Components/AdminComponents/Topbar";
-import MarketTicker from "../../Components/AdminComponents/MarketTicker";
+// import MarketTicker from "../../Components/AdminComponents/MarketTicker";
 import axios from "axios";
 import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import { TickerTape } from "react-ts-tradingview-widgets";
 export const ADMIN_SERVER_URI = `${import.meta.env.VITE_SERVER_URI}/admin`;
 
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tickers, setTickers] = useState([]);
+
   const [admin, setAdmin] = useState({
     firstName: "",
     lastName: "",
@@ -68,6 +71,15 @@ const Home = () => {
     }
   };
 
+  const fetchTickers = async () => {
+    try {
+      const res = await axios.get(`${ADMIN_SERVER_URI}/get-tickers`);
+      setTickers(res.data?.tickers || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchTotalUsersData = async () => {
     try {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-users`, {
@@ -115,6 +127,7 @@ const Home = () => {
     fetchTotalUsersData();
     fetchActiveUsersByMonth();
     fetchAllTransactions();
+    fetchTickers();
   }, []);
 
   return (
@@ -148,7 +161,12 @@ const Home = () => {
           {" "}
           {/* Wrapped Topbar in sticky container */}
           <Topbar onToggleSidebar={toggleSidebar} />
-          <MarketTicker />
+          <TickerTape
+            colorTheme="dark"
+            isTransparent={true}
+            symbols={tickers}
+          />
+          {/* <MarketTicker /> */}
         </div>
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 min-w-0">
           {" "}

@@ -26,7 +26,6 @@ let reconnectAttempts = 0;
 const maxReconnectAttempts = 5;
 const baseDelay = 4000;
 
-
 const splitIntoBatches = (array, batchSize) => {
   const batches = [];
   for (let i = 0; i < array.length; i += batchSize) {
@@ -82,7 +81,6 @@ const saveToRedis = async (securityId, data) => {
   }
 };
 
-
 const fetchSecurityIds = async () => {
   try {
     const stocks = await StocksDetail.find({}, { SECURITY_ID: 1, _id: 0 });
@@ -136,7 +134,9 @@ async function startWebSocket() {
         };
 
         ws.send(JSON.stringify(subscriptionRequest));
-        console.log(`📩 Subscribed Batch ${index + 1} with ${batch.length} securities`);
+        console.log(
+          `📩 Subscribed Batch ${index + 1} with ${batch.length} securities`
+        );
       }, index * 10000); // Increased delay
     });
   });
@@ -265,9 +265,11 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
 
   // Check if last candle is complete, but preserve 15:25 candle
   if (allFiveMinCandles.length > 0) {
-    const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleTimestamp =
+      allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
     const lastCandleDate = new Date(lastCandleTimestamp * 1000);
-    const isMarketCloseCandle = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
+    const isMarketCloseCandle =
+      lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
     if (minuteDiff < 5 && !isMarketCloseCandle) {
       allFiveMinCandles.pop();
@@ -286,7 +288,8 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
       const secondCandleDate = new Date(secondCandle.timestamp * 1000);
       const firstMinutes = firstCandleDate.getMinutes();
       const secondMinutes = secondCandleDate.getMinutes();
-      const timeDiffMinutes = (secondCandleDate - firstCandleDate) / (1000 * 60);
+      const timeDiffMinutes =
+        (secondCandleDate - firstCandleDate) / (1000 * 60);
       const isOddMinute = [15, 25, 35, 45, 55, 5].includes(firstMinutes);
       const isEvenMinute = [20, 30, 40, 50, 0, 10].includes(secondMinutes);
 
@@ -307,7 +310,8 @@ const mergeToTenMinCandles = (securityId, fiveMinCandles, currentTime) => {
   if (allFiveMinCandles.length > 0) {
     const lastCandle = allFiveMinCandles[allFiveMinCandles.length - 1];
     const lastCandleDate = new Date(lastCandle.timestamp * 1000);
-    const isLastCandle1525 = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
+    const isLastCandle1525 =
+      lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
     if (isLastCandle1525) {
       tenMinCandles.push({
         timestamp: lastCandle.timestamp,
@@ -346,9 +350,11 @@ const mergeToFifteenMinCandles = (securityId, fiveMinCandles, currentTime) => {
 
   // Check if last candle is complete, but preserve 15:25 candle
   if (allFiveMinCandles.length > 0) {
-    const lastCandleTimestamp = allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
+    const lastCandleTimestamp =
+      allFiveMinCandles[allFiveMinCandles.length - 1].timestamp;
     const lastCandleDate = new Date(lastCandleTimestamp * 1000);
-    const isMarketCloseCandle = lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
+    const isMarketCloseCandle =
+      lastCandleDate.getHours() === 15 && lastCandleDate.getMinutes() === 25;
     const minuteDiff = getMinuteDifference(currentTime, lastCandleTimestamp);
     if (minuteDiff < 5 && !isMarketCloseCandle) {
       allFiveMinCandles.pop();
@@ -363,7 +369,7 @@ const mergeToFifteenMinCandles = (securityId, fiveMinCandles, currentTime) => {
     15: [15, 20, 25], // e.g., 9:15 + 9:20 + 9:25
     30: [30, 35, 40], // e.g., 9:30 + 9:35 + 9:40
     45: [45, 50, 55], // e.g., 9:45 + 9:50 + 9:55
-    0: [0, 5, 10],   // e.g., 10:00 + 10:05 + 10:10
+    0: [0, 5, 10], // e.g., 10:00 + 10:05 + 10:10
   };
   const tradingStartHour = 9;
   const tradingEndHour = 15;
@@ -382,14 +388,15 @@ const mergeToFifteenMinCandles = (securityId, fiveMinCandles, currentTime) => {
       const firstMinutes = firstCandleDate.getMinutes();
       const secondMinutes = secondCandleDate.getMinutes();
       const thirdMinutes = thirdCandleDate.getMinutes();
-      const timeDiffToSecond = (secondCandleDate - firstCandleDate) / (1000 * 60);
+      const timeDiffToSecond =
+        (secondCandleDate - firstCandleDate) / (1000 * 60);
       const timeDiffToThird = (thirdCandleDate - firstCandleDate) / (1000 * 60);
 
       // Check if the first candle is at a valid 15-minute boundary
       const isValidStart =
         (Object.keys(minuteCombinations).map(Number).includes(firstMinutes) &&
-         firstHour >= tradingStartHour &&
-         firstHour <= tradingEndHour) ||
+          firstHour >= tradingStartHour &&
+          firstHour <= tradingEndHour) ||
         (firstHour === 15 && firstMinutes === 15);
 
       // Validate the minute combinations
@@ -626,7 +633,9 @@ const getData = async () => {
         if (fifteenMinCandles) {
           const formattedFifteenMinData = {
             securityId: id,
-            timestamp: fifteenMinCandles.map((c) => formatTimestamp(c.timestamp)),
+            timestamp: fifteenMinCandles.map((c) =>
+              formatTimestamp(c.timestamp)
+            ),
             open: fifteenMinCandles.map((c) => c.open),
             high: fifteenMinCandles.map((c) => c.high),
             low: fifteenMinCandles.map((c) => c.low),

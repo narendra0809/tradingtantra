@@ -64,10 +64,19 @@ export function getNextDate(dateString, daysForward = 1) {
   return nextDate;
 }
 
-export const formatDateString = (date) => {
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+export const formatDateString = async (date) => {
+  let targetDate = new Date(date);
+
+  const hours = targetDate.getHours();
+  const minutes = targetDate.getMinutes();
+
+  if (hours < 9 || (hours === 9 && minutes < 15)) {
+    targetDate = await getPreviousTradingDay(targetDate);
+  }
+
+  const day = String(targetDate.getDate()).padStart(2, "0");
+  const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+  const year = targetDate.getFullYear();
 
   return `${day}/${month}/${year}`;
 };

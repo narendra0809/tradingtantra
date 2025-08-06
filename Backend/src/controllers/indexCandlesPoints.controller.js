@@ -127,8 +127,8 @@ export const getAllIndexPoints = async (req, res) => {
     previousDateObj = getPreviousDate(now);
   }
 
-  const currentDateStr = formatDateString(currentDateObj);
-  const previousDateStr = formatDateString(previousDateObj);
+  const currentDateStr = await formatDateString(currentDateObj);
+  const previousDateStr = await formatDateString(previousDateObj);
   // Use 3:27 PM as the default time for both timestamps to ensure consistency
   const currTime = isMarketTime() ? getFormattedTime() : "03:27:00 PM";
   const currentTimestamp = `${currentDateStr}, ${currTime}`;

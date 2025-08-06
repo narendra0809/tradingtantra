@@ -107,7 +107,7 @@ const StockDetails = () => {
         <input
           type="text"
           className="p-2 rounded bg-[#051937] text-white w-full md:w-1/3 focus:outline-none"
-          placeholder="Search by Security ID, Symbol Name, Display Name, or Underlying Symbol"
+          placeholder="Search stocks..."
           value={searchQuery}
           onChange={(e) => {
             setSearchQuery(e.target.value);
@@ -217,35 +217,59 @@ const StockDetails = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center mt-4 gap-2">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50"
-          >
-            Prev
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <>
+          {/* Mobile Pagination (visible on small screens) */}
+          <div className="flex justify-center mt-4 gap-2 lg:hidden">
             <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 rounded ${
-                page === currentPage
-                  ? "bg-blue-900"
-                  : "bg-blue-700 hover:bg-blue-600"
-              }`}
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
             >
-              {page}
+              Prev
             </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+            <span className="px-3 py-1 rounded bg-blue-900 flex items-center">
+              {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
+            >
+              Next
+            </button>
+          </div>
+
+          {/* Desktop Pagination (visible on medium and larger screens) */}
+          <div className="hidden lg:flex justify-center mt-4 gap-2 overflow-x-auto">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
+            >
+              Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 rounded ${
+                  page === currentPage
+                    ? "bg-blue-900"
+                    : "bg-blue-700 hover:bg-blue-600"
+                } whitespace-nowrap`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {openModal.value && (

@@ -167,7 +167,7 @@ const MarketTicker = () => {
   const controls = useAnimation();
   const containerRef = useRef(null);
   const contentRef = useRef(null);
-  const tickerItems = [...data, ...data]; // For looping effect
+  const tickerItems = [...data, ...data];
 
   useEffect(() => {
     const startScroll = async () => {
