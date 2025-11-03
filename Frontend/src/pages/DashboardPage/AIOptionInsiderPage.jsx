@@ -396,71 +396,72 @@ export default function AIOptionInsiderPage() {
                   <th className="py-3 px-4 text-left">Put Analysis</th>
                 </tr>
               </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-36">
-                      <div className="flex justify-center items-center w-full h-full">
-                        <Loader />
-                      </div>
-                    </td>
-                  </tr>
-                ) : optionChainData?.rows?.length ? (
-                  optionChainData.rows.map((row, idx) => (
-                    <tr key={idx} className="border-b border-[#232D4E]">
-                      <td className="py-3 px-4">{idx + 1}</td>
-                      <td className="py-3 px-4">{row.timeStamp}</td>
-                      <td className="py-3 px-4 font-semibold">
-                        <div className="flex">
-                          <span
-                            className={
-                              row.call.green
-                                ? "text-green-500"
-                                : row.call?.yellow
-                                ? "text-yellow-600"
-                                : "text-red-500"
-                            }
-                          >
-                            {row.call.text}
-                          </span>
-                          {row.call.direction === "up"
-                            ? upBadge
-                            : row.call.direction === null
-                            ? confusionBadge
-                            : downBadge}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{row.strikePrice}</td>
-                      <td className="py-3 px-4 font-semibold">
-                        <div className="flex">
-                          <span
-                            className={
-                              row.put.green
-                                ? "text-green-500"
-                                : row.put?.yellow
-                                ? "text-yellow-600"
-                                : "text-red-500"
-                            }
-                          >
-                            {row.put.text}
-                          </span>
-                          {row.put.direction === "up"
-                            ? upBadge
-                            : row.put.direction === null
-                            ? confusionBadge
-                            : downBadge}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="py-12 text-center opacity-70">
-                      No data for the selected filters.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
+            <tbody>
+  {loading ? (
+    <tr>
+      <td colSpan={5} className="py-36">
+        <div className="flex justify-center items-center w-full h-full">
+          <Loader />
+        </div>
+      </td>
+    </tr>
+  ) : optionChainData?.rows?.length ? (
+    [...optionChainData.rows].reverse().map((row, idx) => (
+      <tr key={idx} className="border-b border-[#232D4E]">
+        <td className="py-3 px-4">{idx + 1}</td>
+        <td className="py-3 px-4">{row.timeStamp}</td>
+        <td className="py-3 px-4 font-semibold">
+          <div className="flex">
+            <span
+              className={
+                row.call.green
+                  ? "text-green-500"
+                  : row.call?.yellow
+                  ? "text-yellow-600"
+                  : "text-red-500"
+              }
+            >
+              {row.call.text}
+            </span>
+            {row.call.direction === "up"
+              ? upBadge
+              : row.call.direction === null
+              ? confusionBadge
+              : downBadge}
+          </div>
+        </td>
+        <td className="py-3 px-4">{row.strikePrice}</td>
+        <td className="py-3 px-4 font-semibold">
+          <div className="flex">
+            <span
+              className={
+                row.put.green
+                  ? "text-green-500"
+                  : row.put?.yellow
+                  ? "text-yellow-600"
+                  : "text-red-500"
+              }
+            >
+              {row.put.text}
+            </span>
+            {row.put.direction === "up"
+              ? upBadge
+              : row.put.direction === null
+              ? confusionBadge
+              : downBadge}
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan={5} className="py-12 text-center opacity-70">
+        No data for the selected filters.
+      </td>
+    </tr>
+  )}
+</tbody>
+
             </table>
           </div>
 
