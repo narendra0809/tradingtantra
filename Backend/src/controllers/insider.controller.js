@@ -54,7 +54,7 @@ function sortByTimestamp(data) {
 function optionIntervalAnalysis(dataArray, intervalMin) {
   const rows = [];
   const step = intervalMin / 3;
-  for (let i = 0; i + step < dataArray.length; i++) {
+  for (let i = 0; i + step < dataArray.length; i += step) {
     const prevDoc = dataArray[i];
     const nowDoc = dataArray[i + step];
     const closestStrike = findClosestStrikePrice(
@@ -66,14 +66,6 @@ function optionIntervalAnalysis(dataArray, intervalMin) {
     const nowPE = getCEPEObj(nowDoc.strikeData, closestStrike, "PE");
     const prevCE = getCEPEObj(prevDoc.strikeData, closestStrike, "CE");
     const prevPE = getCEPEObj(prevDoc.strikeData, closestStrike, "PE");
-    if (
-      prevDoc.timestamp === "9:33:00 AM" ||
-      nowDoc.timestamp === "9:36:00 AM"
-    ) {
-      console.log(prevDoc.timestamp, nowCE, nowPE);
-      console.log(nowDoc.timestamp, prevCE, prevPE);
-      //   process.exit();
-    }
     const call = getAnalysis(nowCE, prevCE);
     const put = getAnalysis(nowPE, prevPE);
 
