@@ -59,6 +59,7 @@ import OurStrategyAdmin from "./pages/AdminPages/OurStrategyAdmin";
 import Dashboard from "./pages/AdminPages/Dashboard";
 import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 import StockDetails from "./pages/AdminPages/StockDetails";
+import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
 
 const App = () => {
   return (
@@ -111,6 +112,10 @@ const App = () => {
                     />
                     <Route path="option-clock" element={<OptionClockPage />} />
                     <Route path="option-data" element={<AIOptionDataPage />} />
+                    <Route
+                      path="option-insider"
+                      element={<AIOptionInsiderPage />}
+                    />
                     <Route path="index-depth" element={<IndexDepthPage />} />
                     <Route path="fii-dii" element={<FIIDIIPage />} />
                     <Route

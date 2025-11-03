@@ -52,9 +52,36 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const OiClockChart = ({ data: chartData }) => {
-  const isMobile = useMediaQuery({ maxWidth: 768 });
+const CustomXAxisTick = ({ x, y, payload, currentStrike }) => (
+  <g>
+    <text
+      x={x}
+      y={y}
+      dy={16}
+      textAnchor="middle"
+      fill="#fff"
+      fontSize={12}
+      fontWeight="bold"
+    >
+      {payload.value}
+    </text>
+    {payload.value === currentStrike && (
+      <text
+        x={x}
+        y={y + 40} // was 25, now 40 for increased gap
+        textAnchor="middle"
+        fill="#007BFF"
+        fontSize={10}
+        fontWeight="bold"
+      >
+        Current Strike
+      </text>
+    )}
+  </g>
+);
 
+const OiClockChart = ({ data: chartData, currentStrike }) => {
+  const isMobile = useMediaQuery({ maxWidth: 768 });
   if (chartData.length === 0) {
     return (
       <div className="w-full h-[500px] flex items-center justify-center dark:bg-db-secondary bg-primary-light p-5 rounded-lg shadow-lg">
@@ -90,10 +117,7 @@ const OiClockChart = ({ data: chartData }) => {
             <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
             <XAxis
               dataKey="strikePrice"
-              tick={{
-                fill: "white",
-                fontSize: isMobile ? 10 : 12,
-              }}
+              tick={<CustomXAxisTick currentStrike={currentStrike} />}
               angle={xAxisAngle}
               textAnchor="end"
               height={xAxisHeight}

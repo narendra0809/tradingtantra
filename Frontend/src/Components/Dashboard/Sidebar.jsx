@@ -24,6 +24,7 @@ import Cookies from "js-cookie";
 import { NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
+import AiOptionInsider from "../../assets/Images/sidebar/AiOptionInsider.png";
 
 const Sidebar = () => {
   // const theme = useSelector((state) => state.theme.theme);
@@ -128,6 +129,13 @@ const Sidebar = () => {
                   label="AI Option Data"
                   isOpen={isOpen}
                   path={"/dashboard/option-data"}
+                  isSubscribed={isSubscribed}
+                />
+                <NavItem
+                  icon={AiOptionInsider}
+                  label="AI Option Insider"
+                  isOpen={isOpen}
+                  path={"/dashboard/option-insider"}
                   isSubscribed={isSubscribed}
                 />
                 <NavItem

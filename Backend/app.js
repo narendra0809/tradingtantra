@@ -41,6 +41,7 @@ import "./src/jobs/FiiDiiJob.js";
 import optionClockRoutes from "./src/routes/optionClock.js";
 import smartMoneyActionJob from "./src/jobs/SmartMoneyAction.job.js";
 import path from "path";
+import { optionInsiderRoute } from "./src/routes/optionInsider.route.js";
 dotenv.config();
 
 const app = express();
@@ -90,7 +91,8 @@ app.use(
   swingTradeRoutes,
   optionClockRoutes,
   optionClockRoutes,
-  holidaysRoutes
+  holidaysRoutes,
+  optionInsiderRoute
 );
 
 // Admin Routes :

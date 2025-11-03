@@ -444,6 +444,7 @@ const OptionClockPage = () => {
   const [totalOiChanges, setTotalOiChanges] = useState({});
   const [totalOi, setTotalOi] = useState({});
   const [currData, setCurrData] = useState([]);
+  const [currentStrike, setCurrentStrike] = useState(null);
   // const { user } = useAuth();
 
   const fetchIndexData = async (index) => {
@@ -674,6 +675,49 @@ const OptionClockPage = () => {
     );
   };
 
+  function findNearestDoc(optionData, selectedExpiry) {
+    let nearest = null;
+    let minDiff = Infinity;
+    optionData.data?.forEach((doc) => {
+      if (doc.expiry !== selectedExpiry) return;
+      const docTime = new Date(`1970-01-01 ${doc.timestamp}`);
+      const currTime = new Date();
+      const diff = currTime - docTime;
+      if (diff >= 0 && diff < minDiff) {
+        nearest = doc;
+        minDiff = diff;
+      }
+    });
+    return nearest;
+  }
+
+  function findClosestStrike(strikeData, lastPrice) {
+    let closest = strikeData[0]?.strikePrice ?? null;
+    let minDiff =
+      closest === null ? Number.MAX_VALUE : Math.abs(closest - lastPrice);
+    for (const obj of strikeData) {
+      const diff = Math.abs(obj.strikePrice - lastPrice);
+      if (diff < minDiff) {
+        closest = obj.strikePrice;
+        minDiff = diff;
+      }
+    }
+    return closest;
+  }
+
+  useEffect(() => {
+    if (selectedIndex && selectedExpiry) {
+      const nearestDoc = findNearestDoc(
+        allIndexData[selectedIndex],
+        selectedExpiry
+      );
+      const currentStrike = nearestDoc
+        ? findClosestStrike(nearestDoc.strikeData, nearestDoc.lastPrice)
+        : null;
+      setCurrentStrike(currentStrike);
+    }
+  }, [selectedIndex, selectedExpiry, allIndexData]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -781,7 +825,10 @@ const OptionClockPage = () => {
 
                 <div className="mt-5 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
                   {isSubscribed ? (
-                    <OiClockChart data={currData} />
+                    <OiClockChart
+                      data={currData}
+                      currentStrike={currentStrike}
+                    />
                   ) : (
                     <div className="w-full h-[500px]">
                       <Lock />
