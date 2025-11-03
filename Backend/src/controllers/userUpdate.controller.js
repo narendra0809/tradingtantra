@@ -78,4 +78,29 @@ const editDisplayName = async (req, res) => {
   }
 };
 
-export { updatePassword, editDisplayName };
+const toggleTheme = async (req, res) => {
+  const loggedInUser = req?.user;
+  try {
+    const user = await User.findById(loggedInUser?._id);
+    if (!user) {
+      return res.status(500).json({
+        success: false,
+        message: "User Unauthorized",
+      });
+    }
+
+    user.darkMode = !user.darkMode;
+    await user.save();
+
+    res
+      .status(201)
+      .json({ success: true, message: "Mode Updated Successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export { updatePassword, editDisplayName,toggleTheme };

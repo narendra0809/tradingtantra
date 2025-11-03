@@ -38,6 +38,10 @@ const UserSchema = new mongoose.Schema(
     otpExpiry: {
       type: String,
     },
+    darkMode:{
+      type:Boolean,
+      default:true
+    }
   },
   { timestamps: true }
 );

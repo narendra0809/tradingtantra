@@ -16,28 +16,37 @@ import darkThemeIcon from "../../assets/Images/Dashboard/HeaderImg/darkThemeIcon
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png"; // Placeholder, replace with actual path
 import Cookies from "js-cookie";
 import { useAuth } from "../../contexts/AuthContext";
+import axios from "axios";
 
 const Header = () => {
   const [hovered, setHovered] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState("dark"); // Uncommented
   const [profileDropDown, setProfileDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef(null); // Ref for the dropdown area
-
+  const { theme: isDarkMode } = useSelector((state) => state.theme);
   const isOpen = useSelector((state) => state.sidebar.sideBarToggler);
 
   const dispatch = useDispatch();
 
   const { user, logout } = useAuth();
 
-  const themeToggler = () => {
+  const themeToggler = async () => {
     if (isDarkMode === "dark") {
-      setIsDarkMode("light");
       dispatch(setTheme("light"));
     } else {
-      setIsDarkMode("dark");
       dispatch(setTheme("dark"));
+    }
+
+    try {
+      const res = await axios.put(
+        `${import.meta.env.VITE_SERVER_URI}/users/profile/toggle/theme`,
+        {},
+        { withCredentials: true }
+      );
+      console.log(res.data);
+    } catch (error) {
+      console.log(error);
     }
   };
 

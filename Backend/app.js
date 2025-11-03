@@ -27,6 +27,7 @@ import adminStrategyRoutes from "./src/routes/admin_routes/adminStrategy.route.j
 import adminTickerRoutes from "./src/routes/admin_routes/adminTicker.route.js";
 import adminDetailsRoutes from "./src/routes/admin_routes/adminDetails.route.js";
 import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js";
+import userRoutes from "./src/routes/users.route.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import compression from "compression";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
@@ -93,6 +94,7 @@ app.use(
 );
 
 // Admin Routes :
+app.use("/api/users", userRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use(
   "/api/admin",
