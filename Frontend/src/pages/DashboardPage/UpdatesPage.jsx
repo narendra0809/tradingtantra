@@ -29,7 +29,7 @@ const UpdatesPageDashboard = () => {
   }, []);
   return (
     <>
-      <div className="w-full h-auto p-6 mt-10 md:p-10 border-2 border-[#0256F5] rounded-lg not-dark:bg-primary-light not-dark:text-white">
+      <div className="w-full h-auto p-6 mt-10 md:p-10 border-2 border-[#0256F5] rounded-lg not-dark:bg-primary-light ">
         {!isSubscribed ? (
           <Lock />
         ) : (

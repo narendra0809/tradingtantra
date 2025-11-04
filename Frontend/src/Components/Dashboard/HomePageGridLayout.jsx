@@ -17,7 +17,7 @@ const HomePageGridLayout = () => {
 
       <div className="homeParent">
         <div className="div1 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start justify-between space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -38,14 +38,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/market-depth")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]   text-white mt-4 py-2 rounded-md font-medium"
             >
               AI Market Depth
             </button>
           </div>
         </div>
         <div className="div2 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -66,14 +66,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/sector-depth")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-4 py-2 rounded-md font-medium"
             >
               Sector Depth
             </button>
           </div>
         </div>
         <div className="div3 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -93,14 +93,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/option-clock")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-4 py-2 rounded-md font-medium"
             >
               AI Option Clock
             </button>
           </div>
         </div>
         <div className="div4 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -121,14 +121,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/smart-action")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-4 py-2 rounded-md font-medium"
             >
               Smart Money Action
             </button>
           </div>
         </div>
         <div className="div5 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -149,14 +149,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/swing-trades")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-4 py-2 rounded-md font-medium"
             >
               AI Swing Traders
             </button>
           </div>
         </div>
         <div className="div6 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -173,14 +173,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/profit")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-4 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-4 py-2 rounded-md font-medium"
             >
               Profit
             </button>
           </div>
         </div>
         <div className="div7 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg w-full flex flex-col justify-between">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg w-full flex flex-col justify-between">
             <div className="flex flex-col items-start space-x-3">
               <div>
                 <img className="w-12 h-12" src={graph} alt="Profit" />
@@ -194,14 +194,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/index-depth")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-10 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-10 py-2 rounded-md font-medium"
             >
               Index Depth
             </button>
           </div>
         </div>
         <div className="div8 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg md:h-auto">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg h-full">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg h-full">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -222,14 +222,14 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/learn-from-us")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-10 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-10 py-2 rounded-md font-medium"
             >
               Learn From Us
             </button>
           </div>
         </div>
         <div className="div9 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg md:h-auto">
-          <div className="bg-db-primary not-dark:bg-[#BACEFF] border border-transparent rounded-xl p-4 relative shadow-lg h-full">
+          <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-4 relative shadow-lg h-full">
             <div className="flex flex-col items-start space-x-3">
               <div className="flex items-center gap-3">
                 <div>
@@ -250,7 +250,7 @@ const HomePageGridLayout = () => {
             </div>
             <button
               onClick={() => navigate("/dashboard/over-strategy")}
-              className="w-full bg-[#0256F5] not-dark:bg-[#6183E4] not-dark:text-black text-white mt-10 py-2 rounded-md font-medium"
+              className="w-full bg-[#0256F5]  text-white mt-10 py-2 rounded-md font-medium"
             >
               Over Strategy
             </button>

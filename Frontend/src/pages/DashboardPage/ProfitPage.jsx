@@ -9,7 +9,7 @@ const ProfitPage = () => {
     setIsSubscribed(Subscribed === "true");
   }, []);
   return (
-    <div className="mt-10 space-y-10 not-dark:text-white">
+    <div className="mt-10 space-y-10 ">
       <h4 className="font-Inter text-3xl font-medium not-dark:text-black">
         Profit
       </h4>

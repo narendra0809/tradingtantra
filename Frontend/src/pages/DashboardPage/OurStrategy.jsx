@@ -144,7 +144,7 @@ const OurStrategy = () => {
 
 const StrategyVideoCard = ({ strategyVideo, isSubscribed }) => {
   return (
-    <div className="w-[75%] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-lg not-dark:text-white">
+    <div className="w-[75%] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-lg ">
       {!isSubscribed ? (
         <Lock />
       ) : (

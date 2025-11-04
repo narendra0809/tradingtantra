@@ -223,7 +223,7 @@ const FinancialCalendar = () => {
               <div className="grid grid-cols-3 dark:bg-db-secondary bg-primary-light mt-2.5 gap-y-2 p-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#837AFF]"></div>
-                  <p className="text-xs not-dark:text-white">Holidays</p>
+                  <p className="text-xs ">Holidays</p>
                 </div>
               </div>
             </div>
@@ -231,8 +231,8 @@ const FinancialCalendar = () => {
         </section>
         {/* Right Section: Event List */}
         <section className="rounded-lg w-full bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px">
-          <div className="w-full dark:bg-db-primary bg-primary-light p-5 min-h-[400px] flex flex-col not-dark:text-white">
-            <h3 className="font-medium text-2xl text-center not-dark:text-white">
+          <div className="w-full dark:bg-db-primary bg-primary-light p-5 min-h-[400px] flex flex-col ">
+            <h3 className="font-medium text-2xl text-center ">
               Event Date: 10 February, 2025
             </h3>
             <div className="w-full dark:bg-db-primary bg-primary-light h-[340px] overflow-y-auto scrollbar-hidden flex-grow">
@@ -242,7 +242,7 @@ const FinancialCalendar = () => {
                 <div className="flex flex-col gap-y-5 mt-8">
                   {eventData.map((event, index) => (
                     <div key={index} className="space-y-2">
-                      <p className="text-primary not-dark:text-db-primary-light font-light text-base">
+                      <p className="text-primary  font-light text-base">
                         {event.event}
                       </p>
                       <div className="w-full dark:bg-db-primary bg-primary-light p-2 rounded-lg flex border border-[#0356F5] justify-between">
@@ -272,7 +272,7 @@ const FinancialCalendar = () => {
       <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mt-5 rounded-md">
         <div className="dark:bg-db-primary bg-primary-light w-full p-5 rounded-md">
           <div className="flex justify-between mb-4">
-            <h2 className="text-2xl font-light not-dark:text-white">
+            <h2 className="text-2xl font-light ">
               Total Holidays: {holidays.length}
             </h2>
           </div>
@@ -281,23 +281,23 @@ const FinancialCalendar = () => {
               <Lock />
             ) : (
               <table className="responsive-table min-w-full">
-                <thead className="hidden md:table-header-group">
+                <thead className="hidden md:table-header-group ">
                   <tr>
                     <th
                       scope="col"
-                      className="text-sm font-semibold text-white"
+                      className="text-sm font-semibold "
                     >
                       Date
                     </th>
                     <th
                       scope="col"
-                      className="text-sm font-semibold text-white"
+                      className="text-sm font-semibold "
                     >
                       Holiday Type
                     </th>
                     <th
                       scope="col"
-                      className="text-sm font-semibold text-white"
+                      className="text-sm font-semibold "
                     >
                       Description
                     </th>

@@ -68,18 +68,18 @@ const HighPowerStock = ({
 
   return (
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
-      <div className="w-full h-full dark:bg-db-primary bg-[#273D8F] rounded-lg p-2">
+      <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C] rounded-lg p-2">
         {/* Header Section */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <img src={meter} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
+              <h2 className="text-xl font-semibold flex items-center gap-2 dark:text-white text-[#01071C] ">
                 AI Large Cap Power Stocks <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-white text-sm flex items-center gap-2">
+              <p className="dark:text-gray-400   text-sm flex items-center gap-2">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
                   Live
                 </span>
               </p>
@@ -98,7 +98,7 @@ const HighPowerStock = ({
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -162,7 +162,7 @@ const HighPowerStock = ({
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.UNDERLYING_SYMBOL}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               {stock?.UNDERLYING_SYMBOL}
                             </a>
@@ -181,12 +181,12 @@ const HighPowerStock = ({
                                 stock?.changePercentage >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
+                              } px-2 py-1 text-xs rounded-full `}
                             >
                               {stock?.changePercentage?.toFixed(2)}
                             </span>
                           </td>
-                          <td className="text-right text-xs not-dark:text-white">
+                          <td className="text-right text-xs ">
                             {(stock?.turnover / 1e7).toFixed(2) + " Cr"}
                           </td>
                         </tr>
@@ -195,7 +195,7 @@ const HighPowerStock = ({
                       <tr>
                         <td
                           colSpan="4"
-                          className="text-center py-4 not-dark:text-white"
+                          className="text-center py-4 "
                         >
                           No data available
                         </td>

@@ -262,7 +262,7 @@
 //       {/* sector depth section */}
 //       <section className="mt-5 flex md:justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4">
 //         <div className="flex gap-4 items-center">
-//           <h1 className="text-3xl font-bold not-dark:text-white">Sector Depth</h1>
+//           <h1 className="text-3xl font-bold ">Sector Depth</h1>
 //           <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs">
 //             <GoDotFill />
 //             Live
@@ -732,7 +732,7 @@ const OptionClockPage = () => {
       <section className="mt-5 flex md:justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4">
         <div className="flex gap-4 items-center">
           <h1 className="text-3xl font-bold">AI Option Data</h1>
-          <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs">
+          <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs text-white">
             <GoDotFill />
             Live
           </span>
@@ -748,31 +748,31 @@ const OptionClockPage = () => {
               value={selectedIndex}
             >
               <option
-                className="bg-[#000A2D]  not-dark:bg-primary-light not-dark:text-white"
+                className="bg-[#000A2D]  not-dark:bg-primary-light "
                 value="Nifty50"
               >
                 Nifty50
               </option>
               <option
-                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                className="bg-[#000A2D] not-dark:bg-primary-light "
                 value="BankNifty"
               >
                 BankNifty
               </option>
               <option
-                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                className="bg-[#000A2D] not-dark:bg-primary-light "
                 value="FinNifty"
               >
                 FinNifty
               </option>
               <option
-                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                className="bg-[#000A2D] not-dark:bg-primary-light "
                 value="Midcap"
               >
                 Midcap
               </option>
               <option
-                className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                className="bg-[#000A2D] not-dark:bg-primary-light "
                 value="Sensex"
               >
                 Sensex
@@ -791,7 +791,7 @@ const OptionClockPage = () => {
               {currentExpiries.map((expiry) => (
                 <option
                   key={expiry}
-                  className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+                  className="bg-[#000A2D] not-dark:bg-primary-light "
                   value={expiry}
                 >
                   {expiry}

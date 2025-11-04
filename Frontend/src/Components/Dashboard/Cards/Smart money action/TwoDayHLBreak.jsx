@@ -89,13 +89,13 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
+              <h2 className="text-xl font-semibold flex items-center gap-2 ">
                 AI 2 DAY H/L Break ( 5MIN TF)
                 <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 text-white">
+              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
                   Live
                 </span>
               </p>
@@ -118,7 +118,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300 ">
                       <th
                         className="py-2 text-left"
                         onClick={handleSortBySymbol}
@@ -190,7 +190,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               {stock?.underlyingSymbol}
                             </a>
@@ -199,7 +199,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.underlyingSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               <FcCandleSticks />
                             </a>
@@ -210,12 +210,12 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
+                              } px-2 py-1 text-xs rounded-full `}
                             >
                               {Number(stock?.percentageChange)?.toFixed(2)}
                             </span>
                           </td>
-                          <td className="text-xs text-center not-dark:text-white">
+                          <td className="text-xs text-center ">
                             {stock?.timestamp}
                           </td>
                           <td className="text-right text-sm">
@@ -235,7 +235,7 @@ const TwoDayHLBreak = ({ data, loading, error, isSubscribed }) => {
                       <tr>
                         <td
                           colSpan="5"
-                          className="text-center py-4 not-dark:text-white"
+                          className="text-center py-4 "
                         >
                           {!loading && !error ? "No data available" : ""}
                         </td>

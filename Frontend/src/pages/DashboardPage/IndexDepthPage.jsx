@@ -139,31 +139,31 @@ const IndexDepthPage = () => {
             className="bg-transparent focus:outline-none"
           >
             <option
-              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              className="bg-[#000A2D] not-dark:bg-primary-light "
               value="NIFTY 50"
             >
               Nifty50
             </option>
             <option
-              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              className="bg-[#000A2D] not-dark:bg-primary-light "
               value="SENSEX"
             >
               Sensex
             </option>
             <option
-              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              className="bg-[#000A2D] not-dark:bg-primary-light "
               value="BANKNIFTY"
             >
               BankNifty
             </option>
             <option
-              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              className="bg-[#000A2D] not-dark:bg-primary-light "
               value="MIDCAP"
             >
               Midcap
             </option>
             <option
-              className="bg-[#000A2D] not-dark:bg-primary-light not-dark:text-white"
+              className="bg-[#000A2D] not-dark:bg-primary-light "
               value="FINNIFTY"
             >
               Finnifty
@@ -212,7 +212,7 @@ const IndexDepthPage = () => {
                         ? `+${allIndexPts[contribution.indexName].pts}`
                         : allIndexPts[contribution.indexName].pts}
                     </span>{" "}
-                    <span className="not-dark:text-white">
+                    <span className="">
                       pts (
                       {allIndexPts[contribution.indexName].per > 0
                         ? `+${allIndexPts[contribution.indexName].per}`
@@ -224,7 +224,7 @@ const IndexDepthPage = () => {
               </div>
 
               <div className="md:w-[60%] w-full bg-db-secondary  not-dark:bg-primary-light px-4 py-2 rounded-lg">
-                <p className="text-xl  not-dark:text-white">Gainers/Losers</p>
+                <p className="text-xl  ">Gainers/Losers</p>
 
                 <div className="w-full h-3 bg-[#9B3B44] my-4 rounded-full">
                   <div
@@ -234,10 +234,10 @@ const IndexDepthPage = () => {
                 </div>
 
                 <div className="text-sm flex justify-between mb-2">
-                  <span className="flex items-center not-dark:text-white">
+                  <span className="flex items-center ">
                     <GoDotFill className="text-green-500" /> Gainers: {gainers}
                   </span>
-                  <span className="flex items-center not-dark:text-white">
+                  <span className="flex items-center ">
                     <GoDotFill className="text-red-500" /> Losers: {losers}
                   </span>
                 </div>

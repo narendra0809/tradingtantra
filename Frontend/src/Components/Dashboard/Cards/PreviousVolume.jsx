@@ -69,12 +69,12 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
           <div className="flex items-center gap-2">
             <img src={boost} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
-              <h2 className=" not-dark:text-white text-xl font-semibold flex items-center gap-2">
+              <h2 className=" dark:text-white text-[#01071C] text-xl font-semibold flex items-center gap-2">
                 AI Intraday Boom <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400  not-dark:text-white text-sm flex items-center gap-2">
+              <p className="dark:text-gray-400   text-sm flex items-center gap-2">
                 How to use{" "}
-                <span className="bg-blue-600 not-dark:text-white  px-2 py-1 rounded-full text-xs">
+                <span className="bg-blue-600 text-white  px-2 py-1 rounded-full text-xs">
                   Live
                 </span>
               </p>
@@ -83,7 +83,7 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
         </div>
 
         {/* Table Section */}
-        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
+        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] bg-white p-px h-fit mt-4 rounded-lg">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
@@ -93,7 +93,7 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300  text-[#01071C]">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -156,7 +156,7 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
-                              className="not-dark:text-white"
+                              className="dark:text-white text-[#01071C]"
                             >
                               {stock?.stock?.UNDERLYING_SYMBOL}
                             </a>
@@ -165,7 +165,7 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stock?.UNDERLYING_SYMBOL}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               <FcCandleSticks />
                             </a>
@@ -176,12 +176,12 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
+                              } px-2 py-1 text-xs rounded-full `}
                             >
                               {stock?.percentageChange?.toFixed(2)}
                             </span>
                           </td>
-                          <td className="text-right text-xs not-dark:text-white">
+                          <td className="text-right text-xs dark:text-white text-[#01071C]">
                             {stock?.xElement.toFixed(2)}
                           </td>
                         </tr>
@@ -190,7 +190,7 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
                       <tr>
                         <td
                           colSpan="4"
-                          className="text-center py-4 not-dark:text-white"
+                          className="text-center py-4 dark:text-white text-[#01071C]"
                         >
                           No data available
                         </td>

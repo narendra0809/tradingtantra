@@ -72,6 +72,7 @@
 
 // export default OiClockChartTwo;
 /* eslint-disable react/prop-types */
+import { useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import {
   BarChart,
@@ -86,9 +87,10 @@ import {
 
 // Custom Tooltip Component
 const CustomTooltip = ({ active, payload }) => {
+  
   if (active && payload && payload.length) {
     return (
-      <div className="bg-gray-800 text-white p-2 rounded shadow-lg">
+      <div className="bg-gray-800  p-2 rounded shadow-lg">
         <p>Option: {payload[0].payload.name}</p>
         <p>OI Change: {Math.round(payload[0].value).toLocaleString()}</p>
       </div>
@@ -98,6 +100,10 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const OiClockChartTwo = ({ data: chartData }) => {
+   const theme = useSelector((state) => state.theme.theme);
+
+
+
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const formattedData = [
     {
@@ -124,9 +130,11 @@ const OiClockChartTwo = ({ data: chartData }) => {
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
-          <XAxis dataKey="name" tick={{ fill: "white" }} />
+          <XAxis dataKey="name"
+           tick={{ fill: theme==="dark" ? "white" : "black" }} 
+           />
           <YAxis
-            tick={{ fill: "white" }}
+             tick={{ fill: theme==="dark" ? "white" : "black" }} 
             tickFormatter={(value) => Math.round(value).toLocaleString()}
           />
           <Tooltip

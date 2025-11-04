@@ -58,7 +58,8 @@ const DashboardLayout = () => {
       document.body.style.backgroundColor = "#02000E";
       document.body.style.color = "#fff";
     } else {
-      document.body.style.backgroundColor = "#E3EBFF";
+      // document.body.style.backgroundColor = "#E3EBFF";
+      document.body.style.backgroundColor = "#EDEDED";
       document.body.style.color = "#000";
     }
   }, [theme]);
@@ -118,11 +119,11 @@ const DashboardLayout = () => {
           className={`w-full mt-2 h-12 ${
             theme === "dark"
               ? "bg-transparent border-none"
-              : "bg-[#273D8F] border border-[#8EA7EC] rounded-lg"
+              : "bg-white dark:bg-[#273D8F] l  border border-[#8EA7EC] rounded-lg"
           }`}
         >
           <TickerTape
-            colorTheme="dark"
+            colorTheme={theme ==="dark"? "dark":"light"}
             isTransparent={true}
             displayMode="regular"
             symbols={tickers}

@@ -55,7 +55,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
           y={0}
           dy={10}
           textAnchor={isMobile ? "end" : "middle"}
-          fill={"#fff"}
+          fill={theme === "dark" ? "#fff" : "#000"}
           fontSize={isMobile ? 10 : 12}
         >
           {payload.value}
@@ -131,12 +131,15 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               tick={renderCustomXAxisTick}
               interval={0}
               height={xAxisHeight}
-              stroke={"#fff"}
+              stroke={theme === "dark" ? "#fff" : "#000000"}
             />
             <YAxis
               type="number"
-              stroke={"#fff"}
-              tick={{ fontSize: isMobile ? 10 : 12 }}
+              stroke={theme === "dark" ? "#fff" : "#000000"}
+              tick={{
+                fill: theme === "dark" ? "#fff" : "#000", // ✅ tick text color
+                fontSize: isMobile ? 10 : 12,
+              }}
               width={isMobile ? 30 : 40}
             />
             <Tooltip

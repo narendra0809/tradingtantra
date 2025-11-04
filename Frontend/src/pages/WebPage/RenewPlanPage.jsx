@@ -132,7 +132,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
 
   return (
     <>
-      <div className="xl:w-[70%] w-[90%] mx-auto bg-[#01071C] not-dark:bg-primary-light px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] not-dark:text-white">
+      <div className="xl:w-[70%] w-[90%] mx-auto bg-[#01071C] not-dark:bg-primary-light px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] ">
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col space-y-5 ">
             <h3 className="md:text-5xl sm:text-3xl text-xl font-bold">

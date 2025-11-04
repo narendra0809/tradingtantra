@@ -58,23 +58,23 @@ const CalculatorsPage = () => {
           {/* Header Section */}
           <div className="flex justify-between items-center">
             {selectedCalculator === "Risk" ? (
-              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
+              <h5 className="font-abcRepro text-3xl font-medium ">
                 Risk Calculator
               </h5>
             ) : selectedCalculator === "CAGR" ? (
-              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
+              <h5 className="font-abcRepro text-3xl font-medium ">
                 CAGR Calculator
               </h5>
             ) : selectedCalculator === "SIP" ? (
-              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
+              <h5 className="font-abcRepro text-3xl font-medium ">
                 SIP Calculator
               </h5>
             ) : selectedCalculator === "EMI" ? (
-              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
+              <h5 className="font-abcRepro text-3xl font-medium ">
                 EMI Calculator
               </h5>
             ) : (
-              <h5 className="font-abcRepro text-3xl font-medium not-dark:text-white">
+              <h5 className="font-abcRepro text-3xl font-medium ">
                 Option Calculator
               </h5>
             )}
@@ -85,7 +85,7 @@ const CalculatorsPage = () => {
                 {/* Calculator Toggle */}
                 {selectedCalculator === "Risk" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("Equity")}
                   >
                     Equity
@@ -93,7 +93,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "CAGR" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("CAGR")}
                   >
                     CAGR
@@ -101,7 +101,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "SIP" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("SIP")}
                   >
                     SIP
@@ -128,7 +128,7 @@ const CalculatorsPage = () => {
                 {/* Option Toggle */}
                 {selectedCalculator === "Risk" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("F&O")}
                   >
                     F&O
@@ -136,7 +136,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "CAGR" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("Reverse CAGR")}
                   >
                     Reverse CAGR
@@ -144,7 +144,7 @@ const CalculatorsPage = () => {
                 )}
                 {selectedCalculator === "SIP" && (
                   <p
-                    className="cursor-pointer not-dark:text-white"
+                    className="cursor-pointer "
                     onClick={() => setCalculator("LUMPSUM")}
                   >
                     LUMPSUM
@@ -155,14 +155,14 @@ const CalculatorsPage = () => {
           </div>
 
           {/* Calculator Selection Buttons */}
-          <div className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide mt-8 not-dark:text-white">
+          <div className="w-full overflow-x-auto whitespace-nowrap scrollbar-hide mt-8 ">
             <div className="flex space-x-4 w-max">
               {calculators.map((calc) => (
                 <button
                   key={calc}
-                  className={`p-2.5 rounded-sm dark:hover:bg-primary-light hover:bg-primary   transition-all ${
+                  className={`p-2.5 rounded-sm  hover:bg-primary hover:text-white   transition-all ${
                     selectedCalculator === calc
-                      ? "dark:bg-primary-light bg-primary"
+                      ? "text-white bg-primary"
                       : ""
                   }`}
                   onClick={() => handelCalculatorChange(calc)}
@@ -199,7 +199,7 @@ const CalculatorsPage = () => {
         </div>
 
         {/* Right Section  */}
-        <div className="not-dark:text-white flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light border border-[#0256f550]  space-y-[45px]">
+        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light border border-[#0256f550]  space-y-[45px]">
           {selectedCalculator === "Risk" ? (
             <RiskCalculatorRight isSubscribed={isSubscribed} />
           ) : selectedCalculator === "CAGR" ? (
@@ -289,7 +289,7 @@ const CalculatorsPage = () => {
       <>
         {selectedCalculator === "Risk" ? (
           <>
-            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2  ">
               <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Risk calculator?
@@ -348,7 +348,7 @@ const CalculatorsPage = () => {
                 </div>
               </div>{" "}
             </section>
-            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to use this Calculator?
@@ -444,7 +444,7 @@ const CalculatorsPage = () => {
           </>
         ) : selectedCalculator === "CAGR" ? (
           <>
-            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is Compound Annual Growth Rate (CAGR)?
@@ -462,7 +462,7 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
 
-            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-[25px]">
                   How to calculate CAGR?
@@ -522,7 +522,7 @@ const CalculatorsPage = () => {
               </div>
             </section>
 
-            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   Advantages of using CAGR
@@ -554,7 +554,7 @@ const CalculatorsPage = () => {
           </>
         ) : selectedCalculator === "SIP" ? (
           <>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is SIP calculator?
@@ -598,7 +598,7 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
 
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   How to calculate SIP investments?
@@ -658,7 +658,7 @@ const CalculatorsPage = () => {
         ) : (
           selectedCalculator === "EMI" && (
             <>
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
                 <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-5">
                     What is EMI calculator?
@@ -737,7 +737,7 @@ const CalculatorsPage = () => {
                 </div>{" "}
               </section>
 
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 not-dark:text-white">
+              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
                 <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-[25px]">
                     Formula:-

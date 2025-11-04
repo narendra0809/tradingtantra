@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { useMediaQuery } from "react-responsive";
+import { useSelector } from "react-redux";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
@@ -52,14 +53,15 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const CustomXAxisTick = ({ x, y, payload, currentStrike }) => (
+const CustomXAxisTick = ({ x, y, payload, currentStrike ,theme}) => (
   <g>
     <text
       x={x}
       y={y}
       dy={16}
       textAnchor="middle"
-      fill="#fff"
+       fill={theme === "dark" ? "#FFFFFF" : "#000000"}
+      // fill="#fff"
       fontSize={12}
       fontWeight="bold"
     >
@@ -81,6 +83,8 @@ const CustomXAxisTick = ({ x, y, payload, currentStrike }) => (
 );
 
 const OiClockChart = ({ data: chartData, currentStrike }) => {
+   const theme = useSelector((state) => state.theme.theme);
+
   const isMobile = useMediaQuery({ maxWidth: 768 });
   if (chartData.length === 0) {
     return (
@@ -117,13 +121,13 @@ const OiClockChart = ({ data: chartData, currentStrike }) => {
             <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
             <XAxis
               dataKey="strikePrice"
-              tick={<CustomXAxisTick currentStrike={currentStrike} />}
+              tick={<CustomXAxisTick currentStrike={currentStrike} theme={theme} />}
               angle={xAxisAngle}
               textAnchor="end"
               height={xAxisHeight}
             />
             <YAxis
-              tick={{ fill: "white", fontSize: isMobile ? 10 : 12 }}
+              tick={{ fill: theme==="dark" ? "white":"black", fontSize: isMobile ? 10 : 12 }}
               width={isMobile ? 30 : 40}
             />
             <Tooltip content={<CustomTooltip />} />

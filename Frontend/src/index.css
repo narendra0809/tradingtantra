@@ -4,7 +4,8 @@
   --color-primary: #0256f5;
   --color-db-primary: #01071c;
   --color-db-secondary: #000a2d;
-  --color-primary-light: #273d8f;
+  /* --color-primary-light: #273d8f;   old bg*/
+   --color-primary-light: #FFFFFF;   
   --color-db-primary-light: #f1f5f9;
   --color-db-secondary-light: #f8fafc;
   --color-light-b: #273d8f;

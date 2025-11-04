@@ -21,7 +21,7 @@ const OiClockChartThree = ({ data, selectedIndex }) => {
   ];
   const pcr = (formattedData[1].value / formattedData[0].value).toFixed(2);
   return (
-    <div className="bg-db-primary not-dark:bg-primary-light min-h-[375px] rounded-lg text-white shadow-lg w-full  ">
+    <div className="bg-db-primary not-dark:bg-primary-light min-h-[375px] rounded-lg  shadow-lg w-full  ">
       <div
         className={`flex ${
           isMobile ? "flex-col" : "flex-row"
@@ -68,7 +68,7 @@ const OiClockChartThree = ({ data, selectedIndex }) => {
                 } items-center gap-2`}
               >
                 <span>Total Bears OI: </span>
-                <span className="font-medium bg-[#95025A] p-2 rounded-lg">
+                <span className="font-medium bg-[#95025A] text-white p-2 rounded-lg">
                   {formattedData[1].value}
                 </span>
               </p>

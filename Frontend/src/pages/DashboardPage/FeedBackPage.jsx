@@ -62,7 +62,7 @@ const FeedBackPage = () => {
   }, []);
 
   return (
-    <div className="bg-db-primary not-dark:bg-primary-light not-dark:text-white relative  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
+    <div className="bg-db-primary not-dark:bg-primary-light  relative  rounded-2xl p-5 space-y-3 w-full md:w-4/5  lg:w-1/2 md:mx-auto mt-10">
       {loading && (
         <Loader className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
       )}
@@ -75,7 +75,7 @@ const FeedBackPage = () => {
             className="flex items-center justify-between flex-wrap w-full space-y-4"
             onSubmit={handleFormSubmit}
           >
-            <div className="flex flex-col items-start text-white w-full space-y-2">
+            <div className="flex flex-col items-start  w-full space-y-2">
               <label className="text" htmlFor="name">
                 Name
               </label>

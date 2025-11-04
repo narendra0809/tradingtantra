@@ -72,12 +72,12 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
+              <h2 className="text-xl font-semibold flex items-center gap-2 ">
                 Top Gainers <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 not-dark:text-white">
+              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
                   Live
                 </span>
               </p>
@@ -96,7 +96,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -163,7 +163,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               {stock?.stockSymbol}
                             </a>
@@ -172,7 +172,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               <FcCandleSticks />
                             </a>
@@ -183,12 +183,12 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
+                              } px-2 py-1 text-xs rounded-full `}
                             >
                               {stock?.percentageChange}
                             </span>
                           </td>
-                          <td className="text-right text-xs not-dark:text-white">
+                          <td className="text-right text-xs ">
                             {stock?.xElement?.toFixed(2)}
                           </td>
                         </tr>
@@ -197,7 +197,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                       <tr>
                         <td
                           colSpan="4"
-                          className="text-center py-4 not-dark:text-white"
+                          className="text-center py-4 "
                         >
                           {!loading && !error ? "No data available" : ""}
                         </td>
@@ -277,12 +277,12 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
               className="w-12 h-12 object-contain"
             />
             <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 not-dark:text-white">
+              <h2 className="text-xl font-semibold flex items-center gap-2 ">
                 Top Loosers <FcCandleSticks />
               </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 not-dark:text-white">
+              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
                 How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs not-dark:text-white">
+                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
                   Live
                 </span>
               </p>
@@ -301,7 +301,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"
                         onClick={handleSortBySymbol}
@@ -368,7 +368,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               {stock?.stockSymbol}
                             </a>
@@ -377,7 +377,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=5`}
-                              className="not-dark:text-white"
+                              className=""
                             >
                               <FcCandleSticks />
                             </a>
@@ -388,12 +388,12 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full not-dark:text-white`}
+                              } px-2 py-1 text-xs rounded-full `}
                             >
                               {stock?.percentageChange}
                             </span>
                           </td>
-                          <td className="text-right text-xs not-dark:text-white">
+                          <td className="text-right text-xs ">
                             {stock?.xElement?.toFixed(2)}
                           </td>
                         </tr>
@@ -402,7 +402,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                       <tr>
                         <td
                           colSpan="4"
-                          className="text-center py-4 not-dark:text-white"
+                          className="text-center py-4 "
                         >
                           {!loading && !error ? "No data available" : ""}
                         </td>

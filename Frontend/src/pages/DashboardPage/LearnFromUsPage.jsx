@@ -61,7 +61,7 @@ const LearnFromUsPage = () => {
 
   return (
     <>
-      <div className="w-full h-full mx-auto not-dark:text-white">
+      <div className="w-full h-full mx-auto ">
         <h2 className="font-abcRepro font-semibold text-3xl my-10 not-dark:text-black">
           Learn From Us
         </h2>

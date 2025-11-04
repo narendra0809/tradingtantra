@@ -33,7 +33,7 @@ const Header = () => {
           isScrolled ? "bg-[#02000E]/90 backdrop-blur-md py-2" : "py-4"
         }`}
       >
-        <div className="mx-auto flex justify-between items-center text-white xl:px-20 px-1 py-4">
+        <div className="mx-auto flex justify-between items-center  xl:px-20 px-1 py-4">
           {/* Logo */}
           <div className="xl:w-auto lg:w-42 sm:w-40 w-30">
             <Link to="/">
@@ -42,7 +42,7 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="bg-[#0256F533] text-white px-[26px] py-[13px] rounded-[50px] lg:block hidden border border-[#0A7CFF33] backdrop-blur-lg">
+          <nav className="bg-[#0256F533]  px-[26px] py-[13px] rounded-[50px] lg:block hidden border border-[#0A7CFF33] backdrop-blur-lg">
             <ul className="flex xl:gap-10 lg:gap-5 gap-3 text-base font-normal uppercase">
               {menuItems.map((item, index) => (
                 <li

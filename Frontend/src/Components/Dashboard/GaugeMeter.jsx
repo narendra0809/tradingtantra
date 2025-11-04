@@ -99,9 +99,9 @@ const GaugeMeter = ({ title, totalOI }) => {
       </PieChart>
 
       {/* Display PCR value and sentiment */}
-      <p className="text-white font-bold text-sm mt-1">{title}</p>
-      <p className="text-white text-xs">PCR: {pcrValue.toFixed(2)}</p>
-      <p className="text-white text-xs font-bold" style={{ color }}>
+      <p className=" font-bold text-sm mt-1">{title}</p>
+      <p className=" text-xs">PCR: {pcrValue.toFixed(2)}</p>
+      <p className=" text-xs font-bold" style={{ color }}>
         {sentiment}
       </p>
     </div>

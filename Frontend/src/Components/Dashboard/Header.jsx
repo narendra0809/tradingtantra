@@ -80,7 +80,7 @@ const Header = () => {
   }, [profileDropDown]); // Dependency on profileDropDown to add/remove listener dynamically
 
   return (
-    <div className="bg-[#000517] border mt-2.5  border-[#000B34] h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-[#273D8F]">
+    <div className="bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-[#ffffff]">
       <div className="w-1/2 flex items-center gap-2">
         <button
           onMouseEnter={() => setHovered(true)}
@@ -130,7 +130,7 @@ const Header = () => {
           onClick={() => {
             themeToggler();
           }}
-          className="w-14 h-7 bg-white dark:bg-[#000E40] rounded-full flex items-center p-1 cursor-pointer transition-all"
+          className="w-14 h-7 bg-[#EDEDED]  dark:bg-[#000E40] rounded-full flex items-center p-1 cursor-pointer transition-all "
         >
           <div
             className={`w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-md transform transition-all ${
@@ -145,7 +145,7 @@ const Header = () => {
           </div>
         </div>
 
-        <IoIosNotifications className="text-white text-3xl" />
+        <IoIosNotifications className="text-white not-dark:text-[#000E40] text-3xl" />
 
         <div className="relative" ref={dropdownRef}>
           <img
@@ -155,14 +155,14 @@ const Header = () => {
             alt=""
           />
           {profileDropDown && (
-            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary not-dark:bg-primary-light  text-white right-0 top-15 z-20">
+            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary not-dark:bg-primary-light  right-0 top-15 z-20">
               <div className="flex items-center gap-3">
                 <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
                 <div>
                   <p className="text-sm">{user.displayName}</p>
                   <div className="text-xs flex gap-3 items-center">
                     <p>Active now</p>
-                    <p className="text-white bg-primary px-2 text-[10px] rounded-full text-xs">
+                    <p className=" bg-primary px-2 text-[10px] rounded-full text-xs">
                       pro
                     </p>
                   </div>

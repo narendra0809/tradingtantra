@@ -71,7 +71,7 @@ const RiskCalculator = ({ calculator, isSubscribed }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 ">
         {!isSubscribed ? (
           <Lock />
         ) : (
@@ -125,14 +125,14 @@ const RiskCalculator = ({ calculator, isSubscribed }) => {
             <div className="flex justify-between items-center gap-10 mt-[50px]">
               <button
                 type="button"
-                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+                className="text-white bg-primary py-2 rounded-md w-4/5"
                 onClick={handleClear}
               >
                 Clear
               </button>
               <button
                 type="submit"
-                className="bg-primary py-2 rounded-md w-4/5"
+                className="bg-primary text-white py-2 rounded-md w-4/5"
               >
                 Calculate
               </button>
@@ -141,7 +141,7 @@ const RiskCalculator = ({ calculator, isSubscribed }) => {
         )}
       </div>
 
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5 not-dark:text-white">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5 ">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         <div className="mt-[30px] space-y-5">
           <div className="flex w-full justify-between items-center font-abcRepro text-2xl font-light">
@@ -176,7 +176,7 @@ const RiskCalculatorRight = ({ isSubscribed }) => {
       {!isSubscribed ? (
         <Lock />
       ) : (
-        <div className="not-dark:text-white">
+        <div className="">
           <h1 className="text-2xl font-medium text-wrap">
             Risk/Position Size Calculator
           </h1>

@@ -131,7 +131,7 @@ const FIIDIIPage = () => {
         <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2">
           <div>
             <div className="flex gap-4 items-center">
-              <h1 className="text-3xl font-bold not-dark:text-white">
+              <h1 className="text-3xl font-bold ">
                 FII/DII
               </h1>
               <span className="text-xl">
@@ -141,7 +141,7 @@ const FIIDIIPage = () => {
                 <GoDotFill />
                 Live
               </span>
-              <span className="flex items-center gap-1 not-dark:text-white">
+              <span className="flex items-center gap-1 ">
                 How to use <FaPlayCircle className="text-[#0256F5]" />
               </span>
             </div>

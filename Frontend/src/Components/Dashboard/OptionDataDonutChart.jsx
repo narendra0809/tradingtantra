@@ -194,7 +194,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
                 }
               `}
             </style>
-            <h3 className="text-white font-bold mb-4 text-lg">
+            <h3 className=" font-bold mb-4 text-lg">
               Top Contributors
             </h3>
             <div className="space-y-2 h-full">
@@ -210,7 +210,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
                       className="w-4 h-4 rounded-full mr-3"
                       style={{ backgroundColor: chartColors[index] }}
                     />
-                    <span className="text-white flex-1 truncate">
+                    <span className=" flex-1 truncate">
                       {contributor.name}
                     </span>
                     <span
@@ -234,7 +234,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
                       backgroundColor: chartColors[topContributors.length],
                     }}
                   />
-                  <span className="text-white flex-1">
+                  <span className=" flex-1">
                     Other {contributor.contributions.slice(10).length} stocks
                   </span>
                   <span

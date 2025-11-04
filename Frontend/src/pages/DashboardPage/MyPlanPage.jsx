@@ -66,7 +66,7 @@
 //         {showRenewModal && (
 //           <button
 //             onClick={() => setShowRenewModal(false)}
-//             className="flex items-center gap-1 text-lg ml-5 hover:font-bold not-dark:text-white"
+//             className="flex items-center gap-1 text-lg ml-5 hover:font-bold "
 //           >
 //             <ArrowBigLeft />
 //             <span>Back</span>
@@ -76,7 +76,7 @@
 //           <RenewPlanPage setShowRenewModal={setShowRenewModal} />
 //         )}
 //         {!showRenewModal && isSubscribed ? (
-//           <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] not-dark:text-white">
+//           <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] ">
 //             <div>
 //               <h4 className="text-xl font-semibold">Diamonds</h4>
 //               <p className="font-light">Valid till: {userSub.endDate}</p>
@@ -176,7 +176,7 @@ const MyPlanPage = () => {
         {showRenewModal && (
           <button
             onClick={() => setShowRenewModal(false)}
-            className="flex items-center gap-1 text-lg ml-5 hover:font-bold not-dark:text-white"
+            className="flex items-center gap-1 text-lg ml-5 hover:font-bold "
           >
             <ArrowBigLeft />
             <span>Back</span>
@@ -189,7 +189,7 @@ const MyPlanPage = () => {
           />
         )}
         {!showRenewModal && isSubscribed ? (
-          <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] not-dark:text-white">
+          <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] ">
             <div>
               <h4 className="text-xl font-semibold">Diamonds</h4>
               <p className="font-light">Valid till: {userSub.endDate}</p>

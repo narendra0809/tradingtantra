@@ -620,7 +620,7 @@ const AIOptionDataPage = () => {
           <div className="dark:bg-db-primary bg-primary-light rounded-lg p-4 h-full">
             <div className="flex gap-4 items-center">
               <h1 className="text-2xl font-medium">{selectedIndex}</h1>
-              <span className="flex gap-1 items-center text-base font-light text-white">
+              <span className="flex gap-1 items-center text-base font-light ">
                 How to Use <FaPlayCircle className="text-[#0256F5]" />
               </span>
               <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white">

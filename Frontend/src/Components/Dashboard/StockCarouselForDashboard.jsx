@@ -27,7 +27,7 @@ const tickerData = [...stocks, ...stocks];
 
 const StockCarouselForDashboard = () => {
   return (
-    <div className=" dark:bg-[#000517] bg-[#273D8F]     border border-[#000B34] rounded-sm mt-10 py-2 overflow-hidden w-full flex ">
+    <div className=" dark:bg-[#000517] bg-[#FFFFFF]     border border-[#000B34] rounded-sm mt-10 py-2 overflow-hidden w-full flex ">
       <motion.div
         className="flex"
         initial={{ x: 0 }}

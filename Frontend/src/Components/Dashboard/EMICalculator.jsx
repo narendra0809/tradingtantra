@@ -84,7 +84,7 @@ const EMICalculator = ({ isSubscribed }) => {
   };
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 not-dark:text-white">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 ">
         {!isSubscribed ? (
           <Lock />
         ) : (
@@ -187,13 +187,13 @@ const EMICalculator = ({ isSubscribed }) => {
             <div className="flex justify-between items-center gap-10 mt-[82px]">
               <button
                 onClick={handleClear}
-                className="dark:bg-[#72A2FE] bg-primary py-2 rounded-md w-4/5"
+                className=" text-white bg-primary py-2 rounded-md w-4/5"
               >
                 Clear
               </button>
               <button
                 onClick={handleCalculate}
-                className="bg-primary py-2 rounded-md w-4/5"
+                className="bg-primary text-white py-2 rounded-md w-4/5"
               >
                 Calculate
               </button>
@@ -201,7 +201,7 @@ const EMICalculator = ({ isSubscribed }) => {
           </form>
         )}
       </div>
-      <div className=" not-dark:text-white py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
+      <div className="  py-5 px-7 dark:bg-[#00114E] bg-primary-light  rounded-md mt-5">
         <div className="flex justify-between items-center">
           <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
           <button

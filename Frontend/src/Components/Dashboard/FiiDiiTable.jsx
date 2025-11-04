@@ -21,7 +21,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
         <Loader />
       ) : (
         <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 ">
-          <h2 className="text-2xl font-semibold p-2 flex items-center gap-2 not-dark:text-white">
+          <h2 className="text-2xl font-semibold p-2 flex items-center gap-2 ">
             FII / DII <FcCandleSticks />
           </h2>
 
@@ -45,7 +45,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                       ].map((header) => (
                         <th
                           key={header}
-                          className="p-3 text-left whitespace-nowrap not-dark:text-white"
+                          className="p-3 text-left whitespace-nowrap "
                         >
                           {header}
                         </th>
@@ -55,13 +55,13 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                   <tbody>
                     {data?.map((row, index) => (
                       <tr key={index} className="border-b border-gray-700">
-                        <td className="p-3 whitespace-nowrap not-dark:text-white">
+                        <td className="p-3 whitespace-nowrap ">
                           {row?.date}
                         </td>
-                        <td className="p-3 whitespace-nowrap not-dark:text-white">
+                        <td className="p-3 whitespace-nowrap ">
                           {row?.fii_buy}
                         </td>
-                        <td className="p-3 whitespace-nowrap not-dark:text-white">
+                        <td className="p-3 whitespace-nowrap ">
                           {row?.fii_sell}
                         </td>
                         <td
@@ -93,10 +93,10 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                         >
                           {row?.dii_net}
                         </td>
-                        <td className="p-3 whitespace-nowrap not-dark:text-white">
+                        <td className="p-3 whitespace-nowrap ">
                           {row?.dii_buy}
                         </td>
-                        <td className="p-3 whitespace-nowrap not-dark:text-white">
+                        <td className="p-3 whitespace-nowrap ">
                           {row?.dii_sell}
                         </td>
                       </tr>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import logo from "../../assets/Images/logo.svg";
+import logoLight from "../../assets/Images/logoLight.png";
 import { RiLockFill } from "react-icons/ri";
 import AiOptionClock from "../../assets/Images/sidebar/AiOptionClock.svg";
 import AiOptionData from "../../assets/Images/sidebar/AiOptionData.svg";
@@ -36,6 +37,7 @@ const Sidebar = () => {
   }, []);
 
   const isOpen = useSelector((state) => state.sidebar.sideBarToggler);
+  const theme = useSelector((state) => state.theme.theme);
 
   const dispatch = useDispatch();
 
@@ -50,18 +52,21 @@ const Sidebar = () => {
       <div className="w-fit">
         {/* Sidebar */}
         <div
-          className={`bg-[#000517] not-dark:bg-[#273D8F] text-[#D7E3FF] not-dark:text-[#FFFFFF] border border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
+          className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] border border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
             isOpen ? "w-64" : "w-20"
           }`}
         >
           {/* Fixed Header */}
-          <div className="dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#273D8F]">
-            <div className="flex items-center w-full h-fit justify-center bg-[#000517] not-dark:bg-[#273D8F]  py-5">
+          <div className="dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#FFFFFF]">
+            <div className="flex items-center w-full h-fit justify-center bg-[#000517] not-dark:bg-[#FFFFFF]  py-5">
               {isOpen ? (
-                <img src={logo} alt="logo" />
+                <img 
+                src={theme === "dark" ? logo : logoLight}
+                 alt="logo" 
+                 />
               ) : (
                 <button
-                  className="text-white w-fit p-2 mb-4 cursor-pointer"
+                  className="text-[#000517] dark:text-white w-fit p-2 mb-4 cursor-pointer"
                   onClick={() => dispatch(toggleSideBar(!isOpen))}
                 >
                   <Menu size={24} />
@@ -209,12 +214,12 @@ const Sidebar = () => {
 
       {/* Close Button (Fixed) */}
       <div
-        className={` w-fit h-fit border flex items-center rounded-lg justify-center border-[#000B34] ml-1 bg-[#000517] not-dark:bg-[#273D8F] ${
+        className={` w-fit h-fit border flex items-center rounded-lg justify-center border-[#000B34] ml-1 bg-[#000517] not-dark:bg-[#FFFFFF] not-dark:text-[#000517] ${
           isOpen ? "block" : "hidden"
         }`}
       >
         <button
-          className="text-white p-2 cursor-pointer"
+          className=" p-2 cursor-pointer"
           onClick={() => dispatch(toggleSideBar(!isOpen))}
         >
           <X size={24} />
@@ -224,6 +229,122 @@ const Sidebar = () => {
   );
 };
 
+// const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
+//   const theme = useSelector((state) => state.theme.theme);
+
+//   return (
+//     <NavLink
+//       to={path}
+//       end={path === "/dashboard"}
+//       className={({ isActive }) => {
+//         return `flex cursor-pointer items-center transition-all duration-300 ease-in-out !text-white
+//           ${
+//             isActive
+//               ? theme === "dark"
+//                 ? "dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500"
+//                 : "bg-[#0256F5] border-l-4 border-blue-500  text-white"
+//               : theme === "dark"
+//               ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
+//               : "hover:bg-[#ffffff] text-[#000517]"
+//           } ${theme === "dark" ? "text-white" : ""}`;
+//       }}
+//     >
+//       <li
+//         className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4
+//           transition-all duration-300 ease-in-out
+//           ${theme === "dark" ? "text-white" : "text-[#000517] hover:text-white"}
+//           ${
+//             theme === "dark"
+//               ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
+//               : "hover:bg-[#0256F5]"
+//           }`}
+//       >
+//         <span className="flex items-center space-x-2">
+//           <img src={icon} alt={label} className="w-auto h-5" />
+//           {isOpen && <span>{label}</span>}
+//         </span>
+
+//         {!isSubscribed && isOpen && (
+//           <svg
+//             width="24"
+//             height="24"
+//             viewBox="0 0 24 24"
+//             xmlns="http://www.w3.org/2000/svg"
+//           >
+//             <defs>
+//               <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+//                 <stop offset="0%" stopColor="#0256F5" />
+//                 <stop offset="100%" stopColor="#77A6FF" />
+//               </linearGradient>
+//             </defs>
+//             <RiLockFill size={24} fill="url(#gradient)" />
+//           </svg>
+//         )}
+//       </li>
+//     </NavLink>
+//   );
+// };
+
+// const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
+//   const theme = useSelector((state) => state.theme.theme);
+
+//   return (
+//     <NavLink
+//       to={path}
+//       end={path === "/dashboard"}
+//       className={({ isActive }) => {
+//         const activeClass =
+//           theme === "dark"
+//             ? "bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500 text-white"
+//             : "bg-[#0256F5] border-l-4 border-blue-500 text-white";
+
+//         const inactiveClass =
+//           theme === "dark"
+//             ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
+//             : "hover:bg-[#0256F5] text-[#000517]";
+
+//         return `flex cursor-pointer items-center transition-all duration-300 ease-in-out ${
+//           isActive ? activeClass : inactiveClass
+//         }`;
+//       }}
+//     >
+//       {({ isActive }) => (
+//         <li
+//           className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out
+//           ${
+//             isActive
+//               ? "text-white" // ✅ Always white when active
+//               : theme === "dark"
+//               ? "text-white"
+//               : "text-[#000517] hover:text-white"
+//           }`}
+//         >
+//           <span className="flex items-center space-x-2">
+//             <img src={icon} alt={label} className="w-auto h-5" />
+//             {isOpen && <span>{label}</span>}
+//           </span>
+
+//           {!isSubscribed && isOpen && (
+//             <svg
+//               width="24"
+//               height="24"
+//               viewBox="0 0 24 24"
+//               xmlns="http://www.w3.org/2000/svg"
+//             >
+//               <defs>
+//                 <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+//                   <stop offset="0%" stopColor="#0256F5" />
+//                   <stop offset="100%" stopColor="#77A6FF" />
+//                 </linearGradient>
+//               </defs>
+//               <RiLockFill size={24} fill="url(#gradient)" />
+//             </svg>
+//           )}
+//         </li>
+//       )}
+//     </NavLink>
+//   );
+// };
 const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
   const theme = useSelector((state) => state.theme.theme);
 
@@ -232,50 +353,60 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
       to={path}
       end={path === "/dashboard"}
       className={({ isActive }) => {
-        return `flex cursor-pointer items-center transition-all duration-300 ease-in-out
-          ${
-            isActive
-              ? theme === "dark"
-                ? "dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500"
-                : "bg-[#5d75cec3] border-l-4 border-blue-500"
-              : theme === "dark"
-              ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
-              : "hover:bg-[#90a6f7]"
-          } text-${theme === "dark" ? "white" : "white"}`;
+        const activeClass =
+          theme === "dark"
+            ? "bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500 text-white"
+            : "bg-[#0256F5] border-l-4 border-blue-500 text-white";
+
+        const inactiveClass =
+          theme === "dark"
+            ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
+            : "hover:bg-[#0256F5] text-[#000517]";
+
+        return `flex cursor-pointer items-center transition-all duration-300 ease-in-out ${
+          isActive ? activeClass : inactiveClass
+        }`;
       }}
     >
-      <li
-        className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4
-          transition-all duration-300 ease-in-out
-          text-${theme === "dark" ? "white" : "white"}
+      {({ isActive }) => (
+        <li
+          className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out 
           ${
-            theme === "dark"
-              ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
-              : "hover:bg-[#273D8F]/80"
+            isActive
+              ? "text-white"
+              : theme === "dark"
+              ? "text-white"
+              : "text-[#000517] hover:text-white"
           }`}
-      >
-        <span className="flex items-center space-x-2">
-          <img src={icon} alt={label} className="w-auto h-5" />
-          {isOpen && <span>{label}</span>}
-        </span>
+        >
+          <span className="flex items-center space-x-2">
+            <img
+              src={icon}
+              alt={label}
+              className={`w-auto h-5 transition-all duration-300 ${
+                isActive
+                  ? "brightness-0 invert"
+                  : theme === "dark"
+                  ? "brightness-200"
+                  : "brightness-0"
+              }`}
+            />
+            {isOpen && <span>{label}</span>}
+          </span>
 
-        {!isSubscribed && isOpen && (
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#0256F5" />
-                <stop offset="100%" stopColor="#77A6FF" />
-              </linearGradient>
-            </defs>
-            <RiLockFill size={24} fill="url(#gradient)" />
-          </svg>
-        )}
-      </li>
+          {!isSubscribed && isOpen && (
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <defs>
+                <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="#0256F5" />
+                  <stop offset="100%" stopColor="#77A6FF" />
+                </linearGradient>
+              </defs>
+              <RiLockFill size={24} fill="url(#gradient)" />
+            </svg>
+          )}
+        </li>
+      )}
     </NavLink>
   );
 };

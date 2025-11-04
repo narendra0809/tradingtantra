@@ -55,7 +55,7 @@ const TreeGraphsGrid = ({ data, loading, handleGoToTable }) => {
             >
               <div className="w-full flex flex-col dark:bg-db-primary bg-primary-light rounded-md overflow-hidden">
                 <button
-                  className="text-left not-dark:text-white"
+                  className="text-left "
                   onClick={() => handleGoToTable(sector)}
                 >
                   <h1 className="text-base px-2.5 py-2">{sector}</h1>
