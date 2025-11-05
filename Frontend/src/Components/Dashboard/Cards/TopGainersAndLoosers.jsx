@@ -64,7 +64,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center not-dark:bg-[#EEEEEE] ">
           <div className="flex items-center gap-2">
             <img
               src={topGainers}
@@ -87,7 +87,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#E2E2E2] p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {!isSubscribed ? (
@@ -95,7 +95,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#E2E2E2] z-10">
                     <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"
@@ -177,7 +177,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                               <FcCandleSticks />
                             </a>
                           </td>
-                          <td className="text-center">
+                          <td className="text-center text-white">
                             <span
                               className={`${
                                 stock?.percentageChange >= 0
@@ -269,7 +269,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center not-dark:bg-[#EEEEEE]">
           <div className="flex items-center gap-2">
             <img
               src={topLoosers}
@@ -292,7 +292,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-primary-light p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#E2E2E2] p-2 relative">
             {/* Scrollable wrapper */}
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {!isSubscribed ? (
@@ -300,7 +300,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
               ) : (
                 <table className="w-full">
                   {/* Table Header */}
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-primary-light z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#E2E2E2] z-10">
                     <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"
@@ -382,7 +382,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                               <FcCandleSticks />
                             </a>
                           </td>
-                          <td className="text-center">
+                          <td className="text-center text-white">
                             <span
                               className={`${
                                 stock?.percentageChange >= 0

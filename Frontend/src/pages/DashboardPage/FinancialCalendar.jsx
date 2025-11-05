@@ -110,14 +110,13 @@ const FinancialCalendar = () => {
         padding: 12px 16px;
         text-align: left;
         background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
         font-weight: 600;
       }
       
       .responsive-table tbody td {
         padding: 12px 16px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        color: #d1d5db;
+    
       }
       
       .responsive-table tbody tr:last-child td {
@@ -154,7 +153,7 @@ const FinancialCalendar = () => {
         .responsive-table tbody td::before {
           content: attr(data-label);
           font-weight: 600;
-          color: #fff;
+         
           margin-right: 16px;
           flex: 1;
         }
@@ -280,7 +279,7 @@ const FinancialCalendar = () => {
             {!isSubscribed ? (
               <Lock />
             ) : (
-              <table className="responsive-table min-w-full">
+              <table className="responsive-table min-w-full ">
                 <thead className="hidden md:table-header-group ">
                   <tr>
                     <th

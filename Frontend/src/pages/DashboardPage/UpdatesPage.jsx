@@ -27,13 +27,14 @@ const UpdatesPageDashboard = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
   }, []);
+  console.log(updates)
   return (
     <>
       <div className="w-full h-auto p-6 mt-10 md:p-10 border-2 border-[#0256F5] rounded-lg not-dark:bg-primary-light ">
         {!isSubscribed ? (
           <Lock />
         ) : (
-          updates.map((item, index) => (
+          updates?.map((item, index) => (
             <div
               key={index}
               className="py-5 flex flex-col md:flex-row items-start md:items-center justify-start gap-4 md:gap-8 border-b border-b-[#013AA6] w-full"
@@ -56,7 +57,7 @@ const UpdatesPageDashboard = () => {
                   className={
                     item.category === "Improvement"
                       ? "text-white"
-                      : "text-[#03071B]"
+                      : ""
                   }
                 >
                   {item.category}
