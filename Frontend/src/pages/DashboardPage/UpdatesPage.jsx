@@ -57,7 +57,7 @@ const UpdatesPageDashboard = () => {
                   className={
                     item.category === "Improvement"
                       ? "text-white"
-                      : ""
+                      : "text-white"
                   }
                 >
                   {item.category}

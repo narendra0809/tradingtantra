@@ -75,6 +75,12 @@
   background-repeat: no-repeat;
   background-size: cover;
 }
+.lock-container-light {
+  background-image: url(../src/assets/Images/dummyLockBgLight.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 /* Loader CSS */
 .loader {

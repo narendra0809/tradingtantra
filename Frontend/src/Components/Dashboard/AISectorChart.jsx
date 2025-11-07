@@ -11,6 +11,7 @@ import {
   ReferenceLine,
   Cell,
   Rectangle,
+  LabelList,
 } from "recharts";
 import { useMediaQuery } from "react-responsive";
 
@@ -110,11 +111,11 @@ const AISectorChart = ({ data, handleGoToTable }) => {
 
   return (
     <div
-      className={`w-full overflow-x-auto overflow-y-hidden ${
+      className={`w-full overflow-x-auto overflow-y-hidden bg-[#EEEEEE] ${
         isMobile ? "h-[350px]" : "h-[500px]"
       }`}
     >
-      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-primary-light p-0 md:p-5 lg:p-3 rounded-lg shadow-lg">
+      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-[#EEEEEE] p-0 md:p-5 lg:p-3 rounded-lg shadow-lg">
         <ResponsiveContainer width="100%" height={450}>
           <BarChart
             data={sectorWisePercentageChange}
@@ -126,13 +127,35 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               bottom: marginBottom,
             }}
           >
-            <XAxis
+            {/* <XAxis
               dataKey="name"
-              tick={renderCustomXAxisTick}
+              // tick={renderCustomXAxisTick}
               interval={0}
               height={xAxisHeight}
-              stroke={theme === "dark" ? "#fff" : "#000000"}
-            />
+              // stroke={theme === "dark" ? "#fff" : "#000000"}
+              axisLine={false}
+              strokeDasharray="0" // ✅ removes dashes completely
+              // tick={({ x, y, payload, index, ...rest }) => {
+              //   // manually place labels near y=0
+              //   const zeroY = rest?.y || y; // fallback for safety
+              //   const offset = 15; // pixels below 0-line
+
+              //   return (
+              //     <g transform={`translate(${x},${zeroY + offset})`}>
+              //       <text
+              //         x={180}
+              //         y={0}
+              //         textAnchor="middle"
+              //         fill={theme === "dark" ? "#fff" : "#000"}
+              //         fontSize={isMobile ? 10 : 12}
+              //         transform="rotate(-90)"
+              //       >
+              //         {payload.value}
+              //       </text>
+              //     </g>
+              //   );
+              // }}
+            /> */}
             <YAxis
               type="number"
               stroke={theme === "dark" ? "#fff" : "#000000"}
@@ -142,6 +165,13 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               }}
               width={isMobile ? 30 : 40}
             />
+            <ReferenceLine
+              y={0}
+              stroke={theme === "dark" ? "#fff" : "#000"}
+              strokeWidth={1.5}
+              enableBackground={"#000"}
+            />
+
             <Tooltip
               cursor={{ fill: "rgba(255,255,255,0.1)" }}
               contentStyle={{
@@ -167,6 +197,27 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                   name={entry.name}
                 />
               ))}
+
+              <LabelList
+                dataKey="name"
+                content={({ x, y, width, height, value }) => {
+                  const isNegative = height < 0;
+                  // const textY = isNegative ? y + height - 5 : 120; // position inside
+                  const textY = 240; // position inside
+                  return (
+                    <text
+                      x={x + width / 2}
+                      y={textY}
+                      textAnchor="end"
+                      fill={isNegative ? "#A0C1FF" : theme ==="dark" ? "#FFF" :"#000"}
+                      fontSize={12}
+                      transform={`rotate(-90, ${x + width / 2}, ${textY})`} // vertical text
+                    >
+                      {value}
+                    </text>
+                  );
+                }}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

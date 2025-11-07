@@ -119,7 +119,7 @@ const CalendarGrid = ({
   const emptyColumns = totalColumns - monthsToShow.length - 1;
 
   return (
-    <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
+    <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
       <div className="p-5 dark:bg-db-secondary bg-primary-light text-white">
         <p className="text-lg font-light inline-block">Tradebook</p>
         {!isSubscribed ? (

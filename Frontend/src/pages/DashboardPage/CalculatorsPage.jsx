@@ -554,7 +554,7 @@ const CalculatorsPage = () => {
           </>
         ) : selectedCalculator === "SIP" ? (
           <>
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   What is SIP calculator?
@@ -598,7 +598,7 @@ const CalculatorsPage = () => {
               </div>{" "}
             </section>
 
-            <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
+            <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
               <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                 <h2 className="text-2xl font-semibold mb-5">
                   How to calculate SIP investments?
@@ -658,7 +658,7 @@ const CalculatorsPage = () => {
         ) : (
           selectedCalculator === "EMI" && (
             <>
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
+              <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
                 <div className="font-abcRepro dark:bg-db-primary  bg-primary-light p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-5">
                     What is EMI calculator?
@@ -737,7 +737,7 @@ const CalculatorsPage = () => {
                 </div>{" "}
               </section>
 
-              <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
+              <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px my-[30px] rounded-md mr-2 ">
                 <div className="font-abcRepro dark:bg-db-primary bg-primary-light  p-[30px] rounded-md  ">
                   <h2 className="text-2xl font-semibold mb-[25px]">
                     Formula:-

@@ -21,7 +21,7 @@ const OiClockChartThree = ({ data, selectedIndex }) => {
   ];
   const pcr = (formattedData[1].value / formattedData[0].value).toFixed(2);
   return (
-    <div className="bg-db-primary not-dark:bg-primary-light min-h-[375px] rounded-lg  shadow-lg w-full  ">
+    <div className="bg-db-primary not-dark:bg-[#EEEEEE] min-h-[375px] rounded-lg  shadow-lg w-full  ">
       <div
         className={`flex ${
           isMobile ? "flex-col" : "flex-row"

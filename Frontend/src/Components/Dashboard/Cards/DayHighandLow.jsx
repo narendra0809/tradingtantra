@@ -506,7 +506,7 @@ const DayHigh = ({
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C]  rounded-lg p-2">
         
-        <div className="flex justify-between items-center not-dark:bg-[#EEEEEE]">
+        <div className="flex justify-between items-center ">
           <div className="flex items-center gap-2">
             <img
               src={dayHigh}
@@ -526,14 +526,14 @@ const DayHigh = ({
             </div>
           </div>
         </div>
-        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg bg-[#E2E2E2]">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#E2E2E2] dark:text-white text-[#01071C] p-2 relative">
+        <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg bg-[#EEEEEE]">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {!isSubscribed ? (
                 <Lock />
               ) : (
                 <table className="w-full">
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#E2E2E2] dark:text-white text-[#01071C] z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] z-10">
                     <tr className="dark:text-gray-300  ">
                       <th
                         className="flex justify-start items-center py-2"
@@ -726,7 +726,7 @@ const DayLow = ({
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C] rounded-lg p-2">
      
-        <div className="flex justify-between items-center not-dark:bg-[#EEEEEE]">
+        <div className="flex justify-between items-center ">
           <div className="flex items-center gap-2">
             <img src={dayLow} alt="Logo" className="w-12 h-12 object-contain" />
             <div>
@@ -743,13 +743,13 @@ const DayLow = ({
           </div>
         </div>
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg ">
-          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#E2E2E2] dark:text-white text-[#01071C] p-2 relative">
+          <div className="w-full rounded-lg dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
               {!isSubscribed ? (
                 <Lock />
               ) : (
                 <table className="w-full">
-                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#E2E2E2] dark:text-white text-[#01071C] z-10">
+                  <thead className="sticky top-0 dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] z-10">
                     <tr className="dark:text-gray-300 ">
                       <th
                         className="flex justify-start items-center py-2"

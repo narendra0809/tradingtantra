@@ -144,7 +144,7 @@ const AiSectorDepthPage = () => {
     <>
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg h-auto ">
         <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 h-auto pb-12">
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center mb-5">
             <h1 className="text-3xl font-bold ">
               AI Sector Depth
             </h1>
@@ -196,7 +196,7 @@ const AiSectorDepthPage = () => {
               How to use <FaPlayCircle className="text-[#0256F5]" />
             </span>
           </div>
-          <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg ">
+          <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg bg-[#EEEEEE] ">
             {!isSubscribed ? (
               <div className="w-full h-[300px]">
                 <Lock />

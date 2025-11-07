@@ -26,7 +26,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
           </h2>
 
           <div className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-            <div className="dark:bg-db-secondary bg-primary-light rounded-lg p-4 w-full overflow-x-auto">
+            <div className="dark:bg-db-secondary bg-[#EEEEEE] rounded-lg p-4 w-full overflow-x-auto">
               {!isSubscribed ? (
                 <Lock />
               ) : (

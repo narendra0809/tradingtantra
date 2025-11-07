@@ -41,7 +41,7 @@ const CustomBarChart = ({ data }) => {
         overflowX: isMobile ? "auto" : "hidden",
         overflowY: "hidden",
       }}
-      className="dark:bg-db-secondary bg-primary-light"
+      className="dark:bg-db-secondary bg-[#EEEEEE]"
     >
       <div
         style={{

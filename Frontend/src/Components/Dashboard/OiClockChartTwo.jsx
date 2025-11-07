@@ -87,10 +87,11 @@ import {
 
 // Custom Tooltip Component
 const CustomTooltip = ({ active, payload }) => {
-  
+    const theme = useSelector((state) => state.theme.theme);
+
   if (active && payload && payload.length) {
     return (
-      <div className="bg-gray-800  p-2 rounded shadow-lg">
+      <div className="bg-gray-800  p-2 rounded shadow-lg text-white">
         <p>Option: {payload[0].payload.name}</p>
         <p>OI Change: {Math.round(payload[0].value).toLocaleString()}</p>
       </div>
@@ -120,7 +121,7 @@ const OiClockChartTwo = ({ data: chartData }) => {
 
   return (
     <div
-      className={`w-full h-[375px] bg-db-primary not-dark:bg-primary-light ${
+      className={`w-full h-[375px] bg-db-primary not-dark:bg-[#EEEEEE] ${
         isMobile ? "" : "p-5"
       } rounded-lg shadow-lg`}
     >

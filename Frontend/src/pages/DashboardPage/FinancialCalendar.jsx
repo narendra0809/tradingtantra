@@ -184,7 +184,7 @@ const FinancialCalendar = () => {
       <h2 className="mt-5 text-3xl font-semibold">Financial Calendar</h2>
       <div className="w-full flex items-stretch lg:gap-y-0 gap-y-5 lg:flex-row flex-col my-5">
         {/* Left Section: Calendar */}
-        <section className="rounded-lg w-full lg:max-w-md bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mr-0 lg:mr-5">
+        <section className="rounded-lg w-full lg:max-w-md dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mr-0 lg:mr-5">
           {!isSubscribed ? (
             <Lock />
           ) : (
@@ -229,7 +229,7 @@ const FinancialCalendar = () => {
           )}
         </section>
         {/* Right Section: Event List */}
-        <section className="rounded-lg w-full bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px">
+        <section className="rounded-lg w-full dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px">
           <div className="w-full dark:bg-db-primary bg-primary-light p-5 min-h-[400px] flex flex-col ">
             <h3 className="font-medium text-2xl text-center ">
               Event Date: 10 February, 2025
@@ -268,7 +268,7 @@ const FinancialCalendar = () => {
         </section>
       </div>
       {/* Third Section: Holidays Table */}
-      <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mt-5 rounded-md">
+      <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mt-5 rounded-md">
         <div className="dark:bg-db-primary bg-primary-light w-full p-5 rounded-md">
           <div className="flex justify-between mb-4">
             <h2 className="text-2xl font-light ">

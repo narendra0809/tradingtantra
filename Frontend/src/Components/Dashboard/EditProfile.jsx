@@ -2,11 +2,11 @@ import { FiMail, FiUser } from "react-icons/fi";
 
 const EditProfile = () => {
   return (
-    <div className="max-w-xl mx-auto p-6 bg-db-primary not-dark:bg-[#FFFFFF]  text-[#01071C] rounded-xl mt-16 shadow-lg shadow-gray-800/20">
+    <div className="max-w-xl mx-auto p-6 bg-db-primary not-dark:bg-[#FFFFFF]   rounded-xl mt-16 shadow-lg shadow-gray-800/20">
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-semibold flex items-center gap-2 ">
-          <FiUser className="text-[#4F46E5]" /> Account Settings
+          <FiUser className=""/> Account Settings
         </h2>
         <p className="text-sm text-gray-400 mt-1">
           Update your personal information
@@ -14,11 +14,11 @@ const EditProfile = () => {
       </div>
 
       {/* Form */}
-      <form className="space-y-6">
+      <form className="space-y-6 not-dark:bg-[#EEEEEE] p-[20px] rounded-[20px]">
         {/* Name Fields - Responsive Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2 ">
+            <label className="block text-sm font-medium  mb-2 ">
               First Name
             </label>
             <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
@@ -32,7 +32,7 @@ const EditProfile = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2 ">
+            <label className="block text-sm font-medium  mb-2 ">
               Last Name
             </label>
             <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
@@ -48,7 +48,7 @@ const EditProfile = () => {
 
         {/* Email Field */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2 ">
+          <label className="block text-sm font-medium  mb-2 ">
             Email Address
           </label>
           <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">

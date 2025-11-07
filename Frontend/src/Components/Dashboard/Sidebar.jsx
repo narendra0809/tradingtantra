@@ -52,7 +52,7 @@ const Sidebar = () => {
       <div className="w-fit">
         {/* Sidebar */}
         <div
-          className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] border border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
+          className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] dark:border dark:border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
             isOpen ? "w-64" : "w-20"
           }`}
         >
@@ -229,122 +229,6 @@ const Sidebar = () => {
   );
 };
 
-// const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
-//   const theme = useSelector((state) => state.theme.theme);
-
-//   return (
-//     <NavLink
-//       to={path}
-//       end={path === "/dashboard"}
-//       className={({ isActive }) => {
-//         return `flex cursor-pointer items-center transition-all duration-300 ease-in-out !text-white
-//           ${
-//             isActive
-//               ? theme === "dark"
-//                 ? "dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500"
-//                 : "bg-[#0256F5] border-l-4 border-blue-500  text-white"
-//               : theme === "dark"
-//               ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
-//               : "hover:bg-[#ffffff] text-[#000517]"
-//           } ${theme === "dark" ? "text-white" : ""}`;
-//       }}
-//     >
-//       <li
-//         className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4
-//           transition-all duration-300 ease-in-out
-//           ${theme === "dark" ? "text-white" : "text-[#000517] hover:text-white"}
-//           ${
-//             theme === "dark"
-//               ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517]"
-//               : "hover:bg-[#0256F5]"
-//           }`}
-//       >
-//         <span className="flex items-center space-x-2">
-//           <img src={icon} alt={label} className="w-auto h-5" />
-//           {isOpen && <span>{label}</span>}
-//         </span>
-
-//         {!isSubscribed && isOpen && (
-//           <svg
-//             width="24"
-//             height="24"
-//             viewBox="0 0 24 24"
-//             xmlns="http://www.w3.org/2000/svg"
-//           >
-//             <defs>
-//               <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-//                 <stop offset="0%" stopColor="#0256F5" />
-//                 <stop offset="100%" stopColor="#77A6FF" />
-//               </linearGradient>
-//             </defs>
-//             <RiLockFill size={24} fill="url(#gradient)" />
-//           </svg>
-//         )}
-//       </li>
-//     </NavLink>
-//   );
-// };
-
-// const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
-//   const theme = useSelector((state) => state.theme.theme);
-
-//   return (
-//     <NavLink
-//       to={path}
-//       end={path === "/dashboard"}
-//       className={({ isActive }) => {
-//         const activeClass =
-//           theme === "dark"
-//             ? "bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] border-l-4 border-blue-500 text-white"
-//             : "bg-[#0256F5] border-l-4 border-blue-500 text-white";
-
-//         const inactiveClass =
-//           theme === "dark"
-//             ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
-//             : "hover:bg-[#0256F5] text-[#000517]";
-
-//         return `flex cursor-pointer items-center transition-all duration-300 ease-in-out ${
-//           isActive ? activeClass : inactiveClass
-//         }`;
-//       }}
-//     >
-//       {({ isActive }) => (
-//         <li
-//           className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out
-//           ${
-//             isActive
-//               ? "text-white" // ✅ Always white when active
-//               : theme === "dark"
-//               ? "text-white"
-//               : "text-[#000517] hover:text-white"
-//           }`}
-//         >
-//           <span className="flex items-center space-x-2">
-//             <img src={icon} alt={label} className="w-auto h-5" />
-//             {isOpen && <span>{label}</span>}
-//           </span>
-
-//           {!isSubscribed && isOpen && (
-//             <svg
-//               width="24"
-//               height="24"
-//               viewBox="0 0 24 24"
-//               xmlns="http://www.w3.org/2000/svg"
-//             >
-//               <defs>
-//                 <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
-//                   <stop offset="0%" stopColor="#0256F5" />
-//                   <stop offset="100%" stopColor="#77A6FF" />
-//                 </linearGradient>
-//               </defs>
-//               <RiLockFill size={24} fill="url(#gradient)" />
-//             </svg>
-//           )}
-//         </li>
-//       )}
-//     </NavLink>
-//   );
-// };
 const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
   const theme = useSelector((state) => state.theme.theme);
 
@@ -363,14 +247,14 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
             ? "hover:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] text-white"
             : "hover:bg-[#0256F5] text-[#000517]";
 
-        return `flex cursor-pointer items-center transition-all duration-300 ease-in-out ${
+        return `flex cursor-pointer items-center transition-all duration-300 ease-in-out group ${
           isActive ? activeClass : inactiveClass
         }`;
       }}
     >
       {({ isActive }) => (
         <li
-          className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out 
+          className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out  
           ${
             isActive
               ? "text-white"
@@ -383,13 +267,14 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
             <img
               src={icon}
               alt={label}
-              className={`w-auto h-5 transition-all duration-300 ${
-                isActive
-                  ? "brightness-0 invert"
-                  : theme === "dark"
-                  ? "brightness-200"
-                  : "brightness-0"
-              }`}
+              className={`w-auto h-5 transition-all duration-300 
+                ${
+                  isActive
+                    ? "brightness-0 invert" // active
+                    : theme === "dark"
+                    ? "brightness-200 group-hover:brightness-0 group-hover:invert" // dark + hover
+                    : "brightness-0 group-hover:invert" // light + hover
+                }`}
             />
             {isOpen && <span>{label}</span>}
           </span>
@@ -410,5 +295,6 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
     </NavLink>
   );
 };
+
 
 export default Sidebar;

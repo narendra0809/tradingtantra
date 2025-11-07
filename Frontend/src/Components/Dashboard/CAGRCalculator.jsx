@@ -135,7 +135,7 @@ const CAGRCalculator = ({ calculator, isSubscribed }) => {
 
   return (
     <div>
-      <div className=" py-11 px-5 dark:bg-[#00114E] bg-primary-light dark:text-white text-[#01071C] rounded-md mt-10">
+      <div className=" py-11 px-5 dark:bg-[#00114E] bg-[#EEEEEE]   rounded-md mt-10">
         {!isSubscribed ? (
           <Lock />
         ) : (
@@ -249,7 +249,7 @@ const CAGRCalculator = ({ calculator, isSubscribed }) => {
         )}
       </div>
 
-      <div className="dark:text-white text-[#01071C] py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5">
+      <div className="dark:text-white text-[#01071C] py-5 px-7 dark:bg-[#00114E] bg-[#EEEEEE] rounded-md mt-5">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         {calculator === "CAGR" ? (
           <div className="mt-[30px] flex w-full justify-between items-center font-abcRepro text-2xl font-light">

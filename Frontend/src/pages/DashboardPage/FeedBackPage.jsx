@@ -72,7 +72,7 @@ const FeedBackPage = () => {
           <Lock />
         ) : (
           <form
-            className="flex items-center justify-between flex-wrap w-full space-y-4"
+            className="flex items-center justify-between flex-wrap w-full space-y-4 bg-[#EEEEEE] p-[5px]"
             onSubmit={handleFormSubmit}
           >
             <div className="flex flex-col items-start  w-full space-y-2">
@@ -167,7 +167,7 @@ const FeedBackPage = () => {
               </div>
             </div>
             <button
-              className="w-full bg-primary mt-5 py-5 rounded-lg"
+              className="w-full bg-primary mt-5 py-5 rounded-lg text-white"
               type="submit"
             >
               Send feedback

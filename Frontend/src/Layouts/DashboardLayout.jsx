@@ -119,7 +119,7 @@ const DashboardLayout = () => {
           className={`w-full mt-2 h-12 ${
             theme === "dark"
               ? "bg-transparent border-none"
-              : "bg-white dark:bg-[#273D8F] l  border border-[#8EA7EC] rounded-lg"
+              : "bg-white dark:bg-[#273D8F] l  dark:border dark:border-[#8EA7EC] rounded-lg"
           }`}
         >
           <TickerTape

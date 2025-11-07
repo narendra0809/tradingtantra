@@ -220,7 +220,7 @@ const TradingJournal = () => {
         <div className="flex flex-col md:flex-row gap-2 md:gap-2.5 w-full md:w-auto">
           <div className="relative">
             <button
-              className="text-xs md:text-sm font-normal bg-primary rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto "
+              className="text-xs md:text-sm font-normal bg-primary rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto text-white"
               onClick={() => setShowAddTrade(!showAddTrade)}
             >
               Add Trade (+)
@@ -228,7 +228,7 @@ const TradingJournal = () => {
           </div>
           <div className="relative">
             <button
-              className="text-xs md:text-sm font-normal flex items-center justify-center md:justify-start gap-2 bg-[#0256F5] rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto "
+              className="text-xs md:text-sm font-normal flex items-center justify-center md:justify-start gap-2 bg-[#0256F5] rounded-[5px] py-1.5 md:py-2 px-2 md:px-3 w-full md:w-auto text-white"
               onClick={() => setShowDateRange(!showDateRange)}
             >
               <p>Date Range Selector</p>
@@ -447,7 +447,7 @@ const TradingJournal = () => {
         </div>
       </Modal>
 
-      <section className="bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
+      <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
         <div className="dark:bg-db-primary bg-primary-light rounded-md p-2 md:p-2.5">
           <CalendarGrid
             setSelectedDate={setSelectedDate}
@@ -458,7 +458,7 @@ const TradingJournal = () => {
           />
 
           <div className="my-2 md:my-2.5 ">
-            <section className="lg:col-span-2 bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
+            <section className="lg:col-span-2 dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
               <div className="dark:bg-db-secondary bg-primary-light rounded-md p-2 md:p-2.5">
                 <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Statistics

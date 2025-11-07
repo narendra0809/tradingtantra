@@ -71,7 +71,7 @@ const RiskCalculator = ({ calculator, isSubscribed }) => {
 
   return (
     <div>
-      <div className="py-11 px-5 dark:bg-[#00114E] bg-primary-light rounded-md mt-10 ">
+      <div className="py-11 px-5 dark:bg-[#00114E] bg-[#EEEEEE] rounded-md mt-10 ">
         {!isSubscribed ? (
           <Lock />
         ) : (
@@ -141,7 +141,7 @@ const RiskCalculator = ({ calculator, isSubscribed }) => {
         )}
       </div>
 
-      <div className="py-5 px-7 dark:bg-[#00114E] bg-primary-light rounded-md mt-5 ">
+      <div className="py-5 px-7 dark:bg-[#00114E] bg-[#EEEEEE] rounded-md mt-5 ">
         <h4 className="text-3xl font-abcRepro font-light">Result:</h4>
         <div className="mt-[30px] space-y-5">
           <div className="flex w-full justify-between items-center font-abcRepro text-2xl font-light">

@@ -25,7 +25,7 @@ const UpdatesPage = () => {
             >
               <p
                 className={
-                  item.type === "Improvement" ? "text-white" : "text-[#03071B]"
+                  item.type === "Improvement" ? "text-white" : "text-white"
                 }
               >
                 {item.type}
