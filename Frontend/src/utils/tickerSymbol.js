@@ -1,4 +1,9 @@
 export const tickerSymbol = [
+  { proName: "NIFTY", description: "Nifty" },
+  { proName: "BANKNIFTY", description: "Banknifty" },
+  { proName: "FINNIFTY", description: "Finnifty" },
+  { proName: "MIDCAP", description: "Midcap" },
+  { proName: "SENSEX", description: "Sensex" },
   { proName: "AUROPHARMA", description: "Aurobindo Pharma" },
   { proName: "AXISBANK", description: "Axis Bank" },
   { proName: "BAJAJFINSV", description: "Bajaj Finserv" },

@@ -6,7 +6,6 @@ import MarketDetailData from "../models/marketData.model.js";
 import FiveMinCandles from "../models/fiveMinCandles.model.js";
 import TenMinCandles from "../models/tenMinCandles.model.js";
 import FifteenMinCandles from "../models/fifteenMinCandles.model.js";
-import redis from "../config/redisClient.js";
 import MarketHoliday from "../models/holidays.model.js";
 import { runFetchForIndexCandles } from "../services/indexCandles.service.js";
 
@@ -60,7 +59,7 @@ const saveMarketData = async () => {
       );
       successCount++;
     } catch (err) {
-      console.error(`❌ DB error for ${securityId}: ${err.message}`);
+      // console.error(`❌ DB error for ${securityId}: ${err.message}`);
       errorCount++;
     }
   }
@@ -71,14 +70,6 @@ const saveMarketData = async () => {
   marketDataBuffer.clear();
   receivedSecurityIds.clear();
   isProcessingSave = false;
-};
-
-const saveToRedis = async (securityId, data) => {
-  try {
-    await redis.set(`market:${securityId}`, JSON.stringify(data));
-  } catch (err) {
-    console.error(`❌ Redis Save Error for ${securityId}: ${err.message}`);
-  }
 };
 
 const fetchSecurityIds = async () => {
@@ -159,17 +150,12 @@ async function startWebSocket() {
         receivedSecurityIds.add(securityId);
 
         if (receivedSecurityIds.size === totalSecurityIds) {
-          console.log("✅ All market data received. Saving to Redis...");
           isProcessingSave = true;
-
-          // for (const [secId, data] of marketDataBuffer.entries()) {
-          //   await saveToRedis(secId, data);
-          // }
 
           console.log("⏳ Waiting 5 minutes before saving to MongoDB...");
           setTimeout(async () => {
             await saveMarketData();
-            isProcessingSave = false; // Reset flag after saving
+            isProcessingSave = false;
           }, 5 * 60 * 1000);
         }
       } else {
