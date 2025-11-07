@@ -5,7 +5,7 @@
   --color-db-primary: #01071c;
   --color-db-secondary: #000a2d;
   /* --color-primary-light: #273d8f;   old bg*/
-   --color-primary-light: #FFFFFF;   
+  --color-primary-light: #ffffff;
   --color-db-primary-light: #f1f5f9;
   --color-db-secondary-light: #f8fafc;
   --color-light-b: #273d8f;
@@ -409,7 +409,7 @@ input[type="reset"] {
 }
 
 /* Tablet layout (641px–1023px) */
-@media (max-width: 1023px) and (min-width: 641px) {
+@media (max-width: 2000px) and (min-width: 641px) {
   .parent {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
