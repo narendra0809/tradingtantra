@@ -100,7 +100,7 @@ const AIContractions = ({ data, loading, error, isSubscribed }) => {
                 <table className="w-full">
                   {/* Table Header */}
                   <thead className="sticky top-0 dark:bg-db-secondary bg-[#EEEEEE] z-10">
-                    <tr className="dark:text-gray-300 text-white">
+                    <tr className="dark:text-gray-300 ">
                       <th
                         className="py-2 text-left"
                         onClick={handleSortBySymbol}
@@ -138,7 +138,7 @@ const AIContractions = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                     </tr>
-                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#000A2D] via-[#002ED0] to-[#000A2D]" />
+                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000]" />
                   </thead>
 
                   {/* Scrollable Table Body */}
@@ -193,10 +193,7 @@ const AIContractions = ({ data, loading, error, isSubscribed }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="5"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="5" className="text-center py-4 ">
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>

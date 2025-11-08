@@ -1,9 +1,11 @@
 /* eslint-disable react/prop-types */
 import Chart from "react-apexcharts";
 import Lock from "./Lock";
+import { useSelector } from "react-redux";
 
 const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
   const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
+ const theme = useSelector((state) => state.theme.theme);
 
   const topContributors = contributor.contributions
     .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
@@ -82,14 +84,15 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
       colors: chartColors,
       stroke: {
         width: 2,
-        colors: ["#01071C"],
+        // colors: ["#01071C"],
+         colors: theme=="dark" ? ["#01071C"] :["#FFF"],
       },
       dataLabels: {
         enabled: true,
         style: {
           fontSize: "12px",
           fontWeight: "bold",
-          colors: ["#fff"],
+          colors: ["#000"],
         },
         dropShadow: {
           enabled: false,
@@ -104,10 +107,10 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
             labels: {
               show: true,
               name: {
-                color: "#fff",
+                color: "#000",
               },
               value: {
-                color: "#fff",
+                color: indexPts <0 ? "#9B3B44" : "#269F3C",
                 fontSize: "16px",
                 fontWeight: "bold",
                 formatter: function (val) {

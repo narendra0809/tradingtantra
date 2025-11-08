@@ -66,7 +66,7 @@ const Notifications = () => {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 dark:bg-[#01071C] bg-db-primary  rounded-xl   mt-10">
+    <div className="max-w-lg mx-auto p-6 dark:bg-[#01071C] bg-white  rounded-xl   mt-10">
       {/* Header */}
       <div className="flex justify-between items-center pb-4">
         <h2 className="text-base font-semibold">Notifications</h2>
@@ -74,7 +74,7 @@ const Notifications = () => {
           <button className="text-[11px]  cursor-pointer flex items-center gap-x-2">
             <CheckCheck size={15} /> Mark all as read
           </button>
-          <button className="bg-[#0256F5] text-white  px-3 py-2 rounded-full text-[10px]">
+          <button className="bg-[#0256F5]  text-white px-3 py-2 rounded-full text-[10px]">
             View all notifications
           </button>
         </div>
@@ -106,49 +106,55 @@ const Notifications = () => {
 
       {/* Notifications List */}
       <div className="space-y-4 max-h-[500px] overflow-y-auto scrollbar-hidden">
-        {notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="flex gap-3 items-start p-3  rounded-md"
-          >
-            <img
-              src={notification.avatar}
-              alt={notification.user}
-              className="w-10 h-10 rounded-full"
-            />
-            <div className="flex-1">
-              <p className="text-[12px] ">
-                <span className="font-semibold text-sm">
-                  {notification.user}
-                </span>{" "}
-                {notification.action}
-              </p>
-              {notification.message && (
-                <div className="bg-[#04102E] p-2 mt-2 rounded-md text-sm text-gray-300">
-                  {notification.message}
+        {notifications?.length > 0 ? (
+          notifications?.map((notification) => (
+            <div
+              key={notification.id}
+              className="flex gap-3 items-start p-3  rounded-md"
+            >
+              <img
+                src={notification.avatar}
+                alt={notification.user}
+                className="w-10 h-10 rounded-full"
+              />
+              <div className="flex-1">
+                <p className="text-[12px] ">
+                  <span className="font-semibold text-sm">
+                    {notification.user}
+                  </span>{" "}
+                  {notification.action}
+                </p>
+                {notification.message && (
+                  <div className="dark:bg-[#04102E] p-2 mt-2 rounded-md text-sm dark:text-gray-300 bg-[#EEEEEE] text-black">
+                    {notification.message}
+                  </div>
+                )}
+                {notification.files && (
+                  <div className="mt-2 space-y-1">
+                    {notification.files.map((file, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center bg-[#EEEEEE] dark:bg-[#04102E]  p-2 rounded-md"
+                      >
+                        <span className="text-sm text-black dark:text-gray-300">
+                          {file.name}
+                        </span>
+                        <button className="text-[#0256F5] text-sm">⬇</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="text-xs flex justify-between items-center text-gray-400 mt-1">
+                  <span> {notification.time}</span>{" "}
+                  <span>{notification.date}</span>
                 </div>
-              )}
-              {notification.files && (
-                <div className="mt-2 space-y-1">
-                  {notification.files.map((file, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center bg-[#04102E] p-2 rounded-md"
-                    >
-                      <span className="text-sm text-gray-300">{file.name}</span>
-                      <button className="text-[#0256F5] text-sm">⬇</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="text-xs flex justify-between items-center text-gray-400 mt-1">
-                <span> {notification.time}</span>{" "}
-                <span>{notification.date}</span>
               </div>
+              <div className="text-[#0256F5] text-sm">•</div>
             </div>
-            <div className="text-[#0256F5] text-sm">•</div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <h1 className="text-center">No Notification Found</h1>
+        )}
       </div>
     </div>
   );

@@ -56,41 +56,53 @@ const FinancialCalendar = () => {
         width: 100%;
         background: transparent;
         border: none;
-        color: #fff;
+        
+        // color:${theme ==="dark" ? "#fff" :"#000"};
       }
       .custom-calendar .react-calendar__tile,
       .custom-calendar-dark .react-calendar__tile {
         background: transparent;
-        color: #fff;
+      
+        // color:${theme ==="dark" ? "#fff" :"#000"};
       }
       .current-date {
         background: #0356F5 !important;
-        color: #fff !important;
+        //color: #fff !important;
         border-radius: 50%;
       }
       .sunday-tile {
-        color: #FF6B6B !important;
+       //color: #FF6B6B !important;
+      }
+       .sunday-tile-dark {
+       background-color: #00114E !important;
+       color:#FFF !important
       }
       .saturday-tile {
-        color: #4CAF50 !important;
+       // color: #4CAF50 !important;
       }
+      .saturday-tile-dark {
+       background-color: #00114E !important;
+       color:#FFF !important
+      }
+
       .holiday-tile {
         background: #837AFF !important;
-        color: #fff !important;
+       // color: #fff !important;
         border-radius: 50%;
       }
       .react-calendar__tile--active {
         background: #085AF5 !important;
-        color: #fff !important;
+        //color: #fff !important;
         border-radius: 50%;
       }
       .react-calendar__navigation button {
-        color: #fff;
+       // color: #fff;
         background: transparent;
       }
+      
       .react-calendar__month-view__weekdays {
-        color: #fff;
-        text-decoration: none;
+       // color: #fff;
+       // text-decoration: none;
       }
       .scrollbar-hidden::-webkit-scrollbar {
         display: none;
@@ -188,29 +200,29 @@ const FinancialCalendar = () => {
           {!isSubscribed ? (
             <Lock />
           ) : (
-            <div className="dark:bg-db-primary bg-primary-light w-full rounded-lg p-2.5 min-h-[400px] flex flex-col">
-              <div className="flex flex-col items-center dark:bg-db-primary bg-primary-light shadow-lg rounded-sm w-full flex-grow">
+            <div className="dark:bg-db-primary  bg-primary-light w-full rounded-lg p-2.5 min-h-[400px] flex flex-col">
+              <div className="flex flex-col items-center dark:bg-db-primary bg-primary-light  rounded-sm w-full flex-grow">
                 <Calendar
                   onChange={setDate}
                   value={date}
                   locale="en-US"
                   className={`${
                     theme === "dark"
-                      ? "custom-calendar-dark"
-                      : "custom-calendar"
+                      ? "custom-calendar-dark "
+                      : "custom-calendar "
                   }`}
                   tileClassName={({ date }) => {
                     const formattedDate = date.toISOString().split("T")[0];
                     const day = date.getDay();
                     const classes = [];
                     if (date.toDateString() === today.toDateString()) {
-                      classes.push("current-date");
+                     classes.push( theme ==="dark" ? "current-date" : "current-date");
                     }
                     if (day === 0) {
-                      classes.push("sunday-tile");
+                       classes.push( theme ==="dark" ? "sunday-tile-dark " : "sunday-tile ");
                     }
                     if (day === 6) {
-                      classes.push("saturday-tile");
+                   classes.push( theme ==="dark" ? "saturday-tile-dark " : "saturday-tile ");
                     }
                     if (holidayDates.includes(formattedDate)) {
                       classes.push("holiday-tile");
@@ -219,10 +231,10 @@ const FinancialCalendar = () => {
                   }}
                 />
               </div>
-              <div className="grid grid-cols-3 dark:bg-db-secondary bg-primary-light mt-2.5 gap-y-2 p-4">
+              <div className="grid grid-cols-3 dark:bg-db-secondary bg-[#EEEEEE] mt-2.5 gap-y-2 p-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-[#837AFF]"></div>
-                  <p className="text-xs ">Holidays</p>
+                  <p className="text-xs  ">Holidays</p>
                 </div>
               </div>
             </div>
@@ -270,17 +282,17 @@ const FinancialCalendar = () => {
       {/* Third Section: Holidays Table */}
       <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px mt-5 rounded-md">
         <div className="dark:bg-db-primary bg-primary-light w-full p-5 rounded-md">
-          <div className="flex justify-between mb-4">
+          <div className="flex justify-between mb-4 ">
             <h2 className="text-2xl font-light ">
               Total Holidays: {holidays.length}
             </h2>
           </div>
-          <div className="dark:bg-db-secondary bg-primary-light rounded-md overflow-x-auto">
+          <div className="dark:bg-db-secondary bg-[#EEEEEE] rounded-md overflow-x-auto">
             {!isSubscribed ? (
               <Lock />
             ) : (
               <table className="responsive-table min-w-full ">
-                <thead className="hidden md:table-header-group ">
+                <thead className="hidden md:table-header-group border-b-1 border-[#BEBFC3]">
                   <tr>
                     <th
                       scope="col"

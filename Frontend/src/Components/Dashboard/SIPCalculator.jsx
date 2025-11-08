@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import Lock from "./Lock";
+import { useSelector } from "react-redux";
 
 // Plugin to display text inside the doughnut segments
 const textInsidePlugin = {
@@ -42,6 +43,7 @@ const SIPCalculator = ({ calculator, isSubscribed }) => {
   const [initialAmount, setInitialAmount] = useState(500);
   const [expectedReturn, setExpectedReturn] = useState(1);
   const [duration, setDuration] = useState(1);
+  const theme = useSelector((state)=>state.theme.theme)
   const [calculatedValues, setCalculatedValues] = useState({
     investedAmount: 1,
     estimatedReturns: 1,
@@ -107,7 +109,7 @@ const SIPCalculator = ({ calculator, isSubscribed }) => {
       legend: {
         position: "bottom",
         labels: {
-          color: "#fff",
+          color: theme==="dark" ? "#fff":"#000",
           boxWidth: 20,
           padding: 20,
         },
@@ -246,6 +248,7 @@ const SIPCalculator = ({ calculator, isSubscribed }) => {
                   plugins={[textInsidePlugin]}
                   width={"324px"}
                   height={"324px"}
+
                 />
               </div>
             </div>

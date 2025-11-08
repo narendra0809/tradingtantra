@@ -145,7 +145,7 @@ const Header = () => {
           </div>
         </div>
 
-        <IoIosNotifications className="text-white not-dark:text-[#000E40] text-3xl" />
+        <IoIosNotifications onClick={()=>navigate("/dashboard/notifications")} className="text-white not-dark:text-[#000E40] text-3xl" />
 
         <div className="relative" ref={dropdownRef}>
           <img

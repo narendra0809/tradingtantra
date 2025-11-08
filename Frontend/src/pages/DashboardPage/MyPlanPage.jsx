@@ -189,20 +189,22 @@ const MyPlanPage = () => {
           />
         )}
         {!showRenewModal && isSubscribed ? (
-          <div className="px-6 py-2 flex justify-between items-center border-b border-[#26304A] ">
-            <div>
-              <h4 className="text-xl font-semibold">Diamonds</h4>
-              <p className="font-light">Valid till: {userSub.endDate}</p>
-              <p className="font-light dark:text-[#0155F3] text-primary">
-                View Transaction Details
-              </p>
+          <div className="px-6 py-2   ">
+            <div className="flex justify-between items-center  border-b border-[#BEBFC3] pb-[20px] ">
+              <div className="">
+                <h4 className="text-xl font-semibold">Diamonds</h4>
+                <p className="font-light">Valid till: {userSub.endDate}</p>
+                <p className="font-light dark:text-[#0155F3] text-primary">
+                  View Transaction Details
+                </p>
+              </div>
+              <button
+                onClick={() => setShowRenewModal(true)}
+                className="bg-[#0155F3] text-white font-light py-2 px-2.5 h-fit rounded"
+              >
+                Renew
+              </button>
             </div>
-            <button
-              onClick={() => setShowRenewModal(true)}
-              className="bg-[#0155F3] text-white font-light py-2 px-2.5 h-fit rounded"
-            >
-              Renew
-            </button>
           </div>
         ) : (
           !showRenewModal && (

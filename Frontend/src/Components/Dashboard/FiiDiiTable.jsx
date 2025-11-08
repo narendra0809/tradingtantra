@@ -32,7 +32,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
               ) : (
                 <table className="w-full min-w-[800px] text-sm">
                   <thead>
-                    <tr className="border-b border-gray-600">
+                    <tr className="border-b-1 border-[#BEBFC3] dark:border-[#002ED0]">
                       {[
                         "Date",
                         "FII BUY",
@@ -51,10 +51,12 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                         </th>
                       ))}
                     </tr>
+                     <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000] " />
+               
                   </thead>
                   <tbody>
                     {data?.map((row, index) => (
-                      <tr key={index} className="border-b border-gray-700">
+                      <tr key={index} className="">
                         <td className="p-3 whitespace-nowrap ">
                           {row?.date}
                         </td>
@@ -68,7 +70,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                           className={`p-3 whitespace-nowrap ${
                             row?.fii_net < 0
                               ? "text-[#C0313F]"
-                              : "text-green-300"
+                              : "text-[#269F3C]"
                           }`}
                         >
                           {row.fii_net}
@@ -78,8 +80,8 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                             className={`${
                               (row?.fii_net + row?.dii_net).toFixed(2) < 0
                                 ? "bg-[#fba8a8]"
-                                : "bg-[#b9e3a8]"
-                            }  text-gray-800 font-semibold px-3 py-1 rounded-full`}
+                                : "bg-[#269F3C]"
+                            }  text-white font-semibold px-3 py-1 rounded-full`}
                           >
                             {(row?.fii_net + row?.dii_net).toFixed(2)}
                           </span>
@@ -88,7 +90,7 @@ const FiiDiiTable = ({ data, loading, isSubscribed }) => {
                           className={`p-3 whitespace-nowrap ${
                             row?.dii_net < 0
                               ? "text-[#C0313F]"
-                              : "text-green-300"
+                              : "text-[#269F3C]"
                           }`}
                         >
                           {row?.dii_net}

@@ -459,7 +459,7 @@ const TradingJournal = () => {
 
           <div className="my-2 md:my-2.5 ">
             <section className="lg:col-span-2 dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-              <div className="dark:bg-db-secondary bg-primary-light rounded-md p-2 md:p-2.5">
+              <div className="dark:bg-db-secondary bg-[#EEEEEE] rounded-md p-2 md:p-2.5">
                 <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Statistics
                 </h5>
@@ -479,7 +479,7 @@ const TradingJournal = () => {
                     ].map((stat, index) => (
                       <div
                         key={stat}
-                        className={`dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 ${
+                        className={`dark:bg-db-primary bg-[#E2E2E2] flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 ${
                           index >= 4 ? "sm:col-span-2" : ""
                         }`}
                       >
@@ -515,7 +515,7 @@ const TradingJournal = () => {
           </div>
 
           <div className="grid md:grid-cols-2 grid-cols-1 gap-2 md:gap-2.5 ">
-            <section className="bg-[#000A2D] not-dark:bg-primary-light p-px rounded-md">
+            <section className="bg-[#000A2D] not-dark:bg-[#EEEEEE] p-px rounded-md">
               <div className="rounded-md p-2 md:p-2.5">
                 <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Top Winner
@@ -527,7 +527,7 @@ const TradingJournal = () => {
                     data?.topWinnersLosers?.top3Winners.map((data, index) => (
                       <div
                         key={index}
-                        className="dark:bg-db-primary bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
+                        className="dark:bg-db-primary bg-[#E2E2E2] flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
                       >
                         <p className="text-xs md:text-sm">Winner {index + 1}</p>
                         <p className="text-sm md:text-base">{data.symbol}</p>
@@ -538,7 +538,7 @@ const TradingJournal = () => {
               </div>
             </section>
 
-            <section className="bg-[#000A2D] not-dark:bg-primary-light p-px rounded-md ">
+            <section className="bg-[#000A2D] not-dark:bg-[#EEEEEE] p-px rounded-md ">
               <div className="rounded-md p-2 md:p-2.5">
                 <h5 className="font-normal text-xl md:text-2xl text-center mb-4 md:mb-6">
                   Top Loser
@@ -550,7 +550,7 @@ const TradingJournal = () => {
                     data?.topWinnersLosers?.top3Losers.map((data, index) => (
                       <div
                         key={index}
-                        className="bg-db-primary not-dark:bg-primary-light flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
+                        className="bg-db-primary not-dark:bg-[#E2E2E2] flex flex-col items-center rounded-md px-2 md:px-4 py-3 md:py-5 gap-1 md:gap-2"
                       >
                         <p className="text-xs md:text-sm">Loser {index + 1}</p>
                         <p className="text-sm md:text-base">{data.symbol}</p>

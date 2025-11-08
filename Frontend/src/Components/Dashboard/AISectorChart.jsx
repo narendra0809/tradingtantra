@@ -202,14 +202,14 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                 dataKey="name"
                 content={({ x, y, width, height, value }) => {
                   const isNegative = height < 0;
-                  // const textY = isNegative ? y + height - 5 : 120; // position inside
-                  const textY = 240; // position inside
+                  const textY = isNegative ? 170  : 240; // position inside
+                  // const textY = 240; // position inside
                   return (
                     <text
                       x={x + width / 2}
                       y={textY}
                       textAnchor="end"
-                      fill={isNegative ? "#A0C1FF" : theme ==="dark" ? "#FFF" :"#000"}
+                      fill={isNegative ? "#000" : theme ==="dark" ? "#FFF" :"#000"}
                       fontSize={12}
                       transform={`rotate(-90, ${x + width / 2}, ${textY})`} // vertical text
                     >

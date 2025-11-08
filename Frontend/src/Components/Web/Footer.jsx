@@ -72,10 +72,11 @@ const Footer = () => {
                 <li className="text-sm font-light">FAQ</li>
               </Link>
             </ul>
+
           </div>
         </div>
       </div>
-      <div className="w-full mt-10 border-t-2 border-t-[#00124F] border-b-2 border-b-[#00124F] py-10 space-y-5 text-sm">
+      <div className="w-full mt-10 border-t-2 border-t-[#E2E2E2] border-b-[#E2E2E2] border-b-2 dark:border-t-[#00124F] dark:border-b-[#00124F] py-10 space-y-5 text-sm">
         <p className="font-light text-lg leading-6 tracking-wider">
           TradingTantra is India’s 1st AI stock screener which is made with love
           in INDIA.

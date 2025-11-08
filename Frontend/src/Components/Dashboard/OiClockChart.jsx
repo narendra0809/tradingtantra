@@ -118,7 +118,7 @@ const OiClockChart = ({ data: chartData, currentStrike }) => {
               bottom: marginBottom,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#1B263B" : "#BEBFC3"} />
             <XAxis
               dataKey="strikePrice"
               tick={<CustomXAxisTick currentStrike={currentStrike} theme={theme} />}

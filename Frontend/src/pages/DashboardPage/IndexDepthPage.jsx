@@ -131,6 +131,7 @@ const IndexDepthPage = () => {
           <span className="text-lg font-light ml-4">How to use</span>{" "}
           <FaPlayCircle className="text-lg text-[#0256F5] ml-2" />
         </div>
+        
         <div className="border border-[#0E5FF6] w-fit rounded-lg px-4 py-2 ">
           <label className="text-sm">Index:</label>
           <select
@@ -178,11 +179,11 @@ const IndexDepthPage = () => {
           <p className="ml-4 text-xl">Loading chart...</p>
         </div>
       ) : (
-        <section className="mt-10 bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+        <section className="mt-10 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
           <div className="bg-db-primary not-dark:bg-primary-light rounded-lg p-2">
             <div className="flex md:flex-row flex-col md:justify-between md:items-center">
               <div
-                className={`bg-db-secondary not-dark:bg-primary-light flex justify-evenly items-center md:w-[40%] w-full h-28 rounded-lg py-2 px-4 mr-2`}
+                className={`bg-db-secondary not-dark:bg-[#EEEEEE] flex justify-evenly items-center md:w-[40%] w-full h-28 rounded-lg py-2 px-4 mr-2`}
                 style={{
                   backgroundImage: `url(${indexImage})`,
                   backgroundSize: "cover",
@@ -223,7 +224,7 @@ const IndexDepthPage = () => {
                 </span>
               </div>
 
-              <div className="md:w-[60%] w-full bg-db-secondary  not-dark:bg-primary-light px-4 py-2 rounded-lg">
+              <div className="md:w-[60%] w-full bg-db-secondary  not-dark:bg-[#EEEEEE] px-4 py-2 rounded-lg">
                 <p className="text-xl  ">Gainers/Losers</p>
 
                 <div className="w-full h-3 bg-[#9B3B44] my-4 rounded-full">

@@ -14,14 +14,14 @@ const EditProfile = () => {
       </div>
 
       {/* Form */}
-      <form className="space-y-6 not-dark:bg-[#EEEEEE] p-[20px] rounded-[20px]">
+      <form className="space-y-6  p-[20px] rounded-[20px] bg-[#EEEEEE] dark:bg-[#000A2D]">
         {/* Name Fields - Responsive Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
           <div>
             <label className="block text-sm font-medium  mb-2 ">
               First Name
             </label>
-            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#E2E2E2]   rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
               <FiUser className="text-gray-400 mr-3 " />
               <input
                 type="text"
@@ -35,7 +35,7 @@ const EditProfile = () => {
             <label className="block text-sm font-medium  mb-2 ">
               Last Name
             </label>
-            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+            <div className="flex items-center bg-[#151B2D] not-dark:bg-[#E2E2E2]  border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
               <FiUser className="text-gray-400 mr-3 " />
               <input
                 type="text"
@@ -51,7 +51,7 @@ const EditProfile = () => {
           <label className="block text-sm font-medium  mb-2 ">
             Email Address
           </label>
-          <div className="flex items-center bg-[#151B2D] not-dark:bg-[#FFFFFF] border border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
+          <div className="flex items-center bg-[#151B2D] not-dark:bg-[#E2E2E2]  border-gray-700 rounded-lg px-4 py-3 focus-within:ring-1 focus-within:ring-primary">
             <FiMail className="text-gray-400 mr-3 " />
             <input
               type="email"

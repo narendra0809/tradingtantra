@@ -22,7 +22,7 @@ const CustomBarChart = ({ data }) => {
           y={0}
           dy={16}
           textAnchor="middle"
-          fill="#ccc"
+          fill={theme=="dark"? " #CCC" : "#000"}
           fontSize={isMobile ? 10 : 12}
         >
           {payload.value}
@@ -100,9 +100,10 @@ const CustomBarChart = ({ data }) => {
               >
                 <XAxis
                   dataKey="date"
-                  stroke="#ccc"
+                  stroke="#CCC"
                   tick={renderCustomXAxisTick}
                   interval={0}
+                
                 />
               </BarChart>
             </ResponsiveContainer>

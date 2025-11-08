@@ -54,7 +54,7 @@ const CalculatorsPage = () => {
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-10 mt-10  ">
         {/* Left Section */}
 
-        <div className="lg:col-span-2 dark:bg-db-primary bg-primary-light border border-[#0256f550] p-5 rounded-md">
+        <div className="lg:col-span-2 dark:bg-db-primary bg-primary-light dark:border dark:border-[#0256f550] p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between items-center">
             {selectedCalculator === "Risk" ? (
@@ -85,7 +85,7 @@ const CalculatorsPage = () => {
                 {/* Calculator Toggle */}
                 {selectedCalculator === "Risk" && (
                   <p
-                    className="cursor-pointer "
+                    className="cursor-pointer  "
                     onClick={() => setCalculator("Equity")}
                   >
                     Equity
@@ -111,7 +111,7 @@ const CalculatorsPage = () => {
                 {/* Toggle Slider */}
                 <div
                   onClick={handleToggle}
-                  className="w-14 h-7 bg-white rounded-full flex items-center p-1 cursor-pointer transition-all"
+                  className="w-14 h-7 bg-[#EEEEEE] dark:bg-white rounded-full flex items-center p-1 cursor-pointer transition-all"
                 >
                   <div
                     className={`w-6 h-6 bg-primary rounded-full shadow-md transform transition-all ${
@@ -199,7 +199,7 @@ const CalculatorsPage = () => {
         </div>
 
         {/* Right Section  */}
-        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light border border-[#0256f550]  space-y-[45px]">
+        <div className=" flex flex-col items-center px-5 py-12 font-abcRepro  dark:bg-db-primary bg-primary-light dark:border border-[#0256f550] rounded-md  space-y-[45px]">
           {selectedCalculator === "Risk" ? (
             <RiskCalculatorRight isSubscribed={isSubscribed} />
           ) : selectedCalculator === "CAGR" ? (

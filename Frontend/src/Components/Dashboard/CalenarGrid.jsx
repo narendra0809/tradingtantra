@@ -2,6 +2,7 @@
 import clsx from "clsx";
 import { Tooltip } from "react-tooltip";
 import Lock from "./Lock";
+import { useSelector } from "react-redux";
 
 const CalendarGrid = ({
   setSelectedDate,
@@ -9,6 +10,7 @@ const CalendarGrid = ({
   tradeData,
   isSubscribed,
 }) => {
+  const theme = useSelector((state) => state.theme.theme);
   const startDate = selectedDateRange?.[0]?.startDate || new Date();
   const endDate = selectedDateRange?.[0]?.endDate || new Date();
 
@@ -45,7 +47,7 @@ const CalendarGrid = ({
     if (value > 10) return "bg-green-900";
     if (value > 5) return "bg-green-600";
     if (value > 0) return "bg-green-300";
-    if (value === 0) return "bg-gray-200";
+     if (value === 0) return theme === "dark" ? "bg-[#D9D9D9]" : "bg-[#000A2D]";
     if (value < -5) return "bg-red-900";
     if (value < -10) return "bg-red-600";
     return "bg-red-300";
@@ -120,7 +122,7 @@ const CalendarGrid = ({
 
   return (
     <section className="dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] p-px rounded-md">
-      <div className="p-5 dark:bg-db-secondary bg-primary-light text-white">
+      <div className="p-5 dark:bg-db-secondary bg-[#EEEEEE] ">
         <p className="text-lg font-light inline-block">Tradebook</p>
         {!isSubscribed ? (
           <Lock />
@@ -135,7 +137,7 @@ const CalendarGrid = ({
                 {monthsToShow.map(({ month, year }, index) => (
                   <div
                     key={index}
-                    className="text-center font-bold text-xs mb-5 text-white"
+                    className="text-center font-bold text-xs mb-5 "
                   >
                     {new Date(year, month - 1, 1).toLocaleString("default", {
                       month: "short",
@@ -148,7 +150,7 @@ const CalendarGrid = ({
                   .map((_, index) => (
                     <div
                       key={`empty-${index}`}
-                      className="text-center font-bold text-xs mb-5 text-white"
+                      className="text-center font-bold text-xs mb-5 "
                     ></div>
                   ))}
                 {daysOfWeek.map((day, rowIndex) => (
@@ -158,7 +160,7 @@ const CalendarGrid = ({
                       className={`font-bold text-[10px] ${
                         ["Tue", "Thu", "Sat"].includes(day)
                           ? "text-transparent"
-                          : "text-white"
+                          : ""
                       }`}
                     >
                       {day}

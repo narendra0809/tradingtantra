@@ -16,7 +16,7 @@ const ProfitPage = () => {
       {!isSubscribed ? (
         <Lock />
       ) : (
-        <div className="dark:bg-db-primary bg-primary-light  border border-[#0009B250] p-5 rounded-[5px] space-y-10">
+        <div className="dark:bg-db-primary bg-primary-light  dark:border border-[#0009B250] p-5 rounded-[5px] space-y-10">
           <div className="space-y-5 text-base font-normal font-abcRepro ">
             <p>Hello folks,</p>
             <p>

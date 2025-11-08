@@ -3,10 +3,12 @@ import { useState } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import Lock from "./Lock";
+import { useSelector } from "react-redux";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const EMICalculator = ({ isSubscribed }) => {
+   const theme = useSelector((state)=>state.theme.theme)
   const [loanAmount, setLoanAmount] = useState(500);
   const [interest, setInterest] = useState(1);
   const [duration, setDuration] = useState(1);
@@ -63,7 +65,7 @@ const EMICalculator = ({ isSubscribed }) => {
       legend: {
         position: "bottom",
         labels: {
-          color: "#fff",
+          color: theme==="dark"?"#fff":"#000",
         },
       },
       tooltip: {

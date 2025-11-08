@@ -130,7 +130,7 @@ const OiClockChartTwo = ({ data: chartData }) => {
           data={formattedData}
           margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#1B263B" />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#1B263B" : "#BEBFC3"} />
           <XAxis dataKey="name"
            tick={{ fill: theme==="dark" ? "white" : "black" }} 
            />

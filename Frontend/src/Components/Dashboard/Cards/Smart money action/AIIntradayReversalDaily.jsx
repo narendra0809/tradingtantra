@@ -168,7 +168,7 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                     </tr>
-                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#000A2D] via-[#002ED0] to-[#000A2D]" />
+                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000] " />
                   </thead>
 
                   {/* Scrollable Table Body */}

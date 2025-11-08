@@ -72,14 +72,14 @@ const FeedBackPage = () => {
           <Lock />
         ) : (
           <form
-            className="flex items-center justify-between flex-wrap w-full space-y-4 bg-[#EEEEEE] p-[5px]"
+            className="flex items-center justify-between flex-wrap w-full space-y-4  p-[5px]"
             onSubmit={handleFormSubmit}
           >
             <div className="flex flex-col items-start  w-full space-y-2">
               <label className="text" htmlFor="name">
                 Name
               </label>
-              <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+              <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] bg-[#E2E2E2]   rounded-lg px-2 w-full py-2">
                 <CiUser className="text-xl dark:text-white" />
                 <input
                   type="text"
@@ -87,7 +87,7 @@ const FeedBackPage = () => {
                   value={formData.name}
                   onChange={handleChange}
                   name="name"
-                  className="outline-none border-none bg-transparent w-full"
+                  className="outline-none border-none bg-transparent w-full "
                 />
               </div>
             </div>
@@ -109,14 +109,14 @@ const FeedBackPage = () => {
               />
             </div>
           </div> */}
-            <div className="flex flex-col items-start dark:text-white w-full space-y-2">
+            <div className="flex flex-col items-start dark:text-white   w-full space-y-2">
               <label
                 htmlFor="category"
                 className="font-Inter  text-sm font-light"
               >
                 Select Category
               </label>
-              <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+              <div className="flex items-center gap-2 dark:placeholder:text-white bg-[#E2E2E2]  dark:bg-[#151B2D] rounded-lg px-2 w-full py-2">
                 <input
                   type="text"
                   placeholder="Select Category"
@@ -128,7 +128,7 @@ const FeedBackPage = () => {
               </div>
             </div>
 
-            <div className="flex flex-col items-center dark:text-white w-full space-y-5 dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 py-2">
+            <div className="flex flex-col items-center dark:text-white w-full space-y-5 bg-[#E2E2E2]  dark:bg-[#151B2D]  rounded-lg px-2 py-2">
               <img className="w-16 h-16" src={folderimg} />
               <p className="text-base font-Inter font-light ">
                 Choose Your File to upload
@@ -156,7 +156,7 @@ const FeedBackPage = () => {
               >
                 Feedback
               </label>
-              <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] border dark:border-none border-black rounded-lg px-2 w-full py-2">
+              <div className="flex items-center gap-2 dark:placeholder:text-white  dark:bg-[#151B2D] bg-[#E2E2E2]   rounded-lg px-2 w-full py-2">
                 <textarea
                   name="feedback"
                   value={formData.feedback}

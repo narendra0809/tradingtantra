@@ -149,10 +149,13 @@ input[type="number"] {
 
 .custom-calendar {
   overflow: hidden;
-  background: #6183e4 !important;
+  background: #EEEEEE !important;
   border: transparent !important;
   width: 100% !important;
+  
 }
+
+
 
 .custom-calendar-TJ {
   overflow: hidden;
@@ -162,7 +165,7 @@ input[type="number"] {
 }
 
 .react-calendar__month-view__weekdays {
-  color: #d5d9e2 !important;
+  color: #000000 !important;
 }
 
 .react-calendar__tile--active {
@@ -172,12 +175,12 @@ input[type="number"] {
 
 .react-calendar__tile {
   margin: 0;
-  color: #d5d9e2 !important;
+  /* color: #d5d9e2 !important; */
 }
 
 .react-calendar__tile--now {
   background: #0256f5 !important;
-  color: white !important;
+  /* color: white !important; */
 }
 
 .react-calendar__month-view__weekdays,
@@ -204,9 +207,13 @@ input[type="number"] {
   background: #eff6ff;
 }
 
-.react-calendar__month-view__days__day--weekend {
+ .react-calendar__month-view__days__day--weekend-dark {
   background: #00114e !important;
   color: white !important;
+} 
+.react-calendar__month-view__days__day--weekend {
+  background: #CECECE !important;
+  color: black !important;
 }
 
 .current-date {
@@ -217,12 +224,12 @@ input[type="number"] {
 
 .react-calendar__navigation__label,
 .react-calendar__navigation__arrow {
-  color: white !important;
+  /* color: white !important; */
 }
 
 .react-calendar__navigation__label:hover,
 .react-calendar__navigation__arrow:hover {
-  color: white !important;
+  /* color: white !important; */
   background: transparent !important;
 }
 

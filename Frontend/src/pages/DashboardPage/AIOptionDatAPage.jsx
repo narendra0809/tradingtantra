@@ -534,31 +534,31 @@ const AIOptionDataPage = () => {
               className="bg-transparent focus:outline-none w-full"
             >
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="NIFTY"
               >
                 Nifty50
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="BANKNIFTY"
               >
                 BankNifty
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="FINNIFTY"
               >
                 FinNifty
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="MIDCPNIFTY"
               >
                 Midcap
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="SENSEX"
               >
                 Sensex
@@ -574,19 +574,19 @@ const AIOptionDataPage = () => {
               className="bg-transparent focus:outline-none w-full"
             >
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="3"
               >
                 3m
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="15"
               >
                 15m
               </option>
               <option
-                className="dark:bg-db-secondary bg-primary-light text-white"
+                className="dark:bg-db-secondary bg-primary-light "
                 value="30"
               >
                 30m
@@ -603,7 +603,7 @@ const AIOptionDataPage = () => {
             >
               {currentExpiries.map((expiry) => (
                 <option
-                  className="dark:bg-db-secondary bg-primary-light text-white"
+                  className="dark:bg-db-secondary bg-primary-light "
                   value={expiry}
                   key={expiry}
                 >
@@ -659,7 +659,7 @@ const AIOptionDataPage = () => {
         </div>
       </section>
 
-      <section className="mt-10 bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
+      <section className="mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
         <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-4">
           <OptionDataDonutChart
             contributor={contribution}

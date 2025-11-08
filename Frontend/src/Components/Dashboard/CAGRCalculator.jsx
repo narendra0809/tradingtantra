@@ -176,7 +176,7 @@ const CAGRCalculator = ({ calculator, isSubscribed }) => {
                           value={inputs[name]}
                           onChange={handleChange}
                           required
-                          className="pb-3 w-full bg-transparent outline-none border-b border-white"
+                          className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
                           placeholder={placeholder}
                         />
                       </div>
@@ -214,7 +214,7 @@ const CAGRCalculator = ({ calculator, isSubscribed }) => {
                           value={inputs[name]}
                           onChange={handleChange}
                           required
-                          className="pb-3 w-full bg-transparent outline-none border-b border-white"
+                          className="pb-3 w-full bg-transparent outline-none border-b dark:border-white border-black"
                           placeholder={placeholder}
                         />
                       </div>
