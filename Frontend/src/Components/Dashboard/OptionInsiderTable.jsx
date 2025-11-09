@@ -1,4 +1,4 @@
-// src/Components/Dashboard/OptionInsiderTable.jsx
+// // src/Components/Dashboard/OptionInsiderTable.jsx
 import React from "react";
 
 /**
@@ -104,3 +104,176 @@ const OptionInsiderTable = ({ data = [] }) => {
 };
 
 export default OptionInsiderTable;
+/* src/Components/Dashboard/OptionInsiderTable.jsx */
+// import React from "react";
+// import Loader from "../Loader";
+// import Lock from "./Lock";
+
+// /* original small badges kept for fallback if needed */
+// const upBadge = (
+//   <span className="ml-2 bg-green-600 text-white px-2 py-0.5 rounded-full text-xs flex items-center w-fit">
+//     <span className="mr-1">↑</span> Up
+//   </span>
+// );
+// const downBadge = (
+//   <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-xs flex items-center w-fit">
+//     <span className="mr-1">↓</span> Down
+//   </span>
+// );
+
+// /**
+//  * Renders the exact badge HTML you provided (keeps classes & icon placement).
+//  * Expected analysis.text values (case-insensitive): 
+//  *  - "Shorts covering", "Short build up", "Long build up", "Long unwinding"
+//  * If text doesn't match, shows a neutral badge with the text.
+//  */
+// function renderExactBadge(analysis = {}) {
+//   const text = String(analysis?.text ?? "").trim();
+
+//   if (/shorts? covering/i.test(text)) {
+//     return (
+//       <span data-v-f64ce956="">
+//         <span
+//           data-v-f64ce956=""
+//           className="badge text-capitalize badge-interpretation text-right badge-info"
+//         >
+//           {" "}
+//           {text} <i data-v-f64ce956="" className="custom-icon-style text-right i-Up1"></i>
+//         </span>
+//       </span>
+//     );
+//   }
+
+//   if (/short build up/i.test(text)) {
+//     return (
+//       <span data-v-f64ce956="">
+//         <span
+//           data-v-f64ce956=""
+//           className="badge text-capitalize badge-interpretation text-left badge-danger"
+//         >
+//           <i data-v-f64ce956="" className="custom-icon-style text-right i-Down1"></i> {text}{" "}
+//         </span>
+//       </span>
+//     );
+//   }
+
+//   if (/long build up/i.test(text)) {
+//     return (
+//       <span data-v-f64ce956="">
+//         <span
+//           data-v-f64ce956=""
+//           className="badge text-capitalize badge-interpretation text-right badge-success"
+//         >
+//           {text} <i data-v-f64ce956="" className="custom-icon-style text-right i-Up1"></i>
+//         </span>
+//       </span>
+//     );
+//   }
+
+//   if (/long unwinding/i.test(text)) {
+//     return (
+//       <span data-v-f64ce956="">
+//         <span
+//           data-v-f64ce956=""
+//           className="badge text-capitalize badge-interpretation text-left badge-warning"
+//         >
+//           <i data-v-f64ce956="" className="custom-icon-style text-right i-Down1"></i> {text}{" "}
+//         </span>
+//       </span>
+//     );
+//   }
+
+//   // fallback neutral
+//   return (
+//     <span data-v-f64ce956="">
+//       <span data-v-f64ce956="" className="badge text-capitalize badge-interpretation badge-secondary">
+//         {text || "-"}
+//       </span>
+//     </span>
+//   );
+// }
+
+// const OptionInsiderTable = ({ data, loading, isSubscribed }) => {
+//   return (
+//     <>
+//       {loading ? (
+//         <Loader />
+//       ) : (
+//         <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 ">
+//           <div className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+//             <div className="dark:bg-db-secondary bg-[#EEEEEE]  p-4 w-full overflow-x-auto  h-[350px] overflow-y-auto rounded-lg scrollbar-hidden">
+//               {!isSubscribed ? (
+//                 <Lock />
+//               ) : (
+//                 <table className="w-full min-w-[800px] text-sm">
+//                   <thead>
+//                     <tr className="border-b-1 border-[#BEBFC3] dark:border-[#002ED0]">
+//                       {[
+//                         "Serial No",
+//                         "Time Stamp",
+//                         "Call Analysis",
+//                         "Strike Price",
+//                         "Put Analysis",
+//                       ].map((header) => (
+//                         <th key={header} className="p-3 text-left whitespace-nowrap ">
+//                           {header}
+//                         </th>
+//                       ))}
+//                     </tr>
+//                     <tr className="absolute bg-[#BEBEFC3] bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000] " />
+//                   </thead>
+
+//                   <tbody className="">
+//                     {Array.isArray(data) && data.length > 0 ? (
+//                       data.map((row, index) => {
+//                         // keep API compatibility: row.call and row.put objects expected
+//                         const call = row?.call || {};
+//                         const put = row?.put || {};
+
+//                         // keep original color logic for text
+//                         const callTextClass = call?.green ? "text-green-500" : "text-red-500";
+//                         const putTextClass = put?.green ? "text-green-500" : "text-red-500";
+
+//                         return (
+//                           <tr key={index} className="">
+//                             <td className="p-3 whitespace-nowrap ">{index + 1}</td>
+
+//                             <td className="p-3 whitespace-nowrap ">{row?.timeStamp ?? `${row?.prevTimestamp ?? ""} - ${row?.nowTimestamp ?? ""}`}</td>
+
+//                             <td className="py-3 px-4 font-semibold">
+//                               <div className="flex items-center gap-2">
+//                                 <span className={callTextClass}>{call?.text ?? "-"}</span>
+                              
+//                               </div>
+//                             </td>
+
+//                             <td className="p-3 whitespace-nowrap ">{row?.strikePrice ?? "-"}</td>
+
+//                             <td className="py-3 px-4 font-semibold">
+//                               <div className="flex items-center gap-2">
+//                                 <span className={putTextClass}>{put?.text ?? "-"}</span>
+                                
+//                               </div>
+//                             </td>
+//                           </tr>
+//                         );
+//                       })
+//                     ) : (
+//                       <tr>
+//                         <td colSpan={5} className="p-4 text-center text-gray-500">
+//                           No data to show.
+//                         </td>
+//                       </tr>
+//                     )}
+//                   </tbody>
+//                 </table>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default OptionInsiderTable;

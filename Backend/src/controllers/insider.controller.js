@@ -1,4 +1,4 @@
-// controllers/optionInsider.controller.js
+
 import {
   BankNiftyOptionChain,
   FinniftyOptionChain,
@@ -32,8 +32,7 @@ function parseTimeToMinutes(ts) {
 }
 
 /**
- * Format minutes since midnight into HH:MM (24h) or h:mm AM/PM as you like.
- * We'll return `H:MM` or `HH:MM` (without seconds) — consistent with your DB.
+ * Format minutes since midnight into HH:MM (24h).
  */
 function minutesToTimeString(mins) {
   if (mins == null) return "";
@@ -51,8 +50,7 @@ function sortByTimestamp(data) {
     const ma = parseTimeToMinutes(a.timestamp);
     const mb = parseTimeToMinutes(b.timestamp);
 
-    if (ma != null && mb != null) return mb - ma; // newest first
-    // fallback to updatedAt if parse failed
+    if (ma != null && mb != null) return mb - ma; // newest first by timestamp
     const da = new Date(a.updatedAt || 0);
     const db = new Date(b.updatedAt || 0);
     return db - da;
@@ -109,14 +107,13 @@ function getAnalysis(now, prev) {
 /**
  * Build windows aligned to 09:15 baseline.
  * intervalMin = 3 or 15
- * We'll produce an array of windows (startMin, endMin) that exists within trading day (9:15-15:33)
  */
 function buildWindowsForDay(intervalMin) {
   const marketOpen = 9 * 60 + 15; // 9:15 -> minutes
   const marketClose = 15 * 60 + 33; // 15:33 -> inclusive
   const windows = [];
   for (let start = marketOpen; start + intervalMin <= marketClose; start += intervalMin) {
-    const end = start + intervalMin; // e.g. start=9:15 end=9:18 for 3-min
+    const end = start + intervalMin;
     windows.push({ start, end });
   }
   return windows;
@@ -124,10 +121,6 @@ function buildWindowsForDay(intervalMin) {
 
 /**
  * For a sorted (newest-first) docs array, create rows comparing end-of-prev-window doc and end-of-current-window doc.
- * We will:
- *  - reverse sorted docs to chronological (oldest-first)
- *  - for each target window, find the doc with timestamp <= window.end that is the latest in that bucket (i.e. closest to end)
- *  - compare consecutive window ends: prev = doc for previous window end, now = doc for current window end
  */
 function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
   const rows = [];
@@ -141,9 +134,7 @@ function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
 
   const windows = buildWindowsForDay(intervalMin);
 
-  // function to find latest doc <= windowEnd
   function findDocForWindowEnd(windowEnd) {
-    // find doc with mins <= windowEnd and maximum mins
     let candidate = null;
     let candidateMin = -Infinity;
     for (const { doc, mins } of docMinutes) {
@@ -156,21 +147,15 @@ function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
     return candidate;
   }
 
-  // loop windows, pair previous and current
   for (let i = 1; i < windows.length; i++) {
     const prevWindow = windows[i - 1];
     const currWindow = windows[i];
 
-    // doc at prevWindow end and doc at currWindow end
     const prevDoc = findDocForWindowEnd(prevWindow.end);
     const nowDoc = findDocForWindowEnd(currWindow.end);
 
-    if (!prevDoc || !nowDoc) {
-      // skip if either side missing
-      continue;
-    }
+    if (!prevDoc || !nowDoc) continue;
 
-    // find closest strike relative to nowDoc.lastPrice
     const closestStrike = findClosestStrikePrice(nowDoc.strikeData, nowDoc.lastPrice);
     if (closestStrike == null) continue;
 
@@ -184,7 +169,6 @@ function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
     const callAnalysis = getAnalysis(nowCE, prevCE);
     const putAnalysis = getAnalysis(nowPE, prevPE);
 
-    // numeric delta fields
     const callChangePrice = Number(nowCE.lastPrice || 0) - Number(prevCE.lastPrice || 0);
     const callChangeOI = Number(nowCE.oi || 0) - Number(prevCE.oi || 0);
 
@@ -192,8 +176,8 @@ function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
     const putChangeOI = Number(nowPE.oi || 0) - Number(prevPE.oi || 0);
 
     rows.push({
-      timeStamp: `${minutesToTimeString(prevWindow.start)} - ${minutesToTimeString(prevWindow.end)}`, // show window range (prev)
-      compareRange: `${minutesToTimeString(currWindow.start)} - ${minutesToTimeString(currWindow.end)}`, // current window
+      timeStamp: `${minutesToTimeString(prevWindow.start)} - ${minutesToTimeString(prevWindow.end)}`,
+      compareRange: `${minutesToTimeString(currWindow.start)} - ${minutesToTimeString(currWindow.end)}`,
       strikePrice: closestStrike,
       call: {
         ...callAnalysis,
@@ -213,7 +197,6 @@ function optionIntervalAnalysis(docsSortedNewestFirst, intervalMin) {
         changePrice: putChangePrice,
         changeOi: putChangeOI,
       },
-      // include raw timestamps for debugging / UI optional use
       prevTimestamp: prevDoc.timestamp,
       nowTimestamp: nowDoc.timestamp,
     });
@@ -242,7 +225,7 @@ export const getOptionInsiderData = async (req, res) => {
     const startOfToday = new Date(now);
     startOfToday.setHours(0, 0, 0, 0);
 
-    // fetch newest docs first
+    // fetch docs (use updatedAt sorting to get newest-first)
     let docs = await Model.find().sort({ updatedAt: -1 }).lean();
     if (!docs || docs.length === 0) return res.status(200).json({ success: true, rows: [], availableExpiries: [] });
 
@@ -259,11 +242,17 @@ export const getOptionInsiderData = async (req, res) => {
       docs = docs.filter((d) => d.expiry === expiry);
     }
 
-    const sortedDocs = sortByTimestamp(docs); // newest-first (by timestamp)
+    // Ensure docs are sorted newest-first by updatedAt (explicit)
+    docs.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
     const intervalMin = Number(interval || 3);
     if (![3, 15].includes(intervalMin)) return res.status(400).json({ success: false, message: "Invalid interval" });
 
-    const rows = optionIntervalAnalysis(sortedDocs, intervalMin);
+    // produce rows (optionIntervalAnalysis expects newest-first array)
+    let rows = optionIntervalAnalysis(docs, intervalMin);
+
+    // reverse rows so API returns newest rows first (latest windows on top)
+    rows = rows.slice().reverse();
 
     const allExpiries = await Model.distinct("expiry", { underlyingName: index.toUpperCase() });
 
