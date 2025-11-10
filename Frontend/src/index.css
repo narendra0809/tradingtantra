@@ -149,13 +149,10 @@ input[type="number"] {
 
 .custom-calendar {
   overflow: hidden;
-  background: #EEEEEE !important;
+  background: #eeeeee !important;
   border: transparent !important;
   width: 100% !important;
-  
 }
-
-
 
 .custom-calendar-TJ {
   overflow: hidden;
@@ -207,12 +204,12 @@ input[type="number"] {
   background: #eff6ff;
 }
 
- .react-calendar__month-view__days__day--weekend-dark {
+.react-calendar__month-view__days__day--weekend-dark {
   background: #00114e !important;
   color: white !important;
-} 
+}
 .react-calendar__month-view__days__day--weekend {
-  background: #CECECE !important;
+  background: #cecece !important;
   color: black !important;
 }
 

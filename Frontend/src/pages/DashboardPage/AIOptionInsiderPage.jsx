@@ -189,7 +189,9 @@ const AIOptionInsiderPage = () => {
   useEffect(() => {
     const fetchExpiresByIndex = async () => {
       try {
-        const res = await axios.get(`${SERVER_URI}/insider-data/expiries`, { withCredentials: true });
+        const res = await axios.get(`${SERVER_URI}/insider-data/expiries`, {
+          withCredentials: true,
+        });
         const byIndex = res.data.expiriesByIndex || {};
         setExpiries(byIndex);
         const first = byIndex[selectedIndex]?.[0] || "";
@@ -239,19 +241,25 @@ const AIOptionInsiderPage = () => {
 
   return (
     <section className="mt-8 p-[3px] rounded-lg bg-white dark:bg-gradient-to-br from-[#00078F] to-[#01071C]">
-      <div className="flex flex-col-reverse md:flex-row justify-between gap-4 p-[20px] bg-white dark:bg-db-primary">
+      <div className="flex flex-col-reverse md:flex-row justify-between gap-4 p-[20px] bg-white dark:bg-db-primary mb-2">
         <div className="flex gap-4 items-center">
           <h1 className="text-3xl font-extrabold">Option Insider</h1>
-          <span className="text-2xl"><FcCandleSticks /></span>
+          <span className="text-2xl">
+            <FcCandleSticks />
+          </span>
           <span className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold">
             <GoDotFill className="text-white" /> Live
           </span>
         </div>
 
-        <div className="flex gap-3 items-center">
-          <div className="border border-[#0E5FF6] rounded-lg px-3 py-1">
+        <div className="flex flex-col items-center md:flex-row gap-2 md:gap-4">
+          <div className="flex items-center relative border border-[#0E5FF6] rounded-lg px-3 py-1 sm:w-44 h-12 w-full">
             <label className="text-xs">Index:</label>
-            <select value={selectedIndex} onChange={(e) => { setSelectedIndex(e.target.value); setSelectedExpiry(""); }} className="ml-2">
+            <select
+              value={selectedIndex}
+              onChange={(e) => setSelectedIndex(e.target.value)}
+              className=" flex-1 ml-2 focus:outline-none dark:bg-db-primary bg-primary-light"
+            >
               <option value="NIFTY">Nifty50</option>
               <option value="BANKNIFTY">BankNifty</option>
               <option value="FINNIFTY">FinNifty</option>
@@ -259,39 +267,57 @@ const AIOptionInsiderPage = () => {
               <option value="SENSEX">Sensex</option>
             </select>
           </div>
-
-          <div className="border border-[#0E5FF6] rounded-lg px-3 py-1">
+          <div className="flex items-center relative border border-[#0E5FF6] rounded-lg px-3 py-1 sm:w-32 h-12 w-full">
             <label className="text-xs">Time:</label>
-            <select value={selectedInterval} onChange={(e) => setSelectedInterval(e.target.value)} className="ml-2">
+            <select
+              value={selectedInterval}
+              onChange={(e) => setSelectedInterval(e.target.value)}
+              className="flex-1 ml-2 focus:outline-none dark:bg-db-primary bg-primary-light"
+            >
               <option value="3">3m</option>
               <option value="15">15m</option>
             </select>
           </div>
-
-          <div className="border border-[#0E5FF6] rounded-lg px-3 py-1">
+          <div className="flex items-center relative border border-[#0E5FF6] rounded-lg px-3 py-1 sm:w-44 h-12 w-full">
             <label className="text-xs">Expiry:</label>
-            <select value={selectedExpiry} onChange={(e) => setSelectedExpiry(e.target.value)} className="ml-2">
-              {expiries?.[selectedIndex]?.length > 0 ? expiries[selectedIndex].map((e) => <option key={e} value={e}>{e}</option>) : <option value="">No expiries</option>}
+            <select
+              value={selectedExpiry}
+              onChange={(e) => setSelectedExpiry(e.target.value)}
+              className=" flex-1 ml-2 focus:outline-none dark:bg-db-primary bg-primary-light"
+            >
+              {expiries?.[selectedIndex]?.length > 0 &&
+                expiries?.[selectedIndex]?.map((expiry) => (
+                  <option key={expiry} value={expiry}>
+                    {expiry}
+                  </option>
+                ))}
             </select>
           </div>
-
           <button
             onClick={handleGoClick}
-            disabled={!isSubscribed || loading}
-            className={`${isSubscribed ? "bg-[#0E5FF6]" : "bg-gray-500"} text-white px-4 py-2 rounded`}
-            title={isSubscribed ? "Fetch" : "Subscription required"}
+            disabled={!isSubscribed}
+            className={`${
+              isSubscribed
+                ? "bg-[#0E5FF6] hover:bg-[#0b4cd1]"
+                : "bg-gray-500 cursor-not-allowed"
+            } text-white p-4 rounded-lg transition-colors h-12 text-center`}
           >
-            {loading ? "Loading..." : "Go"}
+            Go
           </button>
         </div>
       </div>
 
-      <div className="p-4">
-        {error && <div className="text-red-600 mb-2">{error}</div>}
-        <Suspense fallback={<div>Loading table...</div>}>
-          {loading ? <Loader /> : <OptionInsiderTable data={optionChainData?.rows || []} />}
-        </Suspense>
-      </div>
+      {error && <div className="text-red-600 mb-2">{error}</div>}
+      <Suspense fallback={<div>Loading table...</div>}>
+        {loading ? (
+          <Loader />
+        ) : (
+          <OptionInsiderTable
+            data={optionChainData?.rows || []}
+            isSubscribed={isSubscribed}
+          />
+        )}
+      </Suspense>
     </section>
   );
 };

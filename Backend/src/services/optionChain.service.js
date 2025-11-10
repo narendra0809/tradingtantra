@@ -4,7 +4,7 @@ import {
   fetchOptionChainData,
   saveOptionChainData,
 } from "../repositories/optionChain.repository.js";
-// import { isMarketOpen } from "../utils/marketUtils.js";
+import { isMarketOpen } from "../utils/marketUtils.js";
 import { convertToIST, delay } from "../utils/dateUtils.js";
 import config from "../config/optionChain.config.js";
 import {
@@ -41,22 +41,13 @@ async function deleteOldOrExpiredData() {
         expiry: { $lte: startOfToday.toISOString().split("T")[0] },
       });
 
-      console.log(`Deleted ${result.deletedCount} old/expired records for ${underlyingName}`);
+      console.log(
+        `Deleted ${result.deletedCount} old/expired records for ${underlyingName}`
+      );
     }
   } catch (error) {
     console.error(`Error deleting old/expired data: ${error.message}`);
   }
-}
-async function isMarketOpen() {
-  const now = new Date();
-  const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-  const hours = ist.getHours();
-  const minutes = ist.getMinutes();
-  const day = ist.getDay();
-  const currentTime = hours * 60 + minutes;
-  const startTime = 9 * 60 + 16;  // 9:15 AM
-  const endTime = 15 * 60 + 33;   // 3:30 PM
-  return day >= 1 && day <= 5 && currentTime >= startTime && currentTime <= endTime;
 }
 // Main function to fetch and save option chain data for all underlyings
 export async function fetchAndSaveAllUnderlyings(flag) {

@@ -1,5 +1,7 @@
+/* eslint-disable react/prop-types */
 // // src/Components/Dashboard/OptionInsiderTable.jsx
-import React from "react";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import Lock from "./Lock";
 
 /**
  * Expect data: array of rows:
@@ -16,6 +18,8 @@ function Badge({ analysis }) {
   if (!analysis) return null;
   const text = analysis.text || "";
   const dir = analysis.direction;
+  console.log(dir);
+
   // map text -> badge class (match your original)
   let badgeClass = "badge-interpretation ";
   if (/shorts? covering/i.test(text)) badgeClass += "badge-info";
@@ -24,16 +28,27 @@ function Badge({ analysis }) {
   else if (/long unwinding/i.test(text)) badgeClass += "badge-warning";
   else badgeClass += "badge-secondary";
 
-  const iconClass = dir === "up" ? "i-Up1" : dir === "down" ? "i-Down1" : "";
+  const iconClass =
+    dir === "up" ? (
+      <FaArrowUp color={analysis.textColor} />
+    ) : (
+      <FaArrowDown color={analysis.textColor} />
+    );
 
   // We will render inline numeric details too
   return (
-    <div className="flex flex-col items-center">
-      <span className={`badge text-capitalize ${badgeClass} flex items-center px-2 py-1`}>
+    <div
+      className={`flex flex-col items-center`}
+      style={{ backgroundColor: analysis.color, borderRadius: "10px" }}
+    >
+      <span
+        className={`badge text-capitalize ${badgeClass} flex items-center px-2 py-1 gap-2`}
+      >
         {/** icon position left/right — keep sample structure */}
-        {dir === "down" && <i className={`custom-icon-style i-Down1 mr-1`} />}
-        <span>{text}</span>
-        {dir === "up" && <i className={`custom-icon-style i-Up1 ml-1`} />}
+        {/* {dir === "down" && <i className={`custom-icon-style i-Down1 mr-1`} />} */}
+        <span style={{ color: analysis.textColor }}>{text}</span>
+        {iconClass}
+        {/* {dir === "up" && <i className={`custom-icon-style i-Up1 ml-1`} />} */}
       </span>
     </div>
   );
@@ -44,61 +59,87 @@ function NumericDetails({ a }) {
   const priceSign = a.changePrice > 0 ? "+" : "";
   const oiSign = a.changeOi > 0 ? "+" : "";
   return (
-    <div className="text-xs mt-1">
-      <div>Price: {a.lastPriceNow} (<span className={a.changePrice >= 0 ? "text-green-600" : "text-red-600"}>{priceSign}{a.changePrice.toFixed(2)}</span>)</div>
-      <div>OI: {a.oiNow.toLocaleString()} (<span className={a.changeOi >= 0 ? "text-green-600" : "text-red-600"}>{oiSign}{a.changeOi.toLocaleString()}</span>)</div>
+    <div className="md:text-[16px] text-xs mt-1">
+      <div>
+        Price: {a.lastPriceNow} (
+        <span
+          className={a.changePrice >= 0 ? "text-green-600" : "text-red-600"}
+        >
+          {priceSign}
+          {a.changePrice.toFixed(2)}
+        </span>
+        )
+      </div>
+      <div>
+        OI: {a.oiNow.toLocaleString()} (
+        <span className={a.changeOi >= 0 ? "text-green-600" : "text-red-600"}>
+          {oiSign}
+          {a.changeOi.toLocaleString()}
+        </span>
+        )
+      </div>
     </div>
   );
 }
 
-const OptionInsiderTable = ({ data = [] }) => {
+const OptionInsiderTable = ({ data = [], isSubscribed }) => {
   if (!Array.isArray(data) || data.length === 0) {
     return <div className="text-sm text-gray-500">No data to show.</div>;
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full table-auto border-collapse">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2 text-left">Time Range</th>
-            <th className="p-2">Strike</th>
-            <th className="p-2 text-center">Call Analysis</th>
-            <th className="p-2 text-center">Call Numbers</th>
-            <th className="p-2 text-center">Put Analysis</th>
-            <th className="p-2 text-center">Put Numbers</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((r, idx) => (
-            <tr key={idx} className="border-t">
-                <td className="p-2 text-xs text-gray-500">
-                <div>{r.prevTimestamp} - {r.nowTimestamp}</div>
-                
-              </td>
-              <td className="p-2 text-center font-mono">{r.strikePrice}</td>
+    <div className="dark:bg-db-primary bg-primary-light rounded-lg">
+      <div className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg">
+        <div className="dark:bg-db-secondary bg-[#EEEEEE] w-full overflow-x-auto  h-[550px] overflow-y-auto rounded-lg scrollbar-hidden p-4">
+          {!isSubscribed ? (
+            <Lock />
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-1 border-[#BEBFC3] dark:border-[#002ED0]">
+                  <th className="p-2 text-left">Time Range</th>
+                  <th className="p-2">Strike</th>
+                  <th className="p-2 text-center">Call Analysis</th>
+                  <th className="p-2 text-center">Call Numbers</th>
+                  <th className="p-2 text-center">Put Analysis</th>
+                  <th className="p-2 text-center">Put Numbers</th>
+                </tr>
+                <tr className="absolute bg-[#BEBEFC3] bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000] " />
+              </thead>
+              <tbody>
+                {data.map((r, idx) => (
+                  <tr key={idx} className="border-t">
+                    <td className="p-2 text-xs md:text-[16px] text-black dark:text-white">
+                      <div>
+                        {r.prevTimestamp} - {r.nowTimestamp}
+                      </div>
+                    </td>
+                    <td className="p-2 text-center font-mono">
+                      {r.strikePrice}
+                    </td>
 
-              <td className="p-2 text-center align-top">
-                <Badge analysis={r.call} />
-              </td>
+                    <td className="p-2 text-center align-top">
+                      <Badge analysis={r.call} />
+                    </td>
 
-              <td className="p-2 text-center align-top">
-                <NumericDetails a={r.call} />
-              </td>
+                    <td className="p-2 text-center align-top">
+                      <NumericDetails a={r.call} />
+                    </td>
 
-              <td className="p-2 text-center align-top">
-                <Badge analysis={r.put} />
-              </td>
+                    <td className="p-2 text-center align-top">
+                      <Badge analysis={r.put} />
+                    </td>
 
-              <td className="p-2 text-center align-top">
-                <NumericDetails a={r.put} />
-              </td>
-
-            
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    <td className="p-2 text-center align-top">
+                      <NumericDetails a={r.put} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -123,7 +164,7 @@ export default OptionInsiderTable;
 
 // /**
 //  * Renders the exact badge HTML you provided (keeps classes & icon placement).
-//  * Expected analysis.text values (case-insensitive): 
+//  * Expected analysis.text values (case-insensitive):
 //  *  - "Shorts covering", "Short build up", "Long build up", "Long unwinding"
 //  * If text doesn't match, shows a neutral badge with the text.
 //  */
@@ -243,7 +284,7 @@ export default OptionInsiderTable;
 //                             <td className="py-3 px-4 font-semibold">
 //                               <div className="flex items-center gap-2">
 //                                 <span className={callTextClass}>{call?.text ?? "-"}</span>
-                              
+
 //                               </div>
 //                             </td>
 
@@ -252,7 +293,7 @@ export default OptionInsiderTable;
 //                             <td className="py-3 px-4 font-semibold">
 //                               <div className="flex items-center gap-2">
 //                                 <span className={putTextClass}>{put?.text ?? "-"}</span>
-                                
+
 //                               </div>
 //                             </td>
 //                           </tr>
