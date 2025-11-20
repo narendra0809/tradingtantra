@@ -57,71 +57,64 @@ const Footer = () => {
             <ul className="space-y-2">
               <h3 className="sm:text-base text-lg font-bold">Company</h3>
               <Link to={"/"}>
-                <li className="text-sm font-light">Home</li>
+                <li className="text-sm sm:text-base text-lg font-bold">Home</li>
               </Link>
               <Link to={"/updates"}>
-                <li className="text-sm font-light">Updates</li>
+                <li className="text-sm sm:text-base text-lg font-bold">
+                  Updates
+                </li>
               </Link>
               <Link to={"/about-us"}>
-                <li className="text-sm font-light">About Us</li>
+                <li className="text-sm sm:text-base text-lg font-bold">
+                  About Us
+                </li>
               </Link>
               <Link to={"/contact-us"}>
-                <li className="text-sm font-light">Contact Us</li>
+                <li className="text-sm sm:text-base text-lg font-bold">
+                  Contact Us
+                </li>
               </Link>
               <Link to={"/faq"}>
-                <li className="text-sm font-light">FAQ</li>
+                <li className="text-sm sm:text-base text-lg font-bold">FAQ</li>
               </Link>
             </ul>
-
           </div>
         </div>
       </div>
       <div className="w-full mt-10 border-t-2 border-t-[#E2E2E2] border-b-[#E2E2E2] border-b-2 dark:border-t-[#00124F] dark:border-b-[#00124F] py-10 space-y-5 text-sm">
-        <p className="font-light text-lg leading-6 tracking-wider">
+        <p className="sm:text-base text-lg font-bold leading-6 tracking-wider">
           TradingTantra is India’s 1st AI stock screener which is made with love
           in INDIA.
         </p>
-        <p className="font-light  leading-6 tracking-widest">
+        <p className="sm:text-base text-lg font-bold  leading-6 tracking-widest">
           At TradingTantra we make advanced AI algorithms which provide
           thoroughly filtered stocks on which you can make trades according to
           your analysis.Through our AI algorithms we try to make your trading
           experience smoother and profitable.
         </p>
-        <p className="font-light  leading-6 tracking-widest">
+        <p className="sm:text-base text-lg font-bold  leading-6 tracking-widest">
           Our mission is to teach you and make you an independent trader instead
           of providing calls or tips.
         </p>
-        <p className="font-light   leading-6 tracking-widest">
+        <p className="sm:text-base text-lg font-bold   leading-6 tracking-widest">
           We see heavy potential in INDIA and Indian Stock Market and
           TradingTantra will provide you an edge above others.
         </p>
-        <p className="font-light   leading-6 tracking-widest">
+        <p className="sm:text-base text-lg font-bold   leading-6 tracking-widest">
           Disclaimer: Investing involves risk, and past performance is not
           indicative of future results. Please conduct your own research before
           making investment decisions.
         </p>
-        <p className="font-light text-base leading-6 tracking-widest">
+        <p className="sm:text-base text-lg font-bold  leading-6 tracking-widest">
           With TradingTantra you can do the following types of trading -
         </p>
-        <ul className="space-y-1 mt-10">
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -Intraday Trading
-          </li>
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -BTST
-          </li>
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -Swing Trading
-          </li>
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -Option Buying
-          </li>
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -Option Selling
-          </li>
-          <li className="font-thin text-base leading-6 tracking-widest">
-            -Scalping Trading
-          </li>
+        <ul className="space-y-1 mt-10 sm:text-base text-lg font-bold">
+          <li className="leading-6 tracking-widest">-Intraday Trading</li>
+          <li className="leading-6 tracking-widest">-BTST</li>
+          <li className="leading-6 tracking-widest">-Swing Trading</li>
+          <li className="leading-6 tracking-widest">-Option Buying</li>
+          <li className="leading-6 tracking-widest">-Option Selling</li>
+          <li className="leading-6 tracking-widest">-Scalping Trading</li>
         </ul>
       </div>
       <div className="flex items-center sm:flex-row flex-col justify-between py-10">

@@ -42,6 +42,7 @@ export async function fetchExpiryDates(
     }
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return data
       .map((date) => new Date(date))
       .filter((date) => date >= today)

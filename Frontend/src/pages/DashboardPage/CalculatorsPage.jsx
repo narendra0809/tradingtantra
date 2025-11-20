@@ -44,7 +44,8 @@ const CalculatorsPage = () => {
     }
   };
 
-  const calculators = ["Risk", "CAGR", "SIP", "EMI", "Option"];
+  // const calculators = ["Risk", "CAGR", "SIP", "EMI", "Option"];
+  const calculators = ["Risk"];
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
@@ -57,41 +58,41 @@ const CalculatorsPage = () => {
         <div className="lg:col-span-2 dark:bg-db-primary bg-primary-light dark:border dark:border-[#0256f550] p-5 rounded-md">
           {/* Header Section */}
           <div className="flex justify-between items-center">
-            {selectedCalculator === "Risk" ? (
+            {selectedCalculator === "Risk" && (
               <h5 className="font-abcRepro text-3xl font-medium ">
                 Risk Calculator
               </h5>
-            ) : selectedCalculator === "CAGR" ? (
-              <h5 className="font-abcRepro text-3xl font-medium ">
-                CAGR Calculator
-              </h5>
-            ) : selectedCalculator === "SIP" ? (
-              <h5 className="font-abcRepro text-3xl font-medium ">
-                SIP Calculator
-              </h5>
-            ) : selectedCalculator === "EMI" ? (
-              <h5 className="font-abcRepro text-3xl font-medium ">
-                EMI Calculator
-              </h5>
-            ) : (
-              <h5 className="font-abcRepro text-3xl font-medium ">
-                Option Calculator
-              </h5>
             )}
+            {/* // ) : selectedCalculator === "CAGR" ? ( //{" "}
+            <h5 className="font-abcRepro text-3xl font-medium ">
+              // CAGR Calculator //{" "}
+            </h5>
+            // ) : selectedCalculator === "SIP" ? ( //{" "}
+            <h5 className="font-abcRepro text-3xl font-medium ">
+              // SIP Calculator //{" "}
+            </h5>
+            // ) : selectedCalculator === "EMI" ? ( //{" "}
+            <h5 className="font-abcRepro text-3xl font-medium ">
+              // EMI Calculator //{" "}
+            </h5>
+            // ) : ( //{" "}
+            <h5 className="font-abcRepro text-3xl font-medium ">
+              // Option Calculator //{" "}
+            </h5> */}
             {(selectedCalculator === "Risk" ||
               selectedCalculator === "CAGR" ||
               selectedCalculator === "SIP") && (
               <div className="flex items-center gap-2.5">
                 {/* Calculator Toggle */}
-                {selectedCalculator === "Risk" && (
+                {/* {selectedCalculator === "Risk" && (
                   <p
                     className="cursor-pointer  "
                     onClick={() => setCalculator("Equity")}
                   >
                     Equity
                   </p>
-                )}
-                {selectedCalculator === "CAGR" && (
+                )} */}
+                {/* {selectedCalculator === "CAGR" && (
                   <p
                     className="cursor-pointer "
                     onClick={() => setCalculator("CAGR")}
@@ -106,10 +107,10 @@ const CalculatorsPage = () => {
                   >
                     SIP
                   </p>
-                )}
+                )} */}
 
                 {/* Toggle Slider */}
-                <div
+                {/* <div
                   onClick={handleToggle}
                   className="w-14 h-7 bg-[#EEEEEE] dark:bg-white rounded-full flex items-center p-1 cursor-pointer transition-all"
                 >
@@ -123,10 +124,10 @@ const CalculatorsPage = () => {
                         : ""
                     }`}
                   />
-                </div>
+                </div> */}
 
                 {/* Option Toggle */}
-                {selectedCalculator === "Risk" && (
+                {/* {selectedCalculator === "Risk" && (
                   <p
                     className="cursor-pointer "
                     onClick={() => setCalculator("F&O")}
@@ -149,7 +150,7 @@ const CalculatorsPage = () => {
                   >
                     LUMPSUM
                   </p>
-                )}
+                )} */}
               </div>
             )}
           </div>
@@ -161,9 +162,7 @@ const CalculatorsPage = () => {
                 <button
                   key={calc}
                   className={`p-2.5 rounded-sm  hover:bg-primary hover:text-white   transition-all ${
-                    selectedCalculator === calc
-                      ? "text-white bg-primary"
-                      : ""
+                    selectedCalculator === calc ? "text-white bg-primary" : ""
                   }`}
                   onClick={() => handelCalculatorChange(calc)}
                 >

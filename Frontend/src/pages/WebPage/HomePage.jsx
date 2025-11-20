@@ -42,7 +42,7 @@ const HomePage = () => {
             </div>
             <div className="flex gap-2 items-center">
               <img src={GearImg} className="w-6 h-6 " />
-              <p>Smooth Execution</p>
+              <p>AI Option Insider</p>
             </div>
             <div className="flex gap-2 items-center">
               <img src={Target} className="w-6 h-6 " />

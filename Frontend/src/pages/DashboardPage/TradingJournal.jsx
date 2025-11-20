@@ -20,9 +20,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     <div className="fixed inset-0 backdrop-blur-3xl bg-opacity-50 z-50 flex justify-center items-center p-4">
       <div className="w-full max-w-[600px] rounded-md dark:bg-db-primary bg-primary-light p-4 md:p-7 border dark:border-transparent border-white shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg md:text-2xl font-medium ">
-            {title}
-          </h3>
+          <h3 className="text-lg md:text-2xl font-medium ">{title}</h3>
           <span
             onClick={onClose}
             className="text-xl md:text-2xl font-extrabold cursor-pointer "

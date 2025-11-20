@@ -109,6 +109,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isChecked) {
+      console.log("CHECKED NOT");
       setFormErrors({
         ...formErrors,
         isAgreed: "Please agree to terms & conditions",
@@ -178,7 +179,6 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
       console.log("Error doing payment : ", error.message);
     }
   };
-
   const verifyPayment = async (paymentResponse) => {
     try {
       const res = await fetchData(
@@ -193,10 +193,6 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     } catch (error) {
       console.log("Error verifing payment : ", error);
     }
-  };
-
-  const handleClick = () => {
-    document.getElementById("formSubmit").click();
   };
 
   const handleCheck = (e) => {
@@ -319,6 +315,11 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                       placeholder="Whatsapp Number*"
                       className="flex-1 bg-[#000A2D] py-3 px-4 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
                     />
+                    {formErrors.phoneNumber && (
+                      <span className="text-red-400 text-sm">
+                        {formErrors.phoneNumber}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -378,7 +379,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               <button
                 type="submit"
                 className="w-full mt-6"
-                onClick={handleClick}
+                // onClick={handleClick}
               >
                 <img
                   src={pay}

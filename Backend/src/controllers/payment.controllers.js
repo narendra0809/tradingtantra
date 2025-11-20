@@ -45,10 +45,11 @@ export const createOrder = async (req, res) => {
     const orderOptions = {
       amount: 3999 * 100,
       currency: "INR",
-      notes: { isRenewal: isRenewal.toString(), userId: userId.toString() }, // For webhook detection
+      notes: { isRenewal: isRenewal.toString(), userId: userId.toString() },
     };
-
+    console.log(JSON.stringify(orderOptions));
     const order = await razorpayInstance.orders.create(orderOptions);
+    console.log(JSON.stringify(order));
 
     const payment = new Payment({
       userId,
@@ -66,7 +67,9 @@ export const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Create order error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: error.message, stack: error?.stack });
   }
 };
 
