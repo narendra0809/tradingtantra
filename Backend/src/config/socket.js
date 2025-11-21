@@ -22,6 +22,7 @@ import {
 } from "../controllers/swingAnalysis.controllers.js";
 import checkSubscription from "../middlewares/checkSubscription.js";
 import authenticateSocket from "../middlewares/authenticateSocket.js";
+import { buildOptionInsiderPayload } from "../services/optionInsider.service.js";
 
 let io;
 
@@ -185,6 +186,27 @@ async function sendSwingData() {
   }
 }
 
+async function broadcastToAllSubscribedSockets() {
+  if (!io) return;
+
+  const sockets = await io.fetchSockets();
+
+  for (const socket of sockets) {
+    const sub = socket.optionInsiderSubscription;
+    if (!sub) continue;
+
+    try {
+      const payload = await buildOptionInsiderPayload(sub);
+      socket.emit("optionInsiderUpdate", payload);
+    } catch (err) {
+      console.error(
+        `Error sending option insider to socket ${socket.id}:`,
+        err
+      );
+    }
+  }
+}
+
 const initializeServer = (server) => {
   io = new Server(server, {
     cors: {
@@ -198,6 +220,38 @@ const initializeServer = (server) => {
 
   io.on("connection", async (socket) => {
     console.log("a user connected", socket.id);
+
+    let currentRoom;
+    socket.on("subscribeOptionInsider", async ({ index, expiry, interval }) => {
+      try {
+        if (!index || !interval || !expiry) {
+          socket.emit("optionInsiderError", {
+            message: "index , interval and expiry are required",
+          });
+          return;
+        }
+
+        if (currentRoom) {
+          socket.leave(currentRoom);
+        }
+
+        socket.optionInsiderSubscription = { index, expiry, interval };
+
+        currentRoom = `optionInsider_${index}_${expiry || "all"}_${interval}`;
+
+        socket.join(currentRoom);
+
+        const payload = await buildOptionInsiderPayload({
+          index,
+          expiry,
+          interval,
+        });
+        socket.emit("optionInsiderUpdate", payload);
+      } catch (error) {
+        console.error("Error handling subscribeOptionInsider:", error);
+        socket.emit("optionInsiderError", { message: "Internal server error" });
+      }
+    });
 
     socket.on("getMarketDepthData", async () => {
       console.log("inside get data");
@@ -220,11 +274,7 @@ const initializeServer = (server) => {
       // console.log("user disconnected",socket.id);
     });
     socket.on("getSwingData", async () => {
-      console.log("inside get data");
-
-      await sendSwingData();
-
-      // console.log("user disconnected",socket.id);
+      await sendSwingData(socket);
     });
 
     socket.on("disconnect", () => {
@@ -243,4 +293,4 @@ const getSocketInstance = () => {
   return io;
 };
 
-export { initializeServer, getSocketInstance };
+export { initializeServer, getSocketInstance, broadcastToAllSubscribedSockets };

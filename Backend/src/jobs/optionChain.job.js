@@ -1,6 +1,9 @@
 import cron from "node-cron";
 import { fetchAndSaveAllUnderlyings } from "../services/optionChain.service.js";
-
+import {
+  broadcastToAllSubscribedSockets,
+  getSocketInstance,
+} from "../config/socket.js";
 class OptionChainJob {
   constructor() {
     this.task = null;
@@ -18,6 +21,12 @@ class OptionChainJob {
         try {
           console.log("Running option chain data fetch...");
           await fetchAndSaveAllUnderlyings(this.flag);
+          const io = getSocketInstance();
+          io.emit("optionChainDataUpdated", {
+            updated: true,
+            timestamp: new Date(),
+          });
+          broadcastToAllSubscribedSockets();
         } catch (error) {
           console.error("Error in option chain job:", error);
         }

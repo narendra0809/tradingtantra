@@ -5,7 +5,7 @@ import lock from "../../assets/Images/lock.svg";
 import play from "../../assets/Images/play.svg";
 import doc from "../../assets/Images/doc.svg";
 import shild from "../../assets/Images/shild.svg";
-import pay from "../../assets/Images/payImg.png";
+import pay from "../../assets/Images/payImg.svg";
 import { useRazorpay } from "react-razorpay";
 import useFetchData from "../../utils/useFetchData";
 import { paymentSchema } from "../../../validators/validator";

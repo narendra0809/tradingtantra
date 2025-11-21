@@ -18,7 +18,6 @@ function Badge({ analysis }) {
   if (!analysis) return null;
   const text = analysis.text || "";
   const dir = analysis.direction;
-  console.log(dir);
 
   // map text -> badge class (match your original)
   let badgeClass = "badge-interpretation ";
@@ -90,7 +89,7 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
   return (
     <div className="dark:bg-db-primary bg-primary-light rounded-lg">
       <div className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg">
-        <div className="dark:bg-db-secondary bg-[#EEEEEE] w-full overflow-x-auto  h-[550px] overflow-y-auto rounded-lg scrollbar-hidden p-4">
+        <div className="dark:bg-db-secondary bg-[#EEEEEE] w-full overflow-x-auto  h-[550px] overflow-y-auto rounded-lg scrollbar-hidden px-3">
           {!isSubscribed ? (
             <Lock />
           ) : (
