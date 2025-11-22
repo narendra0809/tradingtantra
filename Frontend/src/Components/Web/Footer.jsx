@@ -39,43 +39,43 @@ const Footer = () => {
             <ul className="space-y-2">
               <h3 className="sm:text-base text-lg font-bold">Terms Of Use</h3>
               <Link to={"/disclaimer"}>
-                <li className="text-sm font-normal">Disclaimer</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Disclaimer</li>
               </Link>
               <Link to={"/refund-policy"}>
-                <li className="text-sm font-normal">Refund Policy</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Refund Policy</li>
               </Link>
               <Link to={"/disclosures"}>
-                <li className="text-sm font-normal">Disclosures</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Disclosures</li>
               </Link>
               <Link to={"/terms-and-condition"}>
-                <li className="text-sm font-normal">Terms & Conditions</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Terms & Conditions</li>
               </Link>
               <Link to={"/privacy-policy"}>
-                <li className="text-sm font-normal">Privacy Policy</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Privacy Policy</li>
               </Link>
             </ul>
             <ul className="space-y-2">
               <h3 className="sm:text-base text-lg font-bold">Company</h3>
               <Link to={"/"}>
-                <li className="text-sm sm:text-base text-lg font-bold">Home</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Home</li>
               </Link>
               <Link to={"/updates"}>
-                <li className="text-sm sm:text-base text-lg font-bold">
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
                   Updates
                 </li>
               </Link>
               <Link to={"/about-us"}>
-                <li className="text-sm sm:text-base text-lg font-bold">
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
                   About Us
                 </li>
               </Link>
               <Link to={"/contact-us"}>
-                <li className="text-sm sm:text-base text-lg font-bold">
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
                   Contact Us
                 </li>
               </Link>
               <Link to={"/faq"}>
-                <li className="text-sm sm:text-base text-lg font-bold">FAQ</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">FAQ</li>
               </Link>
             </ul>
           </div>

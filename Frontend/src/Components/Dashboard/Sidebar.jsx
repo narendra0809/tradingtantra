@@ -202,69 +202,7 @@ const Sidebar = () => {
                     </ul>
                   </li>
                 ))}
-                <NavItem
-                  icon={FiiDii}
-                  label="FII / DII Data"
-                  isOpen={isOpen}
-                  path={"/dashboard/fii-dii"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={tradingJournal}
-                  label="Trading Journal"
-                  isOpen={isOpen}
-                  path={"/dashboard/trading-journal"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={learnFromUs}
-                  label="Learn From Us"
-                  isOpen={isOpen}
-                  path={"/dashboard/learn-from-us"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={ourStrategy}
-                  label="Our Strategy"
-                  isOpen={isOpen}
-                  path={"/dashboard/our-strategy"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={financialCalender}
-                  label="Financial Calendar"
-                  isOpen={isOpen}
-                  path={"/dashboard/calender"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={calculator}
-                  label="Calculator"
-                  isOpen={isOpen}
-                  path={"/dashboard/calculator"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={feedback}
-                  label="Feedback Form"
-                  isOpen={isOpen}
-                  path={"/dashboard/feedback"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={profit}
-                  label="Profit"
-                  isOpen={isOpen}
-                  path={"/dashboard/profit"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={updates}
-                  label="Updates"
-                  isOpen={isOpen}
-                  path={"/dashboard/updates"}
-                  isSubscribed={isSubscribed}
-                />
+                {/* NAV_SECTIONS already renders these items above; removed duplicates */}
               </ul>
               {/* <ul className="w-full space-y-5">
                 <NavItem
