@@ -1,18 +1,22 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { RiLockFill } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { NavLink } from "react-router-dom";
 import logo from "../../assets/Images/logo.svg";
 import logoLight from "../../assets/Images/logoLight.png";
-import { RiLockFill } from "react-icons/ri";
 import AiOptionClock from "../../assets/Images/sidebar/AiOptionClock.svg";
 import AiOptionData from "../../assets/Images/sidebar/AiOptionData.svg";
+import AiOptionInsider from "../../assets/Images/sidebar/AiOptionInsider.png";
 import AiSectorDepth from "../../assets/Images/sidebar/AiSectorDepth.svg";
 import AiSwing from "../../assets/Images/sidebar/AiSwing.svg";
 import calculator from "../../assets/Images/sidebar/calculator.svg";
+import dashboard from "../../assets/Images/sidebar/dashboard.svg";
 import feedback from "../../assets/Images/sidebar/feedback.svg";
 import FiiDii from "../../assets/Images/sidebar/FiiDii.svg";
 import financialCalender from "../../assets/Images/sidebar/financialCalender.svg";
-import indexDepth from "../../assets/Images/sidebar/indexDepth.svg";
 import learnFromUs from "../../assets/Images/sidebar/learnFromUs.svg";
 import marketDepth from "../../assets/Images/sidebar/marketDepth.svg";
 import ourStrategy from "../../assets/Images/sidebar/ourStrategy.svg";
@@ -20,15 +24,9 @@ import profit from "../../assets/Images/sidebar/profit.svg";
 import smartMoneyAction from "../../assets/Images/sidebar/smartMoneyAction.svg";
 import tradingJournal from "../../assets/Images/sidebar/tradingJournal.svg";
 import updates from "../../assets/Images/sidebar/updates.svg";
-import dashboard from "../../assets/Images/sidebar/dashboard.svg";
-import Cookies from "js-cookie";
-import { NavLink } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
-import AiOptionInsider from "../../assets/Images/sidebar/AiOptionInsider.png";
 
 const Sidebar = () => {
-  // const theme = useSelector((state) => state.theme.theme);
   const [isSubscribed, setIsSubscribed] = useState(null);
 
   useEffect(() => {
@@ -140,7 +138,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`absolute top-0 left-0 md:static z-50 flex h-screen  ${
+      className={`absolute top-0 left-0 md:static z-50 flex h-screen  transform transition-transform duration-300 ease-in-out  ${
         isOpen
           ? "translate-x-0 sm:translate-x-0"
           : "-translate-x-full sm:translate-x-0"
@@ -202,69 +200,6 @@ const Sidebar = () => {
                     </ul>
                   </li>
                 ))}
-                <NavItem
-                  icon={FiiDii}
-                  label="FII / DII Data"
-                  isOpen={isOpen}
-                  path={"/dashboard/fii-dii"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={tradingJournal}
-                  label="Trading Journal"
-                  isOpen={isOpen}
-                  path={"/dashboard/trading-journal"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={learnFromUs}
-                  label="Learn From Us"
-                  isOpen={isOpen}
-                  path={"/dashboard/learn-from-us"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={ourStrategy}
-                  label="Our Strategy"
-                  isOpen={isOpen}
-                  path={"/dashboard/our-strategy"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={financialCalender}
-                  label="Financial Calendar"
-                  isOpen={isOpen}
-                  path={"/dashboard/calender"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={calculator}
-                  label="Calculator"
-                  isOpen={isOpen}
-                  path={"/dashboard/calculator"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={feedback}
-                  label="Feedback Form"
-                  isOpen={isOpen}
-                  path={"/dashboard/feedback"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={profit}
-                  label="Profit"
-                  isOpen={isOpen}
-                  path={"/dashboard/profit"}
-                  isSubscribed={isSubscribed}
-                />
-                <NavItem
-                  icon={updates}
-                  label="Updates"
-                  isOpen={isOpen}
-                  path={"/dashboard/updates"}
-                  isSubscribed={isSubscribed}
-                />
               </ul>
               {/* <ul className="w-full space-y-5">
                 <NavItem

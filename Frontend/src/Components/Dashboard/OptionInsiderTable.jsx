@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-// // src/Components/Dashboard/OptionInsiderTable.jsx
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import Lock from "./Lock";
 

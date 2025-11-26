@@ -11,7 +11,7 @@ import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
 import myPlan from "../../assets/Images/Dashboard/HeaderImg/myPlan.svg";
 import myProfile from "../../assets/Images/Dashboard/HeaderImg/myProfile.svg";
 import feedBack from "../../assets/Images/Dashboard/HeaderImg/feedBack.svg";
-
+import whiteLogo from "../../assets/Images/whitelogo.png";
 import darkThemeIcon from "../../assets/Images/Dashboard/HeaderImg/darkThemeIcon.png"; // Placeholder, replace with actual path
 import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIcon.png"; // Placeholder, replace with actual path
 import Cookies from "js-cookie";
@@ -54,15 +54,15 @@ const Header = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
   }, []);
+
   useEffect(() => {
     if (isDarkMode === "dark") {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-  }, [isDarkMode]); // Uncommented
+  }, [isDarkMode]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -70,14 +70,12 @@ const Header = () => {
       }
     };
 
-    // Add event listener when dropdown is open
     if (profileDropDown) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup: Remove event listener on unmount or when dropdown closes
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [profileDropDown]); // Dependency on profileDropDown to add/remove listener dynamically
+  }, [profileDropDown]);
 
   return (
     <div className="bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-[#ffffff]">
@@ -109,12 +107,16 @@ const Header = () => {
         <img
           src={hamburger}
           alt="icon"
-          className="w-4 h-4 sm:hidden block cursor-pointer"
+          className="w-4 h-4 sm:hidden block cursor-pointer not-dark:bg-db-secondary"
           onClick={() => dispatch(toggleSideBar(!isOpen))}
         />
 
         {isSubscribed ? (
-          <img src={logo} alt="logo" className="w-25 h-20 sm:hidden block" />
+          <img
+            src={isDarkMode === "dark" ? logo : whiteLogo}
+            alt="logo"
+            className="w-25 sm:hidden block"
+          />
         ) : (
           <button
             onClick={() => navigate("/dashboard/plan")}
@@ -145,7 +147,10 @@ const Header = () => {
           </div>
         </div>
 
-        <IoIosNotifications onClick={()=>navigate("/dashboard/notifications")} className="text-white not-dark:text-[#000E40] text-3xl" />
+        <IoIosNotifications
+          onClick={() => navigate("/dashboard/notifications")}
+          className="text-white not-dark:text-[#000E40] text-3xl"
+        />
 
         <div className="relative" ref={dropdownRef}>
           <img
