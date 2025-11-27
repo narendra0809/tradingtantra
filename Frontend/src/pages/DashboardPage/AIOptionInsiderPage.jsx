@@ -8,10 +8,10 @@ import OptionInsiderTable from "../../Components/Dashboard/OptionInsiderTable";
 import { io } from "socket.io-client";
 import { marketHours } from "../../utils/utils";
 
-const AIOptionInsiderPage = () => {
-  const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
-  const SOCKET_URI = import.meta.env.VITE_SOCKET_URI || "";
+const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
+const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI || "";
 
+const AIOptionInsiderPage = () => {
   const [optionChainData, setOptionChainData] = useState();
   const [selectedIndex, setSelectedIndex] = useState("NIFTY");
   const [selectedExpiry, setSelectedExpiry] = useState("");
@@ -111,32 +111,28 @@ const AIOptionInsiderPage = () => {
     });
 
     newSocket.on("optionInsiderUpdate", (payload) => {
+      console.log(`DATA GOT FROM WEBSOCKET :`, payload);
       setOptionChainData(payload);
       setLoading(false);
       setError(null);
     });
 
     newSocket.on("optionInsiderError", (err) => {
-      setError(err.message || "Error receiving option insider data");
+      console.log(err);
+      setError("Data not found please use Go button");
       setLoading(false);
     });
 
     newSocket.on("connect_error", (err) => {
       console.error("WebSocket connect error", err.message);
-      setError("WebSocket connection error");
+      setError("Data not found please use Go button");
       setLoading(false);
     });
 
     return () => {
       newSocket.disconnect();
     };
-  }, [
-    isSubscribed,
-    SOCKET_URI,
-    selectedIndex,
-    selectedExpiry,
-    selectedInterval,
-  ]);
+  }, [isSubscribed, selectedIndex, selectedExpiry, selectedInterval]);
 
   useEffect(() => {
     if (!socket || !marketHours()) return;

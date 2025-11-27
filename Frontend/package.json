@@ -28,7 +28,7 @@
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "lenis": "^1.1.20",
-    "lightweight-charts": "^3.8.0",
+    "lightweight-charts": "^3.3.0",
     "lucide": "^0.475.0",
     "lucide-react": "^0.475.0",
     "moment": "^2.30.1",

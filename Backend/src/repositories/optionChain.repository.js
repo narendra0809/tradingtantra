@@ -9,6 +9,7 @@ import {
 import { convertToIST } from "../utils/dateUtils.js";
 import config from "../config/optionChain.config.js";
 import { delay } from "../utils/dateUtils.js";
+import optionChainJob from "../jobs/optionChain.job.js";
 const modelMap = {
   NIFTY: NiftyOptionChain,
   BANKNIFTY: BankNiftyOptionChain,
@@ -179,6 +180,11 @@ export async function saveOptionChainData(
     }
 
     console.log(`Saved option chain for ${underlyingName}, expiry ${expiry}`);
+    //! SEND DATA USING WEBSOCKET :
+    await optionChainJob.safeEmitOptionChainUpdate({
+      index: underlyingName,
+      expiry,
+    });
   } catch (error) {
     console.error(
       `Failed to save option chain for ${underlyingName}: ${error.message}`

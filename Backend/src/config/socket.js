@@ -221,38 +221,6 @@ const initializeServer = (server) => {
   io.on("connection", async (socket) => {
     console.log("a user connected", socket.id);
 
-    let currentRoom;
-    socket.on("subscribeOptionInsider", async ({ index, expiry, interval }) => {
-      try {
-        if (!index || !interval || !expiry) {
-          socket.emit("optionInsiderError", {
-            message: "index , interval and expiry are required",
-          });
-          return;
-        }
-
-        if (currentRoom) {
-          socket.leave(currentRoom);
-        }
-
-        socket.optionInsiderSubscription = { index, expiry, interval };
-
-        currentRoom = `optionInsider_${index}_${expiry || "all"}_${interval}`;
-
-        socket.join(currentRoom);
-
-        const payload = await buildOptionInsiderPayload({
-          index,
-          expiry,
-          interval,
-        });
-        socket.emit("optionInsiderUpdate", payload);
-      } catch (error) {
-        console.error("Error handling subscribeOptionInsider:", error);
-        socket.emit("optionInsiderError", { message: "Internal server error" });
-      }
-    });
-
     socket.on("getMarketDepthData", async () => {
       console.log("inside get data");
       await sendData(socket);

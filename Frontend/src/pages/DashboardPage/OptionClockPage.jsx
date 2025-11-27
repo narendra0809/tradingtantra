@@ -20,7 +20,7 @@ import { lotSize } from "../../constants/constants";
 import Cookies from "js-cookie";
 import Lock from "../../Components/Dashboard/Lock";
 
-const SOCKET_URI = import.meta.env.VITE_SOCKET_URI;
+const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI;
 
 const OptionClockPage = () => {
   const { fetchData } = useFetchData();
