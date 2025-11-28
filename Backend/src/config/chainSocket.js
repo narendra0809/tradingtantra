@@ -5,6 +5,7 @@ import cors from "cors";
 import { buildOptionInsiderPayload } from "../services/optionInsider.service.js";
 import checkSubscription from "../middlewares/checkSubscription.js";
 import authenticateSocket from "../middlewares/authenticateSocket.js";
+import { buildOptionClockPayload } from "../services/optionClock.service.js";
 
 let chainIo = null;
 
@@ -81,7 +82,33 @@ export function initializeChainSocket() {
         socket.emit("optionInsiderError", { message: "Internal server error" });
       }
     });
+    socket.on("subscribeOptionClock", async ({ index, expiry }) => {
+      try {
+        if (!index || !expiry) {
+          socket.emit("optionClockError", {
+            message: "index and expiry are required",
+          });
+          return;
+        }
 
+        if (currentRoom) {
+          socket.leave(currentRoom);
+        }
+
+        socket.optionClockSubscription = { index, expiry };
+
+        currentRoom = `optionClock_${index}_${expiry}`;
+
+        socket.join(currentRoom);
+
+        const payload = await buildOptionClockPayload({ index, expiry });
+
+        socket.emit("optionClockUpdate", payload);
+      } catch (error) {
+        console.error("Error handling subscribeOptionClock:", error);
+        socket.emit("optionClockError", { message: "Internal server error" });
+      }
+    });
     socket.on("disconnect", () => {
       console.log("🔗 Chain socket user disconnected:", socket.id);
     });

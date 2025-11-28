@@ -112,7 +112,7 @@ import {
 } from "../models/optionChain.model.js";
 
 // Get the right model for the given underlying name
-const getModelForUnderlying = (underlyingName) => {
+export const getModelForUnderlying = (underlyingName) => {
   switch (underlyingName?.toUpperCase()) {
     case "BANKNIFTY":
       return BankNiftyOptionChain;

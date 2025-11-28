@@ -40,6 +40,7 @@ import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import userRoutes from "./src/routes/users.route.js";
 import { fetchAndSaveAllUnderlyings } from "./src/services/optionChain.service.js";
+import { optionClockRouter } from "./src/routes/optionClock.route.js";
 dotenv.config();
 
 const app = express();
@@ -88,9 +89,9 @@ app.use(
   isSubscribedRoute,
   swingTradeRoutes,
   optionClockRoutes,
-  optionClockRoutes,
   holidaysRoutes,
-  optionInsiderRoute
+  optionInsiderRoute,
+  optionClockRouter
 );
 
 // Admin Routes :

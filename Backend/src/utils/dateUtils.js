@@ -137,3 +137,23 @@ export function addMinutesToTimestamp(timeStr, minutesToAdd = 3) {
 
   return `${newHours}:${newMins}:${newSecs} ${newModifier}`;
 }
+
+export const convertTo12HourFormat = (timeStr) => {
+  if (!timeStr) return null;
+
+  // Handle both HH:MM and HH:MM:SS formats
+  let [hours, minutes, seconds = "00"] = timeStr.split(":").map(Number);
+
+  // Validate input
+  if (hours > 23 || minutes > 59 || seconds > 59) {
+    throw new Error(`Invalid time format: ${timeStr}`);
+  }
+
+  // Convert to 12-hour format
+  const period = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12; // Convert 0/12/24 → 12
+
+  return `${displayHours}:${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")} ${period}`;
+};
