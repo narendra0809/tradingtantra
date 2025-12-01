@@ -9,7 +9,7 @@ import {
 dotenv.config();
 
 console.log("Starting option chain job with dedicated WebSocket...");
-const CHAIN_SOCKET_PORT = 5001;
+const CHAIN_SOCKET_PORT = process.env.CHAIN_PORT || 5550;
 
 initializeChainSocket();
 
