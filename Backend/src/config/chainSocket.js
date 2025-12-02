@@ -14,12 +14,7 @@ const chainServer = http.createServer(chainApp);
 
 chainApp.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:4173",
-      "https://tradingtantra.in",
-    ],
+    origin: "*",
     credentials: true,
   })
 );
@@ -33,13 +28,7 @@ export function initializeChainSocket() {
    chainIo = new Server(chainServer, {
     path: "/socket-chain",           // <-- ADD THIS
     cors: {
-      origin: [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:4173",
-        "https://tradingtantra.in",
-      ],
-      credentials: true,
+      origin: "*",
       methods: ["GET", "POST"],
     },
   });
