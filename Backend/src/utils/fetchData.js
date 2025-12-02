@@ -113,11 +113,11 @@ export const fetchHistoricalData = async (
     }
     return response.data;
   } catch (error) {
-    console.log("Error in historical data : ");
-    console.error(
-      `[API] Error (${interval}-min) for ${securityId}:`,
-      error.response?.data || error.message
-    );
+    // console.log("Error in historical data : ");
+    // console.error(
+    //   `[API] Error (${interval}-min) for ${securityId}:`,
+    //   error.response?.data || error.message
+    // );
     return null;
   }
 };

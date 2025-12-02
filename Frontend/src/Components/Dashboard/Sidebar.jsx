@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/Images/logo.svg";
 import logoLight from "../../assets/Images/logoLight.png";
+import AiIndexDepth from "../../assets/Images/sidebar/indexDepth.svg";
 import AiOptionClock from "../../assets/Images/sidebar/AiOptionClock.svg";
 import AiOptionData from "../../assets/Images/sidebar/AiOptionData.svg";
 import AiOptionInsider from "../../assets/Images/sidebar/AiOptionInsider.png";
@@ -16,8 +17,8 @@ import calculator from "../../assets/Images/sidebar/calculator.svg";
 import dashboard from "../../assets/Images/sidebar/dashboard.svg";
 import feedback from "../../assets/Images/sidebar/feedback.svg";
 import FiiDii from "../../assets/Images/sidebar/FiiDii.svg";
-import financialCalender from "../../assets/Images/sidebar/financialCalender.svg";
-import learnFromUs from "../../assets/Images/sidebar/learnFromUs.svg";
+// import financialCalender from "../../assets/Images/sidebar/financialCalender.svg";
+// import learnFromUs from "../../assets/Images/sidebar/learnFromUs.svg";
 import marketDepth from "../../assets/Images/sidebar/marketDepth.svg";
 import ourStrategy from "../../assets/Images/sidebar/ourStrategy.svg";
 import profit from "../../assets/Images/sidebar/profit.svg";
@@ -56,6 +57,11 @@ const Sidebar = () => {
           icon: AiOptionClock,
           label: "AI Option Clock",
           path: "/dashboard/option-clock",
+        },
+        {
+          icon: AiIndexDepth,
+          label: "AI Index Depth",
+          path: "/dashboard/index-depth",
         },
       ],
     },
@@ -97,21 +103,21 @@ const Sidebar = () => {
           label: "Trading Journal",
           path: "/dashboard/trading-journal",
         },
-        {
-          icon: learnFromUs,
-          label: "Learn From Us",
-          path: "/dashboard/learn-from-us",
-        },
+        // {
+        //   icon: learnFromUs,
+        //   label: "Learn From Us",
+        //   path: "/dashboard/learn-from-us",
+        // },
         {
           icon: ourStrategy,
           label: "Our Strategy",
           path: "/dashboard/our-strategy",
         },
-        {
-          icon: financialCalender,
-          label: "Financial Calendar",
-          path: "/dashboard/calender",
-        },
+        // {
+        //   icon: financialCalender,
+        //   label: "Financial Calendar",
+        //   path: "/dashboard/calender",
+        // },
         {
           icon: calculator,
           label: "Calculator",
@@ -171,6 +177,7 @@ const Sidebar = () => {
           <div className="overflow-y-auto h-[calc(100vh-100px)] px-2 scrollbar-hidden">
             <nav className="flex flex-col items-start space-y-4  mt-8 ">
               <ul className="w-full space-y-5">
+                {!isOpen && <div className="w-full h-1 bg-primary" />}
                 <NavItem
                   icon={dashboard}
                   label="Dashboard"
@@ -180,10 +187,12 @@ const Sidebar = () => {
                 />
                 {NAV_SECTIONS.map((section) => (
                   <li key={section.label} className="w-full">
-                    {isOpen && (
+                    {isOpen ? (
                       <div className="px-4 mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#97A2C3] dark:text-[#8F9BCE] uppercase">
                         {section.label}
                       </div>
+                    ) : (
+                      <div className="w-full h-1 bg-primary" />
                     )}
 
                     <ul className="space-y-2">

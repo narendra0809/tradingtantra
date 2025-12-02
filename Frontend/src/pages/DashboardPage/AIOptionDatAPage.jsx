@@ -255,6 +255,7 @@ const AIOptionDataPage = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
   }, []);
+
   const filterDataByIndex = () => {
     const uniqueDates = [
       ...new Set(
@@ -616,7 +617,7 @@ const AIOptionDataPage = () => {
       </section>
 
       <section className="grid lg:grid-cols-2 grid-cols-1 gap-4 mt-8">
-        <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
+        <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg w-full">
           <div className="dark:bg-db-primary bg-primary-light rounded-lg p-4 h-full">
             <div className="flex gap-4 items-center">
               <h1 className="text-2xl font-medium">{selectedIndex}</h1>
@@ -628,7 +629,7 @@ const AIOptionDataPage = () => {
                 Live
               </span>
             </div>
-            <div className="mt-8 h-[350px] lg:h-[88%]">
+            <div className="mt-8 h-[350px] lg:h-[88%] w-full overflow-hidden">
               {!isSubscribed ? (
                 <Lock />
               ) : noDataMessage ? (

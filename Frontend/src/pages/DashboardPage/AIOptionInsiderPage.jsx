@@ -69,7 +69,7 @@ const AIOptionInsiderPage = () => {
         const byIndex = res.data.expiriesByIndex || {};
         setExpiries(byIndex);
         const first = byIndex[selectedIndex]?.[0] || "";
-        setSelectedExpiry((prev) => (prev ? prev : first));
+        setSelectedExpiry(first);
         if (first) fetchOptionChainData(first, selectedInterval);
       } catch (err) {
         console.error(err);
@@ -93,17 +93,15 @@ const AIOptionInsiderPage = () => {
 
     const token = localStorage.getItem("token");
     const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
-    path: "/socket-chain",
-    auth:{ token },
-    transports: ["websocket"],
-    withCredentials: true,
-});
-
+      path: "/socket-chain",
+      auth: { token },
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("✅ Connected to WebSocket Server:", newSocket.id);
       if (selectedIndex && selectedExpiry && selectedInterval) {
         newSocket.emit("subscribeOptionInsider", {
           index: selectedIndex,
@@ -114,7 +112,6 @@ const AIOptionInsiderPage = () => {
     });
 
     newSocket.on("optionInsiderUpdate", (payload) => {
-      console.log(`DATA GOT FROM WEBSOCKET :`, payload);
       setOptionChainData(payload);
       setLoading(false);
       setError(null);
@@ -127,7 +124,7 @@ const AIOptionInsiderPage = () => {
     });
 
     newSocket.on("connect_error", (err) => {
-      console.error("WebSocket connect error", err.message);
+      console.log(err);
       setError("Data not found please use Go button");
       setLoading(false);
     });
@@ -170,10 +167,10 @@ const AIOptionInsiderPage = () => {
               className=" flex-1 ml-2 focus:outline-none dark:bg-db-primary bg-primary-light"
             >
               <option value="NIFTY">Nifty50</option>
+              <option value="SENSEX">Sensex</option>
               <option value="BANKNIFTY">BankNifty</option>
               <option value="FINNIFTY">FinNifty</option>
               <option value="MIDCPNIFTY">Midcap</option>
-              <option value="SENSEX">Sensex</option>
             </select>
           </div>
           <div className="flex items-center relative border border-[#0E5FF6] rounded-lg px-3 py-1 sm:w-32 h-12 w-full">

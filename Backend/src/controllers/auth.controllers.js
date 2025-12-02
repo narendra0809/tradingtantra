@@ -124,7 +124,7 @@ const logIn = async (req, res) => {
           email: user.email,
           displayName: user.displayName,
           isSubscribed,
-          darkMode:typeof user?.darkMode  != "boolean" ? true :user?.darkMode
+          darkMode: typeof user?.darkMode != "boolean" ? true : user?.darkMode,
         },
       });
   } catch (error) {

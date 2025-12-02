@@ -144,3 +144,15 @@ export function generateTimeRanges(startTime, endTime, intervalMinutes) {
 
   return ranges;
 }
+
+export const convertToCandlestickData = (rawData) => {
+  return rawData
+    .map((item) => ({
+      time: Math.floor(item.x / 1000), // Convert ms to seconds
+      open: parseFloat(item.y[0]),
+      high: parseFloat(item.y[1]),
+      low: parseFloat(item.y[2]),
+      close: parseFloat(item.y[3]),
+    }))
+    .sort((a, b) => a.time - b.time); // Sort by time ascending
+};

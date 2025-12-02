@@ -13,7 +13,9 @@ const indices = [
 
 // Dhan API configuration
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
+// const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
+const ACCESS_TOKEN =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzY0NzU3OTg2LCJpYXQiOjE3NjQ2NzE1ODYsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA0MDczMDc4In0.i9Oi3J3vqPD1uACnsSSGp79nXr-2yVey600wDCg1XraVwschR9WWMIseh5G9rKAfpyjOk78Q9f6SFGYKaX9y-g";
 
 // Utility to add a delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -150,6 +152,112 @@ const mergeCandles = (
   return mergedCandles;
 };
 
+// Merge 15-minute candles into higher timeframe (e.g. 30m)
+// data: { open[], high[], low[], close[], timestamp[] } timestamps in seconds
+// const merge15mToHigher = (data, targetIntervalMinutes, tradingDay) => {
+//   const mergedCandles = [];
+
+//   const sourceIntervalMinutes = 15;
+//   const candlesPerInterval = targetIntervalMinutes / sourceIntervalMinutes; // e.g. 30/15 = 2
+
+//   if (!Number.isInteger(candlesPerInterval) || candlesPerInterval <= 0) {
+//     throw new Error(
+//       `Cannot merge 15m data into ${targetIntervalMinutes}m (non-integer ratio)`
+//     );
+//   }
+
+//   const tradingDayStart = moment
+//     .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
+//     .startOf("day");
+//   const tradingDayEnd = tradingDayStart
+//     .clone()
+//     .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
+//   const tradingDayStartUnix = tradingDayStart.unix();
+//   const tradingDayEndUnix = tradingDayEnd.unix();
+
+//   // Filter to this trading day only
+//   const filtered = {
+//     open: [],
+//     high: [],
+//     low: [],
+//     close: [],
+//     timestamp: [],
+//   };
+
+//   for (let i = 0; i < data.open.length; i++) {
+//     const ts = data.timestamp[i];
+//     if (ts < tradingDayStartUnix || ts > tradingDayEndUnix) continue;
+
+//     filtered.open.push(data.open[i]);
+//     filtered.high.push(data.high[i]);
+//     filtered.low.push(data.low[i]);
+//     filtered.close.push(data.close[i]);
+//     filtered.timestamp.push(ts);
+//   }
+
+//   if (filtered.open.length === 0) return [];
+
+//   // Group 15m candles into targetIntervalMinutes buckets by IST time
+//   const intervalGroups = {};
+
+//   for (let i = 0; i < filtered.open.length; i++) {
+//     const ts = filtered.timestamp[i];
+
+//     // Compute bucket start for target interval, using IST
+//     const date = moment.unix(ts).tz("Asia/Kolkata");
+//     const minute = date.minute();
+//     const intervalStartMinute =
+//       Math.floor(minute / targetIntervalMinutes) * targetIntervalMinutes;
+//     const intervalStartUnix = date
+//       .set({ minute: intervalStartMinute, second: 0, millisecond: 0 })
+//       .unix();
+//     const key = intervalStartUnix;
+
+//     if (!intervalGroups[key]) {
+//       intervalGroups[key] = {
+//         open: [],
+//         high: [],
+//         low: [],
+//         close: [],
+//         timestamp: [],
+//       };
+//     }
+
+//     intervalGroups[key].open.push(filtered.open[i]);
+//     intervalGroups[key].high.push(filtered.high[i]);
+//     intervalGroups[key].low.push(filtered.low[i]);
+//     intervalGroups[key].close.push(filtered.close[i]);
+//     intervalGroups[key].timestamp.push(filtered.timestamp[i]);
+//   }
+
+//   const intervalKeys = Object.keys(intervalGroups)
+//     .map(Number)
+//     .sort((a, b) => a - b); // ascending through the day
+
+//   for (const intervalKey of intervalKeys) {
+//     const slice = intervalGroups[intervalKey];
+
+//     // Only accept full candlesPerInterval blocks (e.g. exactly 2×15m for 30m)
+
+//     // if (slice.open.length !== candlesPerInterval) continue;
+
+//     mergedCandles.push({
+//       open: slice.open[0],
+//       high: Math.max(...slice.high),
+//       low: Math.min(...slice.low),
+//       close: slice.close[slice.close.length - 1],
+//       lastClose: slice.close[slice.close.length - 1],
+//       timestamp: unixToIST(intervalKey), // start of 30m bucket in IST
+//     });
+//   }
+
+//   return mergedCandles;
+// };
+
+// const merge15To30Candles = (data, tradingDay) => {
+//   return merge15mToHigher(data, 30, tradingDay);
+// };
+
 // Fetch data from Dhan API for a specific interval
 const fetchDhanData = async (index, interval, fromDate, toDate) => {
   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
@@ -162,10 +270,10 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
         securityId: index.scrip,
         exchangeSegment: index.seg,
         instrument: "INDEX",
-        interval: interval === "3m" ? "1" : interval.replace("m", ""),
+        interval: interval === "3m" ? 1 : interval.replace("m", ""),
         oi: false,
-        fromDate: formattedFromDate,
-        toDate: formattedToDate,
+        fromDate: "2025-11-30",
+        toDate: "2025-12-03",
       },
       {
         headers: {
@@ -227,18 +335,21 @@ const processIndexCandles = async (
 
     if (interval === "3m") {
       candles = mergeCandles(apiData, 3, currentTime, index.name, tradingDay);
-    } else {
-      const intervalMinutes = interval === "15m" ? 15 : 30;
-      const candlesToProcess = 3; // Process last 3 candles
-      const startIndex = Math.max(0, apiData.open.length - candlesToProcess);
+    } else if (interval === "30m") {
+      // candles = merge15To30Candles(apiData, tradingDay);
+      // console.log(JSON.stringify(candles));
+    } else if (interval === "15m") {
+      const intervalMinutes = 15;
+      // const candlesToProcess = 3; // Process last 3 candles
+      // const startIndex = Math.max(0, apiData.open.length - candlesToProcess);
 
       // Take the last 3 candles
       const slicedData = {
-        open: apiData.open.slice(startIndex),
-        high: apiData.high.slice(startIndex),
-        low: apiData.low.slice(startIndex),
-        close: apiData.close.slice(startIndex),
-        timestamp: apiData.timestamp.slice(startIndex),
+        open: apiData.open,
+        high: apiData.high,
+        low: apiData.low,
+        close: apiData.close,
+        timestamp: apiData.timestamp,
       };
 
       candles = slicedData.open
@@ -419,9 +530,9 @@ export const runFetchForIndexCandles = async () => {
     const today = moment().tz("Asia/Kolkata");
     const currentDate = formatDateForAPI(today);
     const time = moment().format("hh:mm:ss A");
-    if (time >= "09:15:00 AM" && time <= "09:18:00 AM") {
-      await deleteOldIndexData();
-    }
+    // if (time >= "09:15:00 AM" && time <= "09:18:00 AM") {
+    //   await deleteOldIndexData();
+    // }
     // Only fetch and process current day's data
     await fetchAndProcessAllIndices(currentDate, currentDate);
   } catch (error) {
