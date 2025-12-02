@@ -13,9 +13,10 @@ const CHAIN_SOCKET_PORT = process.env.CHAIN_PORT || 5550;
 
 initializeChainSocket();
 
-chainServer.listen(CHAIN_SOCKET_PORT, () => {
+chainServer.listen(CHAIN_SOCKET_PORT, "127.0.0.1", () => {
   console.log(`🔗 Chain Socket.IO listening on port ${CHAIN_SOCKET_PORT}`);
 });
+
 
 connectDB()
   .then(() => {

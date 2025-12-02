@@ -690,10 +690,13 @@ const OptionClockPage = () => {
     }
 
     const token = localStorage.getItem("token");
-    const newSocket = io(SOCKET_URI, {
-      auth: { token },
-      transports: ["websocket"],
-    });
+   const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
+    path: "/socket-chain",
+    auth: {token},
+    transports: ["websocket"],
+    withCredentials: true,
+});
+
 
     setSocket(newSocket);
 

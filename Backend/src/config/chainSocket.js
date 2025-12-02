@@ -30,7 +30,8 @@ export function initializeChainSocket() {
     return chainIo;
   }
 
-  chainIo = new Server(chainServer, {
+   chainIo = new Server(chainServer, {
+    path: "/socket-chain",           // <-- ADD THIS
     cors: {
       origin: [
         "http://localhost:3000",
@@ -42,6 +43,7 @@ export function initializeChainSocket() {
       methods: ["GET", "POST"],
     },
   });
+
 
   // Chain socket middleware (same as main)
   chainIo.use(authenticateSocket);
