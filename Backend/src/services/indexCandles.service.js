@@ -305,55 +305,55 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
 };
 
 // ---------------- Fetch Dhan Data ----------------
-const fetchDhanData = async (index, interval, fromDate, toDate) => {
-  let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
-  const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
-  const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+// const fetchDhanData = async (index, interval, fromDate, toDate) => {
+//   let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
+//   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+//   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
-  try {
-    const response = await axios.post(
-      DHAN_API_URL,
-      {
-        securityId: index.scrip,
-        exchangeSegment: index.seg,
-        instrument: "INDEX",
-        interval: intervalParam,
-        oi: false,
-        fromDate: formattedFromDate,
-        toDate: formattedToDate,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "access-token": ACCESS_TOKEN,
-        },
-        timeout: 15000,
-      }
-    );
+//   try {
+//     const response = await axios.post(
+//       DHAN_API_URL,
+//       {
+//         securityId: index.scrip,
+//         exchangeSegment: index.seg,
+//         instrument: "INDEX",
+//         interval: intervalParam,
+//         oi: false,
+//         fromDate: formattedFromDate,
+//         toDate: formattedToDate,
+//       },
+//       {
+//         headers: {
+//           Accept: "application/json",
+//           "Content-Type": "application/json",
+//           "access-token": ACCESS_TOKEN,
+//         },
+//         timeout: 15000,
+//       }
+//     );
 
-    if (!response?.data) {
-      console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
-      return null;
-    }
+//     if (!response?.data) {
+//       console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
+//       return null;
+//     }
 
-    return {
-      open: response.data.open || [],
-      low: response.data.low || [],
-      high: response.data.high || [],
-      close: response.data.close || [],
-      timestamp: response.data.timestamp || [],
-    };
-  } catch (error) {
-    if (error.response?.status === 429) {
-      console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
-      await delay(150);
-      return fetchDhanData(index, interval, fromDate, toDate);
-    }
-    console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
-    return null;
-  }
-};
+//     return {
+//       open: response.data.open || [],
+//       low: response.data.low || [],
+//       high: response.data.high || [],
+//       close: response.data.close || [],
+//       timestamp: response.data.timestamp || [],
+//     };
+//   } catch (error) {
+//     if (error.response?.status === 429) {
+//       console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
+//       await delay(150);
+//       return fetchDhanData(index, interval, fromDate, toDate);
+//     }
+//     console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
+//     return null;
+//   }
+// };
 
 // ---------------- Save helpers ----------------
 const saveCandleIfNotExists = async (index, interval, candle) => {
@@ -529,52 +529,52 @@ export const runFetchForIndexCandles = async () => {
 };
 
 // ---------------- Utility: fetchDhanData ----------------
-// async function fetchDhanData(index, interval, fromDate, toDate) {
-//   let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
-//   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
-//   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+async function fetchDhanData(index, interval, fromDate, toDate) {
+  let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
+  const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+  const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
-//   try {
-//     const response = await axios.post(
-//       DHAN_API_URL,
-//       {
-//         securityId: index.scrip,
-//         exchangeSegment: index.seg,
-//         instrument: "INDEX",
-//         interval: intervalParam,
-//         oi: false,
-//         fromDate: formattedFromDate,
-//         toDate: formattedToDate,
-//       },
-//       {
-//         headers: {
-//           Accept: "application/json",
-//           "Content-Type": "application/json",
-//           "access-token": ACCESS_TOKEN,
-//         },
-//         timeout: 15000,
-//       }
-//     );
+  try {
+    const response = await axios.post(
+      DHAN_API_URL,
+      {
+        securityId: index.scrip,
+        exchangeSegment: index.seg,
+        instrument: "INDEX",
+        interval: intervalParam,
+        oi: false,
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "access-token": ACCESS_TOKEN,
+        },
+        timeout: 15000,
+      }
+    );
 
-//     if (!response?.data) {
-//       console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
-//       return null;
-//     }
+    if (!response?.data) {
+      console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
+      return null;
+    }
 
-//     return {
-//       open: response.data.open || [],
-//       low: response.data.low || [],
-//       high: response.data.high || [],
-//       close: response.data.close || [],
-//       timestamp: response.data.timestamp || [],
-//     };
-//   } catch (error) {
-//     if (error.response?.status === 429) {
-//       console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
-//       await delay(150);
-//       return fetchDhanData(index, interval, fromDate, toDate);
-//     }
-//     console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
-//     return null;
-//   }
-// }
+    return {
+      open: response.data.open || [],
+      low: response.data.low || [],
+      high: response.data.high || [],
+      close: response.data.close || [],
+      timestamp: response.data.timestamp || [],
+    };
+  } catch (error) {
+    if (error.response?.status === 429) {
+      console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
+      await delay(150);
+      return fetchDhanData(index, interval, fromDate, toDate);
+    }
+    console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
+    return null;
+  }
+}
