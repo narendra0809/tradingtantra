@@ -4,6 +4,7 @@ import React, { useEffect, useState, Suspense } from "react";
 import { io } from "socket.io-client";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { useOutletContext } from "react-router-dom";
 
 // Lazy load components with enhanced debugging and normalization
 // const StockCard = React.lazy(async () => {

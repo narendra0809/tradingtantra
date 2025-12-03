@@ -432,13 +432,14 @@
 // export { DayHigh, DayLow };
 
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
-import Loader from "../../Loader";
+import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import dayHigh from "../../../assets/Images/Dashboard/marketdepthpage/dayHigh.png";
 import dayLow from "../../../assets/Images/Dashboard/marketdepthpage/dayLow.png";
+import Loader from "../../Loader";
+import StrategyCard from "../../StrategyCard";
 import Lock from "../Lock";
 
 const DayHigh = ({
@@ -505,27 +506,13 @@ const DayHigh = ({
   return (
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C]  rounded-lg p-2">
-        
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img
-              src={dayHigh}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h2 className="text-xl  font-semibold flex items-center gap-2">
-                Day High Break <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400  text-sm flex items-center gap-2">
-                How to use{" "}
-                <span className=" bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          imageAlt={"dayHigh"}
+          imageSrc={dayHigh}
+          name={"day-high-break"}
+          title={"Day High Break"}
+        />
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg bg-[#EEEEEE]">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
@@ -655,7 +642,6 @@ const DayHigh = ({
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -725,23 +711,14 @@ const DayLow = ({
   return (
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C] rounded-lg p-2">
-     
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img src={dayLow} alt="Logo" className="w-12 h-12 object-contain" />
-            <div>
-              <h2 className="text-xl  font-semibold flex items-center gap-2">
-                Day Low Break <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400  text-sm flex items-center gap-2">
-                How to use{" "}
-                <span className=" bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          imageAlt={"dayLow"}
+          imageSrc={dayLow}
+          name={"day-low-break"}
+          title={"Day Low Break"}
+        />
+
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg ">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#EEEEEE] dark:text-white text-[#01071C] p-2 relative">
             <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">

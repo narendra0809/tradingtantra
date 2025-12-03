@@ -6,12 +6,13 @@ export const postStrategy = async (req, res) => {
     if (!req.admin || !req.admin.id) {
       res.status(401).send("Unauthorized Access !");
     }
-    const { title, description, videoUrl, thumbnailUrl } = req.body;
+    const { title, description, videoUrl, thumbnailUrl, name } = req.body;
     const video = await OurStrategy.create({
       title,
       description,
       videoUrl,
       thumbnailUrl,
+      name,
     });
     res.status(200).json({ success: true, video });
   } catch (error) {
@@ -28,7 +29,7 @@ export const editStrategy = async (req, res) => {
         .json({ success: false, message: "Unauthorized Access!" });
     }
 
-    const { title, description, videoUrl, thumbnailUrl, _id } = req.body;
+    const { title, description, videoUrl, thumbnailUrl, _id, name } = req.body;
 
     if (!_id) {
       return res.status(400).json({
@@ -52,7 +53,7 @@ export const editStrategy = async (req, res) => {
 
     const updatedVideo = await OurStrategy.findByIdAndUpdate(
       idStr,
-      { title, description, videoUrl, thumbnailUrl },
+      { title, description, videoUrl, thumbnailUrl, name },
       { new: true, runValidators: true }
     );
 

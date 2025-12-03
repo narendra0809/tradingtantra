@@ -1,26 +1,22 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
 import Loader from "../../Loader";
-
 import boost from "../../../assets/Images/Dashboard/marketdepthpage/boost.png";
 import Lock from "../Lock";
+import StrategyCard from "../../StrategyCard";
 
 export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
   const [sortedData, setSortedData] = useState([]);
-  const [sortOrder, setSortOrder] = useState("desc"); // desc by default
+  const [sortOrder, setSortOrder] = useState("desc");
   const [sortOrderChange, setSortOrderChange] = useState("desc");
   const [sortOrderSymbol, setSortOrderSymbol] = useState("desc");
 
-  // Update sortedData whenever data changes
   useEffect(() => {
-    // console.log('previousVolume',data)
     setSortedData(data || []);
   }, [data]);
 
-  // Function to sort data
   const handleSort = () => {
     if (!sortedData?.length) return;
 
@@ -65,22 +61,13 @@ export const PreviousVolume = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img src={boost} alt="Logo" className="w-12 h-12 object-contain" />
-            <div>
-              <h2 className=" dark:text-white text-[#01071C] text-xl font-semibold flex items-center gap-2">
-                AI Intraday Boom <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400   text-sm flex items-center gap-2">
-                How to use{" "}
-                <span className="bg-blue-600 text-white  px-2 py-1 rounded-full text-xs">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          imageAlt={"boost"}
+          imageSrc={boost}
+          name={"intraday-boom"}
+          title={"AI Intraday Boom"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C]  p-px h-fit mt-4 rounded-lg bg-[#EEEEEE]">
