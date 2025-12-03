@@ -1,7 +1,32 @@
 /* eslint-disable react/prop-types */
+const toYoutubeEmbedUrl = (url) => {
+  if (!url) return "";
+
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") {
+      const id = u.pathname.replace("/", "");
+      return `https://www.youtube.com/embed/${id}`;
+    }
+    if (
+      u.hostname === "www.youtube.com" ||
+      u.hostname === "youtube.com" ||
+      u.hostname === "m.youtube.com"
+    ) {
+      const id = u.searchParams.get("v");
+      if (id) {
+        return `https://www.youtube.com/embed/${id}`;
+      }
+    }
+    return url;
+  } catch {
+    return url;
+  }
+};
+
 const VideoModal = ({ isOpen, onClose, videoUrl }) => {
   if (!isOpen) return null;
-
+  const convertedUrl = toYoutubeEmbedUrl(videoUrl);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
@@ -26,7 +51,7 @@ const VideoModal = ({ isOpen, onClose, videoUrl }) => {
         >
           <iframe
             className="w-full h-full"
-            src={videoUrl}
+            src={convertedUrl}
             title="TradingTantra Video"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

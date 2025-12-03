@@ -19,6 +19,9 @@ import {
   parseTime,
 } from "../../utils/utils";
 import Lock from "../../Components/Dashboard/Lock";
+import { useOutletContext } from "react-router-dom";
+import VideoModal from "../../Components/VideoModal";
+import { ADMIN_SERVER_URI } from "../AdminPages/Home";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const contributeIndex = {
@@ -42,6 +45,7 @@ const meterData = [
 ];
 
 const AIOptionDataPage = () => {
+  const [strategyVideo, setStrategyVideo] = useState(null);
   const { fetchData } = useFetchData();
   const [volumes, setVolumes] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -72,6 +76,7 @@ const AIOptionDataPage = () => {
   const [currentCandles, setCurrentCandles] = useState([]);
   const [totalOI, setTotalOI] = useState({ totalCE: 0, totalPE: 0 });
   const [noDataMessage, setNoDataMessage] = useState("");
+  const [openVideoModal, setOpenVideoModal] = useState(false);
 
   const fetchAllIndexPts = async () => {
     try {
@@ -501,16 +506,31 @@ const AIOptionDataPage = () => {
     );
   };
 
-  const checkIfDataIsLatest = (updatedAt) => {
-    const convertedDate = new Date(updatedAt).toLocaleDateString();
-    const latestTradingDate = getLatestTradingDay().toLocaleDateString();
-    return convertedDate === latestTradingDate;
-  };
-
   const currentIndexName = newIndexes.find((idx) => idx[selectedIndex])[
     selectedIndex
   ];
   const currentExpiries = allIndexData[currentIndexName]?.expiries || [];
+
+  useEffect(() => {
+    const fetchStrategyVideos = async () => {
+      try {
+        const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
+          withCredentials: true,
+        });
+        if (res.status !== 200) {
+          throw new Error("Error while fetching videos");
+        }
+        if (res.data.videos && res.data.videos.length > 0) {
+          setStrategyVideo(
+            res.data.videos.find(({ name }) => name === "option-insider")
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchStrategyVideos();
+  }, []);
 
   return (
     <>
@@ -520,9 +540,14 @@ const AIOptionDataPage = () => {
           <span className="text-xl">
             <FcCandleSticks />
           </span>
-          <span className="flex items-center px-2 py-px rounded-full w-fit text-white bg-[#0256F5] text-xs">
-            <GoDotFill />
-            Live
+          <span
+            onClick={() => setOpenVideoModal(true)}
+            className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold cursor-pointer"
+          >
+            How to use
+            <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              Live
+            </span>
           </span>
         </div>
 
@@ -668,6 +693,14 @@ const AIOptionDataPage = () => {
             isSubscribed={isSubscribed}
           />
         </div>
+        {strategyVideo && (
+          <VideoModal
+            isOpen={openVideoModal}
+            onClose={() => setOpenVideoModal(false)}
+            videoUrl={strategyVideo.videoUrl}
+            key={strategyVideo.name}
+          />
+        )}
       </section>
     </>
   );

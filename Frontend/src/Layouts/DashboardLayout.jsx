@@ -123,7 +123,7 @@ const DashboardLayout = () => {
           }`}
         >
           <TickerTape
-            colorTheme={theme ==="dark"? "dark":"light"}
+            colorTheme={theme === "dark" ? "dark" : "light"}
             isTransparent={true}
             displayMode="regular"
             symbols={tickers}

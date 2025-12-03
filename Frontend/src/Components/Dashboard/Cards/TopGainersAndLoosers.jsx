@@ -6,6 +6,7 @@ import topGainers from "../../../assets/Images/Dashboard/marketdepthpage/topGain
 import topLoosers from "../../../assets/Images/Dashboard/marketdepthpage/topLoosers.png";
 import Loader from "../../Loader";
 import Lock from "../Lock";
+import StrategyCard from "../../StrategyCard";
 
 const TopGainers = ({ data, loading, error, isSubscribed }) => {
   const [sortedData, setSortedData] = useState([]);
@@ -64,26 +65,13 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center  ">
-          <div className="flex items-center gap-2">
-            <img
-              src={topGainers}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 ">
-                Top Gainers <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          title={"Top Gainers"}
+          imageAlt={"topGainers"}
+          imageSrc={topGainers}
+          name={"top-gainers"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
@@ -195,10 +183,7 @@ const TopGainers = ({ data, loading, error, isSubscribed }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="4" className="text-center py-4 ">
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>
@@ -269,26 +254,13 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img
-              src={topLoosers}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 ">
-                Top Loosers <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          title={"Top Loosers"}
+          imageAlt={"topLoosers"}
+          imageSrc={topLoosers}
+          name={"top-loosers"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
@@ -400,10 +372,7 @@ const TopLoosers = ({ data, loading, error, isSubscribed }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="4" className="text-center py-4 ">
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>

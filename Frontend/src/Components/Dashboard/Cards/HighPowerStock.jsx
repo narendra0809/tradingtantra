@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-
 import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
 import meter from "../../../assets/Images/Dashboard/marketdepthpage/meter.png";
 import Loader from "../../Loader";
 import Lock from "../Lock";
+import StrategyCard from "../../StrategyCard";
 
 const HighPowerStock = ({
   data = [],
@@ -70,22 +70,13 @@ const HighPowerStock = ({
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-[#FFFFFF] dark:text-white text-[#01071C] rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img src={meter} alt="Logo" className="w-12 h-12 object-contain" />
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 dark:text-white text-[#01071C] ">
-                AI Large Cap Power Stocks <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400   text-sm flex items-center gap-2">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          title={"AI Large Cap Power Stocks"}
+          imageAlt={"meter"}
+          imageSrc={meter}
+          name={"large-cap-power-stocks"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg bg-[#EEEEEE]">
@@ -193,10 +184,7 @@ const HighPowerStock = ({
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="4"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="4" className="text-center py-4 ">
                           No data available
                         </td>
                       </tr>

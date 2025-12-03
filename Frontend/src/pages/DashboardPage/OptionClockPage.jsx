@@ -523,24 +523,26 @@
 
 // export default OptionClockPage;
 
-import { GoDotFill } from "react-icons/go";
-import { FcCandleSticks } from "react-icons/fc";
-import Cookies from "js-cookie";
-import Loader from "../../Components/Loader";
-import OiClockChart from "../../Components/Dashboard/OiClockChart";
-import OiClockChartTwo from "../../Components/Dashboard/OiClockChartTwo";
-import OiClockChartThree from "../../Components/Dashboard/OiClockChartThree";
-import TimeRangeSlider from "../../Components/Dashboard/TimeRangeSlider";
-import Lock from "../../Components/Dashboard/Lock";
-import { io } from "socket.io-client";
-import { marketHours } from "../../utils/utils";
 import axios from "axios";
-import { useEffect, useState, useCallback } from "react";
+import Cookies from "js-cookie";
+import { useCallback, useEffect, useState } from "react";
+import { FcCandleSticks } from "react-icons/fc";
+import { io } from "socket.io-client";
+import Lock from "../../Components/Dashboard/Lock";
+import OiClockChart from "../../Components/Dashboard/OiClockChart";
+import OiClockChartThree from "../../Components/Dashboard/OiClockChartThree";
+import OiClockChartTwo from "../../Components/Dashboard/OiClockChartTwo";
+import TimeRangeSlider from "../../Components/Dashboard/TimeRangeSlider";
+import Loader from "../../Components/Loader";
+import VideoModal from "../../Components/VideoModal";
+import { marketHours } from "../../utils/utils";
+import { ADMIN_SERVER_URI } from "../AdminPages/Home";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
 const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI || "";
 
 const OptionClockPage = () => {
+  const [strategyVideo, setStrategyVideo] = useState(null);
   const [optionClockData, setOptionClockData] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState("Nifty50");
   const [selectedExpiry, setSelectedExpiry] = useState("");
@@ -550,6 +552,7 @@ const OptionClockPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [socket, setSocket] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [openVideoModal, setOpenVideoModal] = useState(false);
 
   const getDefaultTimeRange = () => {
     const now = new Date();
@@ -690,13 +693,12 @@ const OptionClockPage = () => {
     }
 
     const token = localStorage.getItem("token");
-   const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
-    path: "/socket-chain",
-    auth: {token},
-    transports: ["websocket"],
-    withCredentials: true,
-});
-
+    const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
+      path: "/socket-chain",
+      auth: { token },
+      transports: ["websocket"],
+      withCredentials: true,
+    });
 
     setSocket(newSocket);
 
@@ -749,6 +751,27 @@ const OptionClockPage = () => {
     });
   }, [selectedIndex, selectedExpiry, selectedTimeRange, socket, isInitialized]);
 
+  useEffect(() => {
+    const fetchStrategyVideos = async () => {
+      try {
+        const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
+          withCredentials: true,
+        });
+        if (res.status !== 200) {
+          throw new Error("Error while fetching videos");
+        }
+        if (res.data.videos && res.data.videos.length > 0) {
+          setStrategyVideo(
+            res.data.videos.find(({ name }) => name === "option-insider")
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchStrategyVideos();
+  }, []);
+
   if (loading && !optionClockData && !isInitialized) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -765,9 +788,14 @@ const OptionClockPage = () => {
       <section className="mt-5 flex md:justify-between md:items-center md:flex-row flex-col md:gap-0 gap-4">
         <div className="flex gap-4 items-center">
           <h1 className="text-3xl font-bold">AI Option Clock</h1>
-          <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs text-white">
-            <GoDotFill />
-            Live
+          <span
+            onClick={() => setOpenVideoModal(true)}
+            className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold cursor-pointer"
+          >
+            How to use
+            <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              Live
+            </span>
           </span>
         </div>
 
@@ -937,6 +965,14 @@ const OptionClockPage = () => {
             )
           )}
         </div>
+        {strategyVideo && (
+          <VideoModal
+            isOpen={openVideoModal}
+            onClose={() => setOpenVideoModal(false)}
+            videoUrl={strategyVideo.videoUrl}
+            key={strategyVideo.name}
+          />
+        )}
       </section>
     </>
   );

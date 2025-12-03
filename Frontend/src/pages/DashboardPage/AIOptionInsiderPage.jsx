@@ -1,17 +1,19 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import { Suspense, useEffect, useState } from "react";
 import { FcCandleSticks } from "react-icons/fc";
-import { GoDotFill } from "react-icons/go";
-import Cookies from "js-cookie";
-import Loader from "../../Components/Loader";
-import OptionInsiderTable from "../../Components/Dashboard/OptionInsiderTable";
 import { io } from "socket.io-client";
+import OptionInsiderTable from "../../Components/Dashboard/OptionInsiderTable";
+import Loader from "../../Components/Loader";
+import VideoModal from "../../Components/VideoModal";
 import { marketHours } from "../../utils/utils";
+import { ADMIN_SERVER_URI } from "../AdminPages/Home";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
 const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI || "";
 
 const AIOptionInsiderPage = () => {
+  const [strategyVideo, setStrategyVideo] = useState(null);
   const [optionChainData, setOptionChainData] = useState();
   const [selectedIndex, setSelectedIndex] = useState("NIFTY");
   const [selectedExpiry, setSelectedExpiry] = useState("");
@@ -21,6 +23,7 @@ const AIOptionInsiderPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [error, setError] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [openVideoModal, setOpenVideoModal] = useState(false);
 
   const fetchOptionChainData = async (expiryOverride, intervalOverride) => {
     if (!selectedIndex) return;
@@ -145,6 +148,27 @@ const AIOptionInsiderPage = () => {
     });
   }, [selectedIndex, selectedExpiry, selectedInterval, socket]);
 
+  useEffect(() => {
+    const fetchStrategyVideos = async () => {
+      try {
+        const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
+          withCredentials: true,
+        });
+        if (res.status !== 200) {
+          throw new Error("Error while fetching videos");
+        }
+        if (res.data.videos && res.data.videos.length > 0) {
+          setStrategyVideo(
+            res.data.videos.find(({ name }) => name === "option-insider")
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchStrategyVideos();
+  }, []);
+
   return (
     <section className="mt-8 p-[3px] rounded-lg bg-white dark:bg-gradient-to-br from-[#00078F] to-[#01071C]">
       <div className="flex flex-col-reverse md:flex-row justify-between gap-4 p-[20px] bg-white dark:bg-db-primary mb-px">
@@ -153,8 +177,14 @@ const AIOptionInsiderPage = () => {
           <span className="text-2xl">
             <FcCandleSticks />
           </span>
-          <span className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold">
-            <GoDotFill className="text-white" /> Live
+          <span
+            onClick={() => setOpenVideoModal(true)}
+            className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold cursor-pointer"
+          >
+            How to use
+            <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              Live
+            </span>
           </span>
         </div>
 
@@ -226,6 +256,14 @@ const AIOptionInsiderPage = () => {
           />
         )}
       </Suspense>
+      {strategyVideo && (
+        <VideoModal
+          isOpen={openVideoModal}
+          onClose={() => setOpenVideoModal(false)}
+          videoUrl={strategyVideo.videoUrl}
+          key={strategyVideo.name}
+        />
+      )}
     </section>
   );
 };

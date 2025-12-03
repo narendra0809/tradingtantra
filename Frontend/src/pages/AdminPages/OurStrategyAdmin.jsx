@@ -4,12 +4,55 @@ import { FiEdit, FiTrash2, FiXCircle } from "react-icons/fi";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
 
+const OPTION_NAME_OPTIONS = [
+  { label: "Option Insider", value: "option-insider" },
+  { label: "Option Data", value: "option-data" },
+  { label: "Option Clock", value: "option-clock" },
+  { label: "Index Depth", value: "index-depth" },
+  { label: "Large Cap Power Stocks", value: "large-cap-power-stocks" },
+  { label: "Intraday Boom", value: "intraday-boom" },
+  { label: "Day High Break", value: "day-high-break" },
+  { label: "Day Low Break", value: "day-low-break" },
+  { label: "Top Gainers", value: "top-gainers" },
+  { label: "Top Loosers", value: "top-loosers" },
+  { label: "Sector Depth Grid", value: "sector-depth-grid" },
+  { label: "Sector Depth Chart", value: "sector-depth-chart" },
+  { label: "Sector Depth Nifty", value: "sector-depth-nifty" },
+  { label: "Sector Depth Bank", value: "sector-depth-bank" },
+  { label: "Sector Depth Energy", value: "sector-depth-energy" },
+  { label: "Sector Depth Finserv", value: "sector-depth-finserv" },
+  { label: "Sector Depth Pvt Bank", value: "sector-depth-pvt-bank" },
+  { label: "Sector Depth Auto", value: "sector-depth-auto" },
+  { label: "Sector Depth Nifty Mid", value: "sector-depth-nifty-mid" },
+  { label: "Sector Depth Pharma", value: "sector-depth-pharma" },
+  { label: "Sector Depth FMCG", value: "sector-depth-fmcg" },
+  { label: "Sector Depth Metal", value: "sector-depth-metal" },
+  { label: "Sector Depth Cement", value: "sector-depth-cement" },
+  { label: "Sector Depth Realty", value: "sector-depth-realty" },
+  { label: "Sector Depth IT", value: "sector-depth-it" },
+  { label: "Sector Depth PSU Bank", value: "sector-depth-psu-bank" },
+  { label: "5 Day BO", value: "five-day-bo" },
+  { label: "10 Day BO", value: "ten-day-bo" },
+  { label: "Candle Reversal", value: "candle-reversal" },
+  { label: "Channel Breakers", value: "channel-breakers" },
+  { label: "Contraction", value: "contraction" },
+  { label: "Momentum Catcher 5 Min", value: "momentum-catcher-five" },
+  { label: "Momentum Catcher 10 Min", value: "momentum-catcher-ten" },
+  { label: "Intraday Reversal", value: "intraday-reversal" },
+  { label: "Swing Reversal", value: "swing-reversal" },
+  { label: "Range Breakout", value: "range-breakout" },
+  { label: "DAY H/L Reversal", value: "day-hl-reversal" },
+  { label: "2 DAY H/L Break", value: "two-day-hl-break" },
+  { label: "FII/DII", value: "fii-dii" },
+];
+
 export default function OurStrategyAdmin() {
   const [videos, setVideos] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
+    name: "",
     description: "",
     videoUrl: "",
     thumbnailUrl: "",
@@ -24,6 +67,7 @@ export default function OurStrategyAdmin() {
       videoUrl: "",
       thumbnailUrl: "",
       _id: "",
+      name: "",
     });
     setIsEditing(false);
     setModalOpen(true);
@@ -31,6 +75,7 @@ export default function OurStrategyAdmin() {
 
   const openEditModal = (index) => {
     setFormData({
+      name: videos[index].name,
       title: videos[index].title,
       description: videos[index].description,
       videoUrl: videos[index].videoUrl,
@@ -61,16 +106,18 @@ export default function OurStrategyAdmin() {
   };
 
   const saveVideo = async () => {
-    const { title, description, videoUrl, thumbnailUrl } = formData;
+    const { title, description, videoUrl, thumbnailUrl, name } = formData;
     if (
       !title.trim() ||
       !videoUrl.trim() ||
       !description.trim() ||
-      !thumbnailUrl.trim()
+      !thumbnailUrl.trim() ||
+      !name.trim()
     ) {
       alert("Please fill in all fields.");
       return;
     }
+    console.log(formData);
     try {
       const newVideo = { ...formData };
       if (isEditing) {
@@ -207,6 +254,24 @@ export default function OurStrategyAdmin() {
               />
             </div>
             <div className="space-y-5">
+              <div>
+                <label className="text-blue-400 text-sm">Name</label>
+                <select
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 text-white outline-none"
+                >
+                  <option value="" className="bg-[#030B2B]">
+                    Select option
+                  </option>
+                  {OPTION_NAME_OPTIONS.map(({ label, value }) => (
+                    <option key={value} value={value} className="bg-[#030B2B]">
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="text-blue-400 text-sm">Title</label>
                 <input

@@ -1,16 +1,18 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { FaPlayCircle } from "react-icons/fa";
 import axios from "axios";
-import { FcCandleSticks } from "react-icons/fc";
-import { GoDotFill } from "react-icons/go";
-import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
-import indexImage from "../../assets/Images/index-line.png";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import { FcCandleSticks } from "react-icons/fc";
+import { GoDotFill } from "react-icons/go";
 import Lock from "../../Components/Dashboard/Lock";
+import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
+import VideoModal from "../../Components/VideoModal";
+import indexImage from "../../assets/Images/index-line.png";
+import { ADMIN_SERVER_URI } from "../AdminPages/Home";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const IndexDepthPage = () => {
+  const [strategyVideo, setStrategyVideo] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState("NIFTY 50");
   const [loading, setLoading] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -44,6 +46,7 @@ const IndexDepthPage = () => {
 
   const [gainers, setGainers] = useState(0);
   const [losers, setLosers] = useState(0);
+  const [openVideoModal, setOpenVideoModal] = useState(false);
 
   const fetchAllIndexPts = async () => {
     try {
@@ -122,16 +125,44 @@ const IndexDepthPage = () => {
 
   const totalStocks = gainers + losers;
   const gainersPercentage = totalStocks > 0 ? (gainers / totalStocks) * 100 : 0;
+
+  useEffect(() => {
+    const fetchStrategyVideos = async () => {
+      try {
+        const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
+          withCredentials: true,
+        });
+        if (res.status !== 200) {
+          throw new Error("Error while fetching videos");
+        }
+        if (res.data.videos && res.data.videos.length > 0) {
+          setStrategyVideo(
+            res.data.videos.find(({ name }) => name === "option-insider")
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchStrategyVideos();
+  }, []);
   return (
     <>
       <div className="flex flex-col items-center gap-6 md:flex-row lg:flex-row md:justify-between lg:justify-between mt-8">
         <div className="flex items-center justify-center">
           <h1 className="text-3xl font-medium mr-2">Index Depth</h1>{" "}
           <FcCandleSticks />{" "}
-          <span className="text-lg font-light ml-4">How to use</span>{" "}
-          <FaPlayCircle className="text-lg text-[#0256F5] ml-2" />
+          <span
+            onClick={() => setOpenVideoModal(true)}
+            className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold cursor-pointer"
+          >
+            How to use
+            <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
+              Live
+            </span>
+          </span>
         </div>
-        
+
         <div className="border border-[#0E5FF6] w-fit rounded-lg px-4 py-2 ">
           <label className="text-sm">Index:</label>
           <select
@@ -253,6 +284,14 @@ const IndexDepthPage = () => {
               />
             </div>
           </div>
+          {strategyVideo && (
+            <VideoModal
+              isOpen={openVideoModal}
+              onClose={() => setOpenVideoModal(false)}
+              videoUrl={strategyVideo.videoUrl}
+              key={strategyVideo.name}
+            />
+          )}
         </section>
       )}
     </>
