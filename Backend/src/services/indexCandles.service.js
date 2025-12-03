@@ -13,7 +13,7 @@ const indices = [
 ];
 
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzY0NzU3OTg2LCJpYXQiOjE3NjQ2NzE1ODYsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA0MDczMDc4In0.i9Oi3J3vqPD1uACnsSSGp79nXr-2yVey600wDCg1XraVwschR9WWMIseh5G9rKAfpyjOk78Q9f6SFGYKaX9y-g";
+const ACCESS_TOKEN = "process.env.DHAN_ACCESS_TOKEN;"
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const TZ = "Asia/Kolkata";
