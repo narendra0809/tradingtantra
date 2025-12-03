@@ -13,7 +13,8 @@ const indices = [
 ];
 
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = "process.env.DHAN_ACCESS_TOKEN;"
+// const ACCESS_TOKEN ="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzY0NzU3OTg2LCJpYXQiOjE3NjQ2NzE1ODYsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA0MDczMDc4In0.i9Oi3J3vqPD1uACnsSSGp79nXr-2yVey600wDCg1XraVwschR9WWMIseh5G9rKAfpyjOk78Q9f6SFGYKaX9y-g";
+const ACCESS_TOKEN =process.env.DHAN_ACCESS_TOKEN;
 
 const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const TZ = "Asia/Kolkata";
@@ -199,18 +200,13 @@ const merge1mTo3m = (data, tradingDay, nowUnix) => {
 
 // ---------------- 15m processing & 15m->30m merging (ONLY USING last 7 and bypass last if incomplete) ----------------
 // Replace existing process15mAndMergeTo30m with this function
+// Replace your existing process15mAndMergeTo30m with this function
 const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
-  /**
-   * - Use last 7 15m from apiData (already normalized & chronological).
-   * - Bypass latest if incomplete.
-   * - Build 30m pairs where first minute === 15 or 45 and second = first + 15m.
-   * - Exceptional single -> 30m allowed ONLY if single.rawTimestampUnix === last15StartAllowed (15:15).
-   */
-
   const result = { fifteenCandles: [], last3Fifteen: [], thirtyCandles: [] };
   if (!apiData || !Array.isArray(apiData.timestamp) || apiData.timestamp.length === 0) return result;
 
-  const timestamps = apiData.timestamp; // chronological old -> new
+  // Chronological arrays expected (old -> new). Ensure normalized timestamps are numbers (seconds).
+  const timestamps = apiData.timestamp || [];
   const open = apiData.open || [];
   const high = apiData.high || [];
   const low = apiData.low || [];
@@ -221,56 +217,61 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
   const sessionEnd = moment.unix(session.intervals15[session.intervals15.length - 1].endUnix).unix(); // 15:30
   const last15StartAllowed = session.intervals15[session.intervals15.length - 1].startUnix; // 15:15
 
-  // last 7
-  const startIndex = Math.max(0, timestamps.length - 7);
-  const sliced = {
-    open: open.slice(startIndex),
-    high: high.slice(startIndex),
-    low: low.slice(startIndex),
-    close: close.slice(startIndex),
-    timestamp: timestamps.slice(startIndex),
-  };
-
+  // Build map of 15m candles keyed by their start unix (rawTimestampUnix)
+  const fifteenMap = new Map();
   let afterMarketClose = null;
-  for (let i = 0; i < sliced.timestamp.length; i++) {
-    const ts = sliced.timestamp[i];
+
+  for (let i = 0; i < timestamps.length; i++) {
+    const ts = timestamps[i];
     if (!ts) continue;
+
+    // ignore pre-session
     if (ts < sessionStart) continue;
+
+    // after-market entries (timestamp > sessionEnd) — keep last close for after-market update
     if (ts > sessionEnd) {
-      afterMarketClose = sliced.close[i];
+      afterMarketClose = close[i];
       continue;
     }
 
+    // ensure alignment to 15m boundary relative to sessionStart
     const minutesFromStart = moment.unix(ts).tz(TZ).diff(moment.unix(sessionStart).tz(TZ), "minutes");
     if (minutesFromStart % 15 !== 0) {
       console.warn(`Skipping misaligned 15m at ${unixToIST(ts)} for ${index.name}`);
       continue;
     }
 
+    // candle end time
     const candleEnd = ts + 15 * 60;
+    // We'll treat incomplete candles by checking if candleEnd > nowUnix (skip if incomplete)
     if (candleEnd > nowUnix) {
-      // bypass incomplete (this will skip the latest incomplete if present)
       console.log(`Bypassing incomplete 15m at ${unixToIST(ts)} (ends ${unixToIST(candleEnd)})`);
       continue;
     }
 
+    // Accept only up to the last allowed 15-start (15:15). Anything after it is ignored here.
     if (ts > last15StartAllowed) continue;
 
-    result.fifteenCandles.push({
-      open: sliced.open[i],
-      high: sliced.high[i],
-      low: sliced.low[i],
-      close: sliced.close[i],
-      lastClose: sliced.close[i],
+    fifteenMap.set(ts, {
+      open: open[i],
+      high: high[i],
+      low: low[i],
+      close: close[i],
+      lastClose: close[i],
       timestamp: unixToIST(ts),
       rawTimestampUnix: ts,
     });
   }
 
+  // If we got an after-market close (e.g., data point after session end),
+  // treat it as an after-market update for the 15:15 candle (if exists or to be created).
   if (afterMarketClose !== null) {
     const targetUnix = moment.tz(tradingDay, "DD-MM-YYYY", TZ).set({ hour: 15, minute: 15, second: 0, millisecond: 0 }).unix();
-    result.fifteenCandles.push({
+    fifteenMap.set(targetUnix, {
       isAfterMarketUpdate: true,
+      open: fifteenMap.get(targetUnix)?.open ?? 0,
+      high: fifteenMap.get(targetUnix)?.high ?? fifteenMap.get(targetUnix)?.open ?? 0,
+      low: fifteenMap.get(targetUnix)?.low ?? fifteenMap.get(targetUnix)?.open ?? 0,
       close: afterMarketClose,
       lastClose: afterMarketClose,
       timestamp: unixToIST(targetUnix),
@@ -278,72 +279,69 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
     });
   }
 
-  // chronological (old -> new)
-  result.fifteenCandles.sort((a, b) => a.rawTimestampUnix - b.rawTimestampUnix);
+  // Convert map to chronological array (old -> new)
+  const fifteenCandles = Array.from(fifteenMap.values()).sort((a, b) => a.rawTimestampUnix - b.rawTimestampUnix);
+  result.fifteenCandles = fifteenCandles.slice(); // full chronological list (within session & complete)
 
-  // last 3 complete 15m for saving
-  result.last3Fifteen = result.fifteenCandles.slice(-3);
+  // last 3 complete 15m for saving (if available)
+  result.last3Fifteen = fifteenCandles.slice(-3);
 
-  // Build 30m pairs greedily from chronological fifteenCandles
-  const chrono = result.fifteenCandles.slice();
-  const used = new Set();
-  const allowed30Starts = generateSessionIntervals(tradingDay).intervals30.map((it) => it.startUnix);
+  // Build 30m candles exactly according to your mapping:
+  // use session.intervals30[].startUnix as the 30m's start. For each:
+  // - primary 15m start = intervalStart (09:15, 09:45, ...)
+  // - secondary 15m start = intervalStart + 15*60
+  // For final special slot (15:15), allow single 15m -> 30m if it's complete.
+  const thirtyCandles = [];
 
-  for (let i = 0; i < chrono.length - 1; i++) {
-    if (used.has(i)) continue;
-    const first = chrono[i];
-    const second = chrono[i + 1];
-    if (!first || !second) continue;
+  for (const it of session.intervals30) {
+    const startUnix = it.startUnix;
+    const first15 = fifteenMap.get(startUnix);
+    const second15 = fifteenMap.get(startUnix + 15 * 60);
 
-    const minute = moment.unix(first.rawTimestampUnix).tz(TZ).minute();
-    // first must be 15 or 45
-    if (!(minute === 15 || minute === 45)) continue;
+    // Normal 30m: require both first and second 15m present and both complete (we already skipped incomplete above)
+    if (first15 && second15) {
+      thirtyCandles.push({
+        open: first15.open,
+        high: Math.max(first15.high, second15.high),
+        low: Math.min(first15.low, second15.low),
+        close: second15.close,
+        lastClose: second15.lastClose ?? second15.close,
+        timestamp: first15.timestamp,
+        rawTimestampUnix: first15.rawTimestampUnix,
+      });
+      continue;
+    }
 
-    // second must be exactly +15m
-    if (second.rawTimestampUnix - first.rawTimestampUnix !== 900) continue;
-
-    // defensive: ensure first is allowed 30-start
-    if (!allowed30Starts.includes(first.rawTimestampUnix)) continue;
-
-    // create 30m
-    result.thirtyCandles.push({
-      open: first.open,
-      high: Math.max(first.high, second.high),
-      low: Math.min(first.low, second.low),
-      close: second.close,
-      lastClose: second.close,
-      timestamp: first.timestamp,
-      rawTimestampUnix: first.rawTimestampUnix,
-    });
-
-    used.add(i);
-    used.add(i + 1);
-  }
-
-  // Exceptional single -> 30m ONLY if it is the session's last 15-start (15:15)
-  // i.e., single.rawTimestampUnix === last15StartAllowed
-  if (result.thirtyCandles.length === 0) {
-    const single = result.fifteenCandles.slice(-1)[0];
-    if (single) {
-      const end = single.rawTimestampUnix + 15 * 60;
-      if (single.rawTimestampUnix === last15StartAllowed && end <= nowUnix) {
-        // allow single -> 30m (maps to 15:15)
-        result.thirtyCandles.push({
-          open: single.open,
-          high: single.high,
-          low: single.low,
-          close: single.close,
-          lastClose: single.lastClose,
-          timestamp: single.timestamp,
-          rawTimestampUnix: single.rawTimestampUnix,
+    // Special short final 30m: allow single first15 if it is the last 15-start (15:15)
+    if (first15 && startUnix === last15StartAllowed) {
+      // ensure the single 15m's end is <= nowUnix (we filtered incomplete earlier)
+      const end = first15.rawTimestampUnix + 15 * 60;
+      if (end <= nowUnix) {
+        thirtyCandles.push({
+          open: first15.open,
+          high: first15.high,
+          low: first15.low,
+          close: first15.close,
+          lastClose: first15.lastClose ?? first15.close,
+          timestamp: first15.timestamp,
+          rawTimestampUnix: first15.rawTimestampUnix,
           isSingle: true,
         });
       }
+      continue;
     }
+
+    // Otherwise skip this 30m (either missing second 15m or first is missing)
+    // We intentionally do not attempt to synthesize a 30m from partial data (except last special).
   }
+
+  // chronological old -> new for 30m
+  thirtyCandles.sort((a, b) => a.rawTimestampUnix - b.rawTimestampUnix);
+  result.thirtyCandles = thirtyCandles;
 
   return result;
 };
+
 
 
 

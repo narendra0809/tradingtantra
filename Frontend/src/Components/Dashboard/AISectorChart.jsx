@@ -199,25 +199,32 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               ))}
 
               <LabelList
-                dataKey="name"
-                content={({ x, y, width, height, value }) => {
-                  const isNegative = height < 0;
-                  const textY = isNegative ? 170  : 240; // position inside
-                  // const textY = 240; // position inside
-                  return (
-                    <text
-                      x={x + width / 2}
-                      y={textY}
-                      textAnchor="end"
-                      fill={isNegative ? "#000" : theme ==="dark" ? "#FFF" :"#000"}
-                      fontSize={12}
-                      transform={`rotate(-90, ${x + width / 2}, ${textY})`} // vertical text
-                    >
-                      {value}
-                    </text>
-                  );
-                }}
-              />
+  dataKey="name"
+  content={({ x, y, width, height, value }) => {
+    const isNegative = height < 0;
+
+    // Add some distance from the bar
+    const offset = 20; // adjust as per your UI
+
+    const textY = isNegative ? 170 - offset : 240 + offset;
+
+    const textColor = theme === "dark" ? "#FFF" : "#000";
+
+    return (
+      <text
+        x={x + width / 2}
+        y={textY}
+        textAnchor="middle"
+        fill={textColor}
+        fontSize={12}
+        transform={`rotate(-90, ${x + width / 2}, ${textY})`}
+      >
+        {value}
+      </text>
+    );
+  }}
+/>
+
             </Bar>
           </BarChart>
         </ResponsiveContainer>

@@ -132,37 +132,44 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
 
   return (
     <>
-      <div className="xl:w-[70%] w-[90%] mx-auto bg-[#01071C] not-dark:bg-primary-light px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-[#0256f550] ">
+      <div className="xl:w-[70%] w-[90%] mx-auto bg-white dark:bg-[#01071C] px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-gray-200 dark:border-[#0256f550] ">
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col space-y-5 ">
-            <h3 className="md:text-5xl sm:text-3xl text-xl font-bold">
+            <h3 className="md:text-5xl sm:text-3xl text-xl font-bold text-black dark:text-white">
               Renew Plan
             </h3>
-            <p className="bg-primary rounded-lg md:text-3xl sm:text-xl text-base font-thin px-3 py-2">
+            <p className="bg-primary rounded-lg md:text-3xl sm:text-xl text-base font-thin px-3 py-2 text-white">
               DIAMOND (3999)
             </p>
           </div>
           <div>
-            <p className="md:text-3xl sm:text-2xl text-base  font-light">
+            <p className="md:text-3xl sm:text-2xl text-base  font-light text-black dark:text-white">
               Validity: 365 Days
             </p>
           </div>
         </div>
+
         <div className="space-y-5">
-          <p className="text-center text-xl">Select Country and State</p>
+          <p className="text-center text-xl text-black dark:text-white">
+            Select Country and State
+          </p>
           <div className="flex sm:flex-row flex-col gap-y-6 items-center justify-between">
             {/* Country Dropdown */}
             <select
               name="country"
-              className="sm:w-[45%] w-full px-4 bg-[#000A2D] not-dark:bg-primary py-2 rounded-lg"
+              className="sm:w-[45%] w-full px-4 bg-gray-100 dark:bg-[#000A2D] text-black dark:text-white py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
               value={selectedCountry}
               onChange={handleCountryChange}
             >
-              <option value="" disabled selected>
+              <option value="" disabled>
                 Select Country
               </option>
               {countries.map((country, index) => (
-                <option key={index} value={country.country}>
+                <option
+                  key={index}
+                  value={country.country}
+                  className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
+                >
                   {country.country}
                 </option>
               ))}
@@ -171,55 +178,63 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
             {/* State Dropdown */}
             <select
               name="state"
-              className="sm:w-[45%] w-full px-4 bg-[#000A2D] not-dark:bg-primary py-2 rounded-lg"
+              className="sm:w-[45%] w-full px-4 bg-gray-100 dark:bg-[#000A2D] text-black dark:text-white py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] disabled:opacity-50"
               value={selectedState}
               onChange={handleStateChange}
               disabled={!selectedCountry} // Disable if no country is selected
             >
-              <option value="" disabled selected>
+              <option value="" disabled>
                 Select State
               </option>
               {states.length > 0 ? (
                 states.map((state, index) => (
-                  <option key={index} value={state.name}>
+                  <option
+                    key={index}
+                    value={state.name}
+                    className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
+                  >
                     {state.name} {/* Assuming 'name' is the state's name */}
                   </option>
                 ))
               ) : (
-                <option disabled>No states available</option>
+                <option disabled className="bg-white dark:bg-[#000A2D] text-black dark:text-white">
+                  No states available
+                </option>
               )}
             </select>
           </div>
         </div>
+
         <div className="grid sm:grid-cols-2 grid-cols-1 sm:gap-10 gap-5 w-full mx-auto lg:ml-15">
           <div className="flex items-center gap-3">
             <img src={lock} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal">
+            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
               Get Instant Access Now
             </p>
           </div>
           <div className="flex items-center gap-3">
             <img src={doc} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal">
+            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
               Watch Tutorials Inside
             </p>
           </div>
           <div className="flex items-center gap-3">
             <img src={play} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal">
+            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
               View All Strategies
             </p>
           </div>
           <div className="flex items-center gap-3">
             <img src={shild} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal">
+            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
               Prepare For Tomorrow
             </p>
           </div>
         </div>
+
         <button
           onClick={handlePayment}
-          className="cursor-pointer bg-primary py-4 text-xl font-thin w-full rounded-xl"
+          className="cursor-pointer bg-primary hover:opacity-95 text-white py-4 text-xl font-thin w-full rounded-xl"
         >
           Click to Continue
         </button>
