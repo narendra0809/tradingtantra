@@ -1,3 +1,4 @@
+// indexCandlesFetcher.js
 import moment from "moment-timezone";
 import IndexCandles from "../models/indexCandles.model.js";
 import axios from "axios";
@@ -11,255 +12,301 @@ const indices = [
   { name: "SENSEX", scrip: "51", seg: "IDX_I", stepSize: 100 },
 ];
 
-// Dhan API configuration
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-// const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
-const ACCESS_TOKEN =
-  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzY0NzU3OTg2LCJpYXQiOjE3NjQ2NzE1ODYsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA0MDczMDc4In0.i9Oi3J3vqPD1uACnsSSGp79nXr-2yVey600wDCg1XraVwschR9WWMIseh5G9rKAfpyjOk78Q9f6SFGYKaX9y-g";
+const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Utility to add a delay
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const TZ = "Asia/Kolkata";
 
-// Convert Unix timestamp to IST string in DD/MM/YYYY, hh:mm:ss A format
-const unixToIST = (unixTimestamp) => {
-  return moment
-    .unix(unixTimestamp)
-    .tz("Asia/Kolkata")
-    .format("DD/MM/YYYY, hh:mm:ss A");
+const unixToIST = (unixTimestamp) =>
+  moment.unix(unixTimestamp).tz(TZ).format("DD/MM/YYYY, hh:mm:ss A");
+
+const formatDateForAPI = (date) => moment(date).format("DD-MM-YYYY");
+
+const normalizeTimestamps = (arr) =>
+  arr.map((t) => {
+    if (!t && t !== 0) return t;
+    const n = Number(t);
+    if (n > 1e12) return Math.floor(n / 1000);
+    return Math.floor(n);
+  });
+
+const generateSessionIntervals = (tradingDateString = moment().tz(TZ).format("DD-MM-YYYY")) => {
+  const start = moment.tz(`${tradingDateString} 09:15:00`, "DD-MM-YYYY HH:mm:ss", TZ);
+  const sessionEnd = moment.tz(`${tradingDateString} 15:30:00`, "DD-MM-YYYY HH:mm:ss", TZ);
+
+  const intervals15 = [];
+  let cursor = start.clone();
+  while (cursor.isBefore(sessionEnd)) {
+    const end = cursor.clone().add(15, "minutes");
+    intervals15.push({
+      startUnix: cursor.unix(),
+      startLabel: cursor.format("HH:mm"),
+      endUnix: end.unix(),
+      label: `${cursor.format("HH:mm")} - ${end.format("HH:mm")}`,
+    });
+    cursor.add(15, "minutes");
+  }
+
+  const intervals30 = [];
+  let cursor30 = start.clone();
+  while (cursor30.isBefore(sessionEnd)) {
+    const end = cursor30.clone().add(30, "minutes");
+    const effectiveEnd = end.isAfter(sessionEnd) ? sessionEnd.clone() : end;
+    intervals30.push({
+      startUnix: cursor30.unix(),
+      startLabel: cursor30.format("HH:mm"),
+      endUnix: effectiveEnd.unix(),
+      label: `${cursor30.format("HH:mm")} - ${effectiveEnd.format("HH:mm")}`,
+      isShort: end.isAfter(sessionEnd),
+    });
+    cursor30.add(30, "minutes");
+  }
+
+  const interval3 = [];
+  const last3Start = sessionEnd.clone().subtract(3, "minutes");
+  let cursor3 = start.clone();
+  while (cursor3.isSameOrBefore(last3Start)) {
+    interval3.push(cursor3.unix());
+    cursor3.add(3, "minutes");
+  }
+
+  return { intervals15, intervals30, interval3 };
 };
 
-// Format date to DD-MM-YYYY for API
-const formatDateForAPI = (date) => {
-  return moment(date).format("DD-MM-YYYY");
+const isContiguous = (arr, stepSeconds) => {
+  if (!arr || arr.length === 0) return false;
+  const s = arr.slice().sort((a, b) => a - b);
+  for (let i = 1; i < s.length; i++) {
+    if (s[i] - s[i - 1] !== stepSeconds) return false;
+  }
+  return true;
 };
 
-// Get the 3-minute interval start timestamp
-const getIntervalStart = (timestamp, intervalMinutes) => {
-  const date = moment.unix(timestamp).tz("Asia/Kolkata");
-  const minute = date.minute();
-  const intervalStartMinute =
-    Math.floor(minute / intervalMinutes) * intervalMinutes;
-  return date
-    .set({ minute: intervalStartMinute, second: 0, millisecond: 0 })
-    .unix();
-};
+// ---------------- 1m -> 3m (only save when 3m interval is complete) ----------------
+const merge1mTo3m = (data, tradingDay, nowUnix) => {
+  if (!data || !Array.isArray(data.timestamp) || data.timestamp.length === 0) return [];
 
-// Merge last 9 one-minute candles into 3 three-minute candles and handle after-market close
-const mergeCandles = (
-  data,
-  intervalMinutes,
-  currentTime,
-  indexName,
-  tradingDay
-) => {
-  const mergedCandles = [];
-  const candlesPerInterval = intervalMinutes;
-  const candlesToProcess = 9; // Process last 9 one-minute candles
+  const timestamps = normalizeTimestamps(data.timestamp);
+  const open = data.open;
+  const high = data.high;
+  const low = data.low;
+  const close = data.close;
 
-  const tradingDayStart = moment
-    .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
-    .startOf("day");
-  const tradingDayEnd = tradingDayStart
-    .clone()
-    .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
-  const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
-  const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
+  const session = generateSessionIntervals(tradingDay);
+  const sessionStart = session.intervals15[0].startUnix; // 09:15
+  const sessionEnd = moment.unix(session.intervals15[session.intervals15.length - 1].endUnix).unix(); // 15:30
+  const last3StartAllowed = moment.unix(sessionEnd).subtract(3, "minutes").unix(); // 15:27
+  const candlesToProcess = 9;
 
-  let afterMarketClose = null;
-
-  // Take the last 9 one-minute candles
-  const startIndex = Math.max(0, data.open.length - candlesToProcess);
-  const slicedData = {
-    open: data.open.slice(startIndex),
-    high: data.high.slice(startIndex),
-    low: data.low.slice(startIndex),
-    close: data.close.slice(startIndex),
-    timestamp: data.timestamp.slice(startIndex),
+  const startIndex = Math.max(0, timestamps.length - candlesToProcess);
+  const sliced = {
+    open: open.slice(startIndex),
+    high: high.slice(startIndex),
+    low: low.slice(startIndex),
+    close: close.slice(startIndex),
+    timestamp: timestamps.slice(startIndex),
   };
 
-  // Group candles by 3-minute intervals
-  const intervalGroups = {};
-  for (let i = 0; i < slicedData.open.length; i++) {
-    const timestamp = slicedData.timestamp[i];
+  const groups = {};
+  let afterMarketClose = null;
 
-    // Skip if timestamp is from previous day
-    if (timestamp < tradingDayStartUnix) {
+  for (let i = 0; i < sliced.timestamp.length; i++) {
+    const ts = sliced.timestamp[i];
+    if (!ts) continue;
+    if (ts < sessionStart) continue;
+    if (ts > sessionEnd) {
+      afterMarketClose = sliced.close[i];
       continue;
     }
+    const date = moment.unix(ts).tz(TZ);
+    const minute = date.minute();
+    const intervalStartMinute = Math.floor(minute / 3) * 3;
+    const intervalStartUnix = date.set({ minute: intervalStartMinute, second: 0, millisecond: 0 }).unix();
 
-    if (timestamp > tradingDayEndUnix) {
-      afterMarketClose = slicedData.close[i];
-      continue;
-    }
+    if (intervalStartUnix < sessionStart || intervalStartUnix > last3StartAllowed) continue;
 
-    const intervalStartUnix = getIntervalStart(timestamp, intervalMinutes);
-    const intervalKey = intervalStartUnix;
-
-    if (!intervalGroups[intervalKey]) {
-      intervalGroups[intervalKey] = {
-        open: [],
-        high: [],
-        low: [],
-        close: [],
-        timestamp: [],
-      };
-    }
-
-    intervalGroups[intervalKey].open.push(slicedData.open[i]);
-    intervalGroups[intervalKey].high.push(slicedData.high[i]);
-    intervalGroups[intervalKey].low.push(slicedData.low[i]);
-    intervalGroups[intervalKey].close.push(slicedData.close[i]);
-    intervalGroups[intervalKey].timestamp.push(slicedData.timestamp[i]);
+    if (!groups[intervalStartUnix]) groups[intervalStartUnix] = { open: [], high: [], low: [], close: [], ts: [] };
+    groups[intervalStartUnix].open.push(sliced.open[i]);
+    groups[intervalStartUnix].high.push(sliced.high[i]);
+    groups[intervalStartUnix].low.push(sliced.low[i]);
+    groups[intervalStartUnix].close.push(sliced.close[i]);
+    groups[intervalStartUnix].ts.push(sliced.timestamp[i]);
   }
 
-  // Create 3-minute candles from grouped data (only complete intervals)
-  const intervalKeys = Object.keys(intervalGroups)
-    .map(Number)
-    .sort((a, b) => b - a) // Sort descending to get latest intervals
-    .slice(0, 3); // Take last 3 intervals
+  const keys = Object.keys(groups).map(Number).sort((a, b) => b - a).slice(0, 3);
+  const merged = [];
 
-  for (const intervalKey of intervalKeys) {
-    const slice = intervalGroups[intervalKey];
-    // Only process complete 3-minute intervals (exactly 3 one-minute candles)
-    if (slice.open.length === candlesPerInterval) {
-      const candle = {
-        open: slice.open[0],
-        high: Math.max(...slice.high),
-        low: Math.min(...slice.low),
-        close: slice.close[slice.close.length - 1],
-        lastClose: slice.close[slice.close.length - 1],
-        timestamp: unixToIST(intervalKey),
-      };
-      mergedCandles.push(candle);
+  for (const key of keys) {
+    const g = groups[key];
+    // only if all 3 one-minute candles present, contiguous and interval end completed
+    const intervalEnd = key + 3 * 60;
+    if (g.open.length === 3 && isContiguous(g.ts, 60) && intervalEnd <= nowUnix) {
+      merged.push({
+        open: g.open[0],
+        high: Math.max(...g.high),
+        low: Math.min(...g.low),
+        close: g.close[g.close.length - 1],
+        lastClose: g.close[g.close.length - 1],
+        timestamp: unixToIST(key),
+        rawTimestampUnix: key,
+      });
+    } else {
+      // skip incomplete
+      // console.log(`Skipping incomplete 3m at ${unixToIST(key)}`);
     }
   }
 
-  // Add after-market close to 3:27 PM candle
   if (afterMarketClose !== null) {
-    const targetTimestamp = moment
-      .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
-      .set({ hour: 15, minute: 27, second: 0, millisecond: 0 })
-      .format("DD/MM/YYYY, hh:mm:ss A");
-    console.log("Target Timestamp : ", targetTimestamp);
-    mergedCandles.push({
+    const targetUnix = moment.tz(tradingDay, "DD-MM-YYYY", TZ).set({ hour: 15, minute: 27, second: 0, millisecond: 0 }).unix();
+    // allow after-market update regardless of nowUnix
+    merged.push({
       close: afterMarketClose,
       lastClose: afterMarketClose,
-      timestamp: targetTimestamp,
+      timestamp: unixToIST(targetUnix),
+      rawTimestampUnix: targetUnix,
       isAfterMarketUpdate: true,
     });
   }
 
-  return mergedCandles;
+  return merged; // newest-first
 };
 
-// Merge 15-minute candles into higher timeframe (e.g. 30m)
-// data: { open[], high[], low[], close[], timestamp[] } timestamps in seconds
-// const merge15mToHigher = (data, targetIntervalMinutes, tradingDay) => {
-//   const mergedCandles = [];
+// ---------------- 15m processing & 15m->30m merging (only complete intervals) ----------------
+const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
+  const result = { fifteenCandles: [], last3Fifteen: [], thirtyCandles: [] };
+  if (!apiData || !apiData.timestamp || apiData.timestamp.length === 0) return result;
 
-//   const sourceIntervalMinutes = 15;
-//   const candlesPerInterval = targetIntervalMinutes / sourceIntervalMinutes; // e.g. 30/15 = 2
+  const timestamps = normalizeTimestamps(apiData.timestamp);
+  const open = apiData.open;
+  const high = apiData.high;
+  const low = apiData.low;
+  const close = apiData.close;
 
-//   if (!Number.isInteger(candlesPerInterval) || candlesPerInterval <= 0) {
-//     throw new Error(
-//       `Cannot merge 15m data into ${targetIntervalMinutes}m (non-integer ratio)`
-//     );
-//   }
+  const session = generateSessionIntervals(tradingDay);
+  const sessionStart = session.intervals15[0].startUnix; // 09:15
+  const sessionEnd = moment.unix(session.intervals15[session.intervals15.length - 1].endUnix).unix(); // 15:30
+  const last15StartAllowed = session.intervals15[session.intervals15.length - 1].startUnix; // 15:15 start
 
-//   const tradingDayStart = moment
-//     .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
-//     .startOf("day");
-//   const tradingDayEnd = tradingDayStart
-//     .clone()
-//     .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
-//   const tradingDayStartUnix = tradingDayStart.unix();
-//   const tradingDayEndUnix = tradingDayEnd.unix();
+  const startIndex = Math.max(0, timestamps.length - 6);
+  const sliced = {
+    open: open.slice(startIndex),
+    high: high.slice(startIndex),
+    low: low.slice(startIndex),
+    close: close.slice(startIndex),
+    timestamp: timestamps.slice(startIndex),
+  };
 
-//   // Filter to this trading day only
-//   const filtered = {
-//     open: [],
-//     high: [],
-//     low: [],
-//     close: [],
-//     timestamp: [],
-//   };
+  let afterMarketClose = null;
 
-//   for (let i = 0; i < data.open.length; i++) {
-//     const ts = data.timestamp[i];
-//     if (ts < tradingDayStartUnix || ts > tradingDayEndUnix) continue;
+  for (let i = 0; i < sliced.timestamp.length; i++) {
+    const ts = sliced.timestamp[i];
+    if (!ts) continue;
+    if (ts < sessionStart) continue;
+    if (ts > sessionEnd) {
+      afterMarketClose = sliced.close[i];
+      continue;
+    }
 
-//     filtered.open.push(data.open[i]);
-//     filtered.high.push(data.high[i]);
-//     filtered.low.push(data.low[i]);
-//     filtered.close.push(data.close[i]);
-//     filtered.timestamp.push(ts);
-//   }
+    const minutesFromStart = moment.unix(ts).tz(TZ).diff(moment.unix(sessionStart).tz(TZ), "minutes");
+    if (minutesFromStart % 15 !== 0) {
+      // misaligned 15m candle, skip
+      console.warn(`Skipping misaligned 15m at ${unixToIST(ts)} for ${index.name}`);
+      continue;
+    }
 
-//   if (filtered.open.length === 0) return [];
+    // require that the 15m candle end <= nowUnix to be considered complete
+    const candleEnd = ts + 15 * 60;
+    if (candleEnd > nowUnix) {
+      // incomplete, skip (do not include in fifteenCandles full list)
+      console.log(`Skipping incomplete 15m at ${unixToIST(ts)} (ends at ${unixToIST(candleEnd)})`);
+      continue;
+    }
 
-//   // Group 15m candles into targetIntervalMinutes buckets by IST time
-//   const intervalGroups = {};
+    // only accept 15m starts up to 15:15
+    if (ts > last15StartAllowed) continue;
 
-//   for (let i = 0; i < filtered.open.length; i++) {
-//     const ts = filtered.timestamp[i];
+    result.fifteenCandles.push({
+      open: sliced.open[i],
+      high: sliced.high[i],
+      low: sliced.low[i],
+      close: sliced.close[i],
+      lastClose: sliced.close[i],
+      timestamp: unixToIST(ts),
+      rawTimestampUnix: ts,
+    });
+  }
 
-//     // Compute bucket start for target interval, using IST
-//     const date = moment.unix(ts).tz("Asia/Kolkata");
-//     const minute = date.minute();
-//     const intervalStartMinute =
-//       Math.floor(minute / targetIntervalMinutes) * targetIntervalMinutes;
-//     const intervalStartUnix = date
-//       .set({ minute: intervalStartMinute, second: 0, millisecond: 0 })
-//       .unix();
-//     const key = intervalStartUnix;
+  // After-market: map to 15:15 and accept even if after market time (special)
+  if (afterMarketClose !== null) {
+    const targetUnix = moment.tz(tradingDay, "DD-MM-YYYY", TZ).set({ hour: 15, minute: 15, second: 0, millisecond: 0 }).unix();
+    result.fifteenCandles.push({
+      isAfterMarketUpdate: true,
+      close: afterMarketClose,
+      lastClose: afterMarketClose,
+      timestamp: unixToIST(targetUnix),
+      rawTimestampUnix: targetUnix,
+    });
+  }
 
-//     if (!intervalGroups[key]) {
-//       intervalGroups[key] = {
-//         open: [],
-//         high: [],
-//         low: [],
-//         close: [],
-//         timestamp: [],
-//       };
-//     }
+  // chronological order
+  result.fifteenCandles.sort((a, b) => a.rawTimestampUnix - b.rawTimestampUnix);
 
-//     intervalGroups[key].open.push(filtered.open[i]);
-//     intervalGroups[key].high.push(filtered.high[i]);
-//     intervalGroups[key].low.push(filtered.low[i]);
-//     intervalGroups[key].close.push(filtered.close[i]);
-//     intervalGroups[key].timestamp.push(filtered.timestamp[i]);
-//   }
+  // last 3 complete 15m candles (we have already filtered incomplete by checking end <= nowUnix)
+  result.last3Fifteen = result.fifteenCandles.slice(-3);
 
-//   const intervalKeys = Object.keys(intervalGroups)
-//     .map(Number)
-//     .sort((a, b) => a - b); // ascending through the day
+  // Merge into 30m: pair sequential 15m candles (0,1),(2,3),(4,5).
+  // For a pair, ensure both are present and both ends <= nowUnix (i.e., second.rawTimestampUnix + 15*60 <= nowUnix)
+  const chronological = result.fifteenCandles.slice(); // chronological
+  for (let i = 0; i < chronological.length; i += 2) {
+    const first = chronological[i];
+    const second = chronological[i + 1] || null;
 
-//   for (const intervalKey of intervalKeys) {
-//     const slice = intervalGroups[intervalKey];
+    if (!first) continue;
 
-//     // Only accept full candlesPerInterval blocks (e.g. exactly 2×15m for 30m)
+    if (second) {
+      // both must be contiguous (900s) and both must be complete (we already ensured each end <= nowUnix)
+      if (second.rawTimestampUnix - first.rawTimestampUnix !== 900) {
+        console.warn(`Skipping non-contiguous 15m pair for 30m at ${first.timestamp}`);
+        continue;
+      }
+      const merged30 = {
+        open: first.open,
+        high: Math.max(first.high, second.high),
+        low: Math.min(first.low, second.low),
+        close: second.close,
+        lastClose: second.close,
+        timestamp: first.timestamp, // per requirement
+        rawTimestampUnix: first.rawTimestampUnix,
+      };
+      // require that second's end (second.rawTimestamp + 15*60) <= nowUnix (we ensured earlier)
+      result.thirtyCandles.push(merged30);
+    } else {
+      // single 15m left -> exceptional 30m allowed only if its end <= nowUnix (i.e., completed) and start <= 15:15
+      const candleEnd = first.rawTimestampUnix + 15 * 60;
+      if (first.rawTimestampUnix <= last15StartAllowed && candleEnd <= nowUnix) {
+        result.thirtyCandles.push({
+          open: first.open,
+          high: first.high,
+          low: first.low,
+          close: first.close,
+          lastClose: first.lastClose,
+          timestamp: first.timestamp,
+          rawTimestampUnix: first.rawTimestampUnix,
+          isSingle: true,
+        });
+      } else {
+        console.log(`Skipping final single 15m for 30m at ${first.timestamp} because it's incomplete or out of allowed time`);
+      }
+    }
+  }
 
-//     // if (slice.open.length !== candlesPerInterval) continue;
+  return result;
+};
 
-//     mergedCandles.push({
-//       open: slice.open[0],
-//       high: Math.max(...slice.high),
-//       low: Math.min(...slice.low),
-//       close: slice.close[slice.close.length - 1],
-//       lastClose: slice.close[slice.close.length - 1],
-//       timestamp: unixToIST(intervalKey), // start of 30m bucket in IST
-//     });
-//   }
-
-//   return mergedCandles;
-// };
-
-// const merge15To30Candles = (data, tradingDay) => {
-//   return merge15mToHigher(data, 30, tradingDay);
-// };
-
-// Fetch data from Dhan API for a specific interval
+// ---------------- Fetch Dhan Data ----------------
 const fetchDhanData = async (index, interval, fromDate, toDate) => {
+  let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
@@ -270,10 +317,10 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
         securityId: index.scrip,
         exchangeSegment: index.seg,
         instrument: "INDEX",
-        interval: interval === "3m" ? 1 : interval.replace("m", ""),
+        interval: intervalParam,
         oi: false,
-        fromDate: "2025-11-30",
-        toDate: "2025-12-03",
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
       },
       {
         headers: {
@@ -281,220 +328,172 @@ const fetchDhanData = async (index, interval, fromDate, toDate) => {
           "Content-Type": "application/json",
           "access-token": ACCESS_TOKEN,
         },
+        timeout: 15000,
       }
     );
 
-    const obj = {
-      open: response.data.open,
-      low: response.data.low,
-      high: response.data.high,
-      close: response.data.close,
-      timestamp: response.data.timestamp,
-    };
+    if (!response?.data) {
+      console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
+      return null;
+    }
 
-    return obj;
+    return {
+      open: response.data.open || [],
+      low: response.data.low || [],
+      high: response.data.high || [],
+      close: response.data.close || [],
+      timestamp: response.data.timestamp || [],
+    };
   } catch (error) {
     if (error.response?.status === 429) {
-      console.warn(`Rate limit hit for ${index.name}. Retrying after 1s...`);
+      console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
       await delay(150);
       return fetchDhanData(index, interval, fromDate, toDate);
     }
-    console.error(
-      `Error fetching ${interval} data for ${index.name}:`,
-      error.response?.data || error.message
-    );
+    console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
     return null;
   }
 };
 
-// Process and save candles for an index
-const processIndexCandles = async (
-  index,
-  apiData,
-  currentTime,
-  interval,
-  tradingDay
-) => {
+// ---------------- Save helpers ----------------
+const saveCandleIfNotExists = async (index, interval, candle) => {
+  const query = {
+    indexName: index.name,
+    securityId: index.scrip,
+    interval,
+    timestamp: candle.timestamp,
+  };
+
+  try {
+    if (candle.isAfterMarketUpdate) {
+      const updateResult = await IndexCandles.updateOne(query, {
+        $set: {
+          close: candle.close,
+          lastClose: candle.lastClose,
+        },
+      });
+      if (updateResult.matchedCount > 0 || updateResult.modifiedCount > 0) {
+        console.log(`Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`);
+        return;
+      } else {
+        const indexCandle = new IndexCandles({
+          indexName: index.name,
+          securityId: index.scrip,
+          interval,
+          open: candle.open || 0,
+          high: candle.high || 0,
+          low: candle.low || 0,
+          close: candle.close,
+          lastClose: candle.lastClose,
+          timestamp: candle.timestamp,
+          rawTimestampUnix: candle.rawTimestampUnix,
+        });
+        await indexCandle.save();
+        console.log(`Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`);
+        return;
+      }
+    }
+
+    const existing = await IndexCandles.findOne(query);
+    if (!existing) {
+      const indexCandle = new IndexCandles({
+        indexName: index.name,
+        securityId: index.scrip,
+        interval,
+        open: candle.open,
+        high: candle.high,
+        low: candle.low,
+        close: candle.close,
+        lastClose: candle.lastClose,
+        timestamp: candle.timestamp,
+        rawTimestampUnix: candle.rawTimestampUnix,
+      });
+      await indexCandle.save();
+      console.log(`Saved ${interval} candle for ${index.name} at ${candle.timestamp}`);
+    } else {
+      // skip existing
+    }
+  } catch (err) {
+    console.error(`DB error saving ${interval} candle for ${index.name} at ${candle.timestamp}:`, err);
+  }
+};
+
+// ---------------- Process index candles ----------------
+const processIndexCandles = async (index, apiData, currentTime, interval, tradingDay) => {
   if (!apiData) {
     console.log(`No data to process for ${index.name} (${interval})`);
     return;
   }
 
   try {
-    let candles = [];
-    let afterMarketClose = null;
-
-    const tradingDayStart = moment
-      .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
-      .startOf("day");
-    const tradingDayEnd = tradingDayStart
-      .clone()
-      .set({ hour: 15, minute: 30, second: 0, millisecond: 0 });
-    const tradingDayStartUnix = Math.floor(tradingDayStart.unix());
-    const tradingDayEndUnix = Math.floor(tradingDayEnd.unix());
+    // nowUnix in IST
+    const nowUnix = moment(currentTime).tz(TZ).unix();
 
     if (interval === "3m") {
-      candles = mergeCandles(apiData, 3, currentTime, index.name, tradingDay);
-    } else if (interval === "30m") {
-      // candles = merge15To30Candles(apiData, tradingDay);
-      // console.log(JSON.stringify(candles));
-    } else if (interval === "15m") {
-      const intervalMinutes = 15;
-      // const candlesToProcess = 3; // Process last 3 candles
-      // const startIndex = Math.max(0, apiData.open.length - candlesToProcess);
-
-      // Take the last 3 candles
-      const slicedData = {
-        open: apiData.open,
-        high: apiData.high,
-        low: apiData.low,
-        close: apiData.close,
-        timestamp: apiData.timestamp,
-      };
-
-      candles = slicedData.open
-        .map((_, i) => {
-          const actualTimestampUnix = slicedData.timestamp[i];
-
-          // Skip if timestamp is from previous day
-          if (actualTimestampUnix < tradingDayStartUnix) {
-            return null;
-          }
-
-          if (actualTimestampUnix > tradingDayEndUnix) {
-            afterMarketClose = slicedData.close[i];
-            return null;
-          }
-
-          if (i > 0) {
-            const prevTimestampUnix = slicedData.timestamp[i - 1];
-            const diffMinutes = (actualTimestampUnix - prevTimestampUnix) / 60;
-            if (diffMinutes !== intervalMinutes) {
-              console.warn(
-                `Unexpected interval for ${
-                  index.name
-                } (${interval}): ${diffMinutes} minutes at ${unixToIST(
-                  actualTimestampUnix
-                )}`
-              );
-              return null;
-            }
-          }
-
-          return {
-            open: slicedData.open[i],
-            high: slicedData.high[i],
-            low: slicedData.low[i],
-            close: slicedData.close[i],
-            lastClose: slicedData.close[i],
-            timestamp: unixToIST(actualTimestampUnix),
-          };
-        })
-        .filter((candle) => candle !== null);
-
-      // Add after-market close to 3:15 PM candle
-      if (afterMarketClose !== null) {
-        const targetTimestamp = moment
-          .tz(tradingDay, "DD-MM-YYYY", "Asia/Kolkata")
-          .set({ hour: 15, minute: 15, second: 0, millisecond: 0 })
-          .format("DD/MM/YYYY, hh:mm:ss A");
-
-        candles.push({
-          close: afterMarketClose,
-          lastClose: afterMarketClose,
-          timestamp: targetTimestamp,
-          isAfterMarketUpdate: true,
-        });
+      const merged3m = merge1mTo3m(apiData, tradingDay, nowUnix); // newest-first
+      for (const candle of merged3m) {
+        await saveCandleIfNotExists(index, "3m", candle);
       }
-    }
+    } else if (interval === "15m") {
+      const processed = process15mAndMergeTo30m(apiData, index, tradingDay, nowUnix);
 
-    for (const candle of candles) {
-      const query = {
-        indexName: index.name,
-        securityId: index.scrip,
-        interval,
-        timestamp: candle.timestamp,
-      };
+      // Save last 3 complete 15m candles (we already filtered incomplete)
+      const last3 = processed.last3Fifteen || [];
+      for (const candle of last3) {
+        await saveCandleIfNotExists(index, "15m", candle);
+      }
 
-      if (candle.isAfterMarketUpdate) {
-        // Update existing candle with after-market close
-        const updateResult = await IndexCandles.updateOne(query, {
-          $set: {
-            close: candle.close,
-            lastClose: candle.lastClose,
-          },
-        });
-        if (updateResult.matchedCount > 0) {
-          console.log(
-            `Updated after-market ${interval} candle for ${index.name} at ${candle.timestamp}`
-          );
-        } else {
-          console.warn(
-            `No ${interval} candle found to update at ${candle.timestamp} for ${index.name}`
-          );
-          // Save as new candle with default values
-          const indexCandle = new IndexCandles({
-            indexName: index.name,
-            securityId: index.scrip,
-            interval,
-            open: candle.open || 0,
-            high: candle.high || 0,
-            low: candle.low || 0,
-            close: candle.close,
-            lastClose: candle.lastClose,
-            timestamp: candle.timestamp,
-          });
-          await indexCandle.save();
-          console.log(
-            `Saved new ${interval} candle for ${index.name} at ${candle.timestamp} with after-market close`
-          );
+      // Save 30m candles produced (these were created only if complete)
+      for (const candle of processed.thirtyCandles) {
+        await saveCandleIfNotExists(index, "30m", candle);
+      }
+    } else if (interval === "30m") {
+      // fallback single 30m fetch handling (rare)
+      const timestamps = normalizeTimestamps(apiData.timestamp || []);
+      const session = generateSessionIntervals(tradingDay);
+      const allowed = session.intervals30.map((it) => it.startUnix);
+      const startIndex = Math.max(0, timestamps.length - 3);
+      for (let i = startIndex; i < timestamps.length; i++) {
+        const ts = timestamps[i];
+        if (!ts) continue;
+        // ensure allowed 30m starts and that end <= nowUnix
+        if (!allowed.includes(ts)) {
+          console.warn(`Skipping misaligned raw 30m at ${unixToIST(ts)} for ${index.name}`);
+          continue;
         }
-      } else {
-        // Save new candle if it doesn't exist
-        const existingCandle = await IndexCandles.findOne(query);
-        if (!existingCandle) {
-          const indexCandle = new IndexCandles({
-            indexName: index.name,
-            securityId: index.scrip,
-            interval,
-            open: candle.open,
-            high: candle.high,
-            low: candle.low,
-            close: candle.close,
-            lastClose: candle.lastClose,
-            timestamp: candle.timestamp,
-          });
-          await indexCandle.save();
-          console.log(
-            `Saved ${interval} candle for ${index.name} at ${candle.timestamp}`
-          );
+        const end = ts + 30 * 60;
+        if (end > nowUnix) {
+          console.log(`Skipping incomplete raw 30m at ${unixToIST(ts)} (ends ${unixToIST(end)})`);
+          continue;
         }
+        const candle = {
+          open: apiData.open[i],
+          high: apiData.high[i],
+          low: apiData.low[i],
+          close: apiData.close[i],
+          lastClose: apiData.close[i],
+          timestamp: unixToIST(ts),
+          rawTimestampUnix: ts,
+        };
+        await saveCandleIfNotExists(index, "30m", candle);
       }
     }
   } catch (error) {
-    console.error(
-      `Error processing ${index.name} candles for ${interval}:`,
-      error
-    );
+    console.error(`Error processing ${index.name} candles for ${interval}:`, error);
   }
 };
 
-// Fetch and process data for all indices and intervals
+// ---------------- Fetch & Process All Indices ----------------
 const fetchAndProcessAllIndices = async (fromDate, toDate) => {
-  const currentTime = new Date();
-  const intervals = ["3m", "15m", "30m"];
+  // compute now once (IST)
+  const currentTime = moment().tz(TZ).toDate();
+  const intervals = ["3m", "15m"];
 
   for (const index of indices) {
     for (const interval of intervals) {
       const apiData = await fetchDhanData(index, interval, fromDate, toDate);
       if (apiData) {
-        await processIndexCandles(
-          index,
-          apiData,
-          currentTime,
-          interval,
-          toDate
-        );
+        await processIndexCandles(index, apiData, currentTime, interval, toDate);
       }
       await delay(150);
     }
@@ -502,41 +501,80 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
   console.log("All indices processed successfully");
 };
 
+// ---------------- deleteOldIndexData ----------------
 export const deleteOldIndexData = async () => {
   try {
     const previousDay = await getPreviousTradingDay(new Date());
-
-    // Set time to 00:00:00 to match entire date
     const deleteBefore = new Date(previousDay);
-    deleteBefore.setHours(0, 0, 0, 0); // normalize to start of day
-
+    deleteBefore.setHours(0, 0, 0, 0);
     await IndexCandles.deleteMany({
       createdAt: { $lt: deleteBefore },
     });
-
-    console.log(
-      "✅ Old index candle data deleted before",
-      deleteBefore.toISOString()
-    );
+    console.log("✅ Old index candle data deleted before", deleteBefore.toISOString());
   } catch (error) {
     console.log("❌ Error deleting index candles old data:", error);
   }
 };
 
-// Main function to run the fetch and process
-
+// ---------------- Main runner ----------------
 export const runFetchForIndexCandles = async () => {
   try {
-    const today = moment().tz("Asia/Kolkata");
+    const today = moment().tz(TZ);
     const currentDate = formatDateForAPI(today);
-    const time = moment().format("hh:mm:ss A");
-    // if (time >= "09:15:00 AM" && time <= "09:18:00 AM") {
-    //   await deleteOldIndexData();
-    // }
-    // Only fetch and process current day's data
     await fetchAndProcessAllIndices(currentDate, currentDate);
   } catch (error) {
     console.error("Error in runFetchForIndexCandles:", error);
     throw error;
   }
 };
+
+// ---------------- Utility: fetchDhanData ----------------
+// async function fetchDhanData(index, interval, fromDate, toDate) {
+//   let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
+//   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+//   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+
+//   try {
+//     const response = await axios.post(
+//       DHAN_API_URL,
+//       {
+//         securityId: index.scrip,
+//         exchangeSegment: index.seg,
+//         instrument: "INDEX",
+//         interval: intervalParam,
+//         oi: false,
+//         fromDate: formattedFromDate,
+//         toDate: formattedToDate,
+//       },
+//       {
+//         headers: {
+//           Accept: "application/json",
+//           "Content-Type": "application/json",
+//           "access-token": ACCESS_TOKEN,
+//         },
+//         timeout: 15000,
+//       }
+//     );
+
+//     if (!response?.data) {
+//       console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
+//       return null;
+//     }
+
+//     return {
+//       open: response.data.open || [],
+//       low: response.data.low || [],
+//       high: response.data.high || [],
+//       close: response.data.close || [],
+//       timestamp: response.data.timestamp || [],
+//     };
+//   } catch (error) {
+//     if (error.response?.status === 429) {
+//       console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
+//       await delay(150);
+//       return fetchDhanData(index, interval, fromDate, toDate);
+//     }
+//     console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
+//     return null;
+//   }
+// }
