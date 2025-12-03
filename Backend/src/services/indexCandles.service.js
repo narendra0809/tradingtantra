@@ -13,9 +13,9 @@ const indices = [
 ];
 
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+const ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJkaGFuIiwicGFydG5lcklkIjoiIiwiZXhwIjoxNzY0NzU3OTg2LCJpYXQiOjE3NjQ2NzE1ODYsInRva2VuQ29uc3VtZXJUeXBlIjoiU0VMRiIsIndlYmhvb2tVcmwiOiIiLCJkaGFuQ2xpZW50SWQiOiIxMTA0MDczMDc4In0.i9Oi3J3vqPD1uACnsSSGp79nXr-2yVey600wDCg1XraVwschR9WWMIseh5G9rKAfpyjOk78Q9f6SFGYKaX9y-g";
 
+const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 const TZ = "Asia/Kolkata";
 
 const unixToIST = (unixTimestamp) =>
@@ -23,13 +23,41 @@ const unixToIST = (unixTimestamp) =>
 
 const formatDateForAPI = (date) => moment(date).format("DD-MM-YYYY");
 
+// Normalize timestamps array (detect ms vs s)
 const normalizeTimestamps = (arr) =>
-  arr.map((t) => {
-    if (!t && t !== 0) return t;
+  (arr || []).map((t) => {
+    if (t === undefined || t === null) return t;
     const n = Number(t);
-    if (n > 1e12) return Math.floor(n / 1000);
-    return Math.floor(n);
+    if (isNaN(n)) return null;
+    if (n > 1e12) return Math.floor(n / 1000); // ms -> s
+    return Math.floor(n); // assume seconds
   });
+
+// Ensure chronological arrays and drop invalid entries
+const normalizeAndSortApiData = (apiData) => {
+  if (!apiData || !Array.isArray(apiData.timestamp)) return apiData;
+  const ts = normalizeTimestamps(apiData.timestamp);
+  const rows = [];
+  for (let i = 0; i < ts.length; i++) {
+    if (!ts[i]) continue;
+    rows.push({
+      ts: ts[i],
+      open: apiData.open[i],
+      high: apiData.high[i],
+      low: apiData.low[i],
+      close: apiData.close[i],
+    });
+  }
+  // sort ascending (oldest -> newest)
+  rows.sort((a, b) => a.ts - b.ts);
+  return {
+    timestamp: rows.map((r) => r.ts),
+    open: rows.map((r) => r.open),
+    high: rows.map((r) => r.high),
+    low: rows.map((r) => r.low),
+    close: rows.map((r) => r.close),
+  };
+};
 
 const generateSessionIntervals = (tradingDateString = moment().tz(TZ).format("DD-MM-YYYY")) => {
   const start = moment.tz(`${tradingDateString} 09:15:00`, "DD-MM-YYYY HH:mm:ss", TZ);
@@ -87,11 +115,11 @@ const isContiguous = (arr, stepSeconds) => {
 const merge1mTo3m = (data, tradingDay, nowUnix) => {
   if (!data || !Array.isArray(data.timestamp) || data.timestamp.length === 0) return [];
 
-  const timestamps = normalizeTimestamps(data.timestamp);
-  const open = data.open;
-  const high = data.high;
-  const low = data.low;
-  const close = data.close;
+  const timestamps = data.timestamp; // already normalized & sorted by caller
+  const open = data.open || [];
+  const high = data.high || [];
+  const low = data.low || [];
+  const close = data.close || [];
 
   const session = generateSessionIntervals(tradingDay);
   const sessionStart = session.intervals15[0].startUnix; // 09:15
@@ -139,7 +167,6 @@ const merge1mTo3m = (data, tradingDay, nowUnix) => {
 
   for (const key of keys) {
     const g = groups[key];
-    // only if all 3 one-minute candles present, contiguous and interval end completed
     const intervalEnd = key + 3 * 60;
     if (g.open.length === 3 && isContiguous(g.ts, 60) && intervalEnd <= nowUnix) {
       merged.push({
@@ -153,13 +180,11 @@ const merge1mTo3m = (data, tradingDay, nowUnix) => {
       });
     } else {
       // skip incomplete
-      // console.log(`Skipping incomplete 3m at ${unixToIST(key)}`);
     }
   }
 
   if (afterMarketClose !== null) {
     const targetUnix = moment.tz(tradingDay, "DD-MM-YYYY", TZ).set({ hour: 15, minute: 27, second: 0, millisecond: 0 }).unix();
-    // allow after-market update regardless of nowUnix
     merged.push({
       close: afterMarketClose,
       lastClose: afterMarketClose,
@@ -172,23 +197,32 @@ const merge1mTo3m = (data, tradingDay, nowUnix) => {
   return merged; // newest-first
 };
 
-// ---------------- 15m processing & 15m->30m merging (only complete intervals) ----------------
+// ---------------- 15m processing & 15m->30m merging (ONLY USING last 7 and bypass last if incomplete) ----------------
+// Replace existing process15mAndMergeTo30m with this function
 const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
-  const result = { fifteenCandles: [], last3Fifteen: [], thirtyCandles: [] };
-  if (!apiData || !apiData.timestamp || apiData.timestamp.length === 0) return result;
+  /**
+   * - Use last 7 15m from apiData (already normalized & chronological).
+   * - Bypass latest if incomplete.
+   * - Build 30m pairs where first minute === 15 or 45 and second = first + 15m.
+   * - Exceptional single -> 30m allowed ONLY if single.rawTimestampUnix === last15StartAllowed (15:15).
+   */
 
-  const timestamps = normalizeTimestamps(apiData.timestamp);
-  const open = apiData.open;
-  const high = apiData.high;
-  const low = apiData.low;
-  const close = apiData.close;
+  const result = { fifteenCandles: [], last3Fifteen: [], thirtyCandles: [] };
+  if (!apiData || !Array.isArray(apiData.timestamp) || apiData.timestamp.length === 0) return result;
+
+  const timestamps = apiData.timestamp; // chronological old -> new
+  const open = apiData.open || [];
+  const high = apiData.high || [];
+  const low = apiData.low || [];
+  const close = apiData.close || [];
 
   const session = generateSessionIntervals(tradingDay);
   const sessionStart = session.intervals15[0].startUnix; // 09:15
   const sessionEnd = moment.unix(session.intervals15[session.intervals15.length - 1].endUnix).unix(); // 15:30
-  const last15StartAllowed = session.intervals15[session.intervals15.length - 1].startUnix; // 15:15 start
+  const last15StartAllowed = session.intervals15[session.intervals15.length - 1].startUnix; // 15:15
 
-  const startIndex = Math.max(0, timestamps.length - 6);
+  // last 7
+  const startIndex = Math.max(0, timestamps.length - 7);
   const sliced = {
     open: open.slice(startIndex),
     high: high.slice(startIndex),
@@ -198,7 +232,6 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
   };
 
   let afterMarketClose = null;
-
   for (let i = 0; i < sliced.timestamp.length; i++) {
     const ts = sliced.timestamp[i];
     if (!ts) continue;
@@ -210,20 +243,17 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
 
     const minutesFromStart = moment.unix(ts).tz(TZ).diff(moment.unix(sessionStart).tz(TZ), "minutes");
     if (minutesFromStart % 15 !== 0) {
-      // misaligned 15m candle, skip
       console.warn(`Skipping misaligned 15m at ${unixToIST(ts)} for ${index.name}`);
       continue;
     }
 
-    // require that the 15m candle end <= nowUnix to be considered complete
     const candleEnd = ts + 15 * 60;
     if (candleEnd > nowUnix) {
-      // incomplete, skip (do not include in fifteenCandles full list)
-      console.log(`Skipping incomplete 15m at ${unixToIST(ts)} (ends at ${unixToIST(candleEnd)})`);
+      // bypass incomplete (this will skip the latest incomplete if present)
+      console.log(`Bypassing incomplete 15m at ${unixToIST(ts)} (ends ${unixToIST(candleEnd)})`);
       continue;
     }
 
-    // only accept 15m starts up to 15:15
     if (ts > last15StartAllowed) continue;
 
     result.fifteenCandles.push({
@@ -237,7 +267,6 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
     });
   }
 
-  // After-market: map to 15:15 and accept even if after market time (special)
   if (afterMarketClose !== null) {
     const targetUnix = moment.tz(tradingDay, "DD-MM-YYYY", TZ).set({ hour: 15, minute: 15, second: 0, millisecond: 0 }).unix();
     result.fifteenCandles.push({
@@ -249,54 +278,66 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
     });
   }
 
-  // chronological order
+  // chronological (old -> new)
   result.fifteenCandles.sort((a, b) => a.rawTimestampUnix - b.rawTimestampUnix);
 
-  // last 3 complete 15m candles (we have already filtered incomplete by checking end <= nowUnix)
+  // last 3 complete 15m for saving
   result.last3Fifteen = result.fifteenCandles.slice(-3);
 
-  // Merge into 30m: pair sequential 15m candles (0,1),(2,3),(4,5).
-  // For a pair, ensure both are present and both ends <= nowUnix (i.e., second.rawTimestampUnix + 15*60 <= nowUnix)
-  const chronological = result.fifteenCandles.slice(); // chronological
-  for (let i = 0; i < chronological.length; i += 2) {
-    const first = chronological[i];
-    const second = chronological[i + 1] || null;
+  // Build 30m pairs greedily from chronological fifteenCandles
+  const chrono = result.fifteenCandles.slice();
+  const used = new Set();
+  const allowed30Starts = generateSessionIntervals(tradingDay).intervals30.map((it) => it.startUnix);
 
-    if (!first) continue;
+  for (let i = 0; i < chrono.length - 1; i++) {
+    if (used.has(i)) continue;
+    const first = chrono[i];
+    const second = chrono[i + 1];
+    if (!first || !second) continue;
 
-    if (second) {
-      // both must be contiguous (900s) and both must be complete (we already ensured each end <= nowUnix)
-      if (second.rawTimestampUnix - first.rawTimestampUnix !== 900) {
-        console.warn(`Skipping non-contiguous 15m pair for 30m at ${first.timestamp}`);
-        continue;
-      }
-      const merged30 = {
-        open: first.open,
-        high: Math.max(first.high, second.high),
-        low: Math.min(first.low, second.low),
-        close: second.close,
-        lastClose: second.close,
-        timestamp: first.timestamp, // per requirement
-        rawTimestampUnix: first.rawTimestampUnix,
-      };
-      // require that second's end (second.rawTimestamp + 15*60) <= nowUnix (we ensured earlier)
-      result.thirtyCandles.push(merged30);
-    } else {
-      // single 15m left -> exceptional 30m allowed only if its end <= nowUnix (i.e., completed) and start <= 15:15
-      const candleEnd = first.rawTimestampUnix + 15 * 60;
-      if (first.rawTimestampUnix <= last15StartAllowed && candleEnd <= nowUnix) {
+    const minute = moment.unix(first.rawTimestampUnix).tz(TZ).minute();
+    // first must be 15 or 45
+    if (!(minute === 15 || minute === 45)) continue;
+
+    // second must be exactly +15m
+    if (second.rawTimestampUnix - first.rawTimestampUnix !== 900) continue;
+
+    // defensive: ensure first is allowed 30-start
+    if (!allowed30Starts.includes(first.rawTimestampUnix)) continue;
+
+    // create 30m
+    result.thirtyCandles.push({
+      open: first.open,
+      high: Math.max(first.high, second.high),
+      low: Math.min(first.low, second.low),
+      close: second.close,
+      lastClose: second.close,
+      timestamp: first.timestamp,
+      rawTimestampUnix: first.rawTimestampUnix,
+    });
+
+    used.add(i);
+    used.add(i + 1);
+  }
+
+  // Exceptional single -> 30m ONLY if it is the session's last 15-start (15:15)
+  // i.e., single.rawTimestampUnix === last15StartAllowed
+  if (result.thirtyCandles.length === 0) {
+    const single = result.fifteenCandles.slice(-1)[0];
+    if (single) {
+      const end = single.rawTimestampUnix + 15 * 60;
+      if (single.rawTimestampUnix === last15StartAllowed && end <= nowUnix) {
+        // allow single -> 30m (maps to 15:15)
         result.thirtyCandles.push({
-          open: first.open,
-          high: first.high,
-          low: first.low,
-          close: first.close,
-          lastClose: first.lastClose,
-          timestamp: first.timestamp,
-          rawTimestampUnix: first.rawTimestampUnix,
+          open: single.open,
+          high: single.high,
+          low: single.low,
+          close: single.close,
+          lastClose: single.lastClose,
+          timestamp: single.timestamp,
+          rawTimestampUnix: single.rawTimestampUnix,
           isSingle: true,
         });
-      } else {
-        console.log(`Skipping final single 15m for 30m at ${first.timestamp} because it's incomplete or out of allowed time`);
       }
     }
   }
@@ -304,56 +345,58 @@ const process15mAndMergeTo30m = (apiData, index, tradingDay, nowUnix) => {
   return result;
 };
 
+
+
 // ---------------- Fetch Dhan Data ----------------
-// const fetchDhanData = async (index, interval, fromDate, toDate) => {
-//   let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
-//   const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
-//   const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+const fetchDhanData = async (index, interval, fromDate, toDate) => {
+  let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
+  const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
+  const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
-//   try {
-//     const response = await axios.post(
-//       DHAN_API_URL,
-//       {
-//         securityId: index.scrip,
-//         exchangeSegment: index.seg,
-//         instrument: "INDEX",
-//         interval: intervalParam,
-//         oi: false,
-//         fromDate: formattedFromDate,
-//         toDate: formattedToDate,
-//       },
-//       {
-//         headers: {
-//           Accept: "application/json",
-//           "Content-Type": "application/json",
-//           "access-token": ACCESS_TOKEN,
-//         },
-//         timeout: 15000,
-//       }
-//     );
+  try {
+    const response = await axios.post(
+      DHAN_API_URL,
+      {
+        securityId: index.scrip,
+        exchangeSegment: index.seg,
+        instrument: "INDEX",
+        interval: intervalParam,
+        oi: false,
+        fromDate: formattedFromDate,
+        toDate: formattedToDate,
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "access-token": ACCESS_TOKEN,
+        },
+        timeout: 15000,
+      }
+    );
 
-//     if (!response?.data) {
-//       console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
-//       return null;
-//     }
+    if (!response?.data) {
+      console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
+      return null;
+    }
 
-//     return {
-//       open: response.data.open || [],
-//       low: response.data.low || [],
-//       high: response.data.high || [],
-//       close: response.data.close || [],
-//       timestamp: response.data.timestamp || [],
-//     };
-//   } catch (error) {
-//     if (error.response?.status === 429) {
-//       console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
-//       await delay(150);
-//       return fetchDhanData(index, interval, fromDate, toDate);
-//     }
-//     console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
-//     return null;
-//   }
-// };
+    return {
+      open: response.data.open || [],
+      low: response.data.low || [],
+      high: response.data.high || [],
+      close: response.data.close || [],
+      timestamp: response.data.timestamp || [],
+    };
+  } catch (error) {
+    if (error.response?.status === 429) {
+      console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
+      await delay(150);
+      return fetchDhanData(index, interval, fromDate, toDate);
+    }
+    console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
+    return null;
+  }
+};
 
 // ---------------- Save helpers ----------------
 const saveCandleIfNotExists = async (index, interval, candle) => {
@@ -426,44 +469,44 @@ const processIndexCandles = async (index, apiData, currentTime, interval, tradin
   }
 
   try {
-    // nowUnix in IST
     const nowUnix = moment(currentTime).tz(TZ).unix();
 
     if (interval === "3m") {
+      // apiData must be 1m data (we requested intervalParam=1)
       const merged3m = merge1mTo3m(apiData, tradingDay, nowUnix); // newest-first
       for (const candle of merged3m) {
         await saveCandleIfNotExists(index, "3m", candle);
       }
     } else if (interval === "15m") {
+      // apiData is 15m candles; we will take last 7, bypass incomplete last, use remaining 6 to form 3x30m
       const processed = process15mAndMergeTo30m(apiData, index, tradingDay, nowUnix);
 
-      // Save last 3 complete 15m candles (we already filtered incomplete)
+      // Save last 3 complete 15m candles
       const last3 = processed.last3Fifteen || [];
       for (const candle of last3) {
         await saveCandleIfNotExists(index, "15m", candle);
       }
 
-      // Save 30m candles produced (these were created only if complete)
+      // Save the 30m candles produced (3x30m expected when last was bypassed)
       for (const candle of processed.thirtyCandles) {
         await saveCandleIfNotExists(index, "30m", candle);
       }
     } else if (interval === "30m") {
-      // fallback single 30m fetch handling (rare)
+      // fallback: if raw 30m fetched, save last 3 30m that are aligned
       const timestamps = normalizeTimestamps(apiData.timestamp || []);
       const session = generateSessionIntervals(tradingDay);
-      const allowed = session.intervals30.map((it) => it.startUnix);
+      const sessionStart = session.intervals15[0].startUnix;
+      const sessionEnd = moment.unix(session.intervals15[session.intervals15.length - 1].endUnix).unix();
+
       const startIndex = Math.max(0, timestamps.length - 3);
-      for (let i = startIndex; i < timestamps.length; i++) {
+      for (let i = startIndex; i < apiData.open.length; i++) {
         const ts = timestamps[i];
         if (!ts) continue;
-        // ensure allowed 30m starts and that end <= nowUnix
-        if (!allowed.includes(ts)) {
+        if (ts < sessionStart || ts > sessionEnd) continue;
+        // ensure ts matches one of allowed 30m starts
+        const allowed30 = session.intervals30.map((it) => it.startUnix);
+        if (!allowed30.includes(ts)) {
           console.warn(`Skipping misaligned raw 30m at ${unixToIST(ts)} for ${index.name}`);
-          continue;
-        }
-        const end = ts + 30 * 60;
-        if (end > nowUnix) {
-          console.log(`Skipping incomplete raw 30m at ${unixToIST(ts)} (ends ${unixToIST(end)})`);
           continue;
         }
         const candle = {
@@ -491,8 +534,10 @@ const fetchAndProcessAllIndices = async (fromDate, toDate) => {
 
   for (const index of indices) {
     for (const interval of intervals) {
-      const apiData = await fetchDhanData(index, interval, fromDate, toDate);
+      let apiData = await fetchDhanData(index, interval, fromDate, toDate);
       if (apiData) {
+        // normalize & sort to chronological arrays (old -> new)
+        apiData = normalizeAndSortApiData(apiData);
         await processIndexCandles(index, apiData, currentTime, interval, toDate);
       }
       await delay(150);
@@ -528,53 +573,4 @@ export const runFetchForIndexCandles = async () => {
   }
 };
 
-// ---------------- Utility: fetchDhanData ----------------
-async function fetchDhanData(index, interval, fromDate, toDate) {
-  let intervalParam = interval === "3m" ? 1 : Number(interval.replace("m", "")) || Number(interval);
-  const formattedFromDate = moment(fromDate, "DD-MM-YYYY").format("YYYY-MM-DD");
-  const formattedToDate = moment(toDate, "DD-MM-YYYY").format("YYYY-MM-DD");
 
-  try {
-    const response = await axios.post(
-      DHAN_API_URL,
-      {
-        securityId: index.scrip,
-        exchangeSegment: index.seg,
-        instrument: "INDEX",
-        interval: intervalParam,
-        oi: false,
-        fromDate: formattedFromDate,
-        toDate: formattedToDate,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "access-token": ACCESS_TOKEN,
-        },
-        timeout: 15000,
-      }
-    );
-
-    if (!response?.data) {
-      console.warn(`Dhan returned empty payload for ${index.name} interval ${interval}`);
-      return null;
-    }
-
-    return {
-      open: response.data.open || [],
-      low: response.data.low || [],
-      high: response.data.high || [],
-      close: response.data.close || [],
-      timestamp: response.data.timestamp || [],
-    };
-  } catch (error) {
-    if (error.response?.status === 429) {
-      console.warn(`Rate limit hit for ${index.name}. Retrying after 150ms...`);
-      await delay(150);
-      return fetchDhanData(index, interval, fromDate, toDate);
-    }
-    console.error(`Error fetching ${interval} data for ${index.name}:`, error.response?.data || error.message);
-    return null;
-  }
-}
