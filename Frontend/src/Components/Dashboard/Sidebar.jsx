@@ -74,6 +74,11 @@ const Sidebar = () => {
           path: "/dashboard/market-depth",
         },
         {
+          icon: smartMoneyAction,
+          label: "AI Smart Money Action",
+          path: "/dashboard/smart-action",
+        },
+        {
           icon: AiSectorDepth,
           label: "AI Sector Depth",
           path: "/dashboard/sector-depth",
@@ -83,11 +88,7 @@ const Sidebar = () => {
           label: "AI Swing Analysis",
           path: "/dashboard/swing-trades",
         },
-        {
-          icon: smartMoneyAction,
-          label: "AI Smart Money Action",
-          path: "/dashboard/smart-action",
-        },
+        
       ],
     },
     {
@@ -133,11 +134,11 @@ const Sidebar = () => {
           label: "Profit",
           path: "/dashboard/profit",
         },
-        {
-          icon: updates,
-          label: "Updates",
-          path: "/dashboard/updates",
-        },
+        // {
+        //   icon: updates,
+        //   label: "Updates",
+        //   path: "/dashboard/updates",
+        // },
       ],
     },
   ];

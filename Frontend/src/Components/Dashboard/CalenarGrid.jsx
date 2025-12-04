@@ -317,7 +317,7 @@ const CalendarGrid = ({
     if (value > 10) return "bg-green-900";
     if (value > 5) return "bg-green-600";
     if (value > 0) return "bg-green-300";
-    if (value === 0) return theme === "dark" ? "bg-[#D9D9D9]" : "bg-[#000A2D]";
+    if (value === 0) return theme === "dark" ? "bg-[#b0b0b2]" : "bg-[#b0b0b2]";
     if (value < -10) return "bg-red-600";
     if (value < -5) return "bg-red-900";
     return "bg-red-300";
