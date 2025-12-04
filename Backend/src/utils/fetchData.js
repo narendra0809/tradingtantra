@@ -1,9 +1,11 @@
 import axios from "axios";
 import { getNextDate } from "./dateUtils.js";
-import { DateTime } from "luxon";
+import { getDhanTokens } from "./getTokens.js";
 const baseUri = "https://api.dhan.co/v2";
-const accessToken = process.env.DHAN_ACCESS_TOKEN;
-const clientId = process.env.DHAN_CLIENT_ID;
+
+const tokens = await getDhanTokens();
+const accessToken = tokens?.DHAN_ACCESS_TOKEN || null;
+const clientId = tokens?.DHAN_CLIENT_ID || null;
 
 export const fetchData = async (url, method, requestData = null) => {
   try {

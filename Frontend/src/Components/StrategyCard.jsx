@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import VideoModal from "./VideoModal";
 import { ADMIN_SERVER_URI } from "../pages/AdminPages/Home";
+import play from "../assets/Images/play.png";
 
 const StrategyCard = ({ name, title, Icon, imageSrc, imageAlt }) => {
   const [openVideoModal, setOpenVideoModal] = useState(false);
@@ -48,9 +49,9 @@ const StrategyCard = ({ name, title, Icon, imageSrc, imageAlt }) => {
             {videoUrl && (
               <p
                 onClick={() => setOpenVideoModal(true)}
-                className="dark:text-gray-400 text-sm flex items-center gap-2 cursor-pointer"
+                className="dark:text-gray-400 text-sm flex items-center gap-2 cursor-pointer underline"
               >
-                How to use{" "}
+                How to use <img src={play} alt="" className="w-4 h-4" />
                 <span className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs">
                   Live
                 </span>

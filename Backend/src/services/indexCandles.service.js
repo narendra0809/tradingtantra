@@ -2,6 +2,7 @@ import moment from "moment-timezone";
 import IndexCandles from "../models/indexCandles.model.js";
 import axios from "axios";
 import { getPreviousTradingDay } from "../controllers/liveMarketData.controller.js";
+import { getDhanTokens } from "../utils/getTokens.js";
 
 const indices = [
   { name: "NIFTY", scrip: "13", seg: "IDX_I", stepSize: 50 },
@@ -13,7 +14,7 @@ const indices = [
 
 // Dhan API configuration
 const DHAN_API_URL = "https://api.dhan.co/v2/charts/intraday";
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
+const ACCESS_TOKEN = (await getDhanTokens())?.DHAN_ACCESS_TOKEN || null;
 
 // Utility to add a delay
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

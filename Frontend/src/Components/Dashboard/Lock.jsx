@@ -7,7 +7,7 @@ const Lock = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="lock-container-light dark:lock-container w-full h-full rounded-lg">
+    <div className="lock-container w-full h-full rounded-lg">
       <div className="w-full h-full flex justify-center items-center bg-[#28292b80] backdrop-blur-xs rounded-lg">
         <div
           className="relative flex flex-col items-center"

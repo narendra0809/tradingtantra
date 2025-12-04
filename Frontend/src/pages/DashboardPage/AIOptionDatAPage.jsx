@@ -504,7 +504,7 @@ const AIOptionDataPage = () => {
     selectedIndex
   ];
   const currentExpiries = allIndexData[currentIndexName]?.expiries || [];
-
+  console.log(currentCandles);
   return (
     <>
       <section className="mt-5 flex lg:flex-row flex-col md:justify-between lg:items-center lg:gap-y-0 gap-y-4">

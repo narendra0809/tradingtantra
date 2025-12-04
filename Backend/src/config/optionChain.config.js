@@ -1,8 +1,12 @@
+import { getDhanTokens } from "../utils/getTokens.js";
+
+const tokens = await getDhanTokens();
+
 export default {
   optionChainUrl: "https://api.dhan.co/v2/optionchain",
   expiryListUrl: "https://api.dhan.co/v2/optionchain/expirylist",
-  accessToken: process.env.DHAN_ACCESS_TOKEN,
-  clientId: process.env.DHAN_CLIENT_ID,
+  accessToken: tokens?.DHAN_ACCESS_TOKEN || null,
+  clientId: tokens?.DHAN_CLIENT_ID || null,
   underlyings: [
     { name: "NIFTY", scrip: 13, seg: "IDX_I", stepSize: 50 },
     { name: "SENSEX", scrip: 51, seg: "IDX_I", stepSize: 100 },

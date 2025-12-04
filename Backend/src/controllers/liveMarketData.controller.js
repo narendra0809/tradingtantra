@@ -8,9 +8,13 @@ import TenMinCandles from "../models/tenMinCandles.model.js";
 import FifteenMinCandles from "../models/fifteenMinCandles.model.js";
 import MarketHoliday from "../models/holidays.model.js";
 import { runFetchForIndexCandles } from "../services/indexCandles.service.js";
+import { getDhanTokens } from "../utils/getTokens.js";
 
-const ACCESS_TOKEN = process.env.DHAN_ACCESS_TOKEN;
-const CLIENT_ID = process.env.DHAN_CLIENT_ID;
+const tokens = await getDhanTokens();
+
+const ACCESS_TOKEN = tokens?.DHAN_ACCESS_TOKEN || null;
+const CLIENT_ID = tokens?.DHAN_CLIENT_ID || null;
+
 const WS_URL = `wss://api-feed.dhan.co?version=2&token=${ACCESS_TOKEN}&clientId=${CLIENT_ID}&authType=2`;
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

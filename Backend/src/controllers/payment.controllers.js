@@ -3,6 +3,7 @@ import { razorpayInstance } from "../config/razorpayInstance.js";
 import Payment from "../models/payment.model.js";
 import UserOrders from "../models/userOrders.model.js";
 import UserSubscription from "../models/userSubscription.model.js";
+import { getRazorpayTokens } from "../utils/getTokens.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -60,10 +61,12 @@ export const createOrder = async (req, res) => {
     });
     await payment.save();
 
+    const tokens = await getRazorpayTokens();
+
     return res.status(200).json({
       success: true,
       data: payment,
-      key: process.env.RAZORPAY_KEY_ID,
+      key: tokens.RAZORPAY_KEY_ID,
     });
   } catch (error) {
     console.error("Create order error:", error);
