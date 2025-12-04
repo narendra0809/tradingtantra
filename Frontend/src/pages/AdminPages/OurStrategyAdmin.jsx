@@ -49,7 +49,6 @@ const OPTION_NAME_OPTIONS = [
 
 export default function OurStrategyAdmin() {
   const [videos, setVideos] = useState([]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -60,6 +59,10 @@ export default function OurStrategyAdmin() {
     _id: "",
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [useVideoUrl, setUseVideoUrl] = useState(true);
+  const [useThumbnailUrl, setUseThumbnailUrl] = useState(true);
+  const [videoFile, setVideoFile] = useState(null);
+  const [thumbnailFile, setThumbnailFile] = useState(null);
 
   const openAddModal = () => {
     setFormData({
@@ -110,24 +113,32 @@ export default function OurStrategyAdmin() {
     const { title, description, videoUrl, thumbnailUrl, name } = formData;
     if (
       !title.trim() ||
-      !videoUrl.trim() ||
       !description.trim() ||
-      !thumbnailUrl.trim() ||
-      !name.trim()
+      !name.trim() ||
+      (!videoUrl && !videoFile) ||
+      (!thumbnailUrl && !thumbnailFile)
     ) {
       alert("Please fill in all fields.");
       return;
     }
-    console.log(formData);
+    const newVideo = new FormData();
+    newVideo.append("title", title);
+    newVideo.append("name", name);
+    newVideo.append("description", description);
+    newVideo.append("videoUrl", videoUrl);
+    newVideo.append("thumbnailUrl", thumbnailUrl);
+    newVideo.append("thumbnailFile", thumbnailFile);
+    newVideo.append("videoFile", videoFile);
     try {
-      const newVideo = { ...formData };
       if (isEditing) {
         const res = await axios.put(
           `${ADMIN_SERVER_URI}/edit-strategy`,
           newVideo,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
-        if (res.status !== 200) {
+        if (res.status !== 201) {
           throw new Error("Error while saving video !");
         }
         fetchVideos();
@@ -135,9 +146,11 @@ export default function OurStrategyAdmin() {
         const res = await axios.post(
           `${ADMIN_SERVER_URI}/post-strategy`,
           newVideo,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
-        if (res.status !== 200) {
+        if (res.status !== 201) {
           throw new Error("Error while saving video !");
         }
         fetchVideos();
@@ -146,6 +159,8 @@ export default function OurStrategyAdmin() {
       console.log(error);
     } finally {
       setModalOpen(false);
+      setThumbnailFile(null);
+      setVideoFile(null);
     }
   };
 
@@ -242,7 +257,7 @@ export default function OurStrategyAdmin() {
       </div>
 
       {/* Modal */}
-      {modalOpen && (
+      {/* {modalOpen && (
         <div className="fixed inset-0 backdrop-blur-2xl bg-opacity-60 flex items-center justify-center z-50 px-4">
           <div className="bg-[#030B2B] text-white p-6 rounded-2xl w-full max-w-md">
             <div className="flex justify-end items-center gap-35">
@@ -317,6 +332,144 @@ export default function OurStrategyAdmin() {
                   className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
                 />
               </div>
+              <button
+                onClick={saveVideo}
+                className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-md font-medium"
+              >
+                Submit Video
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
+      {modalOpen && (
+        <div className="fixed inset-0 backdrop-blur-2xl bg-opacity-60 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#030B2B] text-white p-6 rounded-2xl w-full max-w-md">
+            <div className="flex justify-end items-center gap-35">
+              <h3 className="text-xl font-semibold">
+                {isEditing ? "Edit Video" : "Add Video"}
+              </h3>
+              <FiXCircle
+                onClick={() => setModalOpen(false)}
+                className="text-2xl hover:cursor-pointer"
+              />
+            </div>
+
+            <div className="space-y-5">
+              {/* Name select */}
+              <div>
+                <label className="text-blue-400 text-sm">Name</label>
+                <select
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 text-white outline-none"
+                >
+                  <option value="" className="bg-[#030B2B]">
+                    Select option
+                  </option>
+                  {OPTION_NAME_OPTIONS.map(({ label, value }) => (
+                    <option key={value} value={value} className="bg-[#030B2B]">
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Title */}
+              <div>
+                <label className="text-blue-400 text-sm">Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Enter Video Title"
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-blue-400 text-sm">Description</label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Enter Video Description"
+                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                />
+              </div>
+
+              {/* Video: toggle URL / file */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-blue-400 text-sm">Video</label>
+                  <label className="flex items-center gap-2 text-xs text-blue-300">
+                    <input
+                      type="checkbox"
+                      checked={useVideoUrl}
+                      onChange={(e) => setUseVideoUrl(e.target.checked)}
+                    />
+                    Upload via URL
+                  </label>
+                </div>
+
+                {useVideoUrl ? (
+                  <input
+                    type="text"
+                    name="videoUrl"
+                    value={formData.videoUrl}
+                    onChange={handleChange}
+                    placeholder="Enter Video Link"
+                    className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    className="w-full mt-1 px-3 py-2 rounded-md bg-[#020617] border border-blue-400 text-xs file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white"
+                  />
+                )}
+              </div>
+
+              {/* Thumbnail: toggle URL / file */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-blue-400 text-sm">Thumbnail</label>
+                  <label className="flex items-center gap-2 text-xs text-blue-300">
+                    <input
+                      type="checkbox"
+                      checked={useThumbnailUrl}
+                      onChange={(e) => setUseThumbnailUrl(e.target.checked)}
+                    />
+                    Upload via URL
+                  </label>
+                </div>
+
+                {useThumbnailUrl ? (
+                  <input
+                    type="text"
+                    name="thumbnailUrl"
+                    value={formData.thumbnailUrl}
+                    onChange={handleChange}
+                    placeholder="Enter Thumbnail Link"
+                    className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
+                  />
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setThumbnailFile(e.target.files?.[0] || null)
+                    }
+                    className="w-full mt-1 px-3 py-2 rounded-md bg-[#020617] border border-blue-400 text-xs file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white"
+                  />
+                )}
+              </div>
+
               <button
                 onClick={saveVideo}
                 className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-md font-medium"

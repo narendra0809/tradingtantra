@@ -1,12 +1,23 @@
 import mongoose from "mongoose";
 import OurStrategy from "../../models/adminModels/ourStrategy.model.js";
+import { getImagePath } from "../../utils/utils.js";
 
 export const postStrategy = async (req, res) => {
   try {
     if (!req.admin || !req.admin.id) {
       res.status(401).send("Unauthorized Access !");
     }
-    const { title, description, videoUrl, thumbnailUrl, name } = req.body;
+    const { title, description, name } = req.body;
+    const videoFile = req.files?.videoFile?.[0].filename;
+    const thumbFile = req.files?.thumbnailFile?.[0].filename;
+
+    const videoUrl = videoFile
+      ? getImagePath(videoFile, "videos")
+      : req.body.videoUrl;
+    const thumbnailUrl = thumbFile
+      ? getImagePath(thumbFile, "thumbnails")
+      : req.body.thumbnailUrl;
+
     const video = await OurStrategy.create({
       title,
       description,
@@ -14,7 +25,7 @@ export const postStrategy = async (req, res) => {
       thumbnailUrl,
       name,
     });
-    res.status(200).json({ success: true, video });
+    res.status(201).json({ success: true, video });
   } catch (error) {
     console.log(error);
     res.status(500).send("internal server error ");
@@ -65,7 +76,7 @@ export const editStrategy = async (req, res) => {
       });
     }
 
-    return res.status(200).json({ success: true, updatedVideo });
+    return res.status(201).json({ success: true, updatedVideo });
   } catch (error) {
     console.error("Error in editStrategy:", error);
     return res.status(500).json({

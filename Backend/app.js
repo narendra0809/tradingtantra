@@ -50,6 +50,7 @@ app.use(
   "/assets",
   express.static(path.join(import.meta.dirname, "../Frontend/src/assets"))
 );
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use(morgan("dev"));
 app.use(express.json({ limit: "100mb" }));
 
