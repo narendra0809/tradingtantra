@@ -6,6 +6,7 @@ import Loader from "../../../Loader";
 import fivedays from "../../../../assets/Images/Dashboard/AiSwingTradesPAge/fiveDay.png";
 import { useEffect, useState } from "react";
 import Lock from "../../Lock";
+import StrategyCard from "../../../StrategyCard";
 
 const FiveDayBO = ({ data, loading, error, isSubscribed }) => {
   console.log(data, "data");
@@ -83,31 +84,13 @@ const FiveDayBO = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img
-              src={fivedays}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 ">
-                5 Day BO
-                <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs  text-white">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* <button className="p-2 rounded-lg transition bg-gradient-to-b from-[#085AF5] to-[#73A3FE]">
-            <FaSearch />
-          </button> */}
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          name={"five-day-bo"}
+          title={"5 Day BO"}
+          imageSrc={fivedays}
+          imageAlt={"logo"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
@@ -170,8 +153,8 @@ const FiveDayBO = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                     </tr>
-                                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000]" />
-                                      </thead>
+                    <tr className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r dark:from-[#000] via-[#002ED0] dark:to-[#000]" />
+                  </thead>
 
                   {/* Scrollable Table Body */}
                   <tbody>
@@ -236,10 +219,7 @@ const FiveDayBO = ({ data, loading, error, isSubscribed }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="5"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="5" className="text-center py-4 ">
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>

@@ -27,48 +27,48 @@ const UpdatesPageDashboard = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
   }, []);
-  console.log(updates)
+
+  if (!isSubscribed)
+    return (
+      <div className="h-full">
+        <h1 className="text-3xl my-2">Updates</h1>
+        <Lock />
+      </div>
+    );
+
   return (
     <>
       <div className="w-full h-auto p-6 mt-10 md:p-10 dark:border-2 dark:border-[#0256F5] rounded-lg not-dark:bg-primary-light ">
-        {!isSubscribed ? (
-          <Lock />
-        ) : (
-          updates?.map((item, index) => (
+        {updates?.map((item, index) => (
+          <div
+            key={index}
+            className="py-5 flex flex-col md:flex-row items-start md:items-center justify-start gap-4 md:gap-8 border-b border-b-[#BEBFC3] w-full"
+          >
+            <p className="text-base w-32 md:w-40">{item.date.split("T")[0]}</p>
             <div
-              key={index}
-              className="py-5 flex flex-col md:flex-row items-start md:items-center justify-start gap-4 md:gap-8 border-b border-b-[#BEBFC3] w-full"
+              className="w-24 h-10 flex items-center justify-center rounded-lg text-xs font-semibold"
+              style={{
+                backgroundColor:
+                  item.category === "Release"
+                    ? "#6E9FFE"
+                    : item.category === "Improvement"
+                    ? "#151B2D"
+                    : "var(--color-primary)",
+              }}
             >
-              <p className="text-base w-32 md:w-40">
-                {item.date.split("T")[0]}
-              </p>
-              <div
-                className="w-24 h-10 flex items-center justify-center rounded-lg text-xs font-semibold"
-                style={{
-                  backgroundColor:
-                    item.category === "Release"
-                      ? "#6E9FFE"
-                      : item.category === "Improvement"
-                      ? "#151B2D"
-                      : "var(--color-primary)",
-                }}
+              <p
+                className={
+                  item.category === "Improvement" ? "text-white" : "text-white"
+                }
               >
-                <p
-                  className={
-                    item.category === "Improvement"
-                      ? "text-white"
-                      : "text-white"
-                  }
-                >
-                  {item.category}
-                </p>
-              </div>
-              <p className="text-sm dark:text-[#ffffffe9] text-wrap md:flex-1">
-                {item.description}
+                {item.category}
               </p>
             </div>
-          ))
-        )}
+            <p className="text-sm dark:text-[#ffffffe9] text-wrap md:flex-1">
+              {item.description}
+            </p>
+          </div>
+        ))}
       </div>
     </>
   );

@@ -85,7 +85,7 @@ const Header = () => {
           <img
             src={isDarkMode === "dark" ? logo : whiteLogo}
             alt="logo"
-            className="h-8 md:h-10"
+            className="h-8 md:h-14"
           />
         </div>
       )}

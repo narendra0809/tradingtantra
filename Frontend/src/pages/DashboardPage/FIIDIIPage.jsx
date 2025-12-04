@@ -1,11 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState, Suspense, useRef } from "react";
-import { FaPlayCircle } from "react-icons/fa";
-import { FcCandleSticks } from "react-icons/fc";
-import { GoDotFill } from "react-icons/go";
 import axios from "axios";
 import Cookies from "js-cookie";
+import React, { Suspense, useEffect, useRef, useState } from "react";
+import { FcCandleSticks } from "react-icons/fc";
 import Lock from "../../Components/Dashboard/Lock";
+import StrategyCard from "../../Components/StrategyCard";
 
 // Lazy load components with debugging
 const CustomBarChart = React.lazy(() => {
@@ -127,48 +126,30 @@ const FIIDIIPage = () => {
           {error}
         </div>
       )}
-      <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2">
-          <div>
-            <div className="flex gap-4 items-center">
-              <h1 className="text-3xl font-bold ">
-                FII/DII
-              </h1>
-              <span className="text-xl">
-                <FcCandleSticks />
-              </span>
-              <span className="flex items-center px-2 py-px rounded-full w-fit bg-[#0256F5] text-xs text-white">
-                <GoDotFill />
-                Live
-              </span>
-              <span className="flex items-center gap-1 ">
-                How to use <FaPlayCircle className="text-[#0256F5]" />
-              </span>
-            </div>
-            <div className="mt-4 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-              <Suspense fallback={<div>Loading chart...</div>}>
-                {!isSubscribed ? (
-                  <Lock />
-                ) : (
+      <StrategyCard Icon={FcCandleSticks} title={"FII/DII"} name={"fii-dii"} />
+      {!isSubscribed ? (
+        <Lock />
+      ) : (
+        <>
+          <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+            <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2">
+              <div className="mt-4 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                <Suspense fallback={<div>Loading chart...</div>}>
                   <CustomBarChart
                     data={fiiDiiData.slice(0, 10)}
                     loading={loading}
                   />
-                )}
-              </Suspense>
+                </Suspense>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-      <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-        <Suspense fallback={<div>Loading table...</div>}>
-          <FiiDiiTable
-            data={fiiDiiData}
-            loading={loading}
-            isSubscribed={isSubscribed}
-          />
-        </Suspense>
-      </section>
+          </section>
+          <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+            <Suspense fallback={<div>Loading table...</div>}>
+              <FiiDiiTable data={fiiDiiData} loading={loading} />
+            </Suspense>
+          </section>
+        </>
+      )}
     </>
   );
 };

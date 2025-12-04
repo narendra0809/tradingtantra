@@ -196,6 +196,16 @@ const TradingJournal = () => {
     fetchHolidays();
   }, []);
 
+  if (!isSubscribed) {
+    return (
+      <div className="h-full">
+        <h1 className="font-semibold text-2xl md:text-3xl my-4 md:my-5">
+          Trading Journal
+        </h1>
+        <Lock />
+      </div>
+    );
+  }
   if (loading)
     return <div className="text-center text-white">Loading trades...</div>;
   if (error)

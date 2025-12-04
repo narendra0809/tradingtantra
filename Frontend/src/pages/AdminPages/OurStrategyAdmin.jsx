@@ -18,6 +18,7 @@ const OPTION_NAME_OPTIONS = [
   { label: "Sector Depth Grid", value: "sector-depth-grid" },
   { label: "Sector Depth Chart", value: "sector-depth-chart" },
   { label: "Sector Depth Nifty", value: "sector-depth-nifty" },
+  { label: "Sector Depth Sensex", value: "sector-depth-sensex" },
   { label: "Sector Depth Bank", value: "sector-depth-bank" },
   { label: "Sector Depth Energy", value: "sector-depth-energy" },
   { label: "Sector Depth Finserv", value: "sector-depth-finserv" },

@@ -50,6 +50,15 @@ const CalculatorsPage = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
   }, []);
+
+  if (!isSubscribed)
+    return (
+      <div className="h-full">
+        <h1 className="font-abcRepro text-3xl font-medium ">Risk Calculator</h1>
+        <Lock />
+      </div>
+    );
+
   return (
     <>
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-10 mt-10  ">

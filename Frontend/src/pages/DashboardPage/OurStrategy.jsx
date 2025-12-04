@@ -99,15 +99,21 @@ const OurStrategy = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-6">Our Strategy</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {videos.map((strategyVideo, index) => (
-          <StrategyVideoCard
-            key={index}
-            strategyVideo={strategyVideo}
-            isSubscribed={isSubscribed}
-          />
-        ))}
-      </div>
+      {!isSubscribed ? (
+        <div className="h-screen">
+          <Lock />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {videos.map((strategyVideo, index) => (
+            <StrategyVideoCard
+              key={index}
+              strategyVideo={strategyVideo}
+              isSubscribed={isSubscribed}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

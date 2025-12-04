@@ -1,18 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
+import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
-import { GoDotFill } from "react-icons/go";
+import { io } from "socket.io-client";
 import AISectorChart from "../../Components/Dashboard/AISectorChart";
+import Lock from "../../Components/Dashboard/Lock";
 import StockCard from "../../Components/Dashboard/StockCard";
 import TreeGraphsGrid from "../../Components/Dashboard/TreeGraphsGrid";
-import { io } from "socket.io-client";
 import Loader from "../../Components/Loader";
-import Lock from "../../Components/Dashboard/Lock";
-import Cookies from "js-cookie";
-import axios from "axios";
-import VideoModal from "../../Components/VideoModal";
+import StrategyCard from "../../Components/StrategyCard";
 
 const AiSectorDepthPage = () => {
   const SOCKET_URI = import.meta.env.VITE_SOCKET_URI;
@@ -24,7 +23,6 @@ const AiSectorDepthPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [socket, setSocket] = useState(null);
   const [isMarketHours, setIsMarketHours] = useState(checkMarketHours());
-  const [openVideoModal, setOpenVideoModal] = useState(false);
 
   function checkMarketHours() {
     const now = new Date();
@@ -146,22 +144,11 @@ const AiSectorDepthPage = () => {
     <>
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg h-auto ">
         <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 h-auto pb-12">
-          <div className="flex gap-4 items-center mb-5">
-            <h1 className="text-3xl font-bold ">AI Sector Depth</h1>
-            <span className="text-xl">
-              <FcCandleSticks />
-            </span>
-            <span
-              onClick={() => setOpenVideoModal(true)}
-              className="flex items-center gap-1 cursor-pointer"
-            >
-              How to use <FaPlayCircle className="text-[#0256F5]" />
-            </span>
-            <span className="flex items-center px-2 py-px rounded-full w-fit text-white bg-[#0256F5] text-xs">
-              <GoDotFill />
-              {isMarketHours ? "Live" : "Snapshot"}
-            </span>
-          </div>
+          <StrategyCard
+            Icon={FcCandleSticks}
+            name={"sector-depth-grid"}
+            title={"AI Sector Depth"}
+          />
 
           {!isSubscribed ? (
             <div className="w-full h-[300px]">
@@ -187,17 +174,12 @@ const AiSectorDepthPage = () => {
 
       <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
         <div className="dark:bg-[#000517] bg-primary-light rounded-lg p-2">
-          <div className="flex gap-4 items-center mb-4">
-            <h2 className="text-2xl font-semibold mb-2 ">
-              AI Sector Depth Chart
-            </h2>
-            <span className="flex items-center gap-1 ">
-              {" "}
-              <GoDotFill className="text-[#0256F5]" /> Active
-            </span>
-            <span className="flex items-center gap-1 ">
-              How to use <FaPlayCircle className="text-[#0256F5]" />
-            </span>
+          <div className="p-2">
+            <StrategyCard
+              Icon={FaPlayCircle}
+              name={"sector-depth-chart"}
+              title={"AI Sector Depth Chart"}
+            />
           </div>
           <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg bg-[#EEEEEE] ">
             {!isSubscribed ? (
@@ -221,13 +203,7 @@ const AiSectorDepthPage = () => {
           </div>
         </div>
       </section>
-      {openVideoModal && (
-        <VideoModal
-          isOpen={openVideoModal}
-          onClose={() => setOpenVideoModal(false)}
-          videoUrl="https://www.youtube.com/embed/kt0FrkQgw8w"
-        />
-      )}
+
       {/* shares card */}
       <section className="mt-8">
         {!loading && (

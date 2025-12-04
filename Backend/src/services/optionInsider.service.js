@@ -170,7 +170,7 @@ function getAnalysis(now, prev) {
 
   if (nowLP >= prevLP && nowOi <= prevOi)
     return {
-      text: "Shorts covering",
+      text: "Short covering",
       direction: "up",
       color: "#003473",
       textColor: "#e7f9ff",

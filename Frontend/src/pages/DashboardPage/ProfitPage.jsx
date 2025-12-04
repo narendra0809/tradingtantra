@@ -14,7 +14,9 @@ const ProfitPage = () => {
         Profit
       </h4>
       {!isSubscribed ? (
-        <Lock />
+        <div className="h-[50vh]">
+          <Lock />
+        </div>
       ) : (
         <div className="dark:bg-db-primary bg-primary-light  dark:border border-[#0009B250] p-5 rounded-[5px] space-y-10">
           <div className="space-y-5 text-base font-normal font-abcRepro ">

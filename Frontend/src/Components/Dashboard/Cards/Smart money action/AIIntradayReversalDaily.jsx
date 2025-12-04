@@ -5,6 +5,7 @@ import Loader from "../../../Loader";
 import LomLongTerm from "../../../../assets/Images/Dashboard/monryActionPage/LomLongTerm.png";
 import { useEffect, useState } from "react";
 import Lock from "../../Lock";
+import StrategyCard from "../../../StrategyCard";
 
 const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
   const [sortedData, setSortedData] = useState([]);
@@ -81,31 +82,13 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
     <div className="relative w-full h-[360px] dark:bg-gradient-to-tr from-[#0009B2] to-[#02000E] rounded-lg p-px overflow-hidden">
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2">
-            <img
-              src={LomLongTerm}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            />
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 ">
-                AI Swing Reversal (TF - 15M)
-                <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* <button className="p-2 rounded-lg transition bg-gradient-to-b from-[#085AF5] to-[#73A3FE]">
-            <FaSearch />
-          </button> */}
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          name={"swing-reversal"}
+          title={"AI Swing Reversal (TF - 15M)"}
+          imageSrc={LomLongTerm}
+          imageAlt={"logo"}
+        />
 
         {/* Table Section */}
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
@@ -233,10 +216,7 @@ const AIIntradayReversalDaily = ({ data, loading, error, isSubscribed }) => {
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan="5"
-                          className="text-center py-4 "
-                        >
+                        <td colSpan="5" className="text-center py-4 ">
                           {!loading && !error ? "No data available" : ""}
                         </td>
                       </tr>

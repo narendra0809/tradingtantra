@@ -34,11 +34,13 @@ const StrategyCard = ({ name, title, Icon, imageSrc, imageAlt }) => {
     <>
       <div className="flex justify-between items-center ">
         <div className="flex items-center gap-2">
-          <img
-            src={imageSrc}
-            alt={imageAlt}
-            className="w-12 h-12 object-contain"
-          />
+          {imageSrc && (
+            <img
+              src={imageSrc}
+              alt={imageAlt}
+              className="w-12 h-12 object-contain"
+            />
+          )}
           <div>
             <h2 className="dark:text-white text-[#01071C] text-xl font-semibold flex items-center gap-2">
               {title} {Icon && <Icon />}

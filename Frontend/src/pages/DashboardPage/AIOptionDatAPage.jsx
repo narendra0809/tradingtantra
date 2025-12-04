@@ -1,27 +1,24 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
+import axios from "axios";
+import Cookies from "js-cookie";
+import moment from "moment-timezone";
+import { useEffect, useState } from "react";
 import { FaPlayCircle } from "react-icons/fa";
 import { FcCandleSticks } from "react-icons/fc";
 import { GoDotFill } from "react-icons/go";
-import GaugeMeter from "../../Components/Dashboard/GaugeMeter";
-import moment from "moment-timezone";
 import CandleChart from "../../Components/Dashboard/CandleChart";
+import GaugeMeter from "../../Components/Dashboard/GaugeMeter";
+import Lock from "../../Components/Dashboard/Lock";
 import OptionDataDonutChart from "../../Components/Dashboard/OptionDataDonutChart";
-import useFetchData from "../../utils/useFetchData";
-import { useEffect, useState } from "react";
+import StrategyCard from "../../Components/StrategyCard";
 import { lotSize, lotSize1 } from "../../constants/constants";
-import axios from "axios";
-import Cookies from "js-cookie";
+import useFetchData from "../../utils/useFetchData";
 import {
   convertTo12HourFormat,
   generateTimeRanges,
-  getLatestTradingDay,
   parseTime,
 } from "../../utils/utils";
-import Lock from "../../Components/Dashboard/Lock";
-import { useOutletContext } from "react-router-dom";
-import VideoModal from "../../Components/VideoModal";
-import { ADMIN_SERVER_URI } from "../AdminPages/Home";
 const URI = import.meta.env.VITE_SERVER_URI;
 
 const contributeIndex = {
@@ -45,7 +42,6 @@ const meterData = [
 ];
 
 const AIOptionDataPage = () => {
-  const [strategyVideo, setStrategyVideo] = useState(null);
   const { fetchData } = useFetchData();
   const [volumes, setVolumes] = useState([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -76,8 +72,6 @@ const AIOptionDataPage = () => {
   const [currentCandles, setCurrentCandles] = useState([]);
   const [totalOI, setTotalOI] = useState({ totalCE: 0, totalPE: 0 });
   const [noDataMessage, setNoDataMessage] = useState("");
-  const [openVideoModal, setOpenVideoModal] = useState(false);
-
   const fetchAllIndexPts = async () => {
     try {
       setLoading(true);
@@ -511,45 +505,14 @@ const AIOptionDataPage = () => {
   ];
   const currentExpiries = allIndexData[currentIndexName]?.expiries || [];
 
-  useEffect(() => {
-    const fetchStrategyVideos = async () => {
-      try {
-        const res = await axios.get(`${ADMIN_SERVER_URI}/get-strategy`, {
-          withCredentials: true,
-        });
-        if (res.status !== 200) {
-          throw new Error("Error while fetching videos");
-        }
-        if (res.data.videos && res.data.videos.length > 0) {
-          setStrategyVideo(
-            res.data.videos.find(({ name }) => name === "option-insider")
-          );
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchStrategyVideos();
-  }, []);
-
   return (
     <>
       <section className="mt-5 flex lg:flex-row flex-col md:justify-between lg:items-center lg:gap-y-0 gap-y-4">
-        <div className="flex gap-4 items-center">
-          <h1 className="text-3xl font-bold">AI Option Data</h1>
-          <span className="text-xl">
-            <FcCandleSticks />
-          </span>
-          <span
-            onClick={() => setOpenVideoModal(true)}
-            className="flex items-center gap-1 px-2 py-px rounded-full w-fit text-white text-xs font-semibold cursor-pointer"
-          >
-            How to use
-            <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white">
-              Live
-            </span>
-          </span>
-        </div>
+        <StrategyCard
+          Icon={FcCandleSticks}
+          name={"option-data"}
+          title={"AI Option Data"}
+        />
 
         <div className="flex flex-col md:flex-row gap-2 md:gap-4">
           <div className="flex items-center relative border border-[#0E5FF6] w-full md:w-fit rounded-lg px-2 md:px-3 py-1">
@@ -640,68 +603,65 @@ const AIOptionDataPage = () => {
           </div>
         </div>
       </section>
-
-      <section className="grid lg:grid-cols-2 grid-cols-1 gap-4 mt-8">
-        <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg w-full">
-          <div className="dark:bg-db-primary bg-primary-light rounded-lg p-4 h-full">
-            <div className="flex gap-4 items-center">
-              <h1 className="text-2xl font-medium">{selectedIndex}</h1>
-              <span className="flex gap-1 items-center text-base font-light ">
-                How to Use <FaPlayCircle className="text-[#0256F5]" />
-              </span>
-              <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white">
-                <GoDotFill />
-                Live
-              </span>
+      {!isSubscribed ? (
+        <Lock />
+      ) : (
+        <>
+          <section className="grid lg:grid-cols-2 grid-cols-1 gap-4 mt-8">
+            <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg w-full">
+              <div className="dark:bg-db-primary bg-primary-light rounded-lg p-4 h-full">
+                <div className="flex gap-4 items-center">
+                  <h1 className="text-2xl font-medium">{selectedIndex}</h1>
+                  <span className="flex gap-1 items-center text-base font-light ">
+                    How to Use <FaPlayCircle className="text-[#0256F5]" />
+                  </span>
+                  <span className="flex items-center px-2 py-px rounded-full w-fit h-fit bg-[#0256F5] text-xs text-white">
+                    <GoDotFill />
+                    Live
+                  </span>
+                </div>
+                <div className="mt-8 h-[350px] lg:h-[88%] w-full overflow-hidden">
+                  {!isSubscribed ? (
+                    <Lock />
+                  ) : noDataMessage ? (
+                    <p className="text-center text-white">{noDataMessage}</p>
+                  ) : (
+                    <CandleChart candles={currentCandles} volumes={volumes} />
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="mt-8 h-[350px] lg:h-[88%] w-full overflow-hidden">
-              {!isSubscribed ? (
-                <Lock />
-              ) : noDataMessage ? (
-                <p className="text-center text-white">{noDataMessage}</p>
-              ) : (
-                <CandleChart candles={currentCandles} volumes={volumes} />
-              )}
-            </div>
-          </div>
-        </div>
 
-        <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-          <div className="h-full dark:bg-db-primary bg-primary-light rounded-lg">
-            <div className="flex flex-col items-center h-[400px] gap-5">
-              {!isSubscribed ? (
-                <Lock />
-              ) : (
-                meterData.map((item, index) => (
-                  <GaugeMeter
-                    key={index}
-                    title={item.title}
-                    totalOI={totalOI}
-                  />
-                ))
-              )}
+            <div className="dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
+              <div className="h-full dark:bg-db-primary bg-primary-light rounded-lg">
+                <div className="flex flex-col items-center h-[400px] gap-5">
+                  {!isSubscribed ? (
+                    <Lock />
+                  ) : (
+                    meterData.map((item, index) => (
+                      <GaugeMeter
+                        key={index}
+                        title={item.title}
+                        totalOI={totalOI}
+                      />
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <section className="mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
-        <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-4">
-          <OptionDataDonutChart
-            contributor={contribution}
-            allIndexPts={allIndexPts}
-            isSubscribed={isSubscribed}
-          />
-        </div>
-        {strategyVideo && (
-          <VideoModal
-            isOpen={openVideoModal}
-            onClose={() => setOpenVideoModal(false)}
-            videoUrl={strategyVideo.videoUrl}
-            key={strategyVideo.name}
-          />
-        )}
-      </section>
+          <section className="mt-10 dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg">
+            <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-4">
+              <OptionDataDonutChart
+                contributor={contribution}
+                allIndexPts={allIndexPts}
+                isSubscribed={isSubscribed}
+              />
+            </div>
+          </section>
+        </>
+      )}
     </>
   );
 };

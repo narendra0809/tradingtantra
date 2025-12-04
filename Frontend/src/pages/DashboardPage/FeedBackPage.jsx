@@ -69,7 +69,9 @@ const FeedBackPage = () => {
       <h4 className="text-3xl text-center font-medium font-Inter">Feed Back</h4>
       <div className="w-full mt-10">
         {!isSubscribed ? (
-          <Lock />
+          <div className="h-[50vh]">
+            <Lock />
+          </div>
         ) : (
           <form
             className="flex items-center justify-between flex-wrap w-full space-y-4  p-[5px]"

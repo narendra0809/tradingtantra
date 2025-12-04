@@ -12,6 +12,147 @@ import Lock from "./Lock";
  *   put: { ... }
  * }
  */
+function calculateSentiment(data) {
+  if (!data) return null;
+  const put = data.put;
+  const call = data.call;
+  const putText = put.text;
+  const callText = call.text;
+  const putDir = put.direction;
+  const callDir = call.direction;
+  let text = "";
+  let color = "";
+  // let badgeClass = "badge-interpretation ";
+  if (/short covering/i.test(putText) && /short covering/i.test(callText)) {
+    text = "Neutral";
+    color = "#ffff00";
+  } else if (
+    /long build up/i.test(putText) &&
+    /long build up/i.test(callText)
+  ) {
+    text = "Confusion";
+    color = "#0000ff";
+  } else if (
+    /long unwinding/i.test(putText) &&
+    /long unwinding/i.test(callText)
+  ) {
+    text = "Neutral";
+    color = "#ffff00";
+  } else if (
+    /short covering/i.test(putText) &&
+    /long build up/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "up"
+  ) {
+    text = "Strong Bullish";
+    color = "#38761d";
+  } else if (
+    /long unwinding/i.test(putText) &&
+    /long build up/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "down"
+  ) {
+    text = "Strong Bullish";
+    color = "#38761d";
+  } else if (
+    /short build up/i.test(putText) &&
+    /long build up/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "down"
+  ) {
+    text = "Strong Bullish";
+    color = "#38761d";
+  } else if (
+    /long build up/i.test(putText) &&
+    /short covering/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "up"
+  ) {
+    text = "Moderate Bearish";
+    color = "#67a561";
+  } else if (
+    /long unwinding/i.test(putText) &&
+    /short covering/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "down"
+  ) {
+    text = "Bullish";
+    color = "#93c47d";
+  } else if (
+    /short build up/i.test(putText) &&
+    /short covering/i.test(callText) &&
+    callDir === "up" &&
+    putDir === "down"
+  ) {
+    text = "Bullish";
+    color = "#93c47d";
+  } else if (
+    /long build up/i.test(putText) &&
+    /long unwinding/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "up"
+  ) {
+    text = "Strong Bearish";
+    color = "#cc0000";
+  } else if (
+    /short covering/i.test(putText) &&
+    /long unwinding/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "up"
+  ) {
+    text = "Bearish";
+    color = "#e06666";
+  } else if (
+    /short build up/i.test(putText) &&
+    /long unwinding/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "down"
+  ) {
+    text = "Range-bound";
+    color = "#1155cc";
+  } else if (
+    /long build up/i.test(putText) &&
+    /short build up/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "up"
+  ) {
+    text = "Strong Bearish";
+    color = "#cc0000";
+  } else if (
+    /short covering/i.test(putText) &&
+    /short build up/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "up"
+  ) {
+    text = "Moderate Bearish";
+    color = "#e06666";
+  } else if (
+    /long unwinding/i.test(putText) &&
+    /short build up/i.test(callText) &&
+    callDir === "down" &&
+    putDir === "down"
+  ) {
+    text = "Neutral";
+    color = "#ffff00";
+  } else if (
+    /short build up/i.test(putText) &&
+    /short build up/i.test(callText)
+  ) {
+    text = "Confusion";
+    color = "#0000ff";
+  }
+
+  return (
+    <div
+      className={`flex flex-col items-center`}
+      style={{ backgroundColor: color, borderRadius: "10px" }}
+    >
+      <span className={`text-capitalize flex items-center px-2 py-1 gap-2`}>
+        <span className="text-white dark:text-black">{text}</span>
+      </span>
+    </div>
+  );
+}
 
 function Badge({ analysis }) {
   if (!analysis) return null;
@@ -96,9 +237,10 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
               <thead>
                 <tr className="border-b-1 border-[#BEBFC3] dark:border-[#002ED0]">
                   <th className="p-2 text-left">Time Range</th>
-                  <th className="p-2">Strike</th>
                   <th className="p-2 text-center">Call Analysis</th>
                   <th className="p-2 text-center">Call Numbers</th>
+                  <th className="p-2">Strike</th>
+                  <th className="p-2 text-center">Overall Sentiments</th>
                   <th className="p-2 text-center">Put Analysis</th>
                   <th className="p-2 text-center">Put Numbers</th>
                 </tr>
@@ -112,22 +254,23 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
                         {r.prevTimestamp} - {r.nowTimestamp}
                       </div>
                     </td>
-                    <td className="p-2 text-center font-mono">
-                      {r.strikePrice}
-                    </td>
-
                     <td className="p-2 text-center align-top">
                       <Badge analysis={r.call} />
                     </td>
-
                     <td className="p-2 text-center align-top">
                       <NumericDetails a={r.call} />
                     </td>
-
+                    <td className="p-2 text-center font-mono">
+                      <span className="border p-1 rounded-md">
+                        {r.strikePrice}
+                      </span>
+                    </td>
+                    <td className="p-2 text-center font-mono">
+                      {calculateSentiment(r)}
+                    </td>
                     <td className="p-2 text-center align-top">
                       <Badge analysis={r.put} />
                     </td>
-
                     <td className="p-2 text-center align-top">
                       <NumericDetails a={r.put} />
                     </td>

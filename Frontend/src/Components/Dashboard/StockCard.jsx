@@ -4,6 +4,25 @@ import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { FcCandleSticks } from "react-icons/fc";
 import Loader from "../Loader";
 import Lock from "./Lock";
+import StrategyCard from "../StrategyCard";
+
+const STOCK_CARD_STRATEGY_MAP = {
+  "NIFTY 50": "sector-depth-nifty",
+  SENSEX: "sector-depth-sensex",
+  ENERGY: "sector-depth-energy",
+  BANK: "sector-depth-bank",
+  "FIN SERV": "sector-depth-finserv",
+  "PVT BANK": "sector-depth-pvt-bank",
+  AUTO: "sector-depth-auto",
+  "NIFTY MID": "sector-depth-nifty-mid",
+  PHARMA: "sector-depth-pharma",
+  FMCG: "sector-depth-fmcg",
+  METAL: "sector-depth-metal",
+  CEMENT: "sector-depth-cement",
+  REALTY: "sector-depth-realty",
+  IT: "sector-depth-it",
+  "PSU BANK": "sector-depth-psu-bank",
+};
 
 const StockCard = ({ title, data, loading, error, isSubscribed }) => {
   const [sortedData, setSortedData] = useState([]);
@@ -62,31 +81,11 @@ const StockCard = ({ title, data, loading, error, isSubscribed }) => {
     >
       <div className="w-full h-full dark:bg-db-primary bg-primary-light rounded-lg p-2">
         {/* Header Section */}
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-2 ">
-            {/* <img
-              src={dayHigh}
-              alt="Logo"
-              className="w-12 h-12 object-contain"
-            /> */}
-            <div>
-              <h2 className="text-xl font-semibold flex items-center gap-2 ">
-                {title} <FcCandleSticks />
-              </h2>
-              <p className="dark:text-gray-400 text-sm flex items-center gap-2 ">
-                How to use{" "}
-                <span className="bg-blue-600 px-2 py-1 rounded-full text-xs text-white ">
-                  Live
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* <button className="p-2 rounded-lg transition bg-gradient-to-b from-[#085AF5] to-[#73A3FE]">
-            <FaSearch />
-          </button> */}
-        </div>
-
+        <StrategyCard
+          Icon={FcCandleSticks}
+          name={STOCK_CARD_STRATEGY_MAP[title]}
+          title={title}
+        />
         {/* Table Section */}
         {!isSubscribed ? (
           <Lock />

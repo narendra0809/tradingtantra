@@ -1,19 +1,18 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-  Cell,
-  Rectangle,
-  LabelList,
-} from "recharts";
 import { useMediaQuery } from "react-responsive";
+import {
+  Bar,
+  BarChart,
+  Cell,
+  LabelList,
+  Rectangle,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  YAxis,
+} from "recharts";
 
 const AISectorChart = ({ data, handleGoToTable }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -199,32 +198,31 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               ))}
 
               <LabelList
-  dataKey="name"
-  content={({ x, y, width, height, value }) => {
-    const isNegative = height < 0;
+                dataKey="name"
+                content={({ x, y, width, height, value }) => {
+                  const isNegative = height < 0;
 
-    // Add some distance from the bar
-    const offset = 20; // adjust as per your UI
+                  // Add some distance from the bar
+                  const offset = 20; // adjust as per your UI
 
-    const textY = isNegative ? 170 - offset : 240 + offset;
+                  const textY = isNegative ? 170 - offset : 240 + offset;
 
-    const textColor = theme === "dark" ? "#FFF" : "#000";
+                  const textColor = theme === "dark" ? "#FFF" : "#000";
 
-    return (
-      <text
-        x={x + width / 2}
-        y={textY}
-        textAnchor="middle"
-        fill={textColor}
-        fontSize={12}
-        transform={`rotate(-90, ${x + width / 2}, ${textY})`}
-      >
-        {value}
-      </text>
-    );
-  }}
-/>
-
+                  return (
+                    <text
+                      x={x + width / 2}
+                      y={textY}
+                      textAnchor="middle"
+                      fill={textColor}
+                      fontSize={12}
+                      transform={`rotate(-90, ${x + width / 2}, ${textY})`}
+                    >
+                      {value}
+                    </text>
+                  );
+                }}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
