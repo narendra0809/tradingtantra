@@ -82,6 +82,22 @@
   background-size: cover;
 }
 
+.gradient-line {
+  border-width: 1.14px;
+  border-style: solid;
+  border-image-source: linear-gradient(
+    90deg,
+    #000a2d 0%,
+    #002ed0 30%,
+    #002ed0 70.5%,
+    #000a2d 100%
+  );
+  border-image-slice: 1;
+}
+.gradient-box {
+  background: linear-gradient(113.83deg, #0009b3 0.45%, #02000e 100%);
+}
+
 /* Loader CSS */
 .loader {
   width: 50px;

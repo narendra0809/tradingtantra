@@ -173,28 +173,28 @@ function getAnalysis(now, prev) {
       text: "Short covering",
       direction: "up",
       color: "#003473",
-      textColor: "#e7f9ff",
+      textColor: "#FFFFFF",
     };
   if (nowLP <= prevLP && nowOi >= prevOi)
     return {
       text: "Short build up",
       direction: "down",
-      color: "#f44336",
-      textColor: "#e7f9ff",
+      color: "#F44336",
+      textColor: "#FFFFFF",
     };
   if (nowLP >= prevLP && nowOi >= prevOi)
     return {
       text: "Long build up",
       direction: "up",
-      color: "#4caf50",
-      textColor: "#e7f9ff",
+      color: "#4CAF50",
+      textColor: "#FFFFFF",
     };
   if (nowLP <= prevLP && nowOi <= prevOi)
     return {
       text: "Long unwinding",
       direction: "down",
-      color: "#ffc107",
-      textColor: "#6e3b26",
+      color: "#E9B10B",
+      textColor: "#000A2D",
     };
 
   return { text: "Neutral", direction: null, color: "#777272" };

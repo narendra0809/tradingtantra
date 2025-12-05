@@ -11,12 +11,14 @@ import {
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
+  XAxis,
   YAxis,
 } from "recharts";
 
 const AISectorChart = ({ data, handleGoToTable }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const theme = useSelector((state) => state.theme.theme);
+  const [yScale, setYScale] = useState(null);
 
   const [sectorWisePercentageChange, setSectorWisePercentageChange] = useState(
     []
@@ -114,7 +116,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
         isMobile ? "h-[350px]" : "h-[500px]"
       }`}
     >
-      <div className="min-w-[600px] md:min-w-full h-[400px] md:h-[500px] dark:bg-db-secondary bg-[#EEEEEE] p-0 md:p-5 lg:p-3 rounded-lg shadow-lg">
+      <div className="min-w-[800px] h-full dark:bg-db-secondary bg-[#EEEEEE] p-3 rounded-lg shadow-lg">
         <ResponsiveContainer width="100%" height={450}>
           <BarChart
             data={sectorWisePercentageChange}
@@ -126,36 +128,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               bottom: marginBottom,
             }}
           >
-            {/* <XAxis
-              dataKey="name"
-              // tick={renderCustomXAxisTick}
-              interval={0}
-              height={xAxisHeight}
-              // stroke={theme === "dark" ? "#fff" : "#000000"}
-              axisLine={false}
-              strokeDasharray="0" // ✅ removes dashes completely
-              // tick={({ x, y, payload, index, ...rest }) => {
-              //   // manually place labels near y=0
-              //   const zeroY = rest?.y || y; // fallback for safety
-              //   const offset = 15; // pixels below 0-line
-
-              //   return (
-              //     <g transform={`translate(${x},${zeroY + offset})`}>
-              //       <text
-              //         x={180}
-              //         y={0}
-              //         textAnchor="middle"
-              //         fill={theme === "dark" ? "#fff" : "#000"}
-              //         fontSize={isMobile ? 10 : 12}
-              //         transform="rotate(-90)"
-              //       >
-              //         {payload.value}
-              //       </text>
-              //     </g>
-              //   );
-              // }}
-            /> */}
-            <YAxis
+            {/* <YAxis
               type="number"
               stroke={theme === "dark" ? "#fff" : "#000000"}
               tick={{
@@ -163,7 +136,28 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                 fontSize: isMobile ? 10 : 12,
               }}
               width={isMobile ? 30 : 40}
+            /> */}
+            <YAxis
+              type="number"
+              stroke={theme === "dark" ? "#fff" : "#000000"}
+              tick={{
+                fill: theme === "dark" ? "#fff" : "#000",
+                fontSize: isMobile ? 10 : 12,
+              }}
+              width={isMobile ? 30 : 40}
+              domain={["dataMin", "dataMax"]}
+              tickFormatter={(value, index, ticks) => {
+                if (ticks && ticks.length && ticks[0].coordinate != null) {
+                  const scale = (v) => {
+                    const t = ticks.find((t) => t.value === v);
+                    return t ? t.coordinate : 0;
+                  };
+                  setYScale(() => scale);
+                }
+                return value;
+              }}
             />
+
             <ReferenceLine
               y={0}
               stroke={theme === "dark" ? "#fff" : "#000"}
@@ -183,7 +177,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               itemStyle={{ color: "#fff" }}
             />
             <ReferenceLine y={0} stroke={"#fff"} strokeWidth={1} />
-            <Bar
+            {/* <Bar
               dataKey="value"
               barSize={barSize}
               shape={<CustomBar />}
@@ -217,6 +211,48 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                       fill={textColor}
                       fontSize={12}
                       transform={`rotate(-90, ${x + width / 2}, ${textY})`}
+                    >
+                      {value}
+                    </text>
+                  );
+                }}
+              />
+            </Bar> */}
+            {/* <XAxis
+              dataKey="name"
+              interval={0}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: theme === "dark" ? "#fff" : "#000", fontSize: 12 }}
+            /> */}
+
+            <Bar dataKey="value" barSize={barSize} shape={<CustomBar />}>
+              {sectorWisePercentageChange.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.value >= 0 ? "#0256F5" : "#95025A"}
+                />
+              ))}
+
+              <LabelList
+                dataKey="name"
+                content={({ x, y, width, value }) => {
+                  const isNegative = value < 0;
+                  const offset = 12; // distance from x-axis
+
+                  // y here is top of the bar; ReferenceLine at 0 is in the middle,
+                  // so for positive bars the x-axis is below top, for negative above.
+                  const textY = isNegative ? y - offset : y + offset;
+
+                  const textColor = theme === "dark" ? "#FFF" : "#000";
+
+                  return (
+                    <text
+                      x={x + width / 2}
+                      y={textY}
+                      textAnchor="middle"
+                      fill={textColor}
+                      fontSize={12}
                     >
                       {value}
                     </text>
