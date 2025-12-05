@@ -62,7 +62,7 @@ const Header = () => {
             {token ? (
               <button
                 onClick={() => navigate("/dashboard")}
-                className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-3 py-3 rounded-[20px] bg-blue-600 hover:brightness-125"
+                className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white"
               >
                 Dashboard
               </button>

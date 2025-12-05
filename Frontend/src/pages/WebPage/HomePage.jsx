@@ -19,7 +19,7 @@ const HomePage = () => {
         <div className="blue-blur-circle" />
         <div className="flex flex-col items-center justify-center mt-40 space-y-12 md:w-[70%] sm:w-[90%] w-full mx-auto">
           <img src={AiStar} alt="" />
-          <h1 className="text-primary font-extrabold md:text-6xl text-4xl text-center">
+          <h1 className="text-primary font-extrabold md:text-4xl text-4xl text-center">
             INDIA’s FIRST AI OPTIONS ANALYSER and STOCK SCREENER
           </h1>
           <p className="text-[#A6AAB2] font-sm text-center">
