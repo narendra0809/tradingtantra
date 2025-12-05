@@ -147,9 +147,11 @@ const AIOptionInsiderPage = () => {
     });
   }, [selectedIndex, selectedExpiry, selectedInterval, socket]);
   console.log(error);
-
+  console.log(theme);
   return (
-    <section className={`mt-8 w-full p-[3px] rounded-2xl gradient-box`}>
+    <section
+      className={`mt-8 w-full p-[3px] rounded-2xl  dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)]`}
+    >
       <div className="rounded-2xl bg-db-primary-light  dark:bg-db-primary p-5 flex flex-col gap-6">
         {/* top header + controls */}
         <div className="flex flex-col-reverse md:flex-row justify-between gap-4">

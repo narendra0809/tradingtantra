@@ -157,7 +157,9 @@ function OverallSentiments({ data, theme }) {
       style={{ backgroundColor: color, borderRadius: "20px" }}
     >
       <span className={`text-capitalize flex items-center px-2 py-2 gap-2`}>
-        <span style={{ color: textColor }}>{text}</span>
+        <span style={{ color: textColor }} className="uppercase">
+          {text}
+        </span>
       </span>
     </div>
   );
@@ -197,7 +199,9 @@ function Badge({ analysis, theme }) {
       <span
         className={`badge text-capitalize flex items-center px-2 py-2 gap-2`}
       >
-        <span style={{ color: textColor }}>{text}</span>
+        <span style={{ color: textColor }} className="uppercase text-sm">
+          {text}
+        </span>
         {iconClass}
       </span>
     </div>
@@ -239,7 +243,7 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
     return <div className="text-sm text-gray-500">No data to show.</div>;
   }
   return (
-    <div className="rounded-2xl w-full h-[550px] overflow-hidden dark:gradient-box p-px">
+    <div className="rounded-2xl w-full h-[550px] overflow-hidden dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)] p-px">
       <div className="w-full h-full overflow-x-auto overflow-y-auto scrollbar-hidden px-5 pt-5 bg-db-secondary-light dark:bg-db-secondary">
         {!isSubscribed ? (
           <Lock />
@@ -248,16 +252,20 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
             <thead>
               <tr>
                 <th className="p-2 text-left">Time Range</th>
+                <th className="p-2">Strike</th>
                 <th className="p-2 text-center">Call Analysis</th>
                 <th className="p-2 text-center">Call Numbers</th>
-                <th className="p-2">Strike</th>
                 <th className="p-2 text-center">Overall Sentiments</th>
-                <th className="p-2 text-center">Put Analysis</th>
                 <th className="p-2 text-center">Put Numbers</th>
+                <th className="p-2 text-center">Put Analysis</th>
               </tr>
               <tr>
                 <td colSpan={7} className="p-0">
-                  <div className="h-px w-full gradient-line my-5" />
+                  <div
+                    className={`h-px w-full ${
+                      theme === "dark" ? "gradient-line" : "bg-gray-400"
+                    } my-5`}
+                  />
                 </td>
               </tr>
             </thead>
@@ -266,6 +274,9 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
                 <tr key={idx}>
                   <td className="p-2 text-xs md:text-[16px] dark:text-white">
                     {r.prevTimestamp} - {r.nowTimestamp}
+                  </td>{" "}
+                  <td className="p-2 text-center font-mono text-[#0256F5]">
+                    {r.strikePrice}
                   </td>
                   <td className="p-2 text-center">
                     <Badge analysis={r.call} theme={theme} />
@@ -273,17 +284,14 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
                   <td className="p-2 text-center">
                     <NumericDetails a={r.call} />
                   </td>
-                  <td className="p-2 text-center font-mono text-[#0256F5]">
-                    {r.strikePrice}
-                  </td>
                   <td className="p-2 text-center font-mono">
                     <OverallSentiments data={r} theme={theme} />
                   </td>
                   <td className="p-2 text-center align-top">
-                    <Badge analysis={r.put} theme={theme} />
+                    <NumericDetails a={r.put} />
                   </td>
                   <td className="p-2 text-center align-top">
-                    <NumericDetails a={r.put} />
+                    <Badge analysis={r.put} theme={theme} />
                   </td>
                 </tr>
               ))}

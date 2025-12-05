@@ -12,6 +12,12 @@ import { DiJava } from "react-icons/di";
 const BenefitCards = () => {
   const cardData = [
     {
+      // TODO : ICON UPDATE
+      img: Journal,
+      title: "AI OPTION INSIDER",
+      desc: "Gives in depth INSIGHTS of options in live market",
+    },
+    {
       img: Journal,
       title: "Trading Journal",
       desc: "Keep log of all your trades,Learn by your mistakes",
@@ -60,7 +66,10 @@ const BenefitCards = () => {
   return (
     <>
       {cardData.map((card, index) => (
-        <div key={index} className="flex gap-4 px-2 py-3 font-abcRepro border-[0.5px]  border-primary bg-[#000517] rounded-2xl items-center">
+        <div
+          key={index}
+          className="flex gap-4 px-2 py-3 font-abcRepro border-[0.5px]  border-primary bg-[#000517] rounded-2xl items-center"
+        >
           <div>
             <img src={card.img} className="w-24 h-24" />
           </div>

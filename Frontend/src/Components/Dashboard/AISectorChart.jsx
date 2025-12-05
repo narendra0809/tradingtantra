@@ -112,9 +112,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
 
   return (
     <div
-      className={`w-full overflow-x-auto overflow-y-hidden bg-[#EEEEEE] ${
-        isMobile ? "h-[350px]" : "h-[500px]"
-      }`}
+      className={`w-full overflow-x-auto overflow-y-hidden bg-[#EEEEEE] ${"h-[500px]"}`}
     >
       <div className="min-w-[800px] h-full dark:bg-db-secondary bg-[#EEEEEE] p-3 rounded-lg shadow-lg">
         <ResponsiveContainer width="100%" height={450}>
@@ -177,7 +175,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
               itemStyle={{ color: "#fff" }}
             />
             <ReferenceLine y={0} stroke={"#fff"} strokeWidth={1} />
-            {/* <Bar
+            <Bar
               dataKey="value"
               barSize={barSize}
               shape={<CustomBar />}
@@ -191,7 +189,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                 />
               ))}
 
-              <LabelList
+              {/* <LabelList
                 dataKey="name"
                 content={({ x, y, width, height, value }) => {
                   const isNegative = height < 0;
@@ -216,17 +214,17 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                     </text>
                   );
                 }}
-              />
-            </Bar> */}
-            {/* <XAxis
+              /> */}
+            </Bar>
+            <XAxis
               dataKey="name"
               interval={0}
               tickLine={false}
               axisLine={false}
               tick={{ fill: theme === "dark" ? "#fff" : "#000", fontSize: 12 }}
-            /> */}
+            />
 
-            <Bar dataKey="value" barSize={barSize} shape={<CustomBar />}>
+            {/* <Bar dataKey="value" barSize={barSize} shape={<CustomBar />}>
               {sectorWisePercentageChange.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
@@ -259,7 +257,7 @@ const AISectorChart = ({ data, handleGoToTable }) => {
                   );
                 }}
               />
-            </Bar>
+            </Bar> */}
           </BarChart>
         </ResponsiveContainer>
       </div>

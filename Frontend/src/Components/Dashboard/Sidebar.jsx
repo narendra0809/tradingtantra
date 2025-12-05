@@ -66,7 +66,7 @@ const Sidebar = () => {
       ],
     },
     {
-      label: "STOCKS",
+      label: "INTRADAY STOCKS",
       items: [
         {
           icon: marketDepth,
@@ -88,7 +88,16 @@ const Sidebar = () => {
           label: "AI Swing Analysis",
           path: "/dashboard/swing-trades",
         },
-        
+      ],
+    },
+    {
+      label: "SWING",
+      items: [
+        {
+          icon: AiSwing,
+          label: "AI Swing Analysis",
+          path: "/dashboard/swing-trades",
+        },
       ],
     },
     {

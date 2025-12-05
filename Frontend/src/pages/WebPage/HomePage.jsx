@@ -22,7 +22,7 @@ const HomePage = () => {
         <div className="flex flex-col items-center justify-center mt-40 space-y-12 md:w-[70%] sm:w-[90%] w-full mx-auto">
           <img src={AiStar} alt="" />
           <h1 className="text-primary font-extrabold md:text-6xl text-4xl text-center">
-            India’s First AI Stock Screener
+            INDIA’s FIRST AI OPTIONS ANALYSER and STOCK SCREENER
           </h1>
           <p className="text-[#A6AAB2] font-sm text-center">
             Step into the world of trading excellence and seize every
@@ -148,7 +148,7 @@ const HomePage = () => {
           </div>
         </div>
 
-        <h2 className="font-bold md:text-3xl sm:text-2xl text-xl mt-10 ">
+        {/* <h2 className="font-bold md:text-3xl sm:text-2xl text-xl mt-10 ">
           Unlock Everything with Tutorial Videos
         </h2>
         <div className="grid md:grid-cols-3 grid-cols-2  gap-y-5 md:gap-x-10 gap-x-3 lg:w-3/4 md:w-[90%] w-full  mx-auto xl:ml-67 ml-5 mt-10">
@@ -160,7 +160,7 @@ const HomePage = () => {
               </p>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* testimonial */}

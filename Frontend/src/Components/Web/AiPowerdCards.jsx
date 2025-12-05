@@ -9,9 +9,9 @@ const AiPowerdCards = () => {
       img: AiPoweredCardImage1,
       title: "AI Market Depth",
       data: [
-        "Track deep market insights",
-        "Super Refined AI filtered Momentum Stocks",
-        "In Depth Analysis through AI",
+        "Gives and compares past data with current data through AI",
+        "Keep a watch on what BIG PLAYERS are doing in LIVE MARKET in STOCKS",
+        "Custom STOCK screeners for making perfect trades",
       ],
     },
     {
@@ -24,12 +24,13 @@ const AiPowerdCards = () => {
       ],
     },
     {
+      // TODO : ICON UPDATE
       img: AiSectorAnalysisImg,
-      title: "AI Sector Analysis",
+      title: "AI OPTION INSIDER",
       data: [
-        "Get in Depth Sectoral Analysis",
-        "Track performance of all Sectors",
-        "Easy to understand graphical representation",
+        "Gives in depth INSIGHTS of options in live market",
+        "Keep a watch on what BIG PLAYERS are doing in LIVE MARKET in INDEX",
+        "Advanced OPTIONS analysis using AI",
       ],
     },
     {
