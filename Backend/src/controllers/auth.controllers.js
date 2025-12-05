@@ -178,6 +178,7 @@ const sendOtpForResetPassword = async (req, res) => {
 
     res.status(200).json({ success: true, message: "otp successfully send!" });
   } catch (error) {
+    console.log(JSON.stringify(error));
     return res.status(500).json({
       success: false,
       message: "Internal server error in sending otp",

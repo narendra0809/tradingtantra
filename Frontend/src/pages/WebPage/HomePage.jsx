@@ -1,17 +1,15 @@
+import { LuLogIn } from "react-icons/lu";
+import { PiFireSimpleFill } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
+import AiPowerdCard from "../../Components/Web/AiPowerdCards";
+import BenefitCards from "../../Components/Web/BenefitCards";
+import TestimonialsCarousel from "../../Components/Web/TestimonialsCarousel";
 import AiStar from "../../assets/Images/AiIntegrationImg.png";
 import AiStock from "../../assets/Images/AiIntegrationStartImg.svg";
 import DoorImg from "../../assets/Images/DoorImg.svg";
 import GearImg from "../../assets/Images/GearImg.svg";
 import Target from "../../assets/Images/Target.svg";
 import laptopImg from "../../assets/Images/laptopImg.png";
-import done from "../../assets/Images/done.svg";
-import { PiFireSimpleFill } from "react-icons/pi";
-import { LuLogIn } from "react-icons/lu";
-import AiPowerdCard from "../../Components/Web/AiPowerdCards";
-import BenefitCards from "../../Components/Web/BenefitCards";
-import TestimonialsCarousel from "../../Components/Web/TestimonialsCarousel";
-import { Features } from "../../constants/constants";
-import { useNavigate } from "react-router-dom";
 const HomePage = () => {
   const navigate = useNavigate();
   return (

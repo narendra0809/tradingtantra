@@ -7,7 +7,9 @@ import { IoClose } from "react-icons/io5";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   const menuItems = [
@@ -57,14 +59,50 @@ const Header = () => {
 
           {/* Buttons */}
           <div className="flex sm:gap-5 gap-4 items-center">
+            {token ? (
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-3 py-3 rounded-[20px] bg-blue-600 hover:brightness-125"
+              >
+                Dashboard
+              </button>
+            ) : (
+              // <button
+              //   onClick={() => navigate("/login")}
+              //   className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-3 py-3 rounded-[20px] bg-blue-600 hover:brightness-125"
+              // >
+              //   Login
+              // </button>
+              <button
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
+                className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center hidden"
+              >
+                <motion.span
+                  initial={{ y: 0, opacity: 1 }}
+                  animate={
+                    hovered ? { y: -20, opacity: 0 } : { y: 0, opacity: 1 }
+                  }
+                  transition={{ duration: 0.3 }}
+                  className="absolute"
+                >
+                  <Link to="/login">Login</Link>
+                </motion.span>
+
+                <motion.span
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={
+                    hovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
+                  }
+                  transition={{ duration: 0.3 }}
+                  className="absolute"
+                >
+                  <Link to="/login">Login</Link>
+                </motion.span>
+              </button>
+            )}
             <button
-              onClick={() => navigate("/login")}
-              className="neon-button text-[11px] md:text-lg lg:text-lg bg-black cursor-pointer font-semibold px-3 py-3 rounded-[20px]"
-            >
-              Login
-            </button>
-            <button
-              className="neon-button text-nowrap text-[11px] md:text-lg lg:text-lg bg-black cursor-pointer font-semibold px-3 py-3 rounded-[20px]"
+              className="block w-full h-full px-3 py-3 rounded-[calc(0.5rem-0.9px)] bg-[#0256F5] text-white"
               onClick={() => {
                 const section = document.getElementById("buy-now-section");
                 if (section) {

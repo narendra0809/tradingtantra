@@ -56,19 +56,13 @@ const ForgetPassword = () => {
         </button>
       </form>
       <div className="w-full flex items-center my-4">
-        <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        <div className="grow border-t border-[#E8ECF4]"></div>
         <span className="mx-4 text-gray-500">Or Login with</span>
-        <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        <div className="grow border-t border-[#E8ECF4]"></div>
       </div>
-      <div className="flex justify-between">
-        <button>
-          <img src={facebook} alt="" />
-        </button>
+      <div className="flex justify-center">
         <button>
           <img src={google} alt="" />
-        </button>
-        <button>
-          <img src={apple} alt="" />
         </button>
       </div>
       <div className="mt-5 w-full flex justify-center">

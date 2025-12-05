@@ -90,11 +90,11 @@ const Header = () => {
         </div>
       )}
 
-      <div className="w-1/2 flex items-center gap-2">
+      <div className="w-1/2 flex items-center gap-7">
         <button
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="relative overflow-hidden bg-gradient-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center hidden"
+          className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center hidden"
         >
           <motion.span
             initial={{ y: 0, opacity: 1 }}
@@ -129,12 +129,14 @@ const Header = () => {
             className="w-25 sm:hidden block"
           />
         ) : (
-          <button
-            onClick={() => navigate("/dashboard/plan")}
-            className="ml-2 neon-button p-3 rounded-lg"
-          >
-            Buy Now
-          </button>
+          <div className="p-[0.9px] rounded-lg bg-linear-to-b from-[#0A7CFF] to-transparent inline-block">
+            <button
+              onClick={() => navigate("/dashboard/plan")}
+              className="block w-full h-full px-3 py-3 rounded-[calc(0.5rem-0.9px)] bg-[#0256F5] text-white"
+            >
+              Buy Now
+            </button>
+          </div>
         )}
       </div>
 

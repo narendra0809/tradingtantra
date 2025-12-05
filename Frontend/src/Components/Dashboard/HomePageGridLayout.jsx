@@ -7,6 +7,8 @@ import profit from "../../assets/Images/Dashboard/homepage/profit.png";
 import graph from "../../assets/Images/Dashboard/homepage/graph.png";
 import learnBook from "../../assets/Images/Dashboard/homepage/learn-book.png";
 import ourStrategy from "../../assets/Images/Dashboard/homepage/over-strategy.png";
+import optionInsiderImg from "../../assets/Images/option-insider.png";
+
 import { useNavigate } from "react-router-dom";
 
 const HOME_CARDS = [
@@ -20,6 +22,17 @@ const HOME_CARDS = [
       "It identifies stocks where the big players are actively building positions.",
     buttonLabel: "AI Market Depth",
     to: "/dashboard/market-depth",
+  },
+  {
+    id: "ai-option-insider",
+    gridClass: "div1",
+    img: optionInsiderImg,
+    imgAlt: "Option Insider",
+    title: "AI Option Insider",
+    description:
+      "Gives in depth INSIGHTS of options in live market Keep a watch on what BIG PLAYERS are doing in LIVE MARKET in INDEX Advanced OPTIONS analysis using AI",
+    buttonLabel: "AI Option Insider",
+    to: "/dashboard/option-insider",
   },
   {
     id: "ai-sector-depth",

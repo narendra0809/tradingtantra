@@ -65,7 +65,6 @@ router.post("/logout", verifyUser, logout);
 router.post(
   "/otp",
   [check("email", "Please include a valid email").isEmail()],
-  verifyUser,
   sendOtpForResetPassword
 );
 
@@ -79,7 +78,6 @@ router.post(
       min: 6,
     }),
   ],
-  verifyUser,
   resetPassword
 );
 

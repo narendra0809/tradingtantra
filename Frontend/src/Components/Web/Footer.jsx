@@ -30,34 +30,46 @@ const Footer = () => {
         <div className="sm:w-96 w-65 space-y-8 ">
           {/* Conditionally Render Button */}
           <Link to={isDashboardRoute ? "/" : "/dashboard"}>
-            <button className="lg:ml-48 md:ml-40 sm:ml-35 ml-0 px-4 py-2 mb-10 not-dark:bg-primary-light bg-db-primary rounded-md font-normal lg:text-xl md:text-lg text-base text-white">
+            {/* <button className="lg:ml-48 md:ml-40 sm:ml-35 ml-0 px-4 py-2 mb-10 not-dark:bg-primary-light bg-db-primary rounded-md font-normal lg:text-xl md:text-lg text-base text-white">
               {isDashboardRoute ? "Go to Website" : "View Dashboard"}
-            </button>
+            </button> */}
           </Link>
 
           <div className="flex justify-between w-full items-start">
             <ul className="space-y-2">
               <h3 className="sm:text-base text-lg font-bold">Terms Of Use</h3>
               <Link to={"/disclaimer"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Disclaimer</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Disclaimer
+                </li>
               </Link>
               <Link to={"/refund-policy"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Refund Policy</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Refund Policy
+                </li>
               </Link>
               <Link to={"/disclosures"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Disclosures</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Disclosures
+                </li>
               </Link>
               <Link to={"/terms-and-condition"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Terms & Conditions</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Terms & Conditions
+                </li>
               </Link>
               <Link to={"/privacy-policy"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Privacy Policy</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Privacy Policy
+                </li>
               </Link>
             </ul>
             <ul className="space-y-2">
               <h3 className="sm:text-base text-lg font-bold">Company</h3>
               <Link to={"/"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">Home</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  Home
+                </li>
               </Link>
               <Link to={"/updates"}>
                 <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
@@ -75,7 +87,9 @@ const Footer = () => {
                 </li>
               </Link>
               <Link to={"/faq"}>
-                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">FAQ</li>
+                <li className="sm:text-base text-lg font-bold leading-6 tracking-widest">
+                  FAQ
+                </li>
               </Link>
             </ul>
           </div>

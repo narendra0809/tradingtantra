@@ -172,7 +172,7 @@ const AiSectorDepthPage = () => {
         </div>
       </section>
 
-      <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+      <section className="mt-8 dark:bg-linear-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
         <div className="dark:bg-[#000517] bg-primary-light rounded-lg p-2">
           <div className="p-2">
             <StrategyCard
@@ -181,7 +181,7 @@ const AiSectorDepthPage = () => {
               title={"AI Sector Depth Chart"}
             />
           </div>
-          <div className="w-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg bg-[#EEEEEE] ">
+          <div className="w-full dark:bg-linear-to-br from-[#00078F] to-[#01071C] p-px rounded-lg bg-[#EEEEEE] ">
             {!isSubscribed ? (
               <div className="w-full h-[300px]">
                 <Lock />

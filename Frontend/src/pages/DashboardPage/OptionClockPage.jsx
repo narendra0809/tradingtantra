@@ -551,24 +551,6 @@ const OptionClockPage = () => {
   const [socket, setSocket] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const getDefaultTimeRange = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = Math.floor(now.getMinutes() / 15) * 15;
-    const currentDecimal = parseFloat((hours + minutes / 60).toFixed(2));
-
-    const marketOpen = 9.25;
-    const marketClose = 15.5;
-
-    if (currentDecimal >= marketOpen && currentDecimal <= marketClose) {
-      const startTime = formatTime(marketOpen);
-      const currentTime = formatTime(currentDecimal);
-      return `${startTime}-${currentTime}`;
-    }
-
-    return "09:15-15:30";
-  };
-
   const formatTime = (decimalTime) => {
     const hours = Math.floor(decimalTime);
     const minutes = Math.round((decimalTime - hours) * 60);
@@ -637,6 +619,24 @@ const OptionClockPage = () => {
   );
 
   useEffect(() => {
+    const getDefaultTimeRange = () => {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = Math.floor(now.getMinutes() / 15) * 15;
+      const currentDecimal = parseFloat((hours + minutes / 60).toFixed(2));
+
+      const marketOpen = 9.25;
+      const marketClose = 15.5;
+
+      if (currentDecimal >= marketOpen && currentDecimal <= marketClose) {
+        const startTime = formatTime(marketOpen);
+        const currentTime = formatTime(currentDecimal);
+        return `${startTime}-${currentTime}`;
+      }
+
+      return "09:15-15:30";
+    };
+
     const subscribed = Cookies.get("isSubscribed") === "true";
     setIsSubscribed(subscribed);
 
@@ -855,7 +855,7 @@ const OptionClockPage = () => {
         />
       </section>
 
-      <section className="dark:bg-gradient-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
+      <section className="dark:bg-linear-to-br from-[#00078F] to-[#01071C] rounded-lg p-px mt-8">
         <div className="dark:bg-db-primary bg-primary-light rounded-lg lg:p-3 md:p-3 p-3">
           {!isSubscribed ? (
             <div className="flex flex-col items-center justify-center h-[600px] text-center p-8">
@@ -881,7 +881,7 @@ const OptionClockPage = () => {
                     </span>
                   </div>
 
-                  <div className="mt-2 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                  <div className="mt-2 dark:bg-linear-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
                     <OiClockChart
                       data={optionClockData.currData || []}
                       currentStrike={optionClockData.currentStrike}
@@ -890,8 +890,8 @@ const OptionClockPage = () => {
                 </div>
 
                 <div className="w-full mt-5 h-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                    <div className="dark:bg-db-secondary bg-primary-light rounded-lg p-3 min-h-[400px]">
+                  <div className="h-full dark:bg-linear-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                    <div className="dark:bg-db-secondary bg-primary-light rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-4">
                         <h2 className="text-3xl font-medium">
                           OI Net Position
@@ -906,8 +906,8 @@ const OptionClockPage = () => {
                     </div>
                   </div>
 
-                  <div className="h-full dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-                    <div className="dark:bg-db-secondary bg-primary-light px-3 rounded-lg h-full min-h-[400px]">
+                  <div className="h-full dark:bg-linear-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+                    <div className="dark:bg-db-secondary bg-primary-light px-3 rounded-lg h-full">
                       <div className="flex md:gap-2 gap-y-4 md:flex-row flex-col md:items-center md:justify-between p-2 mb-4">
                         <div className="flex gap-2 items-center text-xl">
                           <h2 className="text-3xl font-medium">Total OI</h2>

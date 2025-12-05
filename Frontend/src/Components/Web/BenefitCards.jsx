@@ -1,19 +1,17 @@
-import React from "react";
-import Journal from "../../assets/Images/tredingJournalImg.png";
-import search from "../../assets/Images/searchImg.png";
-import money from "../../assets/Images/moneyImg.png";
-import smallChart from "../../assets/Images/smallChartImg.png";
-import calculator from "../../assets/Images/calculatorImg.png";
-import videoImg from "../../assets/Images/videoImg.png";
 import FiiDii from "../../assets/Images/FiiDiiImg.png";
 import calander from "../../assets/Images/calanderImg.png";
-import { DiJava } from "react-icons/di";
+import calculator from "../../assets/Images/calculatorImg.png";
+import money from "../../assets/Images/moneyImg.png";
+import optionInsiderImg from "../../assets/Images/option-insider.png";
+import search from "../../assets/Images/searchImg.png";
+import smallChart from "../../assets/Images/smallChartImg.png";
+import Journal from "../../assets/Images/tredingJournalImg.png";
+import videoImg from "../../assets/Images/videoImg.png";
 
 const BenefitCards = () => {
   const cardData = [
     {
-      // TODO : ICON UPDATE
-      img: Journal,
+      img: optionInsiderImg,
       title: "AI OPTION INSIDER",
       desc: "Gives in depth INSIGHTS of options in live market",
     },

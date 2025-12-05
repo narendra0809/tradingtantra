@@ -132,7 +132,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
 
   return (
     <>
-      <div className="xl:w-[70%] w-[90%] mx-auto bg-white dark:bg-[#01071C] px-8 py-8 font-abcRepro space-y-10 rounded-xl border border-gray-200 dark:border-[#0256f550] ">
+      <div className="xl:w-[70%] w-[90%] mx-auto bg-gray-50 dark:bg-[#020417] px-8 py-8 font-abcRepro space-y-10 rounded-2xl">
         <div className="flex items-start justify-between w-full">
           <div className="flex flex-col space-y-5 ">
             <h3 className="md:text-5xl sm:text-3xl text-xl font-bold text-black dark:text-white">
@@ -197,7 +197,10 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
                   </option>
                 ))
               ) : (
-                <option disabled className="bg-white dark:bg-[#000A2D] text-black dark:text-white">
+                <option
+                  disabled
+                  className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
+                >
                   No states available
                 </option>
               )}

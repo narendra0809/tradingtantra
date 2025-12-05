@@ -1,8 +1,8 @@
-import React from "react";
 import AiPoweredCardImage1 from "../../assets/Images/AiPoweredCardImage1.png";
-import moneyImg from "../../assets/Images/moneyImg.png";
-import AiSectorAnalysisImg from "../../assets/Images/AiSectorAnalysisImg.png";
 import SwingTradesImg from "../../assets/Images/SwingTradesImg.png";
+import moneyImg from "../../assets/Images/moneyImg.png";
+import optionInsiderImg from "../../assets/Images/option-insider.png";
+
 const AiPowerdCards = () => {
   const cardData = [
     {
@@ -24,8 +24,7 @@ const AiPowerdCards = () => {
       ],
     },
     {
-      // TODO : ICON UPDATE
-      img: AiSectorAnalysisImg,
+      img: optionInsiderImg,
       title: "AI OPTION INSIDER",
       data: [
         "Gives in depth INSIGHTS of options in live market",
