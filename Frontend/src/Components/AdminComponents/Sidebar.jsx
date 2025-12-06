@@ -14,6 +14,7 @@ import strategyImg from "../../assets/adminImages/sidebar/strategy.png";
 import profileImg from "../../assets/adminImages/sidebar/profile.png";
 import settingImg from "../../assets/adminImages/sidebar/setting.png";
 import lockImg from "../../assets/adminImages/sidebar/lock.png";
+import Coupon from "../../assets/adminImages/sidebar/discount.svg";
 // import { FaThreads } from "react-icons/fa6";
 import { VscThreeBars } from "react-icons/vsc";
 import { RxCross2 } from "react-icons/rx";
@@ -26,6 +27,7 @@ const menuItems = [
     path: "manage-users",
   },
   { name: "Manage Orders", icon: ordersImg, path: "manage-orders" },
+  { name: "Manage Coupon", icon: Coupon, path: "coupon" },
   { name: "Feedback", icon: feedbackImg, path: "feedback" },
   { name: "Ticker", icon: tickerImg, path: "ticker" },
   { name: "Payment Method", icon: paymentImg, path: "payment-method" },

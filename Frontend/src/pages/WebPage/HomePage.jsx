@@ -1,6 +1,6 @@
 import { LuLogIn } from "react-icons/lu";
 import { PiFireSimpleFill } from "react-icons/pi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AiPowerdCard from "../../Components/Web/AiPowerdCards";
 import BenefitCards from "../../Components/Web/BenefitCards";
 import TestimonialsCarousel from "../../Components/Web/TestimonialsCarousel";
@@ -140,9 +140,11 @@ const HomePage = () => {
                 ₹ 3,999
               </p>
             </div>
-            <button className="w-full md:h-15 h-10 bg-primary rounded-lg md:mt-10 mt-5 md:text-2xl text-xl">
-              Buy Now
-            </button>
+            <Link to="/dashboard/plan">
+          <button className="w-full md:h-15 h-10 bg-primary rounded-lg md:mt-10 mt-5 md:text-2xl text-xl">
+            Buy Now
+          </button>
+        </Link>
           </div>
         </div>
 

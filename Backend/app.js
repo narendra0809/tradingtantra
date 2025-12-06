@@ -28,6 +28,7 @@ import adminTickerRoutes from "./src/routes/admin_routes/adminTicker.route.js";
 import updatesRoutes from "./src/routes/admin_routes/adminUpdates.route.js";
 import transactionsRoutes from "./src/routes/admin_routes/transactions.route.js";
 import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
+import adminCouponRoutes from "./src/routes/admin_routes/adminCoupon.route.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import holidaysRoutes from "./src/routes/holidays.route.js";
@@ -36,6 +37,7 @@ import optionClockRoutes from "./src/routes/optionClock.js";
 import { optionInsiderRoute } from "./src/routes/optionInsider.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
+import GetCoupon from "./src/routes/Coupon.route.js";
 import subcriptionValidityRoutes from "./src/routes/subcriptionValidity.route.js";
 import swingTradeRoutes from "./src/routes/SwingTrades.routes.js";
 import userRoutes from "./src/routes/users.route.js";
@@ -93,7 +95,8 @@ app.use(
   optionClockRoutes,
   holidaysRoutes,
   optionInsiderRoute,
-  optionClockRouter
+  optionClockRouter,
+  GetCoupon
 );
 
 // Admin Routes :
@@ -110,7 +113,8 @@ app.use(
   adminImageRoutes,
   adminTickerRoutes,
   adminServerRoutes,
-  adminStockRoutes
+  adminStockRoutes,
+  adminCouponRoutes
 );
 
 app.get("/api/option-chain/trigger", async (req, res) => {

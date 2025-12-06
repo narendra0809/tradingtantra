@@ -12,32 +12,22 @@ import { paymentSchema } from "../../../validators/validator";
 import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
 
-/**
- * BuyPlanPage — reads global theme from:
- * 1) localStorage.theme
- * 2) document.documentElement.classList.contains('dark')
- * 3) prefers-color-scheme
- *
- * Also listens to `storage` events (so header toggle updating localStorage.theme will update this component).
- */
+const PLAN_AMOUNT = 3388.98;
+const GST_AMOUNT = 610.02;
+const TOTAL_AMOUNT = 3999;
 
 const BuyPlanPage = ({ onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();
+  const { fetchData } = useFetchData();
+  const theme = useSelector((state) => state.theme.theme);
+
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [countryCode, setCountryCode] = useState("");
-  const [isChecked, setIsChecked] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedState, setSelectedState] = useState("");
-  const [formErrors, setFormErrors] = useState({
-    firstName: "",
-    lastName: "",
-    country: "",
-    state: "",
-    phoneNumber: "",
-    email: "",
-    confirmEmail: "",
-  });
+  const [isChecked, setIsChecked] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,119 +37,222 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     email: "",
     confirmEmail: "",
   });
-  const { fetchData } = useFetchData();
+  const [formErrors, setFormErrors] = useState({});
 
-  const theme = useSelector((state) => state.theme.theme);
+  // coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [couponPercent, setCouponPercent] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponMsg, setCouponMsg] = useState("");
 
-  // Fetch countries data
+  // computed payable
+  const payableTotal =
+    TOTAL_AMOUNT - (TOTAL_AMOUNT * Number(couponPercent || 0)) / 100;
+
+  // simple helpers
+  const inputClass = `${theme === "dark"
+    ? "bg-[#000A2D] text-white placeholder-gray-400"
+    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
+  } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
+
+  const selectClass = `${theme === "dark"
+    ? "bg-[#000A2D] text-white"
+    : "bg-[#F3F6F9] text-gray-800"
+  } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
+
+  const themeClass = (darkCls, lightCls) =>
+    theme === "dark" ? darkCls : lightCls;
+
+  // --------- LOCATION DATA ---------
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           "https://countriesnow.space/api/v0.1/countries"
         );
-        setCountries(response.data.data);
-      } catch (error) {
-        console.error("Error fetching country data:", error);
+        setCountries(res.data.data || []);
+      } catch (err) {
+        console.error("Error fetching country data:", err);
       }
     };
     fetchCountries();
   }, []);
 
-  // Fetch states based on selected country
   useEffect(() => {
     const fetchStates = async () => {
-      if (selectedCountry) {
-        try {
-          const response = await axios.post(
-            "https://countriesnow.space/api/v0.1/countries/states",
-            { country: selectedCountry }
-          );
-          setStates(response.data.data.states);
-        } catch (error) {
-          console.error("Error fetching state data:", error);
-        }
-      } else {
+      if (!selectedCountry) {
         setStates([]);
+        return;
+      }
+      try {
+        const res = await axios.post(
+          "https://countriesnow.space/api/v0.1/countries/states",
+          { country: selectedCountry }
+        );
+        setStates(res.data.data?.states || []);
+      } catch (err) {
+        console.error("Error fetching state data:", err);
       }
     };
     fetchStates();
   }, [selectedCountry]);
 
   useEffect(() => {
-    const fetchCountryCode = async () => {
-      if (selectedCountry) {
-        try {
-          const response = await axios.post(
-            "https://countriesnow.space/api/v0.1/countries/codes",
-            { country: selectedCountry }
-          );
-          setCountryCode(response.data.data?.dial_code || "");
-        } catch (error) {
-          console.error("Error fetching country code:", error);
-        }
-      } else {
+    const fetchCode = async () => {
+      if (!selectedCountry) {
         setCountryCode("");
+        return;
+      }
+      try {
+        const res = await axios.post(
+          "https://countriesnow.space/api/v0.1/countries/codes",
+          { country: selectedCountry }
+        );
+        setCountryCode(res.data.data?.dial_code || "");
+      } catch (err) {
+        console.error("Error fetching country code:", err);
       }
     };
-    fetchCountryCode();
+    fetchCode();
   }, [selectedCountry]);
 
   useEffect(() => {
-    setSelectedCountry("India");
+    if (countries.length) setSelectedCountry("India");
   }, [countries]);
 
-  const handleCountryChange = (event) => {
-    setFormData({ ...formData, country: event.target.value });
-    setSelectedCountry(event.target.value);
+  // --------- HANDLERS ---------
+  const handleCountryChange = (e) => {
+    const value = e.target.value;
+    setSelectedCountry(value);
     setSelectedState("");
     setCountryCode("");
+    setFormData((prev) => ({ ...prev, country: value }));
   };
 
-  const handleStateChange = (event) => {
-    setFormData({ ...formData, state: event.target.value });
-    setSelectedState(event.target.value);
+  const handleStateChange = (e) => {
+    const value = e.target.value;
+    setSelectedState(value);
+    setFormData((prev) => ({ ...prev, state: value }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: "" });
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  const handleCheck = (e) => {
+    setIsChecked(e.target.checked);
+    setFormErrors((prev) => ({ ...prev, isAgreed: "" }));
+  };
+
+  // --------- COUPON VERIFY ---------
+  // const handleApplyCoupon = async () => {
+  //   setCouponError("");
+  //   setCouponMsg("");
+  //   setCouponPercent(0);
+
+  //   const code = couponCode.trim();
+  //   if (!code) {
+  //     setCouponError("Please enter coupon code");
+  //     return;
+  //   }
+
+  //   try {
+  //     const res = await fetchData(
+  //       `verify-coupon?code=${encodeURIComponent(code)}`,
+  //       "GET"
+  //     );
+
+  //     if (res.status !== 200 || !res.data?.success) {
+  //       setCouponError(res.data?.message || "Invalid or expired coupon");
+  //       return;
+  //     }
+
+  //     const { coupon } = res.data;
+  //     setCouponPercent(coupon.discountPercent);
+  //     setCouponMsg(
+  //       `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
+  //     );
+  //   } catch (err) {
+  //     console.error("Error verifying coupon:", err);
+  //     setCouponError("Invalid or expired coupon");
+  //   }
+  // };
+// --------- COUPON VERIFY ---------
+const handleApplyCoupon = async () => {
+  setCouponError("");
+  setCouponMsg("");
+  setCouponPercent(0);
+
+  const code = couponCode.trim();
+  if (!code) {
+    setCouponError("Please enter coupon code");
+    return;
+  }
+
+  try {
+    const res = await fetchData(
+      `verify-coupon?code=${encodeURIComponent(code)}`,
+      "GET"
+    );
+
+    if (res.status !== 200 || !res.data?.success) {
+      setCouponError("Invalid or expired coupon");
+      return;
+    }
+
+    const { coupon } = res.data;
+    setCouponPercent(coupon.discountPercent);
+    setCouponMsg(
+      `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
+    );
+  } catch (err) {
+    console.error("Error verifying coupon:", err);
+    // catch me bhi same message
+    setCouponError("Invalid or expired coupon");
+  }
+};
+
+  // --------- PAYMENT ---------
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!isChecked) {
-      setFormErrors({
-        ...formErrors,
+      setFormErrors((prev) => ({
+        ...prev,
         isAgreed: "Please agree to terms & conditions",
-      });
+      }));
       return;
     }
-    const { data: formValues, error } = paymentSchema.safeParse(formData);
+
+    const { data: validData, error } = paymentSchema.safeParse(formData);
     if (error) {
-      const errorMessages = error.errors;
-      const errorData = {};
-      errorMessages.map((err) => {
-        errorData[err.path[0]] = err.message;
+      const errObj = {};
+      error.errors.forEach((err) => {
+        errObj[err.path[0]] = err.message;
       });
-      setFormErrors(errorData);
+      setFormErrors(errObj);
       return;
     }
+
     try {
+      // optional: send couponCode to backend if you want to use there
+      const payload = { ...validData, couponCode: couponCode.trim() || null };
+
       const res = await fetchData(
         `payment/createorder?renew=${false}`,
         "POST",
-        formValues
+        payload
       );
-      if (res.status !== 200) {
-        throw new Error("Failed to create order !");
-      }
+      if (res.status !== 200) throw new Error("Failed to create order !");
+
       const data = res.data;
       const RAZOR_KEY = data.key;
+
       const options = {
         key: RAZOR_KEY,
-        amount: data.data.amount,
+        amount: data.data.amount, // backend final amount
         currency: "INR",
         name: "Trading Tantra",
         description: "Test Transaction",
@@ -174,20 +267,18 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             const isVerified = await verifyPayment(response);
             if (isVerified) {
               Cookies.set("isSubscribed", true);
-              onPaymentSuccess(); // Trigger parent refetch and rerender
+              onPaymentSuccess();
             } else {
               alert("Payment verification failed. Please contact support.");
             }
-          } catch (error) {
-            console.error("Payment verification error:", error);
+          } catch (err) {
+            console.error("Payment verification error:", err);
             alert(
               "Error verifying payment. Please check your subscription status."
             );
           }
         },
-        theme: {
-          color: "#F37254",
-        },
+        theme: { color: "#F37254" },
       };
 
       const rzp = new Razorpay(options);
@@ -195,8 +286,8 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
         alert(`Payment failed: ${response.error.description}`);
       });
       rzp.open();
-    } catch (error) {
-      console.log("Error doing payment : ", error.message);
+    } catch (err) {
+      console.log("Error doing payment : ", err.message);
     }
   };
 
@@ -207,25 +298,15 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
         "POST",
         paymentResponse
       );
-      if (res.status !== 200) {
-        throw new Error("Failed to verify payment");
-      }
+      if (res.status !== 200) throw new Error("Failed to verify payment");
       return res.data.success;
-    } catch (error) {
-      console.log("Error verifing payment : ", error);
+    } catch (err) {
+      console.log("Error verifing payment : ", err);
       return false;
     }
   };
 
-  const handleCheck = (e) => {
-    setIsChecked(e.target.checked);
-    setFormErrors({ ...formErrors, isAgreed: "" });
-  };
-
-  // Utility to pick classes by theme
-  const themeClass = (darkCls, lightCls) =>
-    theme === "dark" ? darkCls : lightCls;
-
+  // --------- UI ---------
   return (
     <div
       className={`flex flex-col lg:flex-row ${
@@ -234,7 +315,8 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
           : "bg-gray-50 min-h-screen py-8"
       } max-w-6xl mx-auto px-8 rounded-2xl`}
     >
-      <div className={`lg:w-3/5 p-6 lg:p-8`}>
+      {/* LEFT: FORM */}
+      <div className="lg:w-3/5 p-6 lg:p-8">
         <div className="mb-8">
           <h3
             className={`${themeClass(
@@ -268,18 +350,15 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* First Name */}
             <div className="space-y-1">
               <input
-                onChange={handleChange}
                 name="firstName"
                 type="text"
                 placeholder="First Name*"
                 value={formData.firstName}
-                className={`${
-                  theme === "dark"
-                    ? "bg-[#000A2D] text-white placeholder-gray-400"
-                    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
+                onChange={handleChange}
+                className={inputClass}
               />
               {formErrors.firstName && (
                 <span className="text-red-400 text-sm">
@@ -288,18 +367,15 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               )}
             </div>
 
+            {/* Last Name */}
             <div className="space-y-1">
               <input
-                type="text"
-                onChange={handleChange}
                 name="lastName"
-                value={formData.lastName}
+                type="text"
                 placeholder="Last Name*"
-                className={`${
-                  theme === "dark"
-                    ? "bg-[#000A2D] text-white placeholder-gray-400"
-                    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
+                value={formData.lastName}
+                onChange={handleChange}
+                className={inputClass}
               />
               {formErrors.lastName && (
                 <span className="text-red-400 text-sm">
@@ -308,55 +384,49 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               )}
             </div>
 
+            {/* Country */}
             <div className="space-y-1">
               <select
                 name="country"
-                className={`${
-                  theme === "dark"
-                    ? "bg-[#000A2D] text-white"
-                    : "bg-[#F3F6F9] text-gray-800"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
                 value={selectedCountry}
                 onChange={handleCountryChange}
+                className={selectClass}
               >
                 <option value="" disabled className="text-gray-400">
                   Select Country
                 </option>
-                {countries.map((country, index) => (
+                {countries.map((c, idx) => (
                   <option
-                    key={index}
-                    value={country.country}
+                    key={idx}
+                    value={c.country}
                     className={theme === "dark" ? "bg-[#000A2D]" : ""}
                   >
-                    {country.country}
+                    {c.country}
                   </option>
                 ))}
               </select>
             </div>
 
+            {/* State */}
             <div className="space-y-1">
               <select
                 name="state"
-                className={`${
-                  theme === "dark"
-                    ? "bg-[#000A2D] text-white"
-                    : "bg-[#F3F6F9] text-gray-800"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] disabled:opacity-50`}
                 value={selectedState}
                 onChange={handleStateChange}
                 disabled={!selectedCountry}
+                className={`${selectClass} disabled:opacity-50`}
               >
                 <option value="" disabled className="text-gray-400">
                   Select State
                 </option>
-                {states.length > 0 ? (
-                  states.map((state, index) => (
+                {states.length ? (
+                  states.map((s, idx) => (
                     <option
-                      key={index}
-                      value={state.name}
+                      key={idx}
+                      value={s.name}
                       className={theme === "dark" ? "bg-[#000A2D]" : ""}
                     >
-                      {state.name}
+                      {s.name}
                     </option>
                   ))
                 ) : (
@@ -370,6 +440,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               </select>
             </div>
 
+            {/* Phone */}
             <div className="space-y-1 md:col-span-2">
               <div className="flex items-center gap-2">
                 <div
@@ -384,53 +455,48 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                 <input
                   type="number"
                   name="phoneNumber"
-                  onChange={handleChange}
-                  value={formData.phoneNumber}
                   placeholder="Whatsapp Number*"
-                  className={`${
-                    theme === "dark"
-                      ? "bg-[#000A2D] text-white placeholder-gray-400"
-                      : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                  } flex-1 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
-                />
-                {formErrors.phoneNumber && (
-                  <span className="text-red-400 text-sm">
-                    {formErrors.phoneNumber}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-1 md:col-span-2">
-              <input
-                type="email"
-                onChange={handleChange}
-                name="email"
-                value={formData.email}
-                placeholder="G-Mail Id*"
-                className={`${
-                  theme === "dark"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className={`${theme === "dark"
                     ? "bg-[#000A2D] text-white placeholder-gray-400"
                     : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
-              />
-              {formErrors.email && (
-                <span className="text-red-400 text-sm">{formErrors.email}</span>
+                  } flex-1 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
+                />
+              </div>
+              {formErrors.phoneNumber && (
+                <span className="text-red-400 text-sm">
+                  {formErrors.phoneNumber}
+                </span>
               )}
             </div>
 
+            {/* Email */}
             <div className="space-y-1 md:col-span-2">
               <input
-                onChange={handleChange}
-                name="confirmEmail"
-                value={formData.confirmEmail}
                 type="email"
+                name="email"
+                placeholder="G-Mail Id*"
+                value={formData.email}
+                onChange={handleChange}
+                className={inputClass}
+              />
+              {formErrors.email && (
+                <span className="text-red-400 text-sm">
+                  {formErrors.email}
+                </span>
+              )}
+            </div>
+
+            {/* Confirm Email */}
+            <div className="space-y-1 md:col-span-2">
+              <input
+                type="email"
+                name="confirmEmail"
                 placeholder="Re-enter G-Mail Id"
-                className={`${
-                  theme === "dark"
-                    ? "bg-[#000A2D] text-white placeholder-gray-400"
-                    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
+                value={formData.confirmEmail}
+                onChange={handleChange}
+                className={inputClass}
               />
               {formErrors.confirmEmail && (
                 <span className="text-red-400 text-sm">
@@ -440,24 +506,23 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             </div>
           </div>
 
+          {/* Terms */}
           <div className="flex items-start space-x-3">
             <input
               type="checkbox"
-              onChange={handleCheck}
               checked={isChecked}
+              onChange={handleCheck}
               className="mt-1 w-5 h-5"
-              name="TandC"
             />
             <div>
               <label
-                htmlFor="TandC"
                 className={theme === "dark" ? "text-white" : "text-gray-800"}
               >
                 I agree with terms & Condition
               </label>
-              {formErrors?.isAgreed && (
+              {formErrors.isAgreed && (
                 <span className="block text-red-400 text-sm mt-1">
-                  {formErrors?.isAgreed}
+                  {formErrors.isAgreed}
                 </span>
               )}
             </div>
@@ -472,6 +537,8 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
           </button>
         </form>
       </div>
+
+      {/* RIGHT: PAYMENT INFO + COUPON */}
       <div
         className={`lg:w-2/5 p-6 lg:p-8 rounded-r-xl ${
           theme === "dark" ? "bg-[#72A3FD]" : "bg-[#E6F6FF]"
@@ -486,6 +553,9 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             Payment Information
           </h5>
 
+         
+
+          {/* Amounts */}
           <div className="space-y-4 mb-6">
             <div className="flex justify-between items-center">
               <p
@@ -500,9 +570,10 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
                 } font-medium`}
               >
-                ₹3388.98
+                ₹{PLAN_AMOUNT.toFixed(2)}
               </p>
             </div>
+
             <div className="flex justify-between items-center">
               <p
                 className={`${
@@ -516,9 +587,25 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
                 } font-medium`}
               >
-                ₹610.02
+                ₹{GST_AMOUNT.toFixed(2)}
               </p>
             </div>
+
+            {couponPercent > 0 && (
+              <div className="flex justify-between items-center">
+                <p
+                  className={`${
+                    theme === "dark" ? "text-[#01071C]" : "text-gray-700"
+                  }`}
+                >
+                  Coupon Discount ({couponPercent}%)
+                </p>
+                <p className="text-green-700 font-medium">
+                  - ₹{((TOTAL_AMOUNT * couponPercent) / 100).toFixed(2)}
+                </p>
+              </div>
+            )}
+
             <div className="flex justify-between items-center border-t border-[#01071C] pt-4 mt-2">
               <p
                 className={`${
@@ -532,11 +619,51 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
                 } font-bold text-lg`}
               >
-                ₹3,999
+                ₹{payableTotal.toFixed(2)}
               </p>
             </div>
           </div>
-
+ {/* Coupon */}
+          <div className="mb-6">
+            <p
+              className={`mb-2 text-sm ${
+                theme === "dark" ? "text-[#01071C]" : "text-gray-700"
+              }`}
+            >
+              Have a coupon?
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value);
+                  setCouponError("");
+                  setCouponMsg("");
+                }}
+                placeholder="Enter coupon code"
+                className={`flex-1 py-2 px-3 rounded-lg text-sm outline-none ${
+                  theme === "dark"
+                    ? "bg-[#BCD4FF] text-[#01071C] placeholder-gray-600"
+                    : "bg-white text-gray-800 placeholder-gray-500"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                className="px-4 py-2 rounded-lg bg-[rgb(2,86,245)] text-white text-sm font-semibold hover:opacity-90"
+              >
+                Apply
+              </button>
+            </div>
+            {couponError && (
+              <p className="text-red-600 text-xs mt-1">{couponError}</p>
+            )}
+            {couponMsg && (
+              <p className="text-green-700 text-xs mt-1">{couponMsg}</p>
+            )}
+          </div>
+          {/* Plan Includes (same as pehle) */}
           <div className="space-y-4 mt-4">
             <h6
               className={`${
@@ -545,86 +672,27 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             >
               Plan Includes:
             </h6>
-            <div className="flex items-center space-x-3">
-              <img src={lock} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Full access to all trading strategies
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={play} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Daily market analysis videos
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={doc} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Exclusive trading tools & indicators
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={shild} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Risk management guides
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={play} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Live trading sessions weekly
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={doc} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Portfolio building techniques
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={shild} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Priority customer support
-              </p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <img src={lock} alt="" className="w-5 h-5" />
-              <p
-                className={`${
-                  theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                }`}
-              >
-                Market trend alerts
-              </p>
-            </div>
+            {[
+              [lock, "Full access to all trading strategies"],
+              [play, "Daily market analysis videos"],
+              [doc, "Exclusive trading tools & indicators"],
+              [shild, "Risk management guides"],
+              [play, "Live trading sessions weekly"],
+              [doc, "Portfolio building techniques"],
+              [shild, "Priority customer support"],
+              [lock, "Market trend alerts"],
+            ].map(([icon, text], i) => (
+              <div key={i} className="flex items-center space-x-3">
+                <img src={icon} alt="" className="w-5 h-5" />
+                <p
+                  className={`${
+                    theme === "dark" ? "text-[#01071C]" : "text-gray-800"
+                  }`}
+                >
+                  {text}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -60,6 +60,7 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 import StockDetails from "./pages/AdminPages/StockDetails";
 import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
+import Coupon from "./pages/AdminPages/Coupon";
 
 const App = () => {
   return (
@@ -148,6 +149,7 @@ const App = () => {
                     <Route path="manage-orders" element={<ManageOrders />} />
                     <Route path="feedback" element={<Feedback />} />
                     <Route path="ticker" element={<Ticker />} />
+                    <Route path="coupon" element={<Coupon />} />
                     <Route path="payment-method" element={<PaymentMethod />} />
                     <Route path="updates" element={<Updates />} />
                     <Route path="data-api" element={<DataAPI />} />
