@@ -83,11 +83,11 @@ const Sidebar = () => {
           label: "AI Sector Depth",
           path: "/dashboard/sector-depth",
         },
-        {
-          icon: AiSwing,
-          label: "AI Swing Analysis",
-          path: "/dashboard/swing-trades",
-        },
+        // {
+        //   icon: AiSwing,
+        //   label: "AI Swing Analysis",
+        //   path: "/dashboard/swing-trades",
+        // },
       ],
     },
     {
