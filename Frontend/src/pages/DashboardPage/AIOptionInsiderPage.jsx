@@ -7,13 +7,11 @@ import OptionInsiderTable from "../../Components/Dashboard/OptionInsiderTable";
 import Loader from "../../Components/Loader";
 import StrategyCard from "../../Components/StrategyCard";
 import { marketHours } from "../../utils/utils";
-import { useSelector } from "react-redux";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
 const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI || "";
 
 const AIOptionInsiderPage = () => {
-  const theme = useSelector((state) => state.theme.theme);
   const [optionChainData, setOptionChainData] = useState();
   const [selectedIndex, setSelectedIndex] = useState("NIFTY");
   const [selectedExpiry, setSelectedExpiry] = useState("");
@@ -146,8 +144,7 @@ const AIOptionInsiderPage = () => {
       interval: selectedInterval,
     });
   }, [selectedIndex, selectedExpiry, selectedInterval, socket]);
-  console.log(error);
-  console.log(theme);
+
   return (
     <section
       className={`mt-8 w-full p-[3px] rounded-2xl  dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)]`}

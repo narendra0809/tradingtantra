@@ -68,7 +68,7 @@ function OverallSentiments({ data, theme }) {
     putDir === "up"
   ) {
     text = "Moderate Bearish";
-    textColor = "#000A2D";
+    textColor = "#FFFFFF";
     color = isDark ? "#E06666" : "#F38686";
   } else if (
     /long unwinding/i.test(putText) &&
@@ -77,8 +77,8 @@ function OverallSentiments({ data, theme }) {
     putDir === "down"
   ) {
     text = "Bullish";
-    textColor = "#000A2D";
-    color = isDark ? "#93C47D" : "#91DD6F";
+    textColor = "#FFFFFF";
+    color = isDark ? "#4caf50" : "#91DD6F";
   } else if (
     /short build up/i.test(putText) &&
     /short covering/i.test(callText) &&
@@ -86,8 +86,8 @@ function OverallSentiments({ data, theme }) {
     putDir === "down"
   ) {
     text = "Bullish";
-    textColor = "#000A2D";
-    color = isDark ? "#93C47D" : "#91DD6F";
+    textColor = "#FFFFFF";
+    color = isDark ? "#4caf50" : "#91DD6F";
   } else if (
     /long build up/i.test(putText) &&
     /long unwinding/i.test(callText) &&
@@ -131,7 +131,7 @@ function OverallSentiments({ data, theme }) {
     putDir === "up"
   ) {
     text = "Moderate Bearish";
-    textColor = "#000A2D";
+    textColor = "#FFFFFF";
     color = isDark ? "#E06666" : "#F38686";
   } else if (
     /long unwinding/i.test(putText) &&
@@ -157,7 +157,10 @@ function OverallSentiments({ data, theme }) {
       style={{ backgroundColor: color, borderRadius: "20px" }}
     >
       <span className={`text-capitalize flex items-center px-2 py-2 gap-2`}>
-        <span style={{ color: textColor }} className="uppercase">
+        <span
+          style={{ color: textColor }}
+          className="uppercase font-bold text-[12px] sm:text-[16px]"
+        >
           {text}
         </span>
       </span>
@@ -186,9 +189,9 @@ function Badge({ analysis, theme }) {
 
   const iconClass =
     dir === "up" ? (
-      <FaArrowUp color={textColor} />
+      <FaArrowUp color={textColor} className="w-2 h-2" />
     ) : (
-      <FaArrowDown color={textColor} />
+      <FaArrowDown color={textColor} className="w-2 h-2" />
     );
 
   return (
@@ -199,7 +202,10 @@ function Badge({ analysis, theme }) {
       <span
         className={`badge text-capitalize flex items-center px-2 py-2 gap-2`}
       >
-        <span style={{ color: textColor }} className="uppercase text-sm">
+        <span
+          style={{ color: textColor }}
+          className="uppercase text-[8px] sm:text-[12px]"
+        >
           {text}
         </span>
         {iconClass}
@@ -242,31 +248,144 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
   if (!Array.isArray(data) || data.length === 0) {
     return <div className="text-sm text-gray-500">No data to show.</div>;
   }
+  // return (
+  //   <div className="rounded-2xl w-full h-[550px] overflow-hidden dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)] p-px">
+  //     <div className="scrollbar-themed w-full h-full overflow-x-auto overflow-y-auto px-5 pt-5 bg-db-secondary-light dark:bg-db-secondary">
+  //       {!isSubscribed ? (
+  //         <Lock />
+  //       ) : (
+  //         <table className="w-full">
+  //           <thead>
+  //             <tr>
+  //               <th className="p-2 text-left">Time Range</th>
+  //               <th className="p-2">Strike</th>
+  //               <th className="p-2 text-center">Call Analysis</th>
+  //               <th className="p-2 text-center">Call Numbers</th>
+  //               <th className="p-2 text-center">Overall Sentiments</th>
+  //               <th className="p-2 text-center">Put Numbers</th>
+  //               <th className="p-2 text-center">Put Analysis</th>
+  //             </tr>
+  //             <tr>
+  //               <td colSpan={7} className="p-0">
+  //                 <div
+  //                   className={`h-px w-full ${
+  //                     theme === "dark" ? "gradient-line" : "bg-gray-400"
+  //                   } my-5`}
+  //                 />
+  //               </td>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             {data.map((r, idx) => (
+  //               <tr key={idx}>
+  //                 <td className="p-2 text-xs md:text-[16px] dark:text-white">
+  //                   {r.prevTimestamp} - {r.nowTimestamp}
+  //                 </td>{" "}
+  //                 <td className="p-2 text-center font-mono text-[#0256F5]">
+  //                   {r.strikePrice}
+  //                 </td>
+  //                 <td className="p-2 text-center">
+  //                   <Badge analysis={r.call} theme={theme} />
+  //                 </td>
+  //                 <td className="p-2 text-center">
+  //                   <NumericDetails a={r.call} />
+  //                 </td>
+  //                 <td className="p-2 text-center font-mono">
+  //                   <OverallSentiments data={r} theme={theme} />
+  //                 </td>
+  //                 <td className="p-2 text-center align-top">
+  //                   <NumericDetails a={r.put} />
+  //                 </td>
+  //                 <td className="p-2 text-center align-top">
+  //                   <Badge analysis={r.put} theme={theme} />
+  //                 </td>
+  //               </tr>
+  //             ))}
+  //           </tbody>
+  //         </table>
+  //       )}
+  //     </div>
+  //   </div>
+  // );
   return (
     <div className="rounded-2xl w-full h-[550px] overflow-hidden dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)] p-px">
-      <div className="w-full h-full overflow-x-auto overflow-y-auto scrollbar-hidden px-5 pt-5 bg-db-secondary-light dark:bg-db-secondary">
+      <div className="scrollbar-themed w-full h-full overflow-x-auto overflow-y-auto px-5 bg-db-secondary-light dark:bg-db-secondary">
         {!isSubscribed ? (
           <Lock />
         ) : (
-          <table className="w-full">
+          <table className="w-full border-separate border-spacing-0">
             <thead>
               <tr>
-                <th className="p-2 text-left">Time Range</th>
-                <th className="p-2">Strike</th>
-                <th className="p-2 text-center">Call Analysis</th>
-                <th className="p-2 text-center">Call Numbers</th>
-                <th className="p-2 text-center">Overall Sentiments</th>
-                <th className="p-2 text-center">Put Numbers</th>
-                <th className="p-2 text-center">Put Analysis</th>
-              </tr>
-              <tr>
-                <td colSpan={7} className="p-0">
-                  <div
-                    className={`h-px w-full ${
-                      theme === "dark" ? "gradient-line" : "bg-gray-400"
-                    } my-5`}
-                  />
-                </td>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-left bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Time Range
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Strike
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-center bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Call Analysis
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-center bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Call Numbers
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-center bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Overall Sentiments
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-center bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Put Numbers
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
+                <th className="sticky top-0 z-10 p-2 pt-5 pb-4 text-center bg-db-secondary-light dark:bg-db-secondary">
+                  <div className="relative">
+                    Put Analysis
+                    <div
+                      className={`absolute -bottom-4 left-0 right-0 h-px w-full ${
+                        theme === "dark" ? "gradient-line" : "bg-gray-400"
+                      }`}
+                    />
+                  </div>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -275,7 +394,7 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
                   <td className="p-2 text-xs md:text-[16px] dark:text-white">
                     {r.prevTimestamp} - {r.nowTimestamp}
                   </td>{" "}
-                  <td className="p-2 text-center font-mono text-[#0256F5]">
+                  <td className="p-2 text-center text-[#0256F5] text-[10px] sm:text-[14px]">
                     {r.strikePrice}
                   </td>
                   <td className="p-2 text-center">
@@ -284,13 +403,13 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
                   <td className="p-2 text-center">
                     <NumericDetails a={r.call} />
                   </td>
-                  <td className="p-2 text-center font-mono">
+                  <td className="p-2 text-center">
                     <OverallSentiments data={r} theme={theme} />
                   </td>
-                  <td className="p-2 text-center align-top">
+                  <td className="p-2 text-center">
                     <NumericDetails a={r.put} />
                   </td>
-                  <td className="p-2 text-center align-top">
+                  <td className="p-2 text-center">
                     <Badge analysis={r.put} theme={theme} />
                   </td>
                 </tr>

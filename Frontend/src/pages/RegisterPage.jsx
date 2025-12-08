@@ -77,7 +77,7 @@ const RegisterPage = () => {
             onChange={handleChange}
             placeholder="Enter your First Name"
             id="name"
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400 text-white"
           />
           {formErrors.firstname && (
             <p className="text-red-400">{formErrors.firstname}</p>
@@ -93,7 +93,7 @@ const RegisterPage = () => {
             value={FormData.lastname}
             placeholder="Enter your Last Name"
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400 text-white"
           />
           {formErrors.lastname && (
             <p className="text-red-400">{formErrors.lastname}</p>
@@ -111,7 +111,7 @@ const RegisterPage = () => {
             value={FormData.email}
             onChange={handleChange}
             id="email"
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400 text-white"
           />
           {formErrors.email && (
             <p className="text-red-400">{formErrors.email}</p>
@@ -133,7 +133,7 @@ const RegisterPage = () => {
               placeholder="Enter your Password"
               onChange={handleChange}
               id="password"
-              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400 text-white"
             />
             <button
               type="button"
@@ -170,7 +170,7 @@ const RegisterPage = () => {
               value={FormData.confirmPassword}
               onChange={handleChange}
               id="confrimPassword"
-              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400 text-white"
             />
             <button
               type="button"
@@ -205,9 +205,9 @@ const RegisterPage = () => {
         </button>
       </form>
       <div className="w-full flex items-center my-4">
-        <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        <div className="grow border-t border-[#E8ECF4]"></div>
         <span className="mx-4 text-gray-500">Or Login with</span>
-        <div className="flex-grow border-t border-[#E8ECF4]"></div>
+        <div className="grow border-t border-[#E8ECF4]"></div>
       </div>
       <GoogleButton />
 

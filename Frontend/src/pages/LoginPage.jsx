@@ -94,7 +94,10 @@ const LoginPage = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium mb-1 text-white"
+          >
             Email
           </label>
           <input
@@ -102,7 +105,7 @@ const LoginPage = () => {
             id="email"
             name="email"
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            className="w-full text-white px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400"
             placeholder="Enter your email"
             required
           />
@@ -112,7 +115,10 @@ const LoginPage = () => {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium mb-1 text-white"
+          >
             Password
           </label>
           <input
@@ -120,7 +126,7 @@ const LoginPage = () => {
             type="password"
             id="password"
             onChange={handleChange}
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            className="text-white w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400"
             placeholder="Enter your password"
             required
           />
@@ -147,21 +153,21 @@ const LoginPage = () => {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200 ${
+          className={`text-white w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200 ${
             isSubmitting ? "opacity-70 cursor-not-allowed" : ""
           }`}
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
         <div className="w-full flex items-center my-4">
-          <div className="flex-grow border-t border-[#E8ECF4]"></div>
+          <div className="grow border-t border-[#E8ECF4]"></div>
           <span className="mx-4 text-gray-500">Or Login with</span>
-          <div className="flex-grow border-t border-[#E8ECF4]"></div>
+          <div className="grow border-t border-[#E8ECF4]"></div>
         </div>
 
         <GoogleButton />
 
-        <div className="text-center text-sm ">
+        <div className="text-center text-sm text-white">
           Don&apos;t have an account?{" "}
           <button
             type="button"
