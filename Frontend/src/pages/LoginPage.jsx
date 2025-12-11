@@ -10,6 +10,7 @@ import WrapperPage from "./WrapperPage";
 import GoogleButton from "../Components/OAuth";
 import { useDispatch } from "react-redux";
 import { setTheme } from "../contexts/Redux/Slices/themeSlice";
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -51,9 +52,7 @@ const LoginPage = () => {
       setIsSubmitting(true);
       try {
         const res = await fetchData("auth/login", "POST", formData);
-        console.log(res.data.user.darkMode);
-        console.log(res?.data?.user?.darkMode === true ? "dark" : "light");
-        dispatch(setTheme(res?.data?.user?.darkMode ? "dark" : "light"));
+        dispatch(setTheme(res.data?.user?.darkMode ? "dark" : "light"));
       } catch (err) {
         console.error("Login error:", err);
       } finally {
@@ -72,6 +71,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (error) {
+      toast.error(error.data.message);
       if (error.data?.message === "User not Exist, please sign up") {
         setFormErrors({
           ...formErrors,

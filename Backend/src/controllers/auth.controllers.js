@@ -73,6 +73,11 @@ const logIn = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not Exist, please sign up" });
     }
+    if (user.isLoggedIn) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Multiple logins not allowed !" });
+    }
     // console.log('here.....👍')
     if (user.password) {
       const isMatch = await bcrypt.compare(password, user.password);
@@ -113,6 +118,13 @@ const logIn = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, //for one day
     };
 
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { isLoggedIn: true },
+      { new: true }
+    );
+    console.log(JSON.stringify(updatedUser));
+
     res
       .status(200)
       .cookie("accessToken", token, options)
@@ -136,6 +148,10 @@ const logIn = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
+    const user = req.user;
+
+    await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
+
     res.status(200).clearCookie("accessToken").json({
       success: true,
       message: "logged out successfully",

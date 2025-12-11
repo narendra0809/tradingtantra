@@ -61,11 +61,17 @@ import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 import StockDetails from "./pages/AdminPages/StockDetails";
 import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
 import Coupon from "./pages/AdminPages/Coupon";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <>
       <div>
+        <Toaster
+          position="top-center"
+          reverseOrder={false}
+          containerStyle={{ zIndex: 9999999 }}
+        />
         <AdminAuthProvider>
           <AuthProvider>
             <RiskProvider>
