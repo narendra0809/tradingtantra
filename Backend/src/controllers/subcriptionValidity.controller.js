@@ -8,7 +8,13 @@ export const getSubcriptionValidity = async (req, res) => {
       userId,
     });
     if (!userSub) {
-      res.status(403).json({ success: false, isSubscribed: false });
+      res
+        .status(200)
+        .json({
+          success: true,
+          isSubscribed: false,
+          message: "User not subscribed !",
+        });
       return;
     }
 

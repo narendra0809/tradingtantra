@@ -9,8 +9,8 @@ export const paymentSchema = z
       .min(3, { message: "Last Name should be at least 3 characters" }),
     email: z.string().email(),
     confirmEmail: z.string().email(),
-    country: z.string(),
-    state: z.string(),
+    country: z.string().min(1, { message: "Country is required !" }),
+    state: z.string().min(1, { message: "State is required !" }),
     phoneNumber: z
       .string()
       .min(10, { message: "Number should be of 10 digits" })

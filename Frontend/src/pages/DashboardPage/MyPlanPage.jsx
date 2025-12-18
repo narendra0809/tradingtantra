@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import ProfileHeader from "../../Components/Dashboard/ProfileHeader";
 import { useAuth } from "../../contexts/AuthContext";
@@ -28,6 +27,11 @@ const MyPlanPage = () => {
       if (res.status !== 200) {
         throw new Error("Failed to fetch sub details!");
       }
+      if (!res.data.isSubscribed) {
+        setIsSubscribed(false);
+        Cookies.remove("isSubscribed");
+        return;
+      }
       const userSubData = {
         startDate: new Date(res.data.startDate).toLocaleString(),
         endDate: new Date(res.data.endDate).toDateString(),
@@ -35,7 +39,7 @@ const MyPlanPage = () => {
       };
       setUserSub(userSubData);
       setIsSubscribed(true);
-      Cookies.set("isSubscribed", true, { expires: 365 }); // Persist subscription status
+      Cookies.set("isSubscribed", true, { expires: 365 });
     } catch (error) {
       console.log(error);
       setIsSubscribed(false);
@@ -51,11 +55,11 @@ const MyPlanPage = () => {
     } else {
       setIsSubscribed(false);
     }
-  }, [user?.userId]); // Depend on userId to refetch if user changes
+  }, [user?.userId]);
 
   const handlePaymentSuccess = () => {
-    fetchUserSubDetails(); // Refetch subscription details
-    setIsSubscribed(true); // Update local state to trigger rerender
+    fetchUserSubDetails();
+    setIsSubscribed(true);
   };
 
   return (

@@ -24,7 +24,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [countryCode, setCountryCode] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("India");
   const [selectedState, setSelectedState] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
@@ -50,14 +50,14 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     TOTAL_AMOUNT - (TOTAL_AMOUNT * Number(couponPercent || 0)) / 100;
 
   // simple helpers
-  const inputClass = `${theme === "dark"
-    ? "bg-[#000A2D] text-white placeholder-gray-400"
-    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
+  const inputClass = `${
+    theme === "dark"
+      ? "bg-[#000A2D] text-white placeholder-gray-400"
+      : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
   } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
 
-  const selectClass = `${theme === "dark"
-    ? "bg-[#000A2D] text-white"
-    : "bg-[#F3F6F9] text-gray-800"
+  const selectClass = `${
+    theme === "dark" ? "bg-[#000A2D] text-white" : "bg-[#F3F6F9] text-gray-800"
   } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
 
   const themeClass = (darkCls, lightCls) =>
@@ -120,6 +120,14 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     if (countries.length) setSelectedCountry("India");
   }, [countries]);
 
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, country: selectedCountry }));
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, state: selectedState }));
+  }, [selectedState]);
+
   // --------- HANDLERS ---------
   const handleCountryChange = (e) => {
     const value = e.target.value;
@@ -147,72 +155,39 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   };
 
   // --------- COUPON VERIFY ---------
-  // const handleApplyCoupon = async () => {
-  //   setCouponError("");
-  //   setCouponMsg("");
-  //   setCouponPercent(0);
+  const handleApplyCoupon = async () => {
+    setCouponError("");
+    setCouponMsg("");
+    setCouponPercent(0);
 
-  //   const code = couponCode.trim();
-  //   if (!code) {
-  //     setCouponError("Please enter coupon code");
-  //     return;
-  //   }
-
-  //   try {
-  //     const res = await fetchData(
-  //       `verify-coupon?code=${encodeURIComponent(code)}`,
-  //       "GET"
-  //     );
-
-  //     if (res.status !== 200 || !res.data?.success) {
-  //       setCouponError(res.data?.message || "Invalid or expired coupon");
-  //       return;
-  //     }
-
-  //     const { coupon } = res.data;
-  //     setCouponPercent(coupon.discountPercent);
-  //     setCouponMsg(
-  //       `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
-  //     );
-  //   } catch (err) {
-  //     console.error("Error verifying coupon:", err);
-  //     setCouponError("Invalid or expired coupon");
-  //   }
-  // };
-// --------- COUPON VERIFY ---------
-const handleApplyCoupon = async () => {
-  setCouponError("");
-  setCouponMsg("");
-  setCouponPercent(0);
-
-  const code = couponCode.trim();
-  if (!code) {
-    setCouponError("Please enter coupon code");
-    return;
-  }
-
-  try {
-    const res = await fetchData(
-      `verify-coupon?code=${encodeURIComponent(code)}`,
-      "GET"
-    );
-
-    if (res.status !== 200 || !res.data?.success) {
-      setCouponError("Invalid or expired coupon");
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Please enter coupon code");
       return;
     }
 
-    const { coupon } = res.data;
-    setCouponPercent(coupon.discountPercent);
-    setCouponMsg(
-      `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
-    );
-  } catch (err) {
-    console.error("Error verifying coupon:", err);
-    // catch me bhi same message
-    setCouponError("Invalid or expired coupon");
-  }
-};
+    try {
+      const res = await fetchData(
+        `verify-coupon?code=${encodeURIComponent(code)}`,
+        "GET"
+      );
+
+      if (res.status !== 200 || !res.data?.success) {
+        setCouponError("Invalid or expired coupon");
+        return;
+      }
+
+      const { coupon } = res.data;
+      setCouponPercent(coupon.discountPercent);
+      setCouponMsg(
+        `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
+      );
+    } catch (err) {
+      console.error("Error verifying coupon:", err);
+      // catch me bhi same message
+      setCouponError("Invalid or expired coupon");
+    }
+  };
 
   // --------- PAYMENT ---------
   const handleSubmit = async (e) => {
@@ -239,7 +214,6 @@ const handleApplyCoupon = async () => {
     try {
       // optional: send couponCode to backend if you want to use there
       const payload = { ...validData, couponCode: couponCode.trim() || null };
-
       const res = await fetchData(
         `payment/createorder?renew=${false}`,
         "POST",
@@ -458,9 +432,10 @@ const handleApplyCoupon = async () => {
                   placeholder="Whatsapp Number*"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className={`${theme === "dark"
-                    ? "bg-[#000A2D] text-white placeholder-gray-400"
-                    : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
+                  className={`${
+                    theme === "dark"
+                      ? "bg-[#000A2D] text-white placeholder-gray-400"
+                      : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
                   } flex-1 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
                 />
               </div>
@@ -482,9 +457,7 @@ const handleApplyCoupon = async () => {
                 className={inputClass}
               />
               {formErrors.email && (
-                <span className="text-red-400 text-sm">
-                  {formErrors.email}
-                </span>
+                <span className="text-red-400 text-sm">{formErrors.email}</span>
               )}
             </div>
 
@@ -552,8 +525,6 @@ const handleApplyCoupon = async () => {
           >
             Payment Information
           </h5>
-
-         
 
           {/* Amounts */}
           <div className="space-y-4 mb-6">
@@ -623,7 +594,7 @@ const handleApplyCoupon = async () => {
               </p>
             </div>
           </div>
- {/* Coupon */}
+          {/* Coupon */}
           <div className="mb-6">
             <p
               className={`mb-2 text-sm ${

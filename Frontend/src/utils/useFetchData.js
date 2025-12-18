@@ -27,11 +27,13 @@ const useFetchData = () => {
           method: "PUT",
           url: `${SERVER_URI}/${url}`,
           data: formData,
+          withCredentials: true,
         });
       } else if (method === "DELETE") {
         response = await axios({
           method: "DELETE",
           url: `${SERVER_URI}/api/${url}`,
+          withCredentials: true,
         });
       } else {
         throw new Error("Method type not provided in the arguments !");

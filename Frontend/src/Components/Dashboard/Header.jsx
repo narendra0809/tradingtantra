@@ -78,8 +78,7 @@ const Header = () => {
   }, [profileDropDown]);
 
   return (
-    <div className="relative bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-[#ffffff]">
-      {/* Centered logo for md+ screens when sidebar is CLOSED and user is subscribed */}
+    <div className="relative bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-20 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-primary-light">
       {!isOpen && isSubscribed && (
         <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
           <img
@@ -94,7 +93,7 @@ const Header = () => {
         <button
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center hidden"
+          className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 lg:flex justify-center items-center hidden"
         >
           <motion.span
             initial={{ y: 0, opacity: 1 }}
@@ -118,7 +117,7 @@ const Header = () => {
         <img
           src={hamburger}
           alt="icon"
-          className="w-4 h-4 sm:hidden block cursor-pointer not-dark:bg-db-secondary"
+          className="w-4 h-4 xl:hidden block cursor-pointer not-dark:bg-db-secondary"
           onClick={() => dispatch(toggleSideBar(!isOpen))}
         />
 

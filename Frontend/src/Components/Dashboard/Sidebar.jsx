@@ -154,7 +154,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`absolute top-0 left-0 md:static z-50 flex h-screen  transform transition-transform duration-300 ease-in-out  ${
+      className={`absolute top-0 left-0 xl:static z-50 flex h-screen  transform transition-transform duration-300 ease-in-out  ${
         isOpen
           ? "translate-x-0 sm:translate-x-0"
           : "-translate-x-full sm:translate-x-0"
@@ -164,11 +164,11 @@ const Sidebar = () => {
         {/* Sidebar */}
         <div
           className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] dark:border dark:border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
-            isOpen ? "w-64" : "w-20"
+            isOpen ? "w-64" : "w-0 xl:w-20"
           }`}
         >
           {/* Fixed Header */}
-          <div className="dark:bg-gradient-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#FFFFFF]">
+          <div className="dark:bg-linear-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#FFFFFF]">
             <div className="flex items-center w-full h-fit justify-center bg-[#000517] not-dark:bg-[#FFFFFF]  py-5">
               {isOpen ? (
                 <img src={theme === "dark" ? logo : logoLight} alt="logo" />
