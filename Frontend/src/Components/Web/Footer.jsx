@@ -135,6 +135,9 @@ const Footer = () => {
         <p className="sm:text-base text-sm">
           &copy; {currentYear} Trading Tantra. All Rights Reserved
         </p>
+        <p className="sm:text-base text-sm">
+          Design by Its Unicorn Tech
+        </p>
         <div className="flex items-center gap-1 sm:text-base text-sm">
           Made with ❤️ in{" "}
           <img src={flag} className="w-5 h-5" alt="Indian flag" />
