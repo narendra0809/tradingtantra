@@ -1,9 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import Cookies from "js-cookie";
 
 import axios from "axios";
 
@@ -12,48 +10,49 @@ const AuthContext = createContext();
 const SERVER_URI = import.meta.env.VITE_SERVER_URI;
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const token = localStorage.getItem("token");
-    return token ? jwtDecode(token) : null;
-  });
-
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const checkAuth = async () => {
+    try {
+      // Call /me endpoint - it reads HttpOnly cookie automatically
+      const response = await axios.get(`${SERVER_URI}/auth/me`, {
+        withCredentials: true,
+      });
+
+      if (response.data.success) {
+        setUser(response.data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     checkAuth();
   }, []);
 
-  const checkAuth = async () => {
-    let token = localStorage.getItem("token");
-
-    if (!token) {
-      setUser(null);
-      return;
-    }
-
+  const login = async (email, password) => {
     try {
-      const decoded = jwtDecode(token);
-      const expirationTime = decoded.exp * 1000;
+      const response = await axios.post(
+        `${SERVER_URI}/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-      if (expirationTime > Date.now()) {
-        setUser(decoded);
-        setTimeout(logout, expirationTime - Date.now()); // Auto logout when token expires
-      } else {
-        logout();
+      if (response.data.success) {
+        // Backend already set HttpOnly cookie
+        // Just get fresh user data
+        await checkAuth();
+        navigate("/dashboard", { replace: true });
       }
     } catch (error) {
-      console.error("Error decoding token:", error);
-      logout();
-    }
-  };
-
-  const login = (token, isAdmin) => {
-    localStorage.setItem("token", token);
-    setUser(jwtDecode(token));
-    if (isAdmin) {
-      navigate("/admin", { replace: true });
-    } else {
-      navigate("/dashboard", { replace: true });
+      console.error("Login failed:", error);
     }
   };
 
@@ -62,17 +61,19 @@ export const AuthProvider = ({ children }) => {
       await axios.post(
         `${SERVER_URI}/auth/logout`,
         {},
-        { withCredentials: true }
+        {
+          withCredentials: true,
+        }
       );
-      Cookies.remove("isSubscribed");
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.error("Logout error:", error);
     }
 
-    localStorage.removeItem("token");
     setUser(null);
     navigate("/", { replace: true });
   };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <AuthContext.Provider value={{ user, login, logout, checkAuth }}>

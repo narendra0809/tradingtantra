@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getMe,
   googleLogin,
   logIn,
   logout,
@@ -59,6 +60,8 @@ router.post(
 //routes for logout
 
 router.post("/logout", verifyUser, logout);
+
+router.get("/me", verifyUser, getMe);
 
 //route for the password reset
 

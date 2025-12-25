@@ -148,19 +148,68 @@ const logIn = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    const user = req.user;
+    const userId = req.user.userId; // Now works with updated verifyUser
 
-    await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
+    await User.findByIdAndUpdate(userId, { isLoggedIn: false });
 
-    res.status(200).clearCookie("accessToken").json({
-      success: true,
-      message: "logged out successfully",
-    });
+    res
+      .status(200)
+      .clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .json({
+        success: true,
+        message: "logged out successfully",
+      });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Internal server error in logging out ",
     });
+  }
+};
+
+// Add this function to your auth.controllers.js
+const getMe = async (req, res) => {
+  try {
+    // req.user now has { userId, displayName } from verifyUser
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId).select(
+      "email displayName darkMode isLoggedIn"
+    );
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Same subscription logic as login
+    const subscribed = await UserSubscription.findOne({
+      userId: user._id,
+      status: "active",
+      endDate: { $gt: Date.now() },
+    });
+
+    const isSubscribed = !!subscribed;
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        userId: user._id, // for MyPlanPage
+        email: user.email,
+        displayName: user.displayName,
+        isSubscribed,
+        darkMode: typeof user?.darkMode !== "boolean" ? true : user?.darkMode,
+      },
+    });
+  } catch (error) {
+    console.error("getMe error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -328,4 +377,5 @@ export {
   sendOtpForResetPassword,
   resetPassword,
   googleLogin,
+  getMe,
 };

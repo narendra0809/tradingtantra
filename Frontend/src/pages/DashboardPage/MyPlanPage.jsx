@@ -43,7 +43,7 @@ const MyPlanPage = () => {
     } catch (error) {
       console.log(error);
       setIsSubscribed(false);
-      Cookies.remove("isSubscribed");
+      // Cookies.remove("isSubscribed");
     }
   };
 
