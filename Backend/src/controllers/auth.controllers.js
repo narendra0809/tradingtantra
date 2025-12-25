@@ -213,6 +213,36 @@ const getMe = async (req, res) => {
   }
 };
 
+export const logoutBeacon = async (req, res) => {
+  try {
+    const token = req.cookies.accessToken;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const userId = decoded.userId;
+
+        // Set isLoggedIn = false
+        await User.findByIdAndUpdate(userId, { isLoggedIn: false });
+      } catch (error) {
+        // Invalid token - ignore
+      }
+    }
+
+    // Always clear cookie for beacon requests
+    res
+      .status(200)
+      .clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .json({ success: true });
+  } catch (error) {
+    res.status(200).json({ success: true }); // Always succeed for beacon
+  }
+};
+
 //reset password
 
 const sendOtpForResetPassword = async (req, res) => {

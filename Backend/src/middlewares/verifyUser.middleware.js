@@ -72,6 +72,7 @@ const verifyUser = async (req, res, next) => {
     // FIX: Set req.user to match JWT payload structure
     req.user = {
       userId: user._id,
+      email: user.email,
       displayName: decodedToken.displayName || user.displayName,
     };
 

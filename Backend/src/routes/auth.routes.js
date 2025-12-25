@@ -4,6 +4,7 @@ import {
   googleLogin,
   logIn,
   logout,
+  logoutBeacon,
   resetPassword,
   sendOtpForResetPassword,
   signUp,
@@ -62,6 +63,8 @@ router.post(
 router.post("/logout", verifyUser, logout);
 
 router.get("/me", verifyUser, getMe);
+
+router.post("/logout-beacon", logoutBeacon);
 
 //route for the password reset
 

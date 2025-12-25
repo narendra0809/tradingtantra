@@ -56,15 +56,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (sendBeacon = true) => {
     try {
-      await axios.post(
-        `${SERVER_URI}/auth/logout`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      const endpoint = sendBeacon
+        ? `${SERVER_URI}/auth/logout-beacon`
+        : `${SERVER_URI}/auth/logout`;
+      await axios.post(endpoint, {}, { withCredentials: true });
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -72,6 +69,22 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     navigate("/", { replace: true });
   };
+
+  useEffect(() => {
+    if (!user) return;
+
+    const handleBeforeUnload = () => {
+      navigator.sendBeacon(`${SERVER_URI}/auth/logout-beacon`, "");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload, {
+      passive: false,
+    });
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [user]);
 
   if (loading) return <div>Loading...</div>;
 

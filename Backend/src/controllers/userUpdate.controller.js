@@ -81,7 +81,7 @@ const editDisplayName = async (req, res) => {
 const toggleTheme = async (req, res) => {
   const loggedInUser = req?.user;
   try {
-    const user = await User.findById(loggedInUser?._id);
+    const user = await User.findById(loggedInUser?.userId);
     if (!user) {
       return res.status(500).json({
         success: false,
@@ -103,4 +103,4 @@ const toggleTheme = async (req, res) => {
   }
 };
 
-export { updatePassword, editDisplayName,toggleTheme };
+export { updatePassword, editDisplayName, toggleTheme };

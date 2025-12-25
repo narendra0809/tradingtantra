@@ -10,7 +10,7 @@ const feedback = async (req, res) => {
         .json({ success: false, message: "Feedback is required" });
     }
 
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
     const newFeedback = await Feedback.create({
       userId,

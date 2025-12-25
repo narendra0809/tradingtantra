@@ -8,7 +8,7 @@ import { getRazorpayTokens } from "../utils/getTokens.js";
 export const createOrder = async (req, res) => {
   try {
     const isRenewal = req.query.renew === "true";
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
     if (!isRenewal) {
       const { firstName, lastName, email, phoneNumber, country, state } =

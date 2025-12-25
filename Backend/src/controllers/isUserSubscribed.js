@@ -2,7 +2,7 @@ import UserSubscription from "../models/userSubscription.model.js";
 
 const isSubscribed = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
     const isSubscribed = await UserSubscription.findOne({
       userId,
