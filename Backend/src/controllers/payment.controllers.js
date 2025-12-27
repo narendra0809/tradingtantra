@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { razorpayInstance } from "../config/razorpayInstance.js";
 import Payment from "../models/payment.model.js";
 import UserOrders from "../models/userOrders.model.js";
+import Coupons from "../models/adminModels/coupon.model.js";
 import UserSubscription from "../models/userSubscription.model.js";
 import { getRazorpayTokens } from "../utils/getTokens.js";
 
@@ -10,9 +11,42 @@ export const createOrder = async (req, res) => {
     const isRenewal = req.query.renew === "true";
     const userId = req.user.userId;
 
+    const BASE_AMOUNT = 3999;
+    let finalAmount = BASE_AMOUNT;
+
+    // ================= COUPON LOGIC =================
+    const { couponCode } = req.body;
+
+    const normalizedCouponCode = couponCode
+      ? couponCode.trim().toUpperCase()
+      : null;
+
+    if (normalizedCouponCode) {
+      const coupon = await Coupons.findOne({
+        code: normalizedCouponCode,
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() },
+      });
+
+      if (!coupon) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or expired coupon",
+        });
+      }
+
+      finalAmount =
+        BASE_AMOUNT - (BASE_AMOUNT * coupon.discountPercent) / 100;
+    }
+
+    finalAmount = Math.round(finalAmount);
+    // =================================================
+
+    // ================= EXISTING FLOW =================
     if (!isRenewal) {
       const { firstName, lastName, email, phoneNumber, country, state } =
         req.body;
+
       if (
         !firstName ||
         !lastName ||
@@ -21,10 +55,12 @@ export const createOrder = async (req, res) => {
         !country ||
         !state
       ) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Missing required details" });
+        return res.status(400).json({
+          success: false,
+          message: "Missing required details",
+        });
       }
+
       await UserOrders.create({
         userId,
         firstName,
@@ -37,20 +73,25 @@ export const createOrder = async (req, res) => {
     } else {
       const existingSub = await UserSubscription.findOne({ userId });
       if (!existingSub) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No subscription to renew" });
+        return res.status(400).json({
+          success: false,
+          message: "No subscription to renew",
+        });
       }
     }
+    // =================================================
 
+    // ================= RAZORPAY =================
     const orderOptions = {
-      amount: 3999 * 100,
+      amount: finalAmount * 100,
       currency: "INR",
-      notes: { isRenewal: isRenewal.toString(), userId: userId.toString() },
+      notes: {
+        isRenewal: isRenewal.toString(),
+        userId: userId.toString(),
+      },
     };
-    console.log(JSON.stringify(orderOptions));
+
     const order = await razorpayInstance.orders.create(orderOptions);
-    console.log(JSON.stringify(order));
 
     const payment = new Payment({
       userId,
@@ -59,6 +100,7 @@ export const createOrder = async (req, res) => {
       orderId: order.id,
       status: "created",
     });
+
     await payment.save();
 
     const tokens = await getRazorpayTokens();
@@ -68,23 +110,27 @@ export const createOrder = async (req, res) => {
       data: payment,
       key: tokens.RAZORPAY_KEY_ID,
     });
+    // =================================================
   } catch (error) {
     console.error("Create order error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: error.message, stack: error?.stack });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
+// ================= VERIFY PAYMENT =================
 export const verifyPayment = async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
       req.body;
 
     if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing verification fields" });
+      return res.status(400).json({
+        success: false,
+        message: "Missing verification fields",
+      });
     }
 
     const generatedSignature = crypto
@@ -93,20 +139,26 @@ export const verifyPayment = async (req, res) => {
       .digest("hex");
 
     if (generatedSignature !== razorpay_signature) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid signature" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid signature",
+      });
     }
+
     return res.status(200).json({
       success: true,
       message: "Payment verified (processing in background)",
     });
   } catch (error) {
     console.error("Verify payment error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
+// ================= RENEW =================
 export const renewPlan = async (req, res) => {
   return res.status(200).json({
     success: true,

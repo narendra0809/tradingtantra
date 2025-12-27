@@ -10,239 +10,222 @@ import useFetchData from "../../utils/useFetchData";
 
 const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const [selectedState, setSelectedState] = useState("");
   const { fetchData } = useFetchData();
 
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("India");
+  const [selectedState, setSelectedState] = useState("");
+
+  // 🔥 Coupon states
+  const [couponCode, setCouponCode] = useState("");
+  const [couponPercent, setCouponPercent] = useState(0);
+  const [couponError, setCouponError] = useState("");
+  const [couponMsg, setCouponMsg] = useState("");
+  const [isCouponApplied, setIsCouponApplied] = useState(false);
+
+  // ---------------- COUNTRY / STATE ----------------
   useEffect(() => {
     const fetchCountries = async () => {
-      try {
-        const response = await axios.get(
-          "https://countriesnow.space/api/v0.1/countries"
-        );
-        setCountries(response.data.data);
-      } catch (error) {
-        console.error("Error fetching country data:", error);
-      }
+      const res = await axios.get(
+        "https://countriesnow.space/api/v0.1/countries"
+      );
+      setCountries(res.data.data || []);
     };
     fetchCountries();
   }, []);
 
   useEffect(() => {
     const fetchStates = async () => {
-      if (selectedCountry) {
-        try {
-          const response = await axios.post(
-            "https://countriesnow.space/api/v0.1/countries/states",
-            {
-              country: selectedCountry,
-            }
-          );
-          setStates(response.data.data.states);
-        } catch (error) {
-          console.error("Error fetching state data:", error);
-        }
-      }
+      if (!selectedCountry) return;
+      const res = await axios.post(
+        "https://countriesnow.space/api/v0.1/countries/states",
+        { country: selectedCountry }
+      );
+      setStates(res.data.data?.states || []);
     };
     fetchStates();
   }, [selectedCountry]);
 
-  // Handle country change
-  const handleCountryChange = (event) => {
-    setSelectedCountry(event.target.value);
-    setSelectedState(""); // Reset state when country changes
-  };
+  // ---------------- COUPON VERIFY ----------------
+  const handleApplyCoupon = async () => {
+    setCouponError("");
+    setCouponMsg("");
+    setCouponPercent(0);
+    setIsCouponApplied(false);
 
-  // Handle state change
-  const handleStateChange = (event) => {
-    setSelectedState(event.target.value);
-  };
-
-  const handlePayment = async () => {
-    if (!selectedCountry || !selectedState) {
+    const code = couponCode.trim();
+    if (!code) {
+      setCouponError("Please enter coupon code");
       return;
     }
+
     try {
-      const res = await fetchData(`payment/createorder?renew=${true}`, "POST");
-      if (res.status !== 200) {
-        throw new Error("Failed to create order !");
+      const res = await fetchData(
+        `verify-coupon?code=${encodeURIComponent(code)}`,
+        "GET"
+      );
+
+      if (res.status !== 200 || !res.data?.success) {
+        setCouponError("Invalid or expired coupon");
+        return;
       }
+
+      const { coupon } = res.data;
+      setCouponPercent(coupon.discountPercent);
+      setCouponMsg(
+        `Coupon applied: ${coupon.code} (${coupon.discountPercent}% OFF)`
+      );
+      setIsCouponApplied(true);
+    } catch {
+      setCouponError("Invalid or expired coupon");
+    }
+  };
+
+  // ---------------- PAYMENT ----------------
+  const handlePayment = async () => {
+    if (!selectedCountry || !selectedState) return;
+
+    try {
+      // 🔑 IMPORTANT LOGIC
+      // Coupon only sent if it was APPLIED successfully
+      const payload = {
+        couponCode: isCouponApplied ? couponCode.trim() : null,
+      };
+
+      const res = await fetchData(
+        `payment/createorder?renew=${true}`,
+        "POST",
+        payload
+      );
+
+      if (res.status !== 200) throw new Error("Order creation failed");
+
       const data = res.data;
-      const RAZOR_KEY = data.key;
+
       const options = {
-        key: RAZOR_KEY,
-        amount: data.data.amount,
+        key: data.key,
+        amount: data.data.amount, // backend-decided
         currency: "INR",
         name: "Trading Tantra",
-        description: "Test Transaction",
+        description: "Renew Subscription",
         order_id: data.data.orderId,
-        prefill: {
-          name: `${data.firstName} ${data.lastName}`,
-          email: data.email,
-          contact: data.phoneNumber,
-        },
         handler: async (response) => {
-          const isVerified = await verifyPayment(response);
-          if (!isVerified) return;
-          await increaseSubscriptionValidity();
+          const verify = await fetchData(
+            `payment/verify-payment?renew=${true}`,
+            "POST",
+            response
+          );
+
+          if (!verify?.data?.success) return;
+
+          await fetchData("payment/renew-plan", "POST");
           setShowRenewModal(false);
           onPaymentSuccess();
         },
-        theme: {
-          color: "#F37254",
-        },
+        theme: { color: "#F37254" },
       };
 
-      const rzp = new Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.log("Error doing payment : ", error.message);
+      new Razorpay(options).open();
+    } catch (err) {
+      console.log("Payment error:", err.message);
     }
   };
 
-  const verifyPayment = async (paymentResponse) => {
-    try {
-      const res = await fetchData(
-        `payment/verify-payment?renew=${true}`,
-        "POST",
-        paymentResponse
-      );
-      if (res.status !== 200) {
-        throw new Error("Failed to verify payment");
-      }
-      return res.data.success;
-    } catch (error) {
-      console.log("Error verifing payment : ", error);
-    }
-  };
-
-  const increaseSubscriptionValidity = async () => {
-    try {
-      const res = await fetchData("payment/renew-plan", "POST");
-      if (res.status !== 200) {
-        throw new Error(res.statusText);
-      }
-      return res.data.success;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+  // ---------------- UI ----------------
   return (
-    <>
-      <div className="xl:w-[70%] w-[90%] mx-auto bg-gray-50 dark:bg-[#020417] px-8 py-8 font-abcRepro space-y-10 rounded-2xl">
-        <div className="flex items-start justify-between w-full">
-          <div className="flex flex-col space-y-5 ">
-            <h3 className="md:text-5xl sm:text-3xl text-xl font-bold text-black dark:text-white">
-              Renew Plan
-            </h3>
-            <p className="bg-primary rounded-lg md:text-3xl sm:text-xl text-base font-thin px-3 py-2 text-white">
-              DIAMOND (3999)
-            </p>
-          </div>
-          <div>
-            <p className="md:text-3xl sm:text-2xl text-base  font-light text-black dark:text-white">
-              Validity: 365 Days
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-5">
-          <p className="text-center text-xl text-black dark:text-white">
-            Select Country and State
+    <div className="xl:w-[70%] w-[90%] mx-auto bg-gray-50 dark:bg-[#020417] px-8 py-8 space-y-10 rounded-2xl">
+      <div className="flex justify-between">
+        <div className="space-y-3">
+          <h3 className="text-3xl font-bold dark:text-white">Renew Plan</h3>
+          <p className="bg-primary px-4 py-2 rounded text-white text-xl">
+            DIAMOND (₹3999)
           </p>
-          <div className="flex sm:flex-row flex-col gap-y-6 items-center justify-between">
-            {/* Country Dropdown */}
-            <select
-              name="country"
-              className="sm:w-[45%] w-full px-4 bg-gray-100 dark:bg-[#000A2D] text-black dark:text-white py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
-              value={selectedCountry}
-              onChange={handleCountryChange}
-            >
-              <option value="" disabled>
-                Select Country
-              </option>
-              {countries.map((country, index) => (
-                <option
-                  key={index}
-                  value={country.country}
-                  className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
-                >
-                  {country.country}
-                </option>
-              ))}
-            </select>
-
-            {/* State Dropdown */}
-            <select
-              name="state"
-              className="sm:w-[45%] w-full px-4 bg-gray-100 dark:bg-[#000A2D] text-black dark:text-white py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] disabled:opacity-50"
-              value={selectedState}
-              onChange={handleStateChange}
-              disabled={!selectedCountry} // Disable if no country is selected
-            >
-              <option value="" disabled>
-                Select State
-              </option>
-              {states.length > 0 ? (
-                states.map((state, index) => (
-                  <option
-                    key={index}
-                    value={state.name}
-                    className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
-                  >
-                    {state.name} {/* Assuming 'name' is the state's name */}
-                  </option>
-                ))
-              ) : (
-                <option
-                  disabled
-                  className="bg-white dark:bg-[#000A2D] text-black dark:text-white"
-                >
-                  No states available
-                </option>
-              )}
-            </select>
-          </div>
         </div>
-
-        <div className="grid sm:grid-cols-2 grid-cols-1 sm:gap-10 gap-5 w-full mx-auto lg:ml-15">
-          <div className="flex items-center gap-3">
-            <img src={lock} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
-              Get Instant Access Now
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <img src={doc} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
-              Watch Tutorials Inside
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <img src={play} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
-              View All Strategies
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <img src={shild} alt="" className="md:w-10 w-7 md:h-10 h-7" />
-            <p className="md:text-xl text-sm font-normal text-black dark:text-white">
-              Prepare For Tomorrow
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={handlePayment}
-          className="cursor-pointer bg-primary hover:opacity-95 text-white py-4 text-xl font-thin w-full rounded-xl"
-        >
-          Click to Continue
-        </button>
+        <p className="text-xl dark:text-white">Validity: 365 Days</p>
       </div>
-    </>
+
+      {/* Country & State */}
+      <div className="flex gap-5">
+        <select
+          value={selectedCountry}
+          onChange={(e) => setSelectedCountry(e.target.value)}
+          className="w-1/2 px-4 py-2 rounded bg-gray-100 dark:bg-[#000A2D] dark:text-white"
+        >
+          {countries.map((c, i) => (
+            <option key={i} value={c.country}>
+              {c.country}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedState}
+          onChange={(e) => setSelectedState(e.target.value)}
+          className="w-1/2 px-4 py-2 rounded bg-gray-100 dark:bg-[#000A2D] dark:text-white"
+        >
+          <option value="">Select State</option>
+          {states.map((s, i) => (
+            <option key={i} value={s.name}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* 🔥 Coupon Section */}
+      <div>
+        <p className="mb-2 text-sm dark:text-white">Have a coupon?</p>
+
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={couponCode}
+            disabled={isCouponApplied}
+            onChange={(e) => {
+              setCouponCode(e.target.value.toUpperCase());
+              setCouponError("");
+              setCouponMsg("");
+            }}
+            placeholder="Enter coupon code"
+            className="flex-1 px-3 py-2 rounded bg-white dark:bg-[#000A2D] dark:text-white disabled:opacity-60"
+          />
+
+          <button
+            type="button"
+            onClick={handleApplyCoupon}
+            disabled={isCouponApplied}
+            className="px-4 py-2 bg-primary text-white rounded disabled:opacity-60"
+          >
+            Apply
+          </button>
+        </div>
+
+        {couponError && (
+          <p className="text-red-500 text-xs mt-1">{couponError}</p>
+        )}
+        {couponMsg && (
+          <p className="text-green-600 text-xs mt-1">{couponMsg}</p>
+        )}
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-2 gap-5">
+        {[lock, doc, play, shild].map((icon, i) => (
+          <div key={i} className="flex gap-3 items-center">
+            <img src={icon} className="w-8 h-8" />
+            <p className="dark:text-white">Premium Access</p>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={handlePayment}
+        className="w-full bg-primary text-white py-4 rounded-xl text-xl"
+      >
+        Click to Continue
+      </button>
+    </div>
   );
 };
 
