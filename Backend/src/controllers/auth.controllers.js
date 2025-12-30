@@ -304,20 +304,23 @@ export const verifyOtpForResetPassword = async (req, res) => {
   }
 };
 
-
-
 const googleLogin = async (req, res) => {
-  const { code } = req.query;
-  const googleRes = await oauth2client.getToken(code);
-  oauth2client.setCredentials(googleRes.tokens);
+  const { code } = req.query; // Frontend se code mila
 
   try {
+    // 🔥 FIX 1: Token Exchange
+    // Agar frontend 'postmessage' flow use kar raha hai, to redirect_uri handle karna padta hai
+    const { tokens } = await oauth2client.getToken(code);
+    oauth2client.setCredentials(tokens);
+
     const userRes = await axios.get(
-      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`
+      `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`
     );
-    console.log(userRes.data);
+
     const { email, name, given_name, family_name, id } = userRes.data;
+
     let user = await User.findOne({ email });
+
     if (!user) {
       user = new User({
         email: email,
@@ -326,27 +329,41 @@ const googleLogin = async (req, res) => {
         lastName: family_name,
         googleId: id,
       });
-      await user.save();
+    } else {
+        // Agar user pehle se hai par googleId nahi hai (Normal signup kiya tha)
+        if(!user.googleId) user.googleId = id;
     }
-    const token = jwt.sign(
-      { userId: user._id, displayName: user.displayName },
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
-    );
+
+    // 🔥 FIX 2: SESSION MANAGEMENT (Critical)
+    // Google Login ko hum 'Force Login' maante hain (Puraana session kill)
+    const sessionId = crypto.randomUUID();
+    user.sessionId = sessionId;
+    user.lastActiveAt = new Date();
+    
+    await user.save();
 
     const subscribed = await UserSubscription.findOne({
       userId: user._id,
       status: "active",
       endDate: { $gt: Date.now() },
     });
+
+    // 🔥 FIX 3: Add sessionId to Token
+    const token = jwt.sign(
+      { 
+        userId: user._id, 
+        sessionId, // 🔥 Zaroori hai verifyUser middleware ke liye
+        displayName: user.displayName 
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "30m" } // Match with your login expiration
+    );
+
     const options = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 30 * 60 * 1000,
     };
 
     res
@@ -359,15 +376,18 @@ const googleLogin = async (req, res) => {
           id: user._id,
           email: user.email,
           displayName: user.displayName,
-          isSubscribed: subscribed ? true : false,
+          isSubscribed: !!subscribed,
+          darkMode: user.darkMode, // Ensure darkmode is sent
         },
       });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Google Login Error:", error?.response?.data || error.message);
+    res.status(500).json({ 
+        success: false, 
+        message: "Google Login Failed. Check Redirect URI." 
+    });
   }
 };
-
 export {
   signUp,
   logIn,
