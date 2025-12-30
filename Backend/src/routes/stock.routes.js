@@ -31,35 +31,35 @@ import { getAllIndexPoints } from "../controllers/indexCandlesPoints.controller.
 import { getContributionInIndex } from "../controllers/contributors.controller.js";
 
 const router = express.Router();
-router.get("/get-turnover", getStocksData);
-router.get("/get-top-gainers-and-losers", getTopGainersAndLosers);
-router.get("/get-day-high-break", getDayHighBreak);
-router.get("/get-day-low-break", getDayLowBreak);
-router.get("/previous-volume", previousDaysVolume);
-router.get("/sector-data", sectorStockData);
+router.get("/get-turnover", verifyUser,getStocksData);
+router.get("/get-top-gainers-and-losers",verifyUser, getTopGainersAndLosers);
+router.get("/get-day-high-break",verifyUser, getDayHighBreak);
+router.get("/get-day-low-break",verifyUser, getDayLowBreak);
+router.get("/previous-volume", verifyUser,previousDaysVolume);
+router.get("/sector-data", verifyUser,sectorStockData);
 
-router.get("/five-min-intraday-reversal-candle", AIIntradayReversalFiveMins);
-router.get("/daily-intraday-reversal-candle", AIIntradayReversalDaily);
-router.get("/daily-range-breakout", DailyRangeBreakout);
-router.get("/day-high-low-reversal", dayHighLowReversal);
-router.get("/two-day-hl-break", twoDayHLBreak);
-router.get("/five-min-momentum", AIMomentumCatcherFiveMins);
-router.get("/ten-min-momentum", AIMomentumCatcherTenMins);
+router.get("/five-min-intraday-reversal-candle",verifyUser, AIIntradayReversalFiveMins);
+router.get("/daily-intraday-reversal-candle",verifyUser, AIIntradayReversalDaily);
+router.get("/daily-range-breakout",verifyUser, DailyRangeBreakout);
+router.get("/day-high-low-reversal",verifyUser, dayHighLowReversal);
+router.get("/two-day-hl-break", verifyUser,twoDayHLBreak);
+router.get("/five-min-momentum",verifyUser, AIMomentumCatcherFiveMins);
+router.get("/ten-min-momentum", verifyUser,AIMomentumCatcherTenMins);
 
-router.get("/five-day-range-break", fiveDayRangeBreakers);
-router.get("/ten-day-range-break", tenDayRangeBreakers);
-router.get("/daily-candel-reversal", dailyCandleReversal);
-router.get("/ai-contraction", AIContractionDB);
+router.get("/five-day-range-break", verifyUser,fiveDayRangeBreakers);
+router.get("/ten-day-range-break", verifyUser,tenDayRangeBreakers);
+router.get("/daily-candel-reversal",verifyUser, dailyCandleReversal);
+router.get("/ai-contraction",verifyUser, AIContractionDB);
 
-router.get("/fii-dii", getFiiDiiData);
+router.get("/fii-dii", verifyUser,getFiiDiiData);
 
-router.get("/index-candles", getIndexCandlesData);
-router.get("/get-all-index-points", getAllIndexPoints);
-router.get("/index-contribution/:indexName", getContributionInIndex);
+router.get("/index-candles",verifyUser, getIndexCandlesData);
+router.get("/get-all-index-points",verifyUser, getAllIndexPoints);
+router.get("/index-contribution/:indexName",verifyUser, getContributionInIndex);
 
 //Outside market hours routes for data fetching :
-router.get("/smart-money-action", getSmartMoneyActionData);
-router.get("/sector-depth", sectorDepth);
-router.get("/market-depth", marketDepth);
+router.get("/smart-money-action",verifyUser, getSmartMoneyActionData);
+router.get("/sector-depth", verifyUser,sectorDepth);
+router.get("/market-depth",verifyUser, marketDepth);
 
 export default router;

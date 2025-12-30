@@ -82,7 +82,7 @@ const App = () => {
                 <Route path="forget-password" element={<ForgetPassword />} />
                 <Route path="reset-password" element={<ResetPassword />} />
                 <Route path="password-changed" element={<PasswordChanged />} />
-                <Route path="opt-modal" element={<OTPModal />} />
+                <Route path="otp" element={<OTPModal />} />
                 <Route path="/" element={<WebLayout />}>
                   <Route index element={<HomePage />} />
 

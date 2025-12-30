@@ -4,7 +4,7 @@ import { toggleTheme } from "../controllers/userUpdate.controller.js";
 
 const router = express.Router();
 
-router.post("profile/edit-profile");
+router.post("profile/edit-profile",verifyUser);
 router.put("/profile/toggle/theme",verifyUser,toggleTheme);
 
 export default router

@@ -6,6 +6,7 @@ import play from "../../assets/Images/play.svg";
 import doc from "../../assets/Images/doc.svg";
 import shild from "../../assets/Images/shild.svg";
 import pay from "../../assets/Images/payImg.svg";
+import indiaStates from "../../utils/indiaStates";
 import { useRazorpay } from "react-razorpay";
 import useFetchData from "../../utils/useFetchData";
 import { paymentSchema } from "../../../validators/validator";
@@ -21,8 +22,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const { fetchData } = useFetchData();
   const theme = useSelector((state) => state.theme.theme);
 
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
+
   const [countryCode, setCountryCode] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("India");
   const [selectedState, setSelectedState] = useState("");
@@ -63,72 +63,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const themeClass = (darkCls, lightCls) =>
     theme === "dark" ? darkCls : lightCls;
 
-  // --------- LOCATION DATA ---------
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get(
-          "https://countriesnow.space/api/v0.1/countries"
-        );
-        setCountries(res.data.data || []);
-      } catch (err) {
-        console.error("Error fetching country data:", err);
-      }
-    };
-    fetchCountries();
-  }, []);
 
-  useEffect(() => {
-    const fetchStates = async () => {
-      if (!selectedCountry) {
-        setStates([]);
-        return;
-      }
-      try {
-        const res = await axios.post(
-          "https://countriesnow.space/api/v0.1/countries/states",
-          { country: selectedCountry }
-        );
-        setStates(res.data.data?.states || []);
-      } catch (err) {
-        console.error("Error fetching state data:", err);
-      }
-    };
-    fetchStates();
-  }, [selectedCountry]);
-
-  useEffect(() => {
-    const fetchCode = async () => {
-      if (!selectedCountry) {
-        setCountryCode("");
-        return;
-      }
-      try {
-        const res = await axios.post(
-          "https://countriesnow.space/api/v0.1/countries/codes",
-          { country: selectedCountry }
-        );
-        setCountryCode(res.data.data?.dial_code || "");
-      } catch (err) {
-        console.error("Error fetching country code:", err);
-      }
-    };
-    fetchCode();
-  }, [selectedCountry]);
-
-  useEffect(() => {
-    if (countries.length) setSelectedCountry("India");
-  }, [countries]);
-
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, country: selectedCountry }));
-  }, [selectedCountry]);
-
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, state: selectedState }));
-  }, [selectedState]);
-
-  // --------- HANDLERS ---------
   const handleCountryChange = (e) => {
     const value = e.target.value;
     setSelectedCountry(value);
@@ -360,59 +295,38 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
 
             {/* Country */}
             <div className="space-y-1">
-              <select
-                name="country"
-                value={selectedCountry}
-                onChange={handleCountryChange}
-                className={selectClass}
-              >
-                <option value="" disabled className="text-gray-400">
-                  Select Country
-                </option>
-                {countries.map((c, idx) => (
-                  <option
-                    key={idx}
-                    value={c.country}
-                    className={theme === "dark" ? "bg-[#000A2D]" : ""}
-                  >
-                    {c.country}
-                  </option>
-                ))}
-              </select>
-            </div>
+  <select
+    name="country"
+    value="India"
+    disabled
+    className={`${selectClass} cursor-not-allowed opacity-80`}
+  >
+    <option value="India">India</option>
+  </select>
+</div>
+<div className="space-y-1">
+  <select
+    name="state"
+    value={selectedState}
+    onChange={(e) => {
+      setSelectedState(e.target.value);
+      setFormData((prev) => ({ ...prev, state: e.target.value }));
+    }}
+    className={selectClass}
+  >
+    <option value="">Select State</option>
+    {indiaStates.map((state) => (
+      <option
+        key={state}
+        value={state}
+        className={theme === "dark" ? "bg-[#000A2D]" : ""}
+      >
+        {state}
+      </option>
+    ))}
+  </select>
+</div>
 
-            {/* State */}
-            <div className="space-y-1">
-              <select
-                name="state"
-                value={selectedState}
-                onChange={handleStateChange}
-                disabled={!selectedCountry}
-                className={`${selectClass} disabled:opacity-50`}
-              >
-                <option value="" disabled className="text-gray-400">
-                  Select State
-                </option>
-                {states.length ? (
-                  states.map((s, idx) => (
-                    <option
-                      key={idx}
-                      value={s.name}
-                      className={theme === "dark" ? "bg-[#000A2D]" : ""}
-                    >
-                      {s.name}
-                    </option>
-                  ))
-                ) : (
-                  <option
-                    disabled
-                    className={theme === "dark" ? "bg-[#000A2D]" : ""}
-                  >
-                    No states available
-                  </option>
-                )}
-              </select>
-            </div>
 
             {/* Phone */}
             <div className="space-y-1 md:col-span-2">

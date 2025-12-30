@@ -1,12 +1,11 @@
-import { UserSubscription } from "../models/userSubscription.model.js";
+import UserSubscription from "../models/userSubscription.model.js";
 
 export const getSubcriptionValidity = async (req, res) => {
   try {
-    const { userId } = req.query;
+    // ✅ FIX: userId from verifyUser middleware
+    const userId = req.user._id;
 
-    const userSub = await UserSubscription.findOne({
-      userId,
-    });
+    const userSub = await UserSubscription.findOne({ userId });
 
     if (!userSub) {
       return res.status(200).json({
@@ -16,22 +15,20 @@ export const getSubcriptionValidity = async (req, res) => {
       });
     }
 
-    // Check if subscription is active (endDate in future AND status active)
     const isCurrentlySubscribed =
-      userSub.status === "active" && new Date(userSub.endDate) > new Date();
+      userSub.status === "active" &&
+      new Date(userSub.endDate) > new Date();
 
-    const userData = {
+    return res.status(200).json({
       success: true,
       isSubscribed: isCurrentlySubscribed,
       startDate: userSub.startDate,
       endDate: userSub.endDate,
       status: userSub.status,
-    };
-
-    res.status(200).json(userData);
+    });
   } catch (error) {
     console.error("Error in getting subscription end date:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       isSubscribed: false,
       message: "Server error",

@@ -1,106 +1,128 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import WrapperHeader from "./WrapperHeader";
 import WrapperPage from "./WrapperPage";
+import useFetchData from "../utils/useFetchData";
 
 const OTPModal = () => {
-  const [isBackPressed, setIsBackPressed] = useState(false);
-  const intervalRef = useRef();
+  const navigate = useNavigate();
+  const { fetchData } = useFetchData();
 
-  const [timer, setTimer] = useState(30);
+  const [error, setError] = useState("");
+  const [timer, setTimer] = useState(300); // 🔥 5 min
+  const intervalRef = useRef(null);
+
+  const refArray = Array(6)
+    .fill(0)
+    .map(() => useRef(null));
+
+  /* TIMER */
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
   useEffect(() => {
-    if (timer === 0) {
+    if (timer <= 0) {
       clearInterval(intervalRef.current);
     }
   }, [timer]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
-    }, 1000);
-    intervalRef.current = interval;
-    return () => clearInterval(interval);
-  }, []);
-
-  const refArray = Array(4)
-    .fill(4)
-    .map(() => useRef(null));
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  };
-
+  /* INPUT CHANGE */
   const handleChange = (e, index) => {
-    if (isBackPressed) {
-      setIsBackPressed(false);
-      return;
-    }
-
     if (e.target.value.length > 1) {
       e.target.value = e.target.value[0];
-      return;
     }
 
-    if (e.target.value && index + 1 < refArray.length) {
+    if (e.target.value && index < 5) {
       refArray[index + 1].current.focus();
     }
   };
 
+  /* BACKSPACE */
   const handleBack = (e, index) => {
-    if (e.key === "Backspace") {
-      if (!e.target.value && index > 0) {
-        refArray[index - 1].current.focus();
-        e.target.value = "";
-        setIsBackPressed(true);
-      }
+    if (e.key === "Backspace" && !e.target.value && index > 0) {
+      refArray[index - 1].current.focus();
     }
+  };
+
+  /* SUBMIT */
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const otp = refArray.map((ref) => ref.current.value).join("");
+
+    if (otp.length !== 6) {
+      setError("Please enter 6 digit OTP");
+      return;
+    }
+
+    const email = localStorage.getItem("resetEmail");
+
+    const res = await fetchData("auth/verify-otp", "POST", {
+      email,
+      otp,
+    });
+
+    if (!res || res.success === false) {
+      setError(res?.message || "Invalid OTP");
+      return;
+    }
+// OTPModal.jsx → handleSubmit()
+
+
+  localStorage.setItem("verifiedOtp", otp);
+  navigate("/reset-password");
+
   };
 
   return (
     <WrapperPage>
       <WrapperHeader
         title="OTP Verification"
-        discription="Enter 4 digits code we have sent you on your Email/Phone Number."
+        discription="Enter 6 digit OTP sent to your email."
       />
-      <form className="flex flex-col mt-2" onSubmit={handleSubmit}>
-        <div className="flex justify-center gap-5">
+
+      <form onSubmit={handleSubmit} className="flex flex-col mt-4">
+        <div className="flex justify-center gap-4">
           {refArray.map((ref, index) => (
             <input
-              ref={ref}
               key={index}
+              ref={ref}
               type="number"
               maxLength={1}
-              onKeyDown={(e) => handleBack(e, index)}
               onChange={(e) => handleChange(e, index)}
-              className="bg-[#01071C] text-xl pt-4 pb-4 pr-3 pl-3 w-[79px] h-[71px] rounded-[10px] border border-[#001A4E]"
+              onKeyDown={(e) => handleBack(e, index)}
+              className="bg-[#01071C] text-xl w-[60px] h-[60px] text-center rounded-lg border border-[#001A4E]"
             />
           ))}
         </div>
+
+        {error && (
+          <p className="text-red-400 text-center mt-3">{error}</p>
+        )}
+
         <span className="text-[#FF4242] mt-4 text-center">
-          00:{timer > 9 ? timer : "0" + timer}
+          {timer > 0
+            ? `00:${Math.floor(timer / 60)
+                .toString()
+                .padStart(2, "0")}:${(timer % 60)
+                .toString()
+                .padStart(2, "0")}`
+            : "OTP expired"}
         </span>
+
         <button
           type="submit"
-          className="bg-[#052C89] mt-5 text-white rounded-lg py-2 text-lg font-semibold 
-            hover:bg-[#052C89] 
-            transition-all duration-300 ease-out 
-            transform hover:scale-105 
-            focus:outline-none focus:ring-2 focus:ring-[#0256F5] focus:ring-opacity-50"
+          className="bg-[#052C89] mt-5 text-white rounded-lg py-2 text-lg font-semibold"
         >
           Continue
         </button>
-        <p className="text-[#6290FF] mt-5 text-center">
-          If you don&apos;t receive a code!{" "}
-        </p>
-        <button
-          disabled={timer > 0}
-          className={`${
-            timer <= 0 ? "text-[#FF4242]" : "text-[#b89696] cursor-not-allowed"
-          }`}
-        >
-          Resend
-        </button>{" "}
       </form>
     </WrapperPage>
   );

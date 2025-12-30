@@ -1,31 +1,62 @@
-import UserSubscription from "../models/userSubscription.model.js";
 import jwt from "jsonwebtoken";
+import User from "../models/user.model.js";
+import UserSubscription from "../models/userSubscription.model.js";
 
 const checkSubscription = async (socket, next) => {
-    try {
-      const token = socket.handshake.auth?.token;
-      if (!token) return next(new Error("Authentication token missing"));
-  
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-      if (!decodedToken) return next(new Error("Invalid token"));
-  
-      // Check active subscription
-      const subscription = await UserSubscription.findOne({
-        userId: decodedToken.userId,
-        status: "active",
-        endDate: { $gt: Date.now() },
-      });
-  
-      if (!subscription) {
-        return next(new Error("Subscription required")); // 🔥 This triggers `connect_error`
-      }
-  
-      socket.user = { id: decodedToken.userId };
-      next();
-    } catch (error) {
-      next(new Error("Error checking subscription"));
+  try {
+    // 🔑 get token (cookie first, fallback auth.token)
+    const token =
+      socket.handshake.headers.cookie
+        ?.split("; ")
+        .find((row) => row.startsWith("accessToken="))
+        ?.split("=")[1] ||
+      socket.handshake.auth?.token;
+
+    if (!token) {
+      return next(new Error("UNAUTHORIZED"));
     }
-  };
-  
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return next(new Error("USER_NOT_FOUND"));
+    }
+
+    // 🔥 SESSION TAKEOVER CHECK
+    if (user.sessionId !== decoded.sessionId) {
+      return next(new Error("SESSION_TAKEN_OVER"));
+    }
+
+    // 🔥 SUBSCRIPTION CHECK
+    const subscription = await UserSubscription.findOne({
+      userId: user._id,
+      status: "active",
+      endDate: { $gt: new Date() },
+    });
+
+    if (!subscription) {
+      return next(new Error("SUBSCRIPTION_REQUIRED"));
+    }
+
+    // 🔄 update activity (optional but recommended)
+    user.lastActiveAt = new Date();
+    await user.save();
+
+    // attach user to socket
+    socket.user = {
+      userId: user._id,
+      sessionId: user.sessionId,
+      subscriptionId: subscription._id,
+    };
+
+    next();
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return next(new Error("TOKEN_EXPIRED"));
+    }
+    return next(new Error("INVALID_TOKEN"));
+  }
+};
 
 export default checkSubscription;

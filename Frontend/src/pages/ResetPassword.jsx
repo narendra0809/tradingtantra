@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import WrapperHeader from "./WrapperHeader";
 import WrapperPage from "./WrapperPage";
 import { Eye, EyeOff } from "lucide-react";
+import useFetchData from "../utils/useFetchData";
 
 const ResetPassword = () => {
-  const [FormData, setFormData] = useState({
+  const navigate = useNavigate();
+  const { fetchData } = useFetchData();
+
+  const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
   });
@@ -14,42 +19,63 @@ const ResetPassword = () => {
     confirmPassword: false,
   });
 
-  const [formErrors, setFormErrors] = useState({});
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    let { name, value } = e.target;
-    setFormData({ ...FormData, [name]: value });
-    if (name === "confirmPassword") {
-      name = "passNoMatch";
-    }
-    setFormErrors({ ...formErrors, [name]: "" });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    const email = localStorage.getItem("resetEmail");
+    const otp = localStorage.getItem("verifiedOtp"); // OTPModal me store karna
+
+    const res = await fetchData("auth/forgot", "POST", {
+      email,
+      otp,
+      password: formData.password,
+    });
+
+    if (!res || res.success === false) {
+      setError(res?.message || "Something went wrong");
+      return;
+    }
+localStorage.removeItem("verifiedOtp");
+localStorage.removeItem("resetEmail");
+
+    navigate("/password-changed");
   };
+
   return (
     <WrapperPage>
       <WrapperHeader
         title="Reset Password"
-        discription="Enter new password and confirm  new password. fill the details."
+        discription="Enter new password and confirm new password."
       />
+
       <form onSubmit={handleSubmit}>
-        <div className="mb-4 flex flex-col">
-          <label
-            htmlFor="password"
-            className="block text-lg text-[#C7C7C7] mb-1"
-          >
-            Password
-          </label>
-          <div className="flex relative">
+        {/* PASSWORD */}
+        <div className="mb-4">
+          <label className="text-[#C7C7C7]">Password</label>
+          <div className="relative">
             <input
               type={showPasswords.password ? "text" : "password"}
               name="password"
-              value={FormData.password}
-              placeholder="Enter your Password"
+              value={formData.password}
               onChange={handleChange}
-              id="password"
-              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+              className="w-full px-4 py-3 bg-[#151B2D] border rounded-lg"
             />
             <button
               type="button"
@@ -61,32 +87,24 @@ const ResetPassword = () => {
               }
             >
               {showPasswords.password ? (
-                <EyeOff className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+                <EyeOff className="absolute right-4 top-3" />
               ) : (
-                <Eye className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+                <Eye className="absolute right-4 top-3" />
               )}
             </button>
           </div>
-          {formErrors.password && (
-            <p className="text-red-400">{formErrors.password}</p>
-          )}
         </div>
-        <div className="mb-4 flex flex-col">
-          <label
-            htmlFor="password"
-            className="block text-lg text-[#C7C7C7] mb-1"
-          >
-            Confirm Password
-          </label>
-          <div className="flex relative">
+
+        {/* CONFIRM PASSWORD */}
+        <div className="mb-4">
+          <label className="text-[#C7C7C7]">Confirm Password</label>
+          <div className="relative">
             <input
               type={showPasswords.confirmPassword ? "text" : "password"}
               name="confirmPassword"
-              placeholder="Retype your Password"
-              value={FormData.confirmPassword}
+              value={formData.confirmPassword}
               onChange={handleChange}
-              id="confrimPassword"
-              className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+              className="w-full px-4 py-3 bg-[#151B2D] border rounded-lg"
             />
             <button
               type="button"
@@ -98,26 +116,19 @@ const ResetPassword = () => {
               }
             >
               {showPasswords.confirmPassword ? (
-                <EyeOff className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+                <EyeOff className="absolute right-4 top-3" />
               ) : (
-                <Eye className="cursor-pointer absolute right-4 top-3 text-[#C7C7C7]" />
+                <Eye className="absolute right-4 top-3" />
               )}
             </button>
           </div>
-          {formErrors.passNoMatch && (
-            <p className="text-red-400">{formErrors.passNoMatch}</p>
-          )}
-          <button
-            type="submit"
-            className="bg-[#052C89] mt-7 text-white rounded-lg py-2 text-lg font-semibold 
-            hover:bg-[#052C89] 
-            transition-all duration-300 ease-out 
-            transform hover:scale-105 
-            focus:outline-none focus:ring-2 focus:ring-[#0256F5] focus:ring-opacity-50"
-          >
-            Change Password
-          </button>
         </div>
+
+        {error && <p className="text-red-400 mb-3">{error}</p>}
+
+        <button className="bg-[#052C89] w-full py-2 rounded-lg">
+          Change Password
+        </button>
       </form>
     </WrapperPage>
   );

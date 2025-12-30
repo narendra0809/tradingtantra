@@ -1,68 +1,45 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
+import { useRazorpay } from "react-razorpay";
+
 import lock from "../../assets/Images/lock.svg";
 import play from "../../assets/Images/play.svg";
 import doc from "../../assets/Images/doc.svg";
 import shild from "../../assets/Images/shild.svg";
-import { useRazorpay } from "react-razorpay";
+
+import indiaStates from "../../utils/indiaStates";
 import useFetchData from "../../utils/useFetchData";
 
 const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();
   const { fetchData } = useFetchData();
 
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [selectedCountry, setSelectedCountry] = useState("India");
+  // ---------------- LOCATION ----------------
+  const [selectedCountry] = useState("India");
   const [selectedState, setSelectedState] = useState("");
 
-  // 🔥 Coupon states
+  // ---------------- COUPON ----------------
   const [couponCode, setCouponCode] = useState("");
   const [couponPercent, setCouponPercent] = useState(0);
   const [couponError, setCouponError] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
   const [isCouponApplied, setIsCouponApplied] = useState(false);
 
-  // ---------------- COUNTRY / STATE ----------------
-  useEffect(() => {
-    const fetchCountries = async () => {
-      const res = await axios.get(
-        "https://countriesnow.space/api/v0.1/countries"
-      );
-      setCountries(res.data.data || []);
-    };
-    fetchCountries();
-  }, []);
-
-  useEffect(() => {
-    const fetchStates = async () => {
-      if (!selectedCountry) return;
-      const res = await axios.post(
-        "https://countriesnow.space/api/v0.1/countries/states",
-        { country: selectedCountry }
-      );
-      setStates(res.data.data?.states || []);
-    };
-    fetchStates();
-  }, [selectedCountry]);
-
-  // ---------------- COUPON VERIFY ----------------
+  // ---------------- APPLY COUPON ----------------
   const handleApplyCoupon = async () => {
     setCouponError("");
     setCouponMsg("");
     setCouponPercent(0);
     setIsCouponApplied(false);
 
-    const code = couponCode.trim();
-    if (!code) {
+    if (!couponCode.trim()) {
       setCouponError("Please enter coupon code");
       return;
     }
 
     try {
       const res = await fetchData(
-        `verify-coupon?code=${encodeURIComponent(code)}`,
+        `verify-coupon?code=${encodeURIComponent(couponCode.trim())}`,
         "GET"
       );
 
@@ -84,17 +61,18 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
 
   // ---------------- PAYMENT ----------------
   const handlePayment = async () => {
-    if (!selectedCountry || !selectedState) return;
+    if (!selectedState) {
+      alert("Please select state");
+      return;
+    }
 
     try {
-      // 🔑 IMPORTANT LOGIC
-      // Coupon only sent if it was APPLIED successfully
       const payload = {
         couponCode: isCouponApplied ? couponCode.trim() : null,
       };
 
       const res = await fetchData(
-        `payment/createorder?renew=${true}`,
+        `payment/createorder?renew=true`,
         "POST",
         payload
       );
@@ -105,14 +83,14 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
 
       const options = {
         key: data.key,
-        amount: data.data.amount, // backend-decided
+        amount: data.data.amount,
         currency: "INR",
         name: "Trading Tantra",
         description: "Renew Subscription",
         order_id: data.data.orderId,
         handler: async (response) => {
           const verify = await fetchData(
-            `payment/verify-payment?renew=${true}`,
+            `payment/verify-payment?renew=true`,
             "POST",
             response
           );
@@ -135,6 +113,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
   // ---------------- UI ----------------
   return (
     <div className="xl:w-[70%] w-[90%] mx-auto bg-gray-50 dark:bg-[#020417] px-8 py-8 space-y-10 rounded-2xl">
+      {/* HEADER */}
       <div className="flex justify-between">
         <div className="space-y-3">
           <h3 className="text-3xl font-bold dark:text-white">Renew Plan</h3>
@@ -145,18 +124,14 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
         <p className="text-xl dark:text-white">Validity: 365 Days</p>
       </div>
 
-      {/* Country & State */}
+      {/* COUNTRY & STATE */}
       <div className="flex gap-5">
         <select
           value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value)}
-          className="w-1/2 px-4 py-2 rounded bg-gray-100 dark:bg-[#000A2D] dark:text-white"
+          disabled
+          className="w-1/2 px-4 py-2 rounded bg-gray-100 dark:bg-[#000A2D] dark:text-white cursor-not-allowed opacity-80"
         >
-          {countries.map((c, i) => (
-            <option key={i} value={c.country}>
-              {c.country}
-            </option>
-          ))}
+          <option value="India">India</option>
         </select>
 
         <select
@@ -165,15 +140,15 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
           className="w-1/2 px-4 py-2 rounded bg-gray-100 dark:bg-[#000A2D] dark:text-white"
         >
           <option value="">Select State</option>
-          {states.map((s, i) => (
-            <option key={i} value={s.name}>
-              {s.name}
+          {indiaStates.map((state) => (
+            <option key={state} value={state}>
+              {state}
             </option>
           ))}
         </select>
       </div>
 
-      {/* 🔥 Coupon Section */}
+      {/* COUPON */}
       <div>
         <p className="mb-2 text-sm dark:text-white">Have a coupon?</p>
 
@@ -209,7 +184,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
         )}
       </div>
 
-      {/* Features */}
+      {/* FEATURES */}
       <div className="grid grid-cols-2 gap-5">
         {[lock, doc, play, shild].map((icon, i) => (
           <div key={i} className="flex gap-3 items-center">
@@ -219,6 +194,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
         ))}
       </div>
 
+      {/* PAY */}
       <button
         onClick={handlePayment}
         className="w-full bg-primary text-white py-4 rounded-xl text-xl"

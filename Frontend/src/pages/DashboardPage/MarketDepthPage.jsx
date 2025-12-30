@@ -461,12 +461,7 @@ const MarketDepthPage = () => {
     const Subscribed = Cookies.get("isSubscribed");
     setIsSubscribed(Subscribed === "true");
 
-    if (!token) {
-      console.error("No token found in localStorage");
-      setError("Authentication token missing");
-      setLoading(false);
-      return;
-    }
+    
 
     const marketHoursCheckInterval = setInterval(() => {
       const currentlyMarketHours = checkMarketHours();

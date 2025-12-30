@@ -57,66 +57,64 @@ const FIIDIIPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(null);
   const renderCountRef = useRef(0);
 
-  useEffect(() => {
-    renderCountRef.current += 1;
-    console.log(`FIIDIIPage re-rendered ${renderCountRef.current} times`);
-
-    const Subscribed = Cookies.get("isSubscribed");
-    setIsSubscribed(Subscribed === "true");
-
-    const fetchFiiDiiData = async (attempt = 1, maxAttempts = 3) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const source = axios.CancelToken.source();
-        const timeout = setTimeout(() => {
-          source.cancel("Request timed out");
-        }, 10000); // 10s timeout
-
-        const res = await axios.get(`${SERVER_URI}/fii-dii`, {
-          cancelToken: source.token,
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-
-        clearTimeout(timeout);
-
-        const data = Array.isArray(res.data.resdata) ? res.data.resdata : [];
-        setFiiDiiData(data);
-      } catch (err) {
-        if (axios.isCancel(err)) {
-          console.warn("FII/DII request canceled:", err.message);
-        } else {
-          console.error("FII/DII fetch error:", err);
-          if (err.response?.status === 403 || err.response?.status === 401) {
-            setError(
-              "Subscription required. Please subscribe to access FII/DII data."
-            );
-          } else if (attempt < maxAttempts) {
-            console.log(
-              `Retrying FII/DII fetch (attempt ${attempt + 1}/${maxAttempts})`
-            );
-            setTimeout(() => fetchFiiDiiData(attempt + 1, maxAttempts), 1000);
-            return;
-          } else {
-            setError("Failed to load FII/DII data. Please try again later.");
-          }
+ const checkSubscription = async () => {
+    try {
+      const res = await axios.get(
+        `${SERVER_URI}/subcription-end-date`,
+        {
+          withCredentials: true, // 🔥 cookie based auth
         }
-      } finally {
-        setLoading(false);
+      );
+
+      setIsSubscribed(res.data.isSubscribed);
+    } catch (err) {
+      // 🔥 session takeover / invalid session
+      if (err.response?.data?.code === "SESSION_TAKEN_OVER") {
+        alert("You have been logged out. Someone logged in from another device.");
+        window.location.href = "/login";
+        return;
       }
-    };
 
-    if (!localStorage.getItem("token") && !isSubscribed) {
-      setError("Authentication token missing or subscription required.");
-      setLoading(false);
-      return;
+      setIsSubscribed(false);
     }
+  };
 
-    fetchFiiDiiData();
+  // 📊 STEP 2: FETCH FII/DII DATA
+  const fetchFiiDiiData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    return () => {
-      // Cleanup not needed for axios cancellation here, but included for completeness
+      const res = await axios.get(`${SERVER_URI}/fii-dii`, {
+        withCredentials: true, // 🔥 IMPORTANT
+      });
+
+      const data = Array.isArray(res.data.resdata)
+        ? res.data.resdata
+        : [];
+
+      setFiiDiiData(data);
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setError("Please login again.");
+      } else if (err.response?.status === 403) {
+        setError("Subscription required.");
+      } else {
+        setError("Failed to load FII/DII data.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🚀 INIT
+  useEffect(() => {
+    const init = async () => {
+      await checkSubscription();
+      await fetchFiiDiiData();
     };
+
+    init();
   }, []);
 
   return (

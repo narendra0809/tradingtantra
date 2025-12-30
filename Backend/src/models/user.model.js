@@ -36,16 +36,16 @@ const UserSchema = new mongoose.Schema(
       type: String,
     },
     otpExpiry: {
-      type: String,
+      type: Date,
     },
     darkMode: {
       type: Boolean,
       default: true,
     },
-    isLoggedIn: {
-      type: Boolean,
-      default: false,
-    },
+    sessionId: { type: String, default: null },
+    lastActiveAt: { type: Date, default: null },
+
+
   },
   { timestamps: true }
 );
