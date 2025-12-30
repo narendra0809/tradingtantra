@@ -1,71 +1,66 @@
 import WrapperHeader from "./WrapperHeader";
 import WrapperPage from "./WrapperPage";
-
-import facebook from "../assets/Images/logos/facebook.png";
-import google from "../assets/Images/logos/google.png";
-import apple from "../assets/Images/logos/apple.png";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import useFetchData from "../utils/useFetchData";
-// import { useEffect } from "react";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const { fetchData } = useFetchData();
-
-  const handleChange = (e) => {
-    setEmail(e.target.value);
-  };
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
 
-    await fetchData("auth/otp", "POST", { email });
+    const res = await fetchData("auth/otp", "POST", { email });
+
+    console.log("OTP API Response:", res);
+
+    if (!res || res.error || res.success === false) {
+      setErrorMsg(res?.message || "Something went wrong");
+      return;
+    }
+
+    // success case
+    localStorage.setItem("resetEmail", email);
+    navigate("/otp"); // 👈 MAKE SURE ROUTE EXISTS
   };
 
-  // useEffect(() => {
-  //   console.log(error);
-  // }, [error]);
   return (
     <WrapperPage>
       <WrapperHeader
         title="Forget Password"
-        discription="Enter your email for the verification proccess,we will send 4 digits code to your email."
+        discription="Enter your email for the verification process, we will send 4 digits code to your email."
       />
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-lg font-medium mb-1">
-            Email
-          </label>
+          <label className="block text-lg font-medium mb-1">Email</label>
           <input
             type="email"
-            id="email"
-            name="email"
-            onChange={handleChange}
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg"
             placeholder="Enter your email"
             required
           />
         </div>
+
+        {errorMsg && (
+          <p className="text-red-400 text-sm">{errorMsg}</p>
+        )}
+
         <button
           type="submit"
-          className="w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200"
+          className="w-full py-3 bg-[#0256F5] rounded-lg"
         >
           Send OTP
         </button>
       </form>
-      <div className="w-full flex items-center my-4">
-        <div className="grow border-t border-[#E8ECF4]"></div>
-        <span className="mx-4 text-gray-500">Or Login with</span>
-        <div className="grow border-t border-[#E8ECF4]"></div>
-      </div>
-      <div className="flex justify-center">
-        <button>
-          <img src={google} alt="" />
-        </button>
-      </div>
-      <div className="mt-5 w-full flex justify-center">
+
+      <div className="mt-5 text-center">
         <p className="text-[#C7C7C7]">
           Remember Password?{" "}
           <NavLink className="underline text-[#6290FF]" to="/login">

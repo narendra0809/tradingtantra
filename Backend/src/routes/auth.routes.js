@@ -6,6 +6,7 @@ import {
   resetPassword,
   sendOtpForResetPassword,
   signUp,
+  verifyOtpForResetPassword,
 } from "../controllers/auth.controllers.js";
 
 import { check } from "express-validator";
@@ -16,6 +17,14 @@ import {
 } from "../controllers/userUpdate.controller.js";
 import { addTrade, getAddedTrade } from "../controllers/tradDate.controller.js";
 const router = express.Router();
+router.post(
+  "/verify-otp",
+  [
+    check("email", "Valid email required").isEmail(),
+    check("otp", "OTP must be 6 digits").isLength({ min: 6, max: 6 }),
+  ],
+  verifyOtpForResetPassword
+);
 
 router.post(
   "/signup",
@@ -41,7 +50,9 @@ router.post(
   ],
   logIn
 );
-
+router.get("/me", verifyUser, (req, res) =>
+  res.json({ success: true, user: req.user })
+);
 router.post(
   "/updatepassword",
   [
@@ -71,15 +82,15 @@ router.post(
 router.post(
   "/forgot",
   [
-    check("otp", "otp must be at least 6 digits").isLength({
-      min: 6,
-    }),
+    check("email", "Valid email required").isEmail(),
+    check("otp", "OTP must be 6 digits").isLength({ min: 6, max: 6 }),
     check("password", "Password must be at least 6 characters").isLength({
       min: 6,
     }),
   ],
   resetPassword
 );
+
 
 //display name change route
 router.post(

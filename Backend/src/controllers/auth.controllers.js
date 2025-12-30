@@ -1,5 +1,6 @@
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import sendEmail from "../utils/email.js";
@@ -58,37 +59,45 @@ const signUp = async (req, res) => {
 // login controller
 
 const logIn = async (req, res) => {
+  const { email, password, forceLogin } = req.body;
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, password } = req.body;
-
-  // console.log(email, password);
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not Exist, please sign up" });
-    }
-    if (user.isLoggedIn) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Multiple logins not allowed !" });
-    }
-    // console.log('here.....👍')
-    if (user.password) {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ error: "Invalid credentials" });
-      }
-    } else {
-      return res.status(400).json({ error: "Please sign in with Google" });
+      return res.status(404).json({
+        success: false,
+        message: "User not Exist, please sign up",
+      });
     }
 
-    let isSubscribed = false;
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    // 🔥 CHECK EXISTING SESSION
+    // If user has a session AND we are not forcing a login
+    if (user.sessionId && !forceLogin) {
+      return res.status(409).json({
+        success: false,
+        code: "ALREADY_LOGGED_IN",
+        message: "You are logged in on another device. Logout there and login here?",
+      });
+    }
+
+    // 🔥 CREATE NEW SESSION (This invalidates the old one)
+    const sessionId = crypto.randomUUID();
+    user.sessionId = sessionId;
+    user.lastActiveAt = new Date();
+    await user.save();
 
     const subscribed = await UserSubscription.findOne({
       userId: user._id,
@@ -96,61 +105,46 @@ const logIn = async (req, res) => {
       endDate: { $gt: Date.now() },
     });
 
-    if (!subscribed) {
-      isSubscribed = false;
-    } else {
-      isSubscribed = true;
-    }
-
+    // Embed sessionId in token
     const token = jwt.sign(
-      { userId: user._id, displayName: user.displayName },
+      { userId: user._id, sessionId },
       process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1h",
-      }
+      { expiresIn: "300m" }
     );
-
-    const options = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, //for one day
-    };
-
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { isLoggedIn: true },
-      { new: true }
-    );
-    console.log(JSON.stringify(updatedUser));
 
     res
-      .status(200)
-      .cookie("accessToken", token, options)
+      .cookie("accessToken", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 30 * 60 * 1000,
+      })
       .json({
         success: true,
-        token,
         user: {
           id: user._id,
           email: user.email,
           displayName: user.displayName,
-          isSubscribed,
-          darkMode: typeof user?.darkMode != "boolean" ? true : user?.darkMode,
+          isSubscribed: !!subscribed,
+          darkMode: user.darkMode,
         },
       });
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Error in login" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Login failed" });
   }
 };
 
-//logout
-
+// LOGOUT CONTROLLER
 const logout = async (req, res) => {
   try {
-    const user = req.user;
-
-    await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
+    // Clear session in DB
+    if (req.user) {
+      await User.findByIdAndUpdate(req.user._id, {
+        sessionId: null,
+        lastActiveAt: null,
+      });
+    }
 
     res.status(200).clearCookie("accessToken").json({
       success: true,
@@ -159,11 +153,10 @@ const logout = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Internal server error in logging out ",
+      message: "Internal server error in logging out",
     });
   }
 };
-
 //reset password
 
 const sendOtpForResetPassword = async (req, res) => {
@@ -202,54 +195,56 @@ const sendOtpForResetPassword = async (req, res) => {
   }
 };
 
-const resetPassword = async (req, res) => {
+ const resetPassword = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
+    return res.status(400).json({
+      success: false,
+      errors: errors.array(),
+    });
   }
 
   try {
-    const { password, otp } = req.body;
+    const { email, otp, password } = req.body;
 
-    const loggedInUser = req.user;
-
-    // console.log("logged", loggedInUser);
-
-    const user = await User.findOne({ email: loggedInUser.email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res
         .status(404)
-        .json({ success: false, message: "Invalid Email!" });
+        .json({ success: false, message: "Invalid Email" });
     }
 
-    if (Date.now() > user.otpExpiry) {
-      return res.status(401).json({ success: false, message: "otp expire" });
+    // OTP expired
+    if (!user.otpExpiry || Date.now() > user.otpExpiry) {
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP expired" });
     }
 
+    // OTP mismatch
     if (otp !== user.otp) {
       return res
-        .status(401)
-        .json({ success: false, message: "otp does not match" });
+        .status(400)
+        .json({ success: false, message: "OTP does not match" });
     }
 
+    // hash password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    // clear otp
     user.otp = undefined;
     user.otpExpiry = undefined;
 
-    let hashedPassword;
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      hashedPassword = await bcrypt.hash(password, salt);
-    }
-
-    user.password = hashedPassword;
-
     await user.save({ validateBeforeSave: false });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Password changed successfully!" });
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully!",
+    });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: "Internal server error in password changing",
@@ -257,7 +252,59 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// GOOGLE CONTROLLERS :
+
+export const verifyOtpForResetPassword = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid input",
+      errors: errors.array(),
+    });
+  }
+
+  const { email, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // OTP mismatch
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    // OTP expired
+    if (user.otpExpiry < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
 
 const googleLogin = async (req, res) => {
   const { code } = req.query;
