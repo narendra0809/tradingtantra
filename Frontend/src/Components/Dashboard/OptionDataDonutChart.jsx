@@ -1,11 +1,26 @@
 /* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import Chart from "react-apexcharts";
 import Lock from "./Lock";
 import { useSelector } from "react-redux";
 
 const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
   const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
- const theme = useSelector((state) => state.theme.theme);
+  const theme = useSelector((state) => state.theme.theme);
+
+  // 🔥 FIX 1: State to track loading
+  const [isChartReady, setIsChartReady] = useState(false);
+
+  useEffect(() => {
+    // Thoda delay taaki DOM ready ho jaye
+    const timer = setTimeout(() => {
+      setIsChartReady(true);
+      // 🔥 Trigger Resize: Ye chart ko force karega render hone ke liye
+      window.dispatchEvent(new Event("resize"));
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const topContributors = contributor.contributions
     .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
@@ -24,10 +39,17 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
     Math.abs((otherContributionsPoints / indexPts) * 100).toFixed(2)
   );
 
+  // Series data (Permissions for drawing slices)
   const chartSeries =
     otherContributionsPercent > 0
       ? [...topContributors.map((s) => s.percent), otherContributionsPercent]
       : topContributors.map((s) => s.percent);
+
+  // 🔥 Tooltip Data Array (Points values for tooltip lookup)
+  const tooltipPointsData =
+    otherContributionsPercent > 0
+      ? [...topContributors.map((s) => s.points), otherContributionsPoints]
+      : topContributors.map((s) => s.points);
 
   const chartLabels =
     otherContributionsPercent > 0
@@ -72,6 +94,8 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
         type: "donut",
         width: "100%",
         foreColor: "#fff",
+        // 🔥 Fix for resize issue
+        redrawOnParentResize: true,
         dropShadow: {
           enabled: true,
           top: 0,
@@ -84,8 +108,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
       colors: chartColors,
       stroke: {
         width: 2,
-        // colors: ["#01071C"],
-         colors: theme=="dark" ? ["#01071C"] :["#FFF"],
+        colors: theme === "dark" ? ["#01071C"] : ["#FFF"],
       },
       dataLabels: {
         enabled: true,
@@ -94,9 +117,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
           fontWeight: "bold",
           colors: ["#000"],
         },
-        dropShadow: {
-          enabled: false,
-        },
+        dropShadow: { enabled: false },
         offset: 5,
         minAngleToShowLabel: 1,
       },
@@ -106,22 +127,21 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
             size: "70%",
             labels: {
               show: true,
-              name: {
-                color: "#000",
-              },
+              name: { color: "#000" },
               value: {
-                color: indexPts <0 ? "#9B3B44" : "#269F3C",
+                color: indexPts < 0 ? "#9B3B44" : "#269F3C",
                 fontSize: "16px",
                 fontWeight: "bold",
+                // Center Label
                 formatter: function (val) {
-                  return val ? val.toFixed(1) + "%" : "";
+                  return val ? parseFloat(val).toFixed(1) + "%" : "";
                 },
               },
               total: {
                 show: true,
                 showAlways: true,
                 label: contributor.indexName,
-                color: indexPts < 0 ? "#F44336" : "#4CAF50", // Red if negative, green if positive
+                color: indexPts < 0 ? "#F44336" : "#4CAF50",
                 fontSize: "18px",
                 fontWeight: 600,
                 formatter: function () {
@@ -132,17 +152,15 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
           },
         },
       },
-      legend: {
-        show: false,
-      },
+      legend: { show: false },
       tooltip: {
         enabled: true,
-        style: {
-          fontSize: "14px",
-        },
+        style: { fontSize: "14px" },
         y: {
-          formatter: function (val) {
-            return val.toFixed(1) + "%";
+          // 🔥 FIX 2: Show Points instead of Percentage
+          formatter: function (val, { seriesIndex }) {
+            const points = tooltipPointsData[seriesIndex];
+            return `${points > 0 ? "+" : ""}${points.toFixed(2)} pts`;
           },
         },
       },
@@ -153,53 +171,43 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
     <div className="w-full">
       <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
         <div className="w-full lg:w-1/2 xl:w-2/5 flex justify-center">
-          <div className="w-full max-w-md h-[400px]">
+          {/* 🔥 FIX 1: Added min-height-[400px] */}
+          <div className="w-full max-w-md h-[400px] min-h-[400px] relative flex items-center justify-center">
             {!isSubscribed ? (
               <Lock />
             ) : (
-              <Chart
-                options={chartData.options}
-                series={chartData.series}
-                type="donut"
-                width="100%"
-                height={400}
-              />
+              isChartReady && (
+                <Chart
+                  options={chartData.options}
+                  series={chartData.series}
+                  type="donut"
+                  width="100%"
+                  height={400}
+                />
+              )
             )}
           </div>
         </div>
 
+        {/* List Section (No Changes needed here, kept as is) */}
         <div className="w-full lg:w-1/2 xl:w-3/5">
           <div
             className="rounded-lg p-4 h-96 overflow-y-auto not-dark:bg-primary-light"
             style={{
-              // backgroundColor: "#01071C",
               border: "1px solid rgba(255, 255, 255, 0.1)",
-              /* Custom scrollbar styles for dark theme */
-              scrollbarWidth: "thin" /* For Firefox */,
-              scrollbarColor: "#4A5568 #2D3748" /* Thumb and track colors */,
+              scrollbarWidth: "thin",
+              scrollbarColor: "#4A5568 #2D3748",
             }}
           >
             <style>
               {`
-                /* Webkit browsers (Chrome, Safari, Edge) */
-                .rounded-lg::-webkit-scrollbar {
-                  width: 8px;
-                }
-                .rounded-lg::-webkit-scrollbar-track {
-                  background: #2D3748; /* Dark track */
-                }
-                .rounded-lg::-webkit-scrollbar-thumb {
-                  background: #4A5568; /* Dark thumb */
-                  border-radius: 4px;
-                }
-                .rounded-lg::-webkit-scrollbar-thumb:hover {
-                  background: #718096; /* Lighter thumb on hover */
-                }
+                .rounded-lg::-webkit-scrollbar { width: 8px; }
+                .rounded-lg::-webkit-scrollbar-track { background: #2D3748; }
+                .rounded-lg::-webkit-scrollbar-thumb { background: #4A5568; border-radius: 4px; }
+                .rounded-lg::-webkit-scrollbar-thumb:hover { background: #718096; }
               `}
             </style>
-            <h3 className=" font-bold mb-4 text-lg">
-              Top Contributors
-            </h3>
+            <h3 className="font-bold mb-4 text-lg">Top Contributors</h3>
             <div className="space-y-2 h-full">
               {!isSubscribed ? (
                 <Lock />
@@ -213,9 +221,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
                       className="w-4 h-4 rounded-full mr-3"
                       style={{ backgroundColor: chartColors[index] }}
                     />
-                    <span className=" flex-1 truncate">
-                      {contributor.name}
-                    </span>
+                    <span className="flex-1 truncate">{contributor.name}</span>
                     <span
                       className={`ml-2 font-medium ${
                         contributor.points > 0
@@ -237,7 +243,7 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
                       backgroundColor: chartColors[topContributors.length],
                     }}
                   />
-                  <span className=" flex-1">
+                  <span className="flex-1">
                     Other {contributor.contributions.slice(10).length} stocks
                   </span>
                   <span

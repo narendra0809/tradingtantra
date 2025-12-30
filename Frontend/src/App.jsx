@@ -26,7 +26,6 @@ import MarketDepthPage from "./pages/DashboardPage/MarketDepthPage";
 import MonryActionPage from "./pages/DashboardPage/MoneyActionPage";
 import AiSwingTradesPage from "./pages/DashboardPage/AiSwingTradesPage";
 import OptionClockPage from "./pages/DashboardPage/OptionClockPage";
-import AIOptionDataPage from "./pages/DashboardPage/AiOptionDataPage";
 import FinancialCalendar from "./pages/DashboardPage/FinancialCalendar";
 import OurStrategy from "./pages/DashboardPage/OurStrategy";
 import TradingJournal from "./pages/DashboardPage/TradingJournal";
@@ -62,6 +61,7 @@ import StockDetails from "./pages/AdminPages/StockDetails";
 import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
 import Coupon from "./pages/AdminPages/Coupon";
 import { Toaster } from "react-hot-toast";
+import AIOptionDataPage from "./pages/DashboardPage/AiOptionDataPage";
 
 const App = () => {
   return (

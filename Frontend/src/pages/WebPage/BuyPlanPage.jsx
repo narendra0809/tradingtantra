@@ -12,6 +12,7 @@ import useFetchData from "../../utils/useFetchData";
 import { paymentSchema } from "../../../validators/validator";
 import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
+import { toast } from "react-hot-toast"; // Using toast for better visibility
 
 const PLAN_AMOUNT = 3388.98;
 const GST_AMOUNT = 610.02;
@@ -22,7 +23,6 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const { fetchData } = useFetchData();
   const theme = useSelector((state) => state.theme.theme);
 
-
   const [countryCode, setCountryCode] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("India");
   const [selectedState, setSelectedState] = useState("");
@@ -31,7 +31,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    country: "",
+    country: "India", // Default set kiya
     state: "",
     phoneNumber: "",
     email: "",
@@ -45,11 +45,9 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const [couponError, setCouponError] = useState("");
   const [couponMsg, setCouponMsg] = useState("");
 
-  // computed payable
   const payableTotal =
     TOTAL_AMOUNT - (TOTAL_AMOUNT * Number(couponPercent || 0)) / 100;
 
-  // simple helpers
   const inputClass = `${
     theme === "dark"
       ? "bg-[#000A2D] text-white placeholder-gray-400"
@@ -63,25 +61,13 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
   const themeClass = (darkCls, lightCls) =>
     theme === "dark" ? darkCls : lightCls;
 
-
-  const handleCountryChange = (e) => {
-    const value = e.target.value;
-    setSelectedCountry(value);
-    setSelectedState("");
-    setCountryCode("");
-    setFormData((prev) => ({ ...prev, country: value }));
-  };
-
-  const handleStateChange = (e) => {
-    const value = e.target.value;
-    setSelectedState(value);
-    setFormData((prev) => ({ ...prev, state: value }));
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    // Error clear karein taaki user ko pata chale wo fix kar raha hai
+    if (formErrors[name]) {
+        setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleCheck = (e) => {
@@ -89,7 +75,6 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     setFormErrors((prev) => ({ ...prev, isAgreed: "" }));
   };
 
-  // --------- COUPON VERIFY ---------
   const handleApplyCoupon = async () => {
     setCouponError("");
     setCouponMsg("");
@@ -119,49 +104,77 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
       );
     } catch (err) {
       console.error("Error verifying coupon:", err);
-      // catch me bhi same message
       setCouponError("Invalid or expired coupon");
     }
   };
 
-  // --------- PAYMENT ---------
+  // 🔥🔥🔥 DEBUGGING ENABLED HANDLER 🔥🔥🔥
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // console.log("🚀 Step 1: Submit Button Clicked"); 
 
+    // 1. Check Terms
     if (!isChecked) {
+      console.warn("⚠️ Validation Fail: Terms not checked");
+      toast.error("Please agree to terms & conditions");
       setFormErrors((prev) => ({
         ...prev,
         isAgreed: "Please agree to terms & conditions",
       }));
-      return;
+      return; // YAHAN RUK RAHA HOGA
     }
 
+    // 2. Check Zod Validation
+    // console.log("🔍 Step 2: Validating Data...", formData);
+    
+    // NOTE: Agar aapka schema phone number ko Number expect kar raha hai 
+    // lekin form String bhej raha hai, to ye fail hoga.
     const { data: validData, error } = paymentSchema.safeParse(formData);
+
     if (error) {
+      // console.error("❌ Step 2 Fail: Zod Validation Errors:", error.errors);
+      
       const errObj = {};
       error.errors.forEach((err) => {
         errObj[err.path[0]] = err.message;
       });
       setFormErrors(errObj);
-      return;
+      toast.error("Please fill all details correctly");
+      return; // YAHAN RUK RAHA HOGA
+    }
+
+    // console.log("✅ Step 2 Pass: Validation Successful");
+
+    // 3. Check Razorpay SDK
+    if (!Razorpay) {
+        console.error("❌ Razorpay SDK not loaded yet");
+        toast.error("Payment gateway loading... please try again in 5 seconds");
+        return;
     }
 
     try {
-      // optional: send couponCode to backend if you want to use there
+      // console.log("📡 Step 3: Calling Create Order API...");
+      
       const payload = { ...validData, couponCode: couponCode.trim() || null };
+      
       const res = await fetchData(
         `payment/createorder?renew=${false}`,
         "POST",
         payload
       );
-      if (res.status !== 200) throw new Error("Failed to create order !");
+
+      // console.log("📥 Step 4: API Response Received:", res);
+
+      if (!res || res.status !== 200) {
+        throw new Error(res?.data?.message || "Failed to create order !");
+      }
 
       const data = res.data;
       const RAZOR_KEY = data.key;
 
       const options = {
         key: RAZOR_KEY,
-        amount: data.data.amount, // backend final amount
+        amount: data.data.amount,
         currency: "INR",
         name: "Trading Tantra",
         description: "Test Transaction",
@@ -172,31 +185,34 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
           contact: data.phoneNumber,
         },
         handler: async (response) => {
+          console.log("✅ Payment Success Callback:", response);
           try {
             const isVerified = await verifyPayment(response);
             if (isVerified) {
               Cookies.set("isSubscribed", true);
               onPaymentSuccess();
+              toast.success("Payment Successful!");
             } else {
-              alert("Payment verification failed. Please contact support.");
+              toast.error("Payment verification failed");
             }
           } catch (err) {
             console.error("Payment verification error:", err);
-            alert(
-              "Error verifying payment. Please check your subscription status."
-            );
           }
         },
         theme: { color: "#F37254" },
       };
 
+      // console.log("Step 5: Opening Razorpay Modal");
       const rzp = new Razorpay(options);
       rzp.on("payment.failed", (response) => {
-        alert(`Payment failed: ${response.error.description}`);
+        console.error("Payment Failed:", response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
       });
       rzp.open();
+
     } catch (err) {
-      console.log("Error doing payment : ", err.message);
+      console.error("❌ Critical Error in Payment Flow:", err);
+      toast.error(err.message || "Something went wrong");
     }
   };
 
@@ -215,7 +231,6 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     }
   };
 
-  // --------- UI ---------
   return (
     <div
       className={`flex flex-col lg:flex-row ${
@@ -295,38 +310,47 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
 
             {/* Country */}
             <div className="space-y-1">
-  <select
-    name="country"
-    value="India"
-    disabled
-    className={`${selectClass} cursor-not-allowed opacity-80`}
-  >
-    <option value="India">India</option>
-  </select>
-</div>
-<div className="space-y-1">
-  <select
-    name="state"
-    value={selectedState}
-    onChange={(e) => {
-      setSelectedState(e.target.value);
-      setFormData((prev) => ({ ...prev, state: e.target.value }));
-    }}
-    className={selectClass}
-  >
-    <option value="">Select State</option>
-    {indiaStates.map((state) => (
-      <option
-        key={state}
-        value={state}
-        className={theme === "dark" ? "bg-[#000A2D]" : ""}
-      >
-        {state}
-      </option>
-    ))}
-  </select>
-</div>
-
+              <select
+                name="country"
+                value="India"
+                disabled
+                className={`${selectClass} cursor-not-allowed opacity-80`}
+              >
+                <option value="India">India</option>
+              </select>
+            </div>
+            
+            {/* State */}
+            <div className="space-y-1">
+              <select
+                name="state"
+                value={selectedState}
+                onChange={(e) => {
+                  setSelectedState(e.target.value);
+                  setFormData((prev) => ({ ...prev, state: e.target.value }));
+                  // Clear error if any
+                  if(formErrors.state) setFormErrors((prev) => ({ ...prev, state: "" }));
+                }}
+                className={selectClass}
+              >
+                <option value="">Select State</option>
+                {indiaStates.map((state) => (
+                  <option
+                    key={state}
+                    value={state}
+                    className={theme === "dark" ? "bg-[#000A2D]" : ""}
+                  >
+                    {state}
+                  </option>
+                ))}
+              </select>
+               {/* SHOW ERROR IF STATE IS REQUIRED IN SCHEMA */}
+               {formErrors.state && (
+                <span className="text-red-400 text-sm">
+                  {formErrors.state}
+                </span>
+              )}
+            </div>
 
             {/* Phone */}
             <div className="space-y-1 md:col-span-2">
@@ -399,11 +423,12 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               type="checkbox"
               checked={isChecked}
               onChange={handleCheck}
-              className="mt-1 w-5 h-5"
+              className="mt-1 w-5 h-5 cursor-pointer"
             />
             <div>
               <label
-                className={theme === "dark" ? "text-white" : "text-gray-800"}
+                className={`cursor-pointer ${theme === "dark" ? "text-white" : "text-gray-800"}`}
+                onClick={() => handleCheck({target: {checked: !isChecked}})}
               >
                 I agree with terms & Condition
               </label>
