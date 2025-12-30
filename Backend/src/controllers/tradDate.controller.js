@@ -43,7 +43,7 @@ const addTrade = async (req, res) => {
       quantity,
       profitLossPercentage,
       totalProfitOrLoss,
-      userID: loggedInUser._id,
+      userID: loggedInUser.userId,
     });
 
     const savedTrade = await newTrade.save();
@@ -87,7 +87,7 @@ const getAddedTrade = async (req, res) => {
 
     const trades = await TradDate.find(
       {
-        userID: loggedInUser._id,
+        userID: loggedInUser.userId,
         entryDate: { $gte: startOfDay },
         exitDate: { $lte: endOfDay },
       },

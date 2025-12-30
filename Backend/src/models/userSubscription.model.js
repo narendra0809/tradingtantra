@@ -17,7 +17,7 @@ const userSubscriptionSchema = new mongoose.Schema({
   paymentId: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" },
 });
 
-const UserSubscription = mongoose.model(
+export const UserSubscription = mongoose.model(
   "UserSubscription",
   userSubscriptionSchema
 );

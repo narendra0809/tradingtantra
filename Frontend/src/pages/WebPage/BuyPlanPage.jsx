@@ -608,7 +608,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                 type="text"
                 value={couponCode}
                 onChange={(e) => {
-                  setCouponCode(e.target.value);
+                  setCouponCode(e.target.value.toUpperCase());
                   setCouponError("");
                   setCouponMsg("");
                 }}

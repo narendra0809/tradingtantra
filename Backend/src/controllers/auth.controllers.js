@@ -138,18 +138,21 @@ const logIn = async (req, res) => {
 // LOGOUT CONTROLLER
 const logout = async (req, res) => {
   try {
-    // Clear session in DB
-    if (req.user) {
-      await User.findByIdAndUpdate(req.user._id, {
-        sessionId: null,
-        lastActiveAt: null,
-      });
-    }
+    const user = req.user;
 
-    res.status(200).clearCookie("accessToken").json({
-      success: true,
-      message: "logged out successfully",
-    });
+    await User.findByIdAndUpdate(user._id, { isLoggedIn: false });
+
+    res
+      .status(200)
+      .clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .json({
+        success: true,
+        message: "logged out successfully",
+      });
   } catch (error) {
     return res.status(500).json({
       success: false,
@@ -157,6 +160,7 @@ const logout = async (req, res) => {
     });
   }
 };
+
 //reset password
 
 const sendOtpForResetPassword = async (req, res) => {
@@ -375,4 +379,5 @@ export {
   sendOtpForResetPassword,
   resetPassword,
   googleLogin,
+  getMe,
 };
