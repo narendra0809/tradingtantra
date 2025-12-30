@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     const interval = setInterval(() => {
       // Just a lightweight check. If verifyUser fails, the Interceptor above catches it.
       axios.get(`${SERVER_URI}/auth/me`).catch(() => {}); 
-    }, 5000); // 5 Seconds
+    }, 500000); // 5 Seconds
 
     return () => clearInterval(interval);
   }, [user]);
