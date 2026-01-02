@@ -57,8 +57,21 @@ const GoogleSignIn = () => {
 };
 
 const GoogleButton = () => {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  if (!clientId) {
+    console.warn("Missing VITE_GOOGLE_CLIENT_ID. Google login disabled.");
+    return (
+      <div className="flex justify-center items-center">
+        <button disabled className="bg-gray-200 text-gray-600 px-4 py-2 rounded">
+          Google login unavailable
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={clientId}>
       <GoogleSignIn />
     </GoogleOAuthProvider>
   );

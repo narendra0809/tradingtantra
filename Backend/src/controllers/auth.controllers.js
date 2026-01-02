@@ -112,23 +112,30 @@ const logIn = async (req, res) => {
       { expiresIn: "300m" }
     );
 
-    res
-      .cookie("accessToken", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 30 * 60 * 1000,
-      })
-      .json({
-        success: true,
-        user: {
-          id: user._id,
-          email: user.email,
-          displayName: user.displayName,
-          isSubscribed: !!subscribed,
-          darkMode: user.darkMode,
-        },
-      });
+    const isProd =
+      typeof process.env.NODE_ENV === "string" &&
+      process.env.NODE_ENV.toLowerCase() === "production";
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 30 * 60 * 1000,
+    };
+
+    // In production, set a domain if provided (helps subdomain scenarios)
+    if (isProd && process.env.COOKIE_DOMAIN) cookieOptions.domain = process.env.COOKIE_DOMAIN;
+
+    res.cookie("accessToken", token, cookieOptions).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        displayName: user.displayName,
+        isSubscribed: !!subscribed,
+        darkMode: user.darkMode,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Login failed" });
@@ -359,17 +366,20 @@ const googleLogin = async (req, res) => {
       { expiresIn: "30m" } // Match with your login expiration
     );
 
+    const isProd =
+      typeof process.env.NODE_ENV === "string" &&
+      process.env.NODE_ENV.toLowerCase() === "production";
+
     const options = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 30 * 60 * 1000,
     };
 
-    res
-      .status(200)
-      .cookie("accessToken", token, options)
-      .json({
+    if (isProd && process.env.COOKIE_DOMAIN) options.domain = process.env.COOKIE_DOMAIN;
+
+    res.status(200).cookie("accessToken", token, options).json({
         success: true,
         token,
         user: {
