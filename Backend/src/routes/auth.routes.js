@@ -50,9 +50,22 @@ router.post(
   ],
   logIn
 );
-router.get("/me", verifyUser, (req, res) =>
-  res.json({ success: true, user: req.user })
-);
+router.get("/me", verifyUser, (req, res) => {
+  // Return a sanitized user object to avoid leaking sensitive fields
+  const u = req.user;
+  const safeUser = {
+    id: u._id,
+    email: u.email,
+    displayName: u.displayName,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    darkMode: u.darkMode,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
+  };
+
+  return res.json({ success: true, user: safeUser });
+});
 router.post(
   "/updatepassword",
   [
