@@ -38,7 +38,7 @@ import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoutes";
 import RequireAuthAndSubscription from "./utils/RequireAuthAndSubscription";
-import RequireAuth from "./components/auth/RequireAuth";
+// import RequireAuth from "./components/auth/RequireAuth";
 import Testimonials from "./pages/WebPage/Testimonial";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
