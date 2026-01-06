@@ -21,6 +21,8 @@ const AIOptionInsiderPage = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [error, setError] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [socketWarning, setSocketWarning] = useState(false);
+
 
   const fetchOptionChainData = async (expiryOverride, intervalOverride) => {
     if (!selectedIndex) return;
@@ -80,70 +82,62 @@ const AIOptionInsiderPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedIndex]);
 
-  useEffect(() => {
-    if (
-      !isSubscribed ||
-      !SOCKET_URI ||
-      !selectedIndex ||
-      !selectedExpiry ||
-      !selectedInterval ||
-      !marketHours()
-    )
-      return;
+useEffect(() => {
+  if (
+    !isSubscribed ||
+    !SOCKET_URI ||
+    !selectedIndex ||
+    !selectedExpiry ||
+    !selectedInterval ||
+    !marketHours()
+  )
+    return;
 
-    const token = localStorage.getItem("token");
-    const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
-      path: "/socket-chain",
-      auth: { token },
-      transports: ["websocket"],
-      withCredentials: true,
-    });
+  // const token = localStorage.getItem("token");
+ const newSocket = io(SOCKET_URI, { // Use constant directly
+    path: "/socket-chain",
+    transports: ["websocket"],
+    withCredentials: true, // ✅ Important: Cookies automatically bhejne ke liye
+  });
 
-    setSocket(newSocket);
+  setSocket(newSocket);
+  setSocketWarning(false);
 
-    newSocket.on("connect", () => {
-      if (selectedIndex && selectedExpiry && selectedInterval) {
-        newSocket.emit("subscribeOptionInsider", {
-          index: selectedIndex,
-          expiry: selectedExpiry,
-          interval: selectedInterval,
-        });
-      }
-    });
+  const warningTimer = setTimeout(() => {
+    console.warn("⚠️ No real-time socket data received");
+    setSocketWarning(true);
+  }, 5000); // 5 sec wait
 
-    newSocket.on("optionInsiderUpdate", (payload) => {
-      setOptionChainData(payload);
-      setLoading(false);
-      setError(null);
-    });
-
-    newSocket.on("optionInsiderError", (err) => {
-      console.log(err);
-      setError("Data not found please use Go button");
-      setLoading(false);
-    });
-
-    newSocket.on("connect_error", (err) => {
-      console.log(err);
-      setError("Data not found please use Go button");
-      setLoading(false);
-    });
-
-    return () => {
-      newSocket.disconnect();
-    };
-  }, [isSubscribed, selectedIndex, selectedExpiry, selectedInterval]);
-
-  useEffect(() => {
-    if (!socket || !marketHours()) return;
-    if (!(selectedIndex && selectedExpiry && selectedInterval)) return;
-    setError(null);
-    socket.emit("subscribeOptionInsider", {
+  newSocket.on("connect", () => {
+    console.log("✅ Socket connected");
+    newSocket.emit("subscribeOptionInsider", {
       index: selectedIndex,
       expiry: selectedExpiry,
       interval: selectedInterval,
     });
-  }, [selectedIndex, selectedExpiry, selectedInterval, socket]);
+  });
+
+  newSocket.on("optionInsiderUpdate", (payload) => {
+    console.log("📡 Live Socket Payload:", payload);
+    clearTimeout(warningTimer);
+    setSocketWarning(false);
+    setOptionChainData(payload);
+    setLoading(false);
+    setError(null);
+  });
+
+  newSocket.on("optionInsiderError", (err) => {
+    console.error("❌ Socket error:", err);
+    setError("Real-time data not available, use Go button");
+    setLoading(false);
+  });
+
+  return () => {
+    clearTimeout(warningTimer);
+    newSocket.disconnect();
+  };
+}, [isSubscribed, selectedIndex, selectedExpiry, selectedInterval]);
+
 
   return (
     <section
@@ -155,7 +149,7 @@ const AIOptionInsiderPage = () => {
           <StrategyCard
             Icon={FcCandleSticks}
             name="option-insider"
-            title="Option Insider"
+            title="AI Option Insider"
           />
 
           <div className="flex flex-col items-center md:flex-row gap-2 md:gap-4">

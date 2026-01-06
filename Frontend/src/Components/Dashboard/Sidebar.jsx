@@ -138,11 +138,11 @@ const Sidebar = () => {
           label: "Feedback Form",
           path: "/dashboard/feedback",
         },
-        {
-          icon: profit,
-          label: "Profit",
-          path: "/dashboard/profit",
-        },
+        // {
+        //   icon: profit,
+        //   label: "Profit",
+        //   path: "/dashboard/profit",
+        // },
         // {
         //   icon: updates,
         //   label: "Updates",

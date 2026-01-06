@@ -9,6 +9,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -28,28 +29,37 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleBuyNow = () => {
+    const section = document.getElementById("buy-now-section");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <>
+      {/* ================= HEADER ================= */}
       <header
         className={`w-full sticky top-0 z-20 transition-all duration-300 ${
-          isScrolled ? "bg-[#02000E]/90 backdrop-blur-md py-2" : "py-4"
+          isScrolled
+            ? "bg-[#02000E]/90 backdrop-blur-md py-2"
+            : "py-4"
         }`}
       >
-        <div className="mx-auto flex justify-between items-center  xl:px-20 px-1 py-4">
+        <div className="mx-auto flex justify-between items-center xl:px-20 px-3">
           {/* Logo */}
-          <div className="xl:w-auto lg:w-42 sm:w-40 w-30">
-            <Link to="/">
-              <img src={logo} alt="logo" />
-            </Link>
-          </div>
+          <Link to="/" className="w-32 sm:w-40">
+            <img src={logo} alt="logo" />
+          </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="bg-[#0256F533]  px-[26px] py-[13px] rounded-[50px] lg:block hidden border border-[#0A7CFF33] backdrop-blur-lg">
-            <ul className="flex xl:gap-10 lg:gap-5 gap-3 text-base font-normal uppercase">
+          {/* Desktop Menu */}
+          <nav className="hidden lg:block bg-[#0256F533] px-6 py-3 rounded-full border border-[#0A7CFF33] backdrop-blur-lg">
+            <ul className="flex gap-6 uppercase text-sm">
               {menuItems.map((item, index) => (
                 <li
                   key={index}
-                  className="cursor-pointer hover:text-primary transition-all duration-300"
+                  className="hover:text-primary transition"
                 >
                   <Link to={item.path}>{item.name}</Link>
                 </li>
@@ -57,63 +67,42 @@ const Header = () => {
             </ul>
           </nav>
 
-          {/* Buttons */}
-          <div className="flex sm:gap-5 gap-4 items-center">
+          {/* Right Buttons */}
+          <div className="flex items-center gap-3">
+            {/* Login / Dashboard */}
             {token ? (
               <button
                 onClick={() => navigate("/dashboard")}
-                className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white"
+                className="px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold"
               >
                 Dashboard
               </button>
             ) : (
-              // <button
-              //   onClick={() => navigate("/login")}
-              //   className="text-[11px] md:text-lg lg:text-lg cursor-pointer font-semibold px-3 py-3 rounded-[20px] bg-blue-600 hover:brightness-125"
-              // >
-              //   Login
-              // </button>
               <button
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 sm:flex justify-center items-center hidden"
+                className="hidden sm:flex relative overflow-hidden px-6 py-3 rounded-lg bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold"
+                onClick={() => navigate("/login")}
               >
                 <motion.span
                   initial={{ y: 0, opacity: 1 }}
-                  animate={
-                    hovered ? { y: -20, opacity: 0 } : { y: 0, opacity: 1 }
-                  }
+                  animate={hovered ? { y: -20, opacity: 0 } : {}}
                   transition={{ duration: 0.3 }}
-                  className="absolute"
                 >
-                  <Link to="/login">Login</Link>
-                </motion.span>
-
-                <motion.span
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={
-                    hovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }
-                  }
-                  transition={{ duration: 0.3 }}
-                  className="absolute"
-                >
-                  <Link to="/login">Login</Link>
+                  Login
                 </motion.span>
               </button>
             )}
+
+            {/* Buy Now (Desktop Only) */}
             <button
-              className="block w-full h-full px-3 py-3 rounded-[calc(0.5rem-0.9px)] bg-[#0256F5] text-white"
-              onClick={() => {
-                const section = document.getElementById("buy-now-section");
-                if (section) {
-                  section.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
+              className="hidden lg:block px-6 py-3 rounded-lg bg-[#0256F5] text-white font-semibold"
+              onClick={handleBuyNow}
             >
               Buy Now
             </button>
 
-            {/* Hamburger Menu (For Mobile) */}
+            {/* Hamburger (Mobile) */}
             <GiHamburgerMenu
               className="lg:hidden text-2xl cursor-pointer"
               onClick={() => setIsOpen(true)}
@@ -122,42 +111,54 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Sidebar */}
+      {/* ================= SIDEBAR ================= */}
       {isOpen && (
-        <motion.div
-          initial={{ x: "100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "100%" }}
-          transition={{ type: "tween", duration: 0.4 }}
-          className="fixed top-0 right-0 w-2/3 sm:w-1/2 h-full bg-[#0256F533] backdrop-blur-lg border-l border-[#0A7CFF33] z-30 text-white flex flex-col items-center py-10 px-6"
-        >
-          <IoClose
-            className="text-3xl absolute top-5 right-5 cursor-pointer"
+        <>
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed top-0 right-0 w-3/4 sm:w-1/2 h-full bg-[#0256F533] backdrop-blur-lg border-l border-[#0A7CFF33] z-30 flex flex-col items-center px-6 py-10"
+          >
+            <IoClose
+              className="absolute top-5 right-5 text-3xl cursor-pointer"
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Menu Items */}
+            <ul className="mt-12 flex flex-col gap-6 uppercase text-lg">
+              {menuItems.map((item, index) => (
+                <li
+                  key={index}
+                  className="cursor-pointer hover:text-primary"
+                  onClick={() => {
+                    navigate(item.path);
+                    setIsOpen(false);
+                  }}
+                >
+                  {item.name}
+                </li>
+              ))}
+            </ul>
+
+            {/* Buy Now (Mobile Only) */}
+            <button
+              className="mt-10 w-full px-6 py-3 rounded-lg bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold lg:hidden"
+              onClick={() => {
+                handleBuyNow();
+                setIsOpen(false);
+              }}
+            >
+              Buy Now
+            </button>
+          </motion.div>
+
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black/40 z-20"
             onClick={() => setIsOpen(false)}
           />
-
-          <ul className="flex flex-col gap-6 text-lg font-medium mt-10 uppercase">
-            {menuItems.map((item, index) => (
-              <li
-                key={index}
-                className="cursor-pointer hover:text-primary transition-all duration-300"
-                onClick={() => {
-                  navigate(item.path);
-                  setIsOpen(false);
-                }}
-              >
-                {item.name}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      )}
-
-      {isOpen && (
-        <div
-          className="fixed top-0 left-0 w-full h-full bg-black/40 z-20"
-          onClick={() => setIsOpen(false)}
-        />
+        </>
       )}
     </>
   );

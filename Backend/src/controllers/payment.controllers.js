@@ -11,7 +11,7 @@ export const createOrder = async (req, res) => {
     const isRenewal = req.query.renew === "true";
     const userId = req.user._id;
 
-    const BASE_AMOUNT = 3999;
+    const BASE_AMOUNT = 1999;
     let finalAmount = BASE_AMOUNT;
 
     // ================= COUPON LOGIC =================

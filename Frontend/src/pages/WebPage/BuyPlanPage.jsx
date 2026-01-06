@@ -14,9 +14,9 @@ import Cookies from "js-cookie";
 import { useSelector } from "react-redux";
 import { toast } from "react-hot-toast"; // Using toast for better visibility
 
-const PLAN_AMOUNT = 3388.98;
-const GST_AMOUNT = 610.02;
-const TOTAL_AMOUNT = 3999;
+const PLAN_AMOUNT = 1639.18;
+const GST_AMOUNT =359.82;
+const TOTAL_AMOUNT = 1999;
 
 const BuyPlanPage = ({ onPaymentSuccess }) => {
   const { Razorpay } = useRazorpay();

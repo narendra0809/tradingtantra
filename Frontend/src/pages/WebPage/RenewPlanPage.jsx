@@ -118,7 +118,7 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
         <div className="space-y-3">
           <h3 className="text-3xl font-bold dark:text-white">Renew Plan</h3>
           <p className="bg-primary px-4 py-2 rounded text-white text-xl">
-            DIAMOND (₹3999)
+            DIAMOND (₹1999)
           </p>
         </div>
         <p className="text-xl dark:text-white">Validity: 365 Days</p>

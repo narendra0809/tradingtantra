@@ -82,31 +82,31 @@ const Header = () => {
   return (
     <div className="relative bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-17 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-primary-light">
       {!isOpen && isSubscribed && (
-        // <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-        //   <img
-        //     src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
-        //     // src={isDarkMode === "dark" ? logo : whiteLogo}
+        <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
+          <img
+            // src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
+            src={isDarkMode === "dark" ? logo : whiteLogo}
 
-        //     alt="logo"
-        //     className="h-8 md:h-14"
-        //   />
-        // </div>
-   <div className="hidden md:flex absolute inset-0 items-center justify-center z-20 pointer-events-none">
-  <img
-    src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
-    alt="logo"
-    className="
-      h-20
-      mt-2.5
-      lg:h-28
-      xl:h-32
-      2xl:h-36
-      w-auto
-      object-contain
-      pointer-events-auto
-    "
-  />
-</div>
+            alt="logo"
+            className="h-6 md:h-12"
+          />
+        </div>
+//    <div className="hidden md:flex absolute inset-0 items-center justify-center z-20 pointer-events-none">
+//   <img
+//     src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
+//     alt="logo"
+//     className="
+//       h-20
+//       mt-2.5
+//       lg:h-28
+//       xl:h-32
+//       2xl:h-36
+//       w-auto
+//       object-contain
+//       pointer-events-auto
+//     "
+//   />
+// </div>
 
 
 
