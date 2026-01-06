@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { IoIosNotifications } from "react-icons/io";
 import userImg from "../../assets/Images/Dashboard/HeaderImg/user.png";
-import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { setTheme } from "../../contexts/Redux/Slices/themeSlice";
 import logo from "../../assets/Images/logo.svg";
@@ -19,9 +18,9 @@ import lightThemeIcon from "../../assets/Images/Dashboard/HeaderImg/lightThemeIc
 import Cookies from "js-cookie";
 import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
+import logout1 from "../../assets/Images/Dashboard/HeaderImg/logout.svg";
 
 const Header = () => {
-  const [hovered, setHovered] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(null);
   const [profileDropDown, setProfileDropDown] = useState(false);
   const navigate = useNavigate();
@@ -80,174 +79,132 @@ const Header = () => {
   }, [profileDropDown]);
 
   return (
-    <div className="relative bg-[#000517] dark:border dark:border-[#000B34] mt-2.5   h-17 w-full mx-auto rounded-[10px] p-3 flex items-center justify-between not-dark:bg-primary-light">
-      {!isOpen && isSubscribed && (
+    <div className="relative bg-[#000517] dark:border dark:border-[#000B34] mt-2 sm:mt-2.5 h-14 sm:h-16 md:h-17 w-full mx-auto rounded-lg sm:rounded-[10px] p-2 sm:p-3 flex items-center justify-between not-dark:bg-primary-light gap-2 sm:gap-3 md:gap-4">
+      {/* Logo in center when sidebar is closed */}
+      {!isOpen && (
         <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
           <img
-            // src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
             src={isDarkMode === "dark" ? logo : whiteLogo}
-
             alt="logo"
-            className="h-6 md:h-12"
+            className="h-6 md:h-10 lg:h-12"
           />
         </div>
-//    <div className="hidden md:flex absolute inset-0 items-center justify-center z-20 pointer-events-none">
-//   <img
-//     src={isDarkMode === "dark" ? lightThemeIcons : darkThemeIcons}
-//     alt="logo"
-//     className="
-//       h-20
-//       mt-2.5
-//       lg:h-28
-//       xl:h-32
-//       2xl:h-36
-//       w-auto
-//       object-contain
-//       pointer-events-auto
-//     "
-//   />
-// </div>
-
-
-
       )}
 
-      <div className="w-1/2 flex items-center gap-7">
-        <button
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          className="relative overflow-hidden bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white px-6 py-3 rounded-lg h-12 w-30 lg:flex justify-center items-center hidden"
-        >
-          <motion.span
-            initial={{ y: 0, opacity: 1 }}
-            animate={hovered ? { y: -20, opacity: 0 } : { y: 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="absolute"
-          >
-            <Link to="/">Go to Website</Link>
-          </motion.span>
-
-          <motion.span
-            initial={{ y: 20, opacity: 0 }}
-            animate={hovered ? { y: 0, opacity: 1 } : { y: 20, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute"
-          >
-            <Link to="/">Go to Website</Link>
-          </motion.span>
-        </button>
-
+      {/* Left side - Hamburger Menu (Mobile) and Go to Website Button */}
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* Hamburger Menu - Visible on mobile/tablet to open sidebar */}
         <img
           src={hamburger}
-          alt="icon"
-          className="w-4 h-4 xl:hidden block cursor-pointer not-dark:bg-db-secondary"
-          onClick={() => dispatch(toggleSideBar(!isOpen))}
+          alt="menu"
+          className="w-5 h-5 sm:w-6 sm:h-6 xl:hidden block cursor-pointer not-dark:bg-db-secondary flex-shrink-0"
+          onClick={() => dispatch(toggleSideBar(true))}
         />
+        
+        {/* Go to Website Button */}
+        <button
+          onClick={() => navigate("/")}
+          className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg bg-gradient-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold text-[10px] xs:text-xs sm:text-sm md:text-base hover:opacity-90 transition-opacity whitespace-nowrap"
+        >
+          Go to Website
+        </button>
+      </div>
 
-        {isSubscribed ? (
+      {/* Center - Logo on mobile when sidebar is open */}
+      <div className="flex-1 flex items-center justify-center min-w-0">
+        {isOpen && (
           <img
             src={isDarkMode === "dark" ? logo : whiteLogo}
             alt="logo"
-            className="w-25 sm:hidden block"
+            className="h-6 sm:h-8 xl:hidden block flex-shrink-0"
           />
-        ) : (
-          <div className="p-[0.9px] rounded-lg bg-linear-to-b from-[#0A7CFF] to-transparent inline-block">
-            <button
-              onClick={() => navigate("/dashboard/plan")}
-              className="block w-full h-full px-3 py-3 rounded-[calc(0.5rem-0.9px)] bg-[#0256F5] text-white"
-            >
-              Buy Now
-            </button>
-          </div>
         )}
       </div>
 
-      <div className="w-1/2 flex justify-end gap-5 items-center">
+      <div className="flex-shrink-0 sm:w-1/2 flex justify-end gap-2 sm:gap-3 md:gap-5 items-center">
         <div
           onClick={() => {
             themeToggler();
           }}
-          className="w-14 h-7 bg-[#EDEDED]  dark:bg-[#000E40] rounded-full flex items-center p-1 cursor-pointer transition-all "
+          className="w-12 h-6 sm:w-14 sm:h-7 bg-[#EDEDED] dark:bg-[#000E40] rounded-full flex items-center p-1 cursor-pointer transition-all"
         >
           <div
-            className={`w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-md transform transition-all ${
-              isDarkMode === "light" ? "translate-x-6" : ""
+            className={`w-5 h-5 sm:w-6 sm:h-6 bg-primary rounded-full flex items-center justify-center shadow-md transform transition-all ${
+              isDarkMode === "light" ? "translate-x-5 sm:translate-x-6" : ""
             }`}
           >
             {isDarkMode === "dark" ? (
-              <img src={darkThemeIcon} className="w-5 h-5" />
+              <img src={darkThemeIcon} className="w-4 h-4 sm:w-5 sm:h-5" />
             ) : (
-              <img src={lightThemeIcon} className="w-5 h-5 text-yellow-500" />
+              <img src={lightThemeIcon} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
             )}
           </div>
         </div>
-
-        {/* <IoIosNotifications
-          onClick={() => navigate("/dashboard/notifications")}
-          className="text-white not-dark:text-[#000E40] text-3xl"
-        /> */}
 
         <div className="relative" ref={dropdownRef}>
           <img
             onClick={() => setProfileDropDown(!profileDropDown)}
             src={userImg}
-            className="w-10 h-10 rounded-sm cursor-pointer"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm cursor-pointer"
             alt=""
           />
           {profileDropDown && (
-            <div className="absolute w-[280px] space-y-[30px] py-5 px-[15px] rounded-[10px] bg-db-secondary not-dark:bg-primary-light  right-0 top-15 z-20">
-              <div className="flex items-center gap-3">
-                <img src={userImg} className="w-10 h-10 rounded-sm" alt="" />
+            <div className="absolute w-[240px] sm:w-[280px] space-y-4 sm:space-y-[30px] py-4 sm:py-5 px-3 sm:px-[15px] rounded-lg sm:rounded-[10px] bg-db-secondary not-dark:bg-primary-light right-0 top-12 sm:top-15 z-20 shadow-lg">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <img src={userImg} className="w-8 h-8 sm:w-10 sm:h-10 rounded-sm" alt="" />
                 <div>
-                  <p className="text-sm">{user.displayName}</p>
-                  <div className="text-xs flex gap-3 items-center">
+                  <p className="text-xs sm:text-sm truncate max-w-[140px] sm:max-w-none">{user?.displayName || "User"}</p>
+                  <div className="text-[10px] sm:text-xs flex gap-2 sm:gap-3 items-center">
                     <p>Active now</p>
-                    <p className=" bg-primary px-2 text-[10px] rounded-full text-xs">
+                    <p className="bg-primary px-1.5 sm:px-2 text-[9px] sm:text-[10px] rounded-full">
                       pro
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 <button
-                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
+                  className="flex gap-2 sm:gap-3 hover:font-semibold hover:text-blue-400 text-xs sm:text-sm w-full text-left"
                   onClick={() => {
                     navigate("/dashboard/profile");
                     setProfileDropDown(!profileDropDown);
                   }}
                 >
-                  <img src={myProfile} alt="" />
+                  <img src={myProfile} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                   <p>My Profile</p>
                 </button>
 
                 <button
-                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
+                  className="flex gap-2 sm:gap-3 hover:font-semibold hover:text-blue-400 text-xs sm:text-sm w-full text-left"
                   onClick={() => {
                     navigate("/dashboard/plan");
                     setProfileDropDown(!profileDropDown);
                   }}
                 >
-                  <img src={myPlan} alt="" />
+                  <img src={myPlan} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                   <p>My Plan</p>
                 </button>
 
                 <button
-                  className="flex gap-3 hover:font-semibold hover:text-blue-400"
+                  className="flex gap-2 sm:gap-3 hover:font-semibold hover:text-blue-400 text-xs sm:text-sm w-full text-left"
                   onClick={() => {
                     navigate("/dashboard/feedback");
                     setProfileDropDown(!profileDropDown);
                   }}
                 >
-                  <img src={feedBack} alt="" />
+                  <img src={feedBack} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
                   <p>Feedback</p>
                 </button>
               </div>
               <div>
                 <button
-                  className="flex items-center gap-3 hover:font-semibold hover:text-red-400"
+                  className="flex items-center gap-2 sm:gap-3 hover:font-semibold hover:text-red-400 text-xs sm:text-sm w-full text-left"
                   onClick={logout}
                 >
-                  <img src={logout} alt="" />
+                  <img src={logout1} alt="" className="w-4 h-4 sm:w-5 sm:h-5" />
+                  
+                  {/* <img src={logout1} alt="" className="w-4 h-4 sm:w-5 sm:h-5" /> */}
+
                   <p>Log out</p>
                 </button>
               </div>

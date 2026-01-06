@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import connectDB from "./src/config/db.js";
-import { stocksData } from "./src/f&o.js";
+import { stocksData } from "./src/utils/stocksData.js";
 import StocksDetail from "./src/models/stocksDetail.model.js";
 
 const seedDB = async () => {

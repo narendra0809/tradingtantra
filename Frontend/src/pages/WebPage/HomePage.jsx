@@ -17,19 +17,19 @@ const HomePage = () => {
       {/* hero section */}
       <div className="bg-[#02000e] w-full h-auto font-Inter ">
         <div className="blue-blur-circle" />
-        <div className="flex flex-col items-center justify-center mt-40 space-y-12 md:w-[70%] sm:w-[90%] w-full mx-auto">
+        <div className="flex flex-col items-center justify-center mt-8 sm:mt-12 md:mt-20 lg:mt-32 xl:mt-40 space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 md:w-[70%] sm:w-[90%] w-full mx-auto px-4 sm:px-6">
           <img src={AiStar} alt="" />
-          <h1 className="text-primary font-extrabold md:text-4xl text-4xl text-center">
-            INDIA’s FIRST AI OPTIONS ANALYSER and STOCK SCREENER
+          <h1 className="text-primary font-extrabold text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center">
+            INDIA's FIRST AI OPTIONS ANALYSER and STOCK SCREENER
           </h1>
-          <p className="text-[#A6AAB2] font-sm text-center">
+          <p className="text-[#A6AAB2] text-sm sm:text-base md:text-lg text-center px-2">
             Step into the world of trading excellence and seize every
             opportunity with our advanced platform, expert guidance, and
             strategic insights for unrivaled financial success.
           </p>
         </div>
-        <div className="flex items-center justify-center md:w-1/2 w-full md:text-base sm:text-sm text-xs mx-auto">
-          <div className="grid grid-cols-2 mx-auto mt-10 gap-3">
+        <div className="flex items-center justify-center md:w-1/2 w-full md:text-base sm:text-sm text-xs mx-auto px-4">
+          <div className="grid grid-cols-2 mx-auto mt-6 sm:mt-8 md:mt-10 gap-2 sm:gap-3">
             <div className="flex gap-2 items-center">
               <img src={AiStock} className="w-6 h-6 " />
               <p>AI stock selection algorithm</p>
@@ -49,9 +49,9 @@ const HomePage = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-center sm:mt-20 mt-10 gap-4 ">
+        <div className="flex items-center justify-center sm:mt-12 md:mt-16 lg:mt-20 mt-8 gap-3 sm:gap-4 px-4">
           <button
-            className="sm:text-xl text-sm bg-primary flex items-center gap-2 rounded-3xl px-3 py-2"
+            className="text-xs sm:text-sm md:text-lg lg:text-xl bg-primary flex items-center gap-1 sm:gap-2 rounded-2xl sm:rounded-3xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2"
             onClick={() => {
               const section = document.getElementById("buy-now-section");
               if (section) {
@@ -59,25 +59,25 @@ const HomePage = () => {
               }
             }}
           >
-            <PiFireSimpleFill /> Buy Now
+            <PiFireSimpleFill className="w-4 h-4 sm:w-5 sm:h-5" /> Buy Now
           </button>
           <button
             onClick={() => navigate("/login")}
-            className="sm:text-xl text-sm  flex items-center gap-2 rounded-3xl px-3 py-2 bg-[#0256F533] text-white border border-[#0A7CFF33] backdrop-blur-lg"
+            className="text-xs sm:text-sm md:text-lg lg:text-xl flex items-center gap-1 sm:gap-2 rounded-2xl sm:rounded-3xl px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-[#0256F533] text-white border border-[#0A7CFF33] backdrop-blur-lg"
           >
-            <LuLogIn /> Login
+            <LuLogIn className="w-4 h-4 sm:w-5 sm:h-5" /> Login
           </button>
         </div>
       </div>
 
       {/* laptop img sectionF */}
-      <div className="sm:w-4/5 w-full mx-auto mt-10">
+      <div className="sm:w-4/5 w-full mx-auto mt-6 sm:mt-8 md:mt-10 px-4">
         <img src={laptopImg} className="w-full" />
       </div>
 
       {/* AI Powered Features */}
 
-      <div className="w-full md:mt-40 mt-20 font-abcRepro">
+      <div className="w-full md:mt-20 lg:mt-32 xl:mt-40 mt-12 sm:mt-16 font-abcRepro px-4 sm:px-6">
         <h1 className="font-bold md:text-4xl sm:text-2xl text-xl mb-15">
           AI Powered Features
         </h1>
@@ -87,7 +87,7 @@ const HomePage = () => {
       </div>
 
       {/* TradingTantra Benefits - */}
-      <div className="w-full mt-40 font-abcRepro">
+      <div className="w-full mt-12 sm:mt-16 md:mt-24 lg:mt-32 xl:mt-40 font-abcRepro px-4 sm:px-6">
         <h1 className="font-bold md:text-4xl sm:text-2xl text-xl mb-15">
           TradingTantra Benefits -
         </h1>
@@ -137,7 +137,7 @@ const HomePage = () => {
                 Total
               </p>
               <p className="md:text-6xl text-5xl font-extrabold text-primary">
-                ₹ 3,999
+                ₹ 1,999
               </p>
             </div>
             <Link to="/dashboard/plan">

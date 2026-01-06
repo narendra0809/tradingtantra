@@ -99,24 +99,20 @@ const DashboardLayout = () => {
   }, [isSidebarOpen]);
 
   return (
-    <div className="flex h-screen w-screen md:gap-5 gap-0 px-2 font-abcRepro">
+    <div className="flex h-screen w-screen xl:gap-5 gap-0 px-1 sm:px-2 font-abcRepro overflow-hidden">
       {/* Sidebar */}
-      <aside
-        className={`${
-          isSidebarOpen && window.innerWidth <= 768 ? "fixed z-50" : ""
-        }`}
-      >
+      <aside className="xl:static">
         <Sidebar />
       </aside>
 
       {/* Main content area with scrollable container */}
       <main
         ref={mainContentRef}
-        className="w-full overflow-y-auto overflow-x-hidden scrollbar-hidden transition-all duration-300 ease-linear"
+        className="flex-1 w-full min-w-0 overflow-y-auto overflow-x-hidden scrollbar-hidden transition-all duration-300 ease-linear"
       >
         <Header />
         <div
-          className={`w-full mt-2 h-12 ${
+          className={`w-full mt-2 h-8 sm:h-9 md:h-10 ${
             theme === "dark"
               ? "bg-transparent border-none"
               : "bg-white dark:bg-[#273D8F] l  dark:border dark:border-[#8EA7EC] rounded-lg"
@@ -132,7 +128,9 @@ const DashboardLayout = () => {
             container_id="tradingview-widget-container"
           />
         </div>
-        <Outlet />
+        <div className="px-4 sm:px-6 md:px-[5%]">
+          <Outlet />
+        </div>
         <Footer />
       </main>
     </div>

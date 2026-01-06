@@ -1,16 +1,15 @@
 // worker/fiveMinWorker.js
 import { Worker } from "bullmq";
 import { getData } from "../../controllers/liveMarketData.controller.js";
-import dotenv from "dotenv";
 import { DateTime } from "luxon";
+import { getRedisConnection } from "../../utils/redisConnection.js";
 
-dotenv.config();
+const connection = getRedisConnection();
 
-const connection = {
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
-  password: process.env.REDIS_PASSWORD,
-};
+// Only create worker if Redis is available
+if (!connection) {
+  console.warn("⚠️ Redis not available. FiveMinData worker will not start.");
+}
 
 // Function to check if current time is within 9:15 AM to 3:30 PM IST
 export const isMarketTime = () => {
@@ -27,33 +26,39 @@ export const isMarketTime = () => {
   return true;
 };
 
-const fiveMinWorker = new Worker(
-  "fiveMinData",
-  async (job) => {
-    try {
-      console.log(`[Worker] Received job:`, job.data);
-      console.log("MARKET OURS  :", isMarketTime());
-      if (!isMarketTime()) {
-        console.log(`[Worker] Skipping job. Outside market hours.`);
-        return;
+if (connection) {
+  const fiveMinWorker = new Worker(
+    "fiveMinData",
+    async (job) => {
+      try {
+        console.log(`[Worker] Received job:`, job.data);
+        console.log("MARKET OURS  :", isMarketTime());
+        if (!isMarketTime()) {
+          console.log(`[Worker] Skipping job. Outside market hours.`);
+          return;
+        }
+
+        const { fromDate, toDate } = job.data;
+        await getData(fromDate, toDate);
+
+        console.log(`[Worker] Job completed successfully`);
+      } catch (error) {
+        console.error(`[Worker] Error processing job:`, error.message);
+        throw error;
       }
+    },
+    { connection }
+  );
 
-      const { fromDate, toDate } = job.data;
-      await getData(fromDate, toDate);
+  fiveMinWorker.on("failed", (job, err) => {
+    console.error(`Job ${job.id} failed:`, err.message);
+  });
 
-      console.log(`[Worker] Job completed successfully`);
-    } catch (error) {
-      console.error(`[Worker] Error processing job:`, error.message);
-      throw error;
-    }
-  },
-  { connection }
-);
+  fiveMinWorker.on("completed", (job) => {
+    console.log(`Job ${job.id} completed successfully.`);
+  });
 
-fiveMinWorker.on("failed", (job, err) => {
-  console.error(`Job ${job.id} failed:`, err.message);
-});
-
-fiveMinWorker.on("completed", (job) => {
-  console.log(`Job ${job.id} completed successfully.`);
-});
+  fiveMinWorker.on("error", (error) => {
+    console.error("❌ FiveMinData Worker Error:", error.message);
+  });
+}

@@ -1,16 +1,10 @@
 import { Queue } from "bullmq";
-import dotenv from "dotenv";
+import { getRedisConnection } from "../utils/redisConnection.js";
 
-// Load environment variables from .env file
-dotenv.config();
-
-const connection = {
-  host: process.env.REDIS_HOST, 
-  port: process.env.REDIS_PORT,      
-  password: process.env.REDIS_PASSWORD, 
-};
+const connection = getRedisConnection();
 
 // Create queues with the specified connection settings
-export const liveDataQueue = new Queue("liveData", { connection });
-export const TenMinDataQueue = new Queue("TenMinData", { connection });
-export const fiveMinDataQueue = new Queue("fiveMinData", { connection });
+// If Redis is not available, queues will be created but workers won't start
+export const liveDataQueue = connection ? new Queue("liveData", { connection }) : null;
+export const TenMinDataQueue = connection ? new Queue("TenMinData", { connection }) : null;
+export const fiveMinDataQueue = connection ? new Queue("fiveMinData", { connection }) : null;

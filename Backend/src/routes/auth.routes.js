@@ -50,9 +50,18 @@ router.post(
   ],
   logIn
 );
-router.get("/me", verifyUser, (req, res) => {
+router.get("/me", verifyUser, async (req, res) => {
   // Return a sanitized user object to avoid leaking sensitive fields
   const u = req.user;
+  
+  // Check subscription status
+  const UserSubscription = (await import("../models/userSubscription.model.js")).default;
+  const subscription = await UserSubscription.findOne({
+    userId: u._id,
+    status: "active",
+    endDate: { $gt: new Date() },
+  });
+
   const safeUser = {
     id: u._id,
     email: u.email,
@@ -60,6 +69,7 @@ router.get("/me", verifyUser, (req, res) => {
     firstName: u.firstName,
     lastName: u.lastName,
     darkMode: u.darkMode,
+    isSubscribed: !!subscription,
     createdAt: u.createdAt,
     updatedAt: u.updatedAt,
   };

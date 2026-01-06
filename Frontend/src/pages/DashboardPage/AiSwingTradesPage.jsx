@@ -97,10 +97,10 @@ const AiSwingTradesPage = () => {
 
   return (
     <>
-      <section className="mt-10">
-        <h2 className="text-3xl font-bold ">AI Swing Trades</h2>
+      <section className="mt-6 sm:mt-8 md:mt-10">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">AI Swing Trades</h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mt-6 sm:mt-8 md:mt-10">
           <Suspense fallback={<div>Loading...</div>}>
             {/* Each component handles its own loading and error */}
             <FiveDayBO

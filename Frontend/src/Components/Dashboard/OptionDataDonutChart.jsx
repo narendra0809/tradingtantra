@@ -1,32 +1,67 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Chart from "react-apexcharts";
 import Lock from "./Lock";
 import { useSelector } from "react-redux";
 
 const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
-  const indexPts = allIndexPts[contributor.indexName]?.pts || 1;
+  const indexPts = allIndexPts[contributor?.indexName]?.pts || 1;
   const theme = useSelector((state) => state.theme.theme);
 
-  // 🔥 FIX 1: State to track loading
+  // Helper function to get TradingView URL for stock
+  const getStockTradingViewUrl = (stockName) => {
+    return `https://in.tradingview.com/chart/?symbol=NSE%3A${stockName}&interval=5`;
+  };
+
+  // Helper function to get TradingView URL for index
+  const getIndexTradingViewUrl = (indexName) => {
+    const indexMap = {
+      "NIFTY 50": "NSE:NIFTY",
+      BANKNIFTY: "NSE:BANKNIFTY",
+      FINNIFTY: "NSE:FINNIFTY",
+      MIDCAP: "NSE:NIFTYMIDCAP",
+      SENSEX: "BSE:SENSEX",
+    };
+    const tradingViewSymbol = indexMap[indexName] || `NSE:${indexName}`;
+    return `https://in.tradingview.com/chart/?symbol=${encodeURIComponent(tradingViewSymbol)}&interval=5`;
+  };
+
+  // 🔥 FIX: Auto-load chart when data is available
   const [isChartReady, setIsChartReady] = useState(false);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    // Thoda delay taaki DOM ready ho jaye
-    const timer = setTimeout(() => {
-      setIsChartReady(true);
-      // 🔥 Trigger Resize: Ye chart ko force karega render hone ke liye
-      window.dispatchEvent(new Event("resize"));
-    }, 500);
+    // Check if data is available
+    const hasData = contributor?.contributions?.length > 0;
+    
+    if (hasData && containerRef.current) {
+      // Set ready after ensuring container exists
+      const timer = setTimeout(() => {
+        setIsChartReady(true);
+        // Force chart resize
+        window.dispatchEvent(new Event("resize"));
+      }, 50);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    } else {
+      setIsChartReady(false);
+    }
+  }, [contributor, allIndexPts]);
+
+  // Early return if no data
+  if (!contributor?.contributions || contributor.contributions.length === 0) {
+    return (
+      <div className="w-full flex justify-center items-center h-[400px]">
+        <p>No data available</p>
+      </div>
+    );
+  }
 
   const topContributors = contributor.contributions
     .sort((a, b) => Math.abs(b.points) - Math.abs(a.points))
     .slice(0, 10)
     .map((item) => ({
-      name: item.displayName,
+      name: item.symbol || item.UNDERLYING_SYMBOL || item.displayName,
       points: parseFloat(item.points.toFixed(2)),
       percent: Math.abs((item.points / indexPts) * 100),
     }));
@@ -94,7 +129,6 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
         type: "donut",
         width: "100%",
         foreColor: "#fff",
-        // 🔥 Fix for resize issue
         redrawOnParentResize: true,
         dropShadow: {
           enabled: true,
@@ -102,6 +136,11 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
           left: 0,
           blur: 10,
           opacity: 0.2,
+        },
+        events: {
+          dataPointSelection: function(event, chartContext, config) {
+            // Handle chart slice clicks if needed
+          },
         },
       },
       labels: chartLabels,
@@ -171,21 +210,38 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
     <div className="w-full">
       <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
         <div className="w-full lg:w-1/2 xl:w-2/5 flex justify-center">
-          {/* 🔥 FIX 1: Added min-height-[400px] */}
-          <div className="w-full max-w-md h-[400px] min-h-[400px] relative flex items-center justify-center">
+          <div 
+            ref={containerRef}
+            className="w-full max-w-md h-[400px] min-h-[400px] relative flex items-center justify-center"
+          >
             {!isSubscribed ? (
               <Lock />
-            ) : (
-              isChartReady && (
+            ) : isChartReady && contributor?.contributions?.length > 0 ? (
+              <div className="relative w-full h-full">
                 <Chart
+                  key={`chart-${contributor.indexName}-${isChartReady}`}
                   options={chartData.options}
                   series={chartData.series}
                   type="donut"
                   width="100%"
                   height={400}
                 />
-              )
-            )}
+                {/* Transparent clickable overlay for center label */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                  style={{ pointerEvents: "none" }}
+                  onClick={() => window.open(getIndexTradingViewUrl(contributor.indexName), '_blank')}
+                >
+                  <div
+                    style={{
+                      pointerEvents: "auto",
+                      width: "35%",
+                      height: "35%",
+                    }}
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -212,27 +268,30 @@ const OptionDataDonutChart = ({ contributor, allIndexPts, isSubscribed }) => {
               {!isSubscribed ? (
                 <Lock />
               ) : (
-                topContributors.map((contributor, index) => (
-                  <div
+                topContributors.map((contributorItem, index) => (
+                  <a
                     key={index}
-                    className="flex items-center py-2 px-3 rounded transition-colors"
+                    href={getStockTradingViewUrl(contributorItem.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center py-2 px-3 rounded cursor-pointer"
                   >
                     <div
                       className="w-4 h-4 rounded-full mr-3"
                       style={{ backgroundColor: chartColors[index] }}
                     />
-                    <span className="flex-1 truncate">{contributor.name}</span>
+                    <span className="flex-1 truncate">{contributorItem.name}</span>
                     <span
                       className={`ml-2 font-medium ${
-                        contributor.points > 0
+                        contributorItem.points > 0
                           ? "text-green-400"
                           : "text-red-400"
                       }`}
                     >
-                      {contributor.points > 0 ? "+" : ""}
-                      {contributor.points}
+                      {contributorItem.points > 0 ? "+" : ""}
+                      {contributorItem.points}
                     </span>
-                  </div>
+                  </a>
                 ))
               )}
               {isSubscribed && otherContributionsPercent > 0 && (

@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RiLockFill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/Images/logo.svg";
 import logoLight from "../../assets/Images/logoLight.png";
 import AiIndexDepth from "../../assets/Images/sidebar/indexDepth.svg";
@@ -26,9 +26,13 @@ import smartMoneyAction from "../../assets/Images/sidebar/smartMoneyAction.svg";
 import tradingJournal from "../../assets/Images/sidebar/tradingJournal.svg";
 import updates from "../../assets/Images/sidebar/updates.svg";
 import { toggleSideBar } from "../../contexts/Redux/Slices/sidebarTogglerSlice";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Sidebar = () => {
   const [isSubscribed, setIsSubscribed] = useState(null);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const Subscribed = Cookies.get("isSubscribed");
@@ -118,11 +122,11 @@ const Sidebar = () => {
         //   label: "Learn From Us",
         //   path: "/dashboard/learn-from-us",
         // },
-        {
-          icon: ourStrategy,
-          label: "Our Strategy",
-          path: "/dashboard/our-strategy",
-        },
+        // {
+        //   icon: ourStrategy,
+        //   label: "Our Strategy",
+        //   path: "/dashboard/our-strategy",
+        // },
         // {
         //   icon: financialCalender,
         //   label: "Financial Calendar",
@@ -153,73 +157,142 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside
-      className={`absolute top-0 left-0 xl:static z-50 flex h-screen  transform transition-transform duration-300 ease-in-out  ${
-        isOpen
-          ? "translate-x-0 sm:translate-x-0"
-          : "-translate-x-full sm:translate-x-0"
-      } `}
-    >
-      <div className="w-fit">
-        {/* Sidebar */}
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
         <div
-          className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] dark:border dark:border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
-            isOpen ? "w-64" : "w-0 xl:w-20"
-          }`}
-        >
-          {/* Fixed Header */}
-          <div className="dark:bg-linear-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#FFFFFF]">
-            <div className="flex items-center w-full h-fit justify-center bg-[#000517] not-dark:bg-[#FFFFFF]  py-5">
-              {isOpen ? (
-                <img src={theme === "dark" ? logo : logoLight} alt="logo" />
-              ) : (
-                <button
-                  className="text-[#000517] dark:text-white w-fit p-2 mb-4 cursor-pointer"
-                  onClick={() => dispatch(toggleSideBar(!isOpen))}
-                >
-                  <Menu size={24} />
-                </button>
-              )}
+          className="fixed inset-0 bg-black/50 z-40 xl:hidden"
+          onClick={() => dispatch(toggleSideBar(false))}
+        />
+      )}
+      
+      <aside
+        className={`fixed top-0 left-0 xl:static z-50 flex h-screen transform transition-transform duration-300 ease-in-out ${
+          isOpen
+            ? "translate-x-0"
+            : "-translate-x-full xl:translate-x-0"
+        }`}
+      >
+        <div className="w-fit">
+          {/* Sidebar */}
+          <div
+            className={`bg-[#000517] not-dark:bg-[#FFFFFF] text-[#D7E3FF] not-dark:text-[#000517] dark:border dark:border-[#000B34] h-full transition-all duration-300 rounded-lg overflow-hidden ${
+              isOpen ? "w-56 sm:w-64" : "w-0 xl:w-20"
+            }`}
+          >
+            {/* Fixed Header */}
+            <div className="dark:bg-linear-to-r from-[#000517] via-[#011459] to-[#000517] bg-clip-border not-dark:bg-[#FFFFFF]">
+              <div className="flex items-center w-full h-fit justify-between bg-[#000517] not-dark:bg-[#FFFFFF] py-3 sm:py-4 xl:py-5 px-2 sm:px-4">
+                {isOpen ? (
+                  <>
+                    <img 
+                      src={theme === "dark" ? logo : logoLight} 
+                      alt="logo" 
+                      className="h-8 sm:h-10 w-auto"
+                    />
+                    <button
+                      className="text-[#000517] dark:text-white w-fit p-2 cursor-pointer"
+                      onClick={() => dispatch(toggleSideBar(false))}
+                    >
+                      <X size={24} />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="text-[#000517] dark:text-white w-fit p-2 cursor-pointer mx-auto"
+                    onClick={() => dispatch(toggleSideBar(true))}
+                  >
+                    <Menu size={24} />
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Scrollable Nav Section */}
-          <div className="overflow-y-auto h-[calc(100vh-100px)] px-2 scrollbar-hidden">
-            <nav className="flex flex-col items-start space-y-4  mt-8 ">
-              <ul className="w-full space-y-5">
-                {!isOpen && <div className="w-full h-1 bg-primary" />}
-                <NavItem
-                  icon={dashboard}
-                  label="Dashboard"
-                  isOpen={isOpen}
-                  path={"/dashboard"}
-                  isSubscribed={isSubscribed}
-                />
-                {NAV_SECTIONS.map((section) => (
-                  <li key={section.label} className="w-full">
-                    {isOpen ? (
-                      <div className="px-4 mb-2 text-[11px] font-semibold tracking-[0.15em] text-[#97A2C3] dark:text-[#8F9BCE] uppercase">
-                        {section.label}
-                      </div>
-                    ) : (
-                      <div className="w-full h-1 bg-primary" />
+            {/* Scrollable Nav Section */}
+            <div className="overflow-y-auto h-[calc(100vh-140px)] sm:h-[calc(100vh-160px)] xl:h-[calc(100vh-100px)] px-2 scrollbar-hidden">
+              <nav className="flex flex-col items-start space-y-4 mt-4 sm:mt-6 xl:mt-8">
+                <ul className="w-full space-y-3 sm:space-y-4 xl:space-y-5">
+                  {!isOpen && <div className="w-full h-1 bg-primary" />}
+                  <NavItem
+                    icon={dashboard}
+                    label="Dashboard"
+                    isOpen={isOpen}
+                    path={"/dashboard"}
+                    isSubscribed={isSubscribed}
+                  />
+                  {NAV_SECTIONS.map((section) => (
+                    <li key={section.label} className="w-full">
+                      {isOpen ? (
+                        <div className="px-3 sm:px-4 mb-2 text-[10px] sm:text-[11px] font-semibold tracking-[0.15em] text-[#97A2C3] dark:text-[#8F9BCE] uppercase">
+                          {section.label}
+                        </div>
+                      ) : (
+                        <div className="w-full h-1 bg-primary" />
+                      )}
+
+                      <ul className="space-y-1 sm:space-y-2">
+                        {section.items.map((item) => (
+                          <NavItem
+                            key={item.path}
+                            icon={item.icon}
+                            label={item.label}
+                            isOpen={isOpen}
+                            path={item.path}
+                            isSubscribed={isSubscribed}
+                          />
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+                
+                {/* Go to Website and Logout Buttons - Inside Sidebar */}
+                {isOpen && (
+                  <div className="w-full px-2 sm:px-3 mt-4 sm:mt-6 space-y-2 sm:space-y-3 border-t border-[#97A2C3]/20 dark:border-[#8F9BCE]/20 pt-4 sm:pt-6">
+                    {/* Go to Website Button */}
+                    <button
+                      onClick={() => {
+                        navigate("/");
+                        if (window.innerWidth < 1280) {
+                          dispatch(toggleSideBar(false));
+                        }
+                      }}
+                      className="w-full px-4 py-2.5 sm:py-3 rounded-lg border-2 border-[#0256F5] text-[#0256F5] dark:text-white font-semibold text-sm sm:text-base hover:bg-[#0256F5] hover:text-white transition-colors"
+                    >
+                      Go to Website
+                    </button>
+
+                    {/* Buy Now Button (if not subscribed) */}
+                    {!isSubscribed && (
+                      <button
+                        onClick={() => {
+                          navigate("/dashboard/plan");
+                          if (window.innerWidth < 1280) {
+                            dispatch(toggleSideBar(false));
+                          }
+                        }}
+                        className="w-full px-4 py-2.5 sm:py-3 rounded-lg bg-gradient-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold text-sm sm:text-base hover:opacity-90 transition-opacity"
+                      >
+                        Buy Now
+                      </button>
                     )}
 
-                    <ul className="space-y-2">
-                      {section.items.map((item) => (
-                        <NavItem
-                          key={item.path}
-                          icon={item.icon}
-                          label={item.label}
-                          isOpen={isOpen}
-                          path={item.path}
-                          isSubscribed={isSubscribed}
-                        />
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
+                    {/* Logout Button */}
+                    {token && (
+                      <button
+                        onClick={() => {
+                          logout();
+                          if (window.innerWidth < 1280) {
+                            dispatch(toggleSideBar(false));
+                          }
+                        }}
+                        className="w-full px-4 py-2.5 sm:py-3 rounded-lg border-2 border-red-500 text-red-500 dark:text-red-400 font-semibold text-sm sm:text-base hover:bg-red-500 hover:text-white transition-colors"
+                      >
+                        Logout
+                      </button>
+                    )}
+                  </div>
+                )}
               {/* <ul className="w-full space-y-5">
                 <NavItem
                   icon={dashboard}
@@ -349,25 +422,12 @@ const Sidebar = () => {
                   isSubscribed={isSubscribed}
                 />
               </ul> */}
-            </nav>
+              </nav>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Close Button (Fixed) */}
-      <div
-        className={` w-fit h-fit  flex items-center rounded-lg justify-center  ml-1 bg-[#000517] not-dark:bg-[#FFFFFF] not-dark:text-[#000517] ${
-          isOpen ? "block" : "hidden"
-        }`}
-      >
-        <button
-          className=" p-2 cursor-pointer"
-          onClick={() => dispatch(toggleSideBar(!isOpen))}
-        >
-          <X size={24} />
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 
@@ -396,7 +456,7 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
     >
       {({ isActive }) => (
         <li
-          className={`flex items-center justify-between w-full px-4 py-2 rounded-md text-base font-medium space-x-4 transition-all duration-300 ease-in-out
+          className={`flex items-center justify-between w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-md text-sm sm:text-base font-medium space-x-3 sm:space-x-4 transition-all duration-300 ease-in-out
           ${
             isActive
               ? "text-white"
@@ -405,11 +465,11 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
               : "text-[#000517] hover:text-white"
           }`}
         >
-          <span className="flex items-center space-x-2">
+          <span className="flex items-center space-x-2 sm:space-x-3">
             <img
               src={icon}
               alt={label}
-              className={`w-auto h-5 transition-all duration-300
+              className={`w-auto h-4 sm:h-5 transition-all duration-300
                 ${
                   isActive
                     ? "brightness-0 invert" // active
@@ -418,18 +478,18 @@ const NavItem = ({ icon, label, isOpen, path, isSubscribed }) => {
                     : "brightness-0 group-hover:invert" // light + hover
                 }`}
             />
-            {isOpen && <span>{label}</span>}
+            {isOpen && <span className="text-xs sm:text-sm xl:text-base">{label}</span>}
           </span>
 
           {!isSubscribed && isOpen && (
-            <svg width="24" height="24" viewBox="0 0 24 24">
+            <svg width="20" height="20" viewBox="0 0 24 24" className="sm:w-6 sm:h-6 flex-shrink-0">
               <defs>
                 <linearGradient id="gradient" x1="0" x2="0" y1="0" y2="1">
                   <stop offset="0%" stopColor="#0256F5" />
                   <stop offset="100%" stopColor="#77A6FF" />
                 </linearGradient>
               </defs>
-              <RiLockFill size={24} fill="url(#gradient)" />
+              <RiLockFill size="100%" fill="url(#gradient)" />
             </svg>
           )}
         </li>

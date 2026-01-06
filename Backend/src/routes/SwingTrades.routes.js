@@ -6,13 +6,13 @@ import {
   FiveDayBO,
   TenDayBO,
 } from "../controllers/AIswingTrades.controller.js";
-import verifyUser from "../middlewares/verifyUser.middleware.js";
+import verifyAuthAndSubscription from "../middlewares/verifyAuthAndSubscription.js";
 const router = express.Router();
 
-router.get("/five-days-bo", verifyUser,FiveDayBO);
-router.get("/ten-days-bo",verifyUser, TenDayBO);
-router.get("/ai-candle-reversal",verifyUser, AICandleReversal);
-router.get("/ai-candle-breakers", verifyUser,AICandleBreakers);
-router.get("/ai-contraction", verifyUser,AIContractionDB);
+router.get("/five-days-bo", verifyAuthAndSubscription, FiveDayBO);
+router.get("/ten-days-bo", verifyAuthAndSubscription, TenDayBO);
+router.get("/ai-candle-reversal", verifyAuthAndSubscription, AICandleReversal);
+router.get("/ai-candle-breakers", verifyAuthAndSubscription, AICandleBreakers);
+router.get("/ai-contraction", verifyAuthAndSubscription, AIContractionDB);
 
 export default router;

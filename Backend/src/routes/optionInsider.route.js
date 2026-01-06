@@ -1,5 +1,5 @@
 import { Router } from "express";
-import verifyUser from "../middlewares/verifyUser.middleware.js";
+import verifyAuthAndSubscription from "../middlewares/verifyAuthAndSubscription.js";
 import {
   getExpiriesByIndex,
   getOptionInsiderData,
@@ -7,5 +7,5 @@ import {
 
 export const optionInsiderRoute = Router();
 
-optionInsiderRoute.get("/insider-data", verifyUser, getOptionInsiderData);
+optionInsiderRoute.get("/insider-data", verifyAuthAndSubscription, getOptionInsiderData);
 optionInsiderRoute.get("/insider-data/expiries", getExpiriesByIndex);

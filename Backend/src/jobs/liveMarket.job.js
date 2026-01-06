@@ -2,19 +2,18 @@
 import cron from "node-cron";
 import { Queue } from "bullmq";
 import MarketHoliday from "../models/holidays.model.js";
-import dotenv from "dotenv";
 import { DateTime } from "luxon";
+import { getRedisConnection } from "../utils/redisConnection.js";
 
-dotenv.config();
+const connection = getRedisConnection();
 
-const connection = {
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
-  password: process.env.REDIS_PASSWORD,
-};
+// Only create queues if Redis is available
+const fiveMinDataQueue = connection ? new Queue("fiveMinData", { connection }) : null;
+const liveDataQueue = connection ? new Queue("liveData", { connection }) : null;
 
-const fiveMinDataQueue = new Queue("fiveMinData", { connection });
-const liveDataQueue = new Queue("liveData", { connection });
+if (!connection) {
+  console.warn("⚠️ Redis not available. Market scheduler queues will not work.");
+}
 
 const getISTTime = () => {
   return DateTime.now().setZone("Asia/Kolkata");
@@ -67,6 +66,11 @@ const runFiveMinDataTask = async () => {
   }
 
 
+  if (!fiveMinDataQueue) {
+    console.warn(`[${now.toISO()}] Redis not available. Skipping 5-minute data queue.`);
+    return;
+  }
+
   try {
     const fromDate = now.minus({ days: 1 }).toISODate();
     const toDate = now.toISODate();
@@ -95,6 +99,11 @@ const runLiveDataTask = async () => {
     return;
   }
 
+  if (!liveDataQueue) {
+    console.warn(`[${now.toISO()}] Redis not available. Skipping live data queue.`);
+    return;
+  }
+
   try {
     const fromDate = now.minus({ days: 1 }).toISODate();
     const toDate = now.toISODate();
@@ -112,8 +121,8 @@ const clearQueuesOnWeekend = async () => {
 
   if (day === 6 || day === 7) {
     console.log(`[${now.toISO()}] Weekend. Clearing queues.`);
-    await fiveMinDataQueue.obliterate({ force: true });
-    await liveDataQueue.obliterate({ force: true });
+    if (fiveMinDataQueue) await fiveMinDataQueue.obliterate({ force: true });
+    if (liveDataQueue) await liveDataQueue.obliterate({ force: true });
     console.log(`[${now.toISO()}] Queues cleared.`);
   }
 };

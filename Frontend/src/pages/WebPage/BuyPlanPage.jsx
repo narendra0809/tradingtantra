@@ -259,7 +259,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             <span
               className={theme === "dark" ? "text-white" : "text-[#012A6E]"}
             >
-              CRYSTAL (Rs. 3999)
+              CRYSTAL (Rs. 1999)
             </span>
           </div>
           <p

@@ -191,9 +191,26 @@ const IndexDepthPage = () => {
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
-                  {contribution.indexName}
-                </h4>
+                <a
+                  href={(() => {
+                    const indexMap = {
+                      "NIFTY 50": "NSE:NIFTY",
+                      BANKNIFTY: "NSE:BANKNIFTY",
+                      FINNIFTY: "NSE:FINNIFTY",
+                      MIDCAP: "NSE:NIFTYMIDCAP",
+                      SENSEX: "BSE:SENSEX",
+                    };
+                    const tradingViewSymbol = indexMap[contribution.indexName] || `NSE:${contribution.indexName}`;
+                    return `https://in.tradingview.com/chart/?symbol=${encodeURIComponent(tradingViewSymbol)}&interval=5`;
+                  })()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline cursor-pointer"
+                >
+                  <h4 className="text-4xl font-bold text-[#ED9B2F] drop-shadow-md">
+                    {contribution.indexName}
+                  </h4>
+                </a>
                 <span className="ml-3 text-xl font-medium">
                   <p>
                     {allIndexPts[contribution.indexName].pts >= 0 ? (

@@ -1,19 +1,13 @@
-import UserSubscription from "../models/userSubscription.model.js";
+import { checkUserSubscription } from "../services/subscription.service.js";
 
 const isSubscribed = async (req, res) => {
   try {
     const userId = req.user._id;
+    const subscription = await checkUserSubscription(userId);
 
-    const isSubscribed = await UserSubscription.findOne({
-      userId,
-      status: "active",
-      endDate: { $gt: Date.now() },
-    });
-
-    // console.log('isSubscribed',isSubscribed)
     res.status(200).json({
       success: true,
-      isSubscribed,
+      isSubscribed: !!subscription,
     });
   } catch (error) {
     res.status(500).json({

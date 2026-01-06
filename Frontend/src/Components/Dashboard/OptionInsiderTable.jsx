@@ -247,12 +247,12 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
   }
 
   return (
-    <div className="rounded-2xl w-full h-[480px] sm:h-[520px] md:h-[550px] overflow-hidden dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)] p-px">
-      <div className="scrollbar-themed w-full h-full overflow-x-auto overflow-y-auto px-2 sm:px-3 md:px-5 bg-db-secondary-light dark:bg-db-secondary">
+    <div className="rounded-xl sm:rounded-2xl w-full h-[400px] sm:h-[480px] md:h-[520px] lg:h-[550px] overflow-hidden dark:bg-[linear-gradient(113.83deg,#0009B3_0.45%,#02000E_100%)] p-px">
+      <div className="scrollbar-themed w-full h-full overflow-x-auto overflow-y-auto px-2 sm:px-3 md:px-5 bg-db-secondary-light dark:bg-db-secondary" style={{ WebkitOverflowScrolling: 'touch' }}>
         {!isSubscribed ? (
           <Lock />
         ) : (
-          <table className="min-w-full border-separate border-spacing-0 text-[10px] xs:text-[11px] sm:text-[12px] md:text-[14px]">
+          <table className="min-w-[800px] sm:min-w-full border-separate border-spacing-0 text-[10px] xs:text-[11px] sm:text-[12px] md:text-[14px]">
             <thead>
               <tr>
                 <th className="sticky top-0 z-10 p-2 pt-3 pb-2 sm:pt-4 sm:pb-3 text-left bg-db-secondary-light dark:bg-db-secondary text-[10px] xs:text-[11px] sm:text-[12px] md:text-[13px]">

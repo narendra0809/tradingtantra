@@ -1747,3 +1747,4 @@ export const stocksData = [
     INDEX: null,
   },
 ];
+

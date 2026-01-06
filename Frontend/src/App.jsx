@@ -37,6 +37,8 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./utils/ProtectedRoutes";
+import RequireAuthAndSubscription from "./utils/RequireAuthAndSubscription";
+import RequireAuth from "./components/auth/RequireAuth";
 import Testimonials from "./pages/WebPage/Testimonial";
 import ForgetPassword from "./pages/ForgetPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -111,36 +113,40 @@ const App = () => {
                     <Route path="notifications" element={<Notifications />} />
                     <Route path="profile" element={<MyProfilePage />} />
                     <Route path="plan" element={<MyPlanPage />} />
-                    <Route path="market-depth" element={<MarketDepthPage />} />
-                    <Route path="smart-action" element={<MonryActionPage />} />
-                    <Route
-                      path="swing-trades"
-                      element={<AiSwingTradesPage />}
-                    />
-                    <Route path="option-clock" element={<OptionClockPage />} />
-                    <Route path="option-data" element={<AIOptionDataPage />} />
-                    <Route
-                      path="option-insider"
-                      element={<AIOptionInsiderPage />}
-                    />
-                    <Route path="index-depth" element={<IndexDepthPage />} />
-                    <Route path="fii-dii" element={<FIIDIIPage />} />
-                    <Route
-                      path="sector-depth"
-                      element={<AiSectorDepthPage />}
-                    />
-                    <Route path="updates" element={<UpdatesPageDashboard />} />
-                    <Route path="profit" element={<ProfitPage />} />
-                    <Route path="feedback" element={<FeedBackPage />} />
-                    <Route path="learn-from-us" element={<LearnFromUsPage />} />
-                    <Route path="calculator" element={<CalculatorsPage />} />
-                    <Route path="calender" element={<FinancialCalendar />} />
-                    <Route path="our-strategy" element={<OurStrategy />} />
-                    <Route
-                      path="trading-journal"
-                      element={<TradingJournal />}
-                    />
-                    <Route path="testing-razorpay" element={<TestRazorpay />} />
+                    
+                    {/* Routes requiring both Auth and Subscription */}
+                    <Route element={<RequireAuthAndSubscription />}>
+                      <Route path="market-depth" element={<MarketDepthPage />} />
+                      <Route path="smart-action" element={<MonryActionPage />} />
+                      <Route
+                        path="swing-trades"
+                        element={<AiSwingTradesPage />}
+                      />
+                      <Route path="option-clock" element={<OptionClockPage />} />
+                      <Route path="option-data" element={<AIOptionDataPage />} />
+                      <Route
+                        path="option-insider"
+                        element={<AIOptionInsiderPage />}
+                      />
+                      <Route path="index-depth" element={<IndexDepthPage />} />
+                      <Route path="fii-dii" element={<FIIDIIPage />} />
+                      <Route
+                        path="sector-depth"
+                        element={<AiSectorDepthPage />}
+                      />
+                      <Route path="updates" element={<UpdatesPageDashboard />} />
+                      <Route path="profit" element={<ProfitPage />} />
+                      <Route path="feedback" element={<FeedBackPage />} />
+                      <Route path="learn-from-us" element={<LearnFromUsPage />} />
+                      <Route path="calculator" element={<CalculatorsPage />} />
+                      <Route path="calender" element={<FinancialCalendar />} />
+                      <Route path="our-strategy" element={<OurStrategy />} />
+                      <Route
+                        path="trading-journal"
+                        element={<TradingJournal />}
+                      />
+                      <Route path="testing-razorpay" element={<TestRazorpay />} />
+                    </Route>
                   </Route>
                 </Route>
 

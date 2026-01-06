@@ -13,7 +13,7 @@ const Footer = () => {
   const isDashboardRoute = location.pathname.includes("/dashboard");
   const theme = useSelector((state) => state.theme.theme);
   return (
-    <div className="dark:bg-db-primary bg-[#FFFFFF]  w-full px-[5%]  pt-10 font-abcRepro mt-20">
+    <div className="dark:bg-db-primary bg-[#FFFFFF] w-full px-4 sm:px-6 md:px-[5%] pt-10 font-abcRepro mt-20">
       <div className="flex sm:flex-row flex-col gap-y-5 justify-between">
         <div className="lg:space-y-10 space-y-8">
           <img

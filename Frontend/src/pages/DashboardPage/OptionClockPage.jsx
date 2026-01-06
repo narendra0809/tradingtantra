@@ -538,7 +538,6 @@ import StrategyCard from "../../Components/StrategyCard";
 import { marketHours } from "../../utils/utils";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
-const SOCKET_URI = import.meta.env.VITE_CHAIN_SOCKET_URI || "";
 
 const OptionClockPage = () => {
   const [optionClockData, setOptionClockData] = useState(null);
@@ -681,7 +680,7 @@ const OptionClockPage = () => {
     if (
       !isSubscribed ||
       !isInitialized ||
-      !SOCKET_URI ||
+      !SERVER_URI ||
       !selectedIndex ||
       !selectedExpiry ||
       !marketHours()
@@ -689,10 +688,7 @@ const OptionClockPage = () => {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    const newSocket = io(import.meta.env.VITE_CHAIN_SOCKET_URI, {
-      path: "/socket-chain",
-      auth: { token },
+    const newSocket = io(SERVER_URI, {
       transports: ["websocket"],
       withCredentials: true,
     });

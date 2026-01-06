@@ -1,53 +1,33 @@
-import { Server } from "socket.io";
-import express from "express";
-import http from "http";
-import cors from "cors";
 import { buildOptionInsiderPayload } from "../services/optionInsider.service.js";
-import checkSubscription from "../middlewares/checkSubscription.js";
-import authenticateSocket from "../middlewares/authenticateSocket.js";
 import { buildOptionClockPayload } from "../services/optionClock.service.js";
 
-let chainIo = null;
+let mainIo = null;
 
-const chainApp = express();
-const chainServer = http.createServer(chainApp);
-
-chainApp.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
-
-export function initializeChainSocket() {
-  if (chainIo) {
-    console.log("✅ Chain Socket.IO already initialized");
-    return chainIo;
+/**
+ * Initialize chain socket handlers on the main Socket.IO instance
+ * @param {SocketIO.Server} io - The main Socket.IO server instance
+ */
+export function initializeChainSocket(io) {
+  if (!io) {
+    throw new Error("Main Socket.IO instance is required");
   }
 
-   chainIo = new Server(chainServer, {
-    path: "/socket-chain",           // <-- ADD THIS
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-    },
-  });
+  if (mainIo) {
+    console.log("✅ Chain Socket handlers already initialized");
+    return;
+  }
 
+  mainIo = io;
 
-  // Chain socket middleware (same as main)
-  chainIo.use(authenticateSocket);
-  chainIo.use(checkSubscription);
-
-  // OptionInsider handlers moved here
-  chainIo.on("connection", async (socket) => {
-    console.log("🔗 Chain socket user connected:", socket.id);
-
+  // OptionInsider and OptionClock handlers
+  io.on("connection", async (socket) => {
     let currentRoom;
+
     socket.on("subscribeOptionInsider", async ({ index, expiry, interval }) => {
       try {
         if (!index || !interval || !expiry) {
           socket.emit("optionInsiderError", {
-            message: "index , interval and expiry are required",
+            message: "index, interval and expiry are required",
           });
           return;
         }
@@ -73,7 +53,8 @@ export function initializeChainSocket() {
         socket.emit("optionInsiderError", { message: "Internal server error" });
       }
     });
-    socket.on("subscribeOptionClock", async ({ index, expiry }) => {
+
+    socket.on("subscribeOptionClock", async ({ index, expiry, startTime, endTime }) => {
       try {
         if (!index || !expiry) {
           socket.emit("optionClockError", {
@@ -86,13 +67,13 @@ export function initializeChainSocket() {
           socket.leave(currentRoom);
         }
 
-        socket.optionClockSubscription = { index, expiry };
+        socket.optionClockSubscription = { index, expiry, startTime, endTime };
 
         currentRoom = `optionClock_${index}_${expiry}`;
 
         socket.join(currentRoom);
 
-        const payload = await buildOptionClockPayload({ index, expiry });
+        const payload = await buildOptionClockPayload({ index, expiry, startTime, endTime });
 
         socket.emit("optionClockUpdate", payload);
       } catch (error) {
@@ -100,29 +81,31 @@ export function initializeChainSocket() {
         socket.emit("optionClockError", { message: "Internal server error" });
       }
     });
-    socket.on("disconnect", () => {
-      console.log("🔗 Chain socket user disconnected:", socket.id);
-    });
   });
 
-  console.log("🔗 Chain Socket.IO initialized with optionInsider support");
-  return chainIo;
+  console.log("✅ Chain Socket handlers initialized on main Socket.IO server");
 }
 
+/**
+ * Get the main Socket.IO instance
+ */
 export function getChainSocketInstance() {
-  if (!chainIo) {
-    throw new Error("Chain Socket.IO not initialized");
+  if (!mainIo) {
+    throw new Error("Chain Socket handlers not initialized");
   }
-  return chainIo;
+  return mainIo;
 }
 
+/**
+ * Emit an event to all connected sockets
+ */
 export function emitChainUpdate(event, data) {
-  if (!chainIo || !chainIo.engine) {
-    console.warn(`⚠️ Chain Socket not ready for event: ${event}`);
+  if (!mainIo || !mainIo.engine) {
+    console.warn(`⚠️ Main Socket not ready for event: ${event}`);
     return false;
   }
   try {
-    chainIo.emit(event, data);
+    mainIo.emit(event, data);
     console.log(`📡 Chain emit: ${event}`);
     return true;
   } catch (error) {
@@ -131,15 +114,18 @@ export function emitChainUpdate(event, data) {
   }
 }
 
+/**
+ * Broadcast option insider updates to subscribed sockets
+ */
 export async function broadcastChainOptionInsider({ index, expiry }) {
-  if (!chainIo) {
-    console.warn("⚠️ Chain socket not available for optionInsider broadcast");
+  if (!mainIo) {
+    console.warn("⚠️ Main socket not available for optionInsider broadcast");
     return;
   }
 
-  const sockets = await chainIo.fetchSockets();
+  const sockets = await mainIo.fetchSockets();
   console.log(
-    `📡 Broadcasting optionInsider to ${sockets.length} chain sockets`
+    `📡 Broadcasting optionInsider to ${sockets.length} sockets`
   );
 
   for (const socket of sockets) {
@@ -151,23 +137,12 @@ export async function broadcastChainOptionInsider({ index, expiry }) {
       const room = `optionInsider_${sub.index}_${sub.expiry || "all"}_${
         sub.interval
       }`;
-      chainIo.to(room).emit("optionInsiderUpdate", payload);
+      mainIo.to(room).emit("optionInsiderUpdate", payload);
     } catch (err) {
       console.error(
-        `Error sending chain optionInsider to socket ${socket.id}:`,
+        `Error sending optionInsider to socket ${socket.id}:`,
         err
       );
     }
   }
 }
-
-export function closeChainSocket() {
-  if (chainIo) {
-    chainIo.close();
-    chainIo = null;
-    console.log("🔌 Chain Socket.IO closed");
-  }
-  chainServer.close();
-}
-
-export { chainServer };

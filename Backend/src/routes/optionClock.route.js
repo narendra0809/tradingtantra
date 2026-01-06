@@ -1,5 +1,5 @@
 import { Router } from "express";
-import verifyUser from "../middlewares/verifyUser.middleware.js";
+import verifyAuthAndSubscription from "../middlewares/verifyAuthAndSubscription.js";
 import {
   getClockExpiriesByIndex,
   getOptionClockData,
@@ -7,9 +7,9 @@ import {
 
 export const optionClockRouter = Router();
 
-optionClockRouter.get("/clock-data", verifyUser, getOptionClockData);
+optionClockRouter.get("/clock-data", verifyAuthAndSubscription, getOptionClockData);
 optionClockRouter.get(
   "/clock-data/expiries",
-  verifyUser,
+  verifyAuthAndSubscription,
   getClockExpiriesByIndex
 );

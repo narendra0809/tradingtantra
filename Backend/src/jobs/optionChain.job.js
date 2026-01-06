@@ -58,6 +58,7 @@ import {
   emitChainUpdate,
 } from "../config/chainSocket.js";
 import { fetchAndSaveAllUnderlyings } from "../services/optionChain.service.js";
+import { getSocketInstance } from "../config/socket.js";
 
 class OptionChainJob {
   constructor() {
@@ -71,7 +72,8 @@ class OptionChainJob {
 
   async safeEmitOptionChainUpdate({ index, expiry }) {
     try {
-      emitChainUpdate("optionChainDataUpdated", {
+      const io = getSocketInstance();
+      io.emit("optionChainDataUpdated", {
         updated: true,
         timestamp: new Date().toISOString(),
         source: "chain-job",

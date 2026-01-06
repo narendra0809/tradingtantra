@@ -4,13 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/Images/logo.svg";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const menuItems = [
@@ -68,43 +69,35 @@ const Header = () => {
           </nav>
 
           {/* Right Buttons */}
-          <div className="flex items-center gap-3">
-            {/* Login / Dashboard */}
-            {token ? (
+          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 lg:gap-3">
+            {/* Login / Dashboard Button - Left side */}
+            {user ? (
               <button
                 onClick={() => navigate("/dashboard")}
-                className="px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold"
+                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg bg-gradient-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold text-[10px] xs:text-xs sm:text-sm md:text-base whitespace-nowrap"
               >
                 Dashboard
               </button>
             ) : (
               <button
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-                className="hidden sm:flex relative overflow-hidden px-6 py-3 rounded-lg bg-linear-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold"
                 onClick={() => navigate("/login")}
+                className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg bg-gradient-to-b from-[#0256F5] to-[#74A4FE] text-white font-semibold text-[10px] xs:text-xs sm:text-sm md:text-base whitespace-nowrap"
               >
-                <motion.span
-                  initial={{ y: 0, opacity: 1 }}
-                  animate={hovered ? { y: -20, opacity: 0 } : {}}
-                  transition={{ duration: 0.3 }}
-                >
-                  Login
-                </motion.span>
+                Login
               </button>
             )}
 
-            {/* Buy Now (Desktop Only) */}
+            {/* Buy Now Button - Visible on all screens */}
             <button
-              className="hidden lg:block px-6 py-3 rounded-lg bg-[#0256F5] text-white font-semibold"
+              className="px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg bg-[#0256F5] text-white font-semibold text-[10px] xs:text-xs sm:text-sm md:text-base whitespace-nowrap"
               onClick={handleBuyNow}
             >
               Buy Now
             </button>
 
-            {/* Hamburger (Mobile) */}
+            {/* Hamburger (Mobile/Tablet) - Right side */}
             <GiHamburgerMenu
-              className="lg:hidden text-2xl cursor-pointer"
+              className="lg:hidden text-xl sm:text-2xl cursor-pointer flex-shrink-0"
               onClick={() => setIsOpen(true)}
             />
           </div>

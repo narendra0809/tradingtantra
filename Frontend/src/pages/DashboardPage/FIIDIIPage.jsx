@@ -120,7 +120,7 @@ const FIIDIIPage = () => {
   return (
     <>
       {error && (
-        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
+        <div className="mt-4 p-3 sm:p-4 bg-red-100 text-red-700 rounded-lg text-sm sm:text-base">
           {error}
         </div>
       )}
@@ -129,9 +129,9 @@ const FIIDIIPage = () => {
         <Lock />
       ) : (
         <>
-          <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
-            <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2">
-              <div className="mt-4 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+          <section className="mt-4 sm:mt-6 md:mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+            <div className="dark:bg-db-primary bg-primary-light rounded-lg p-2 sm:p-3 md:p-4">
+              <div className="mt-2 sm:mt-3 md:mt-4 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
                 <Suspense fallback={<div>Loading chart...</div>}>
                   <CustomBarChart
                     data={fiiDiiData.slice(0, 10)}
@@ -141,7 +141,7 @@ const FIIDIIPage = () => {
               </div>
             </div>
           </section>
-          <section className="mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
+          <section className="mt-4 sm:mt-6 md:mt-8 dark:bg-gradient-to-br from-[#00078F] to-[#01071C] p-px rounded-lg">
             <Suspense fallback={<div>Loading table...</div>}>
               <FiiDiiTable data={fiiDiiData} loading={loading} />
             </Suspense>

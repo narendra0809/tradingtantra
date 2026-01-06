@@ -224,23 +224,18 @@ const initializeServer = (server) => {
     socket.on("getMarketDepthData", async () => {
       console.log("inside get data");
       await sendData(socket);
-
-      // console.log("user disconnected",socket.id);
     });
 
     socket.on("getSectorData", async () => {
       console.log("inside get data");
       await sendSectorData();
-
-      // console.log("user disconnected",socket.id);
     });
 
     socket.on("getSmartMoneyActionData", async () => {
       console.log("inside get data");
       await sendSmartMoneyActionData();
-
-      // console.log("user disconnected",socket.id);
     });
+
     socket.on("getSwingData", async () => {
       await sendSwingData(socket);
     });

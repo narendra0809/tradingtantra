@@ -10,7 +10,8 @@ import passport from "passport";
 import path from "path";
 import "./delete.js";
 import "./src/config/passport.js";
-import { initializeServer } from "./src/config/socket.js";
+import { initializeServer, getSocketInstance } from "./src/config/socket.js";
+import { initializeChainSocket } from "./src/config/chainSocket.js";
 import "./src/jobs/AfterMarket.job.js";
 import "./src/jobs/FiiDiiJob.js";
 import "./src/jobs/holiday.job.js";
@@ -61,7 +62,11 @@ app.use(cookieParser());
 
 app.use(passport.initialize());
 
-initializeServer(server);
+// Initialize main Socket.IO server
+const io = initializeServer(server);
+
+// Initialize chain socket handlers on the main server
+initializeChainSocket(io);
 
 app.use(
   cors({

@@ -35,7 +35,7 @@ const Home = () => {
       transactionId: "",
       paymentDate: "",
       paymentStatus: "Paid",
-      amount: "INR 3,999",
+      amount: "INR 1,999",
     },
   ]);
 
