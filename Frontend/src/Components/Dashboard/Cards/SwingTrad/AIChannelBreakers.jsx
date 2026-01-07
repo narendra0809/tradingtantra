@@ -96,7 +96,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
         <div className="dark:bg-gradient-to-bl from-[#00078F] to-[#01071C] p-px h-fit mt-4 rounded-lg">
           <div className="w-full rounded-lg dark:bg-db-secondary bg-[#EEEEEE] p-2 relative">
             {/* Scrollable wrapper */}
-            <div className="h-[260px] overflow-y-auto rounded-lg scrollbar-hidden">
+            <div className="h-[260px] overflow-y-auto overflow-x-hidden sm:overflow-x-auto rounded-lg scrollbar-hidden">
               {!isSubscribed ? (
                 <Lock />
               ) : (
@@ -105,17 +105,17 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                   <thead className="sticky top-0 dark:bg-db-secondary bg-[#EEEEEE] z-10">
                     <tr className="dark:text-gray-300 ">
                       <th
-                        className="py-2 text-left"
+                        className="py-2 text-left text-xs sm:text-sm whitespace-nowrap"
                         onClick={handleSortBySymbol}
                       >
                         Symbol{" "}
                         <MdOutlineKeyboardArrowDown className="inline-flex" />
                       </th>
-                      <th className="py-2 text-center">
+                      <th className="py-2 text-center whitespace-nowrap">
                         <MdOutlineKeyboardArrowDown />
                       </th>
                       <th
-                        className="py-2 text-center"
+                        className="py-2 text-center whitespace-nowrap"
                         onClick={handleSortByPercentageChange}
                       >
                         %{" "}
@@ -128,7 +128,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                       <th
-                        className="py-2 text-center "
+                        className="py-2 text-center text-xs sm:text-sm whitespace-nowrap"
                         onClick={handleSortByDateTime}
                       >
                         Date{" "}
@@ -141,7 +141,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                         />
                       </th>
                       <th
-                        className="py-2 text-right cursor-pointer "
+                        className="py-2 text-right cursor-pointer whitespace-nowrap"
                         onClick={handleSortByType}
                       >
                         <MdOutlineKeyboardArrowDown
@@ -171,7 +171,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                     {sortedData.length > 0 ? (
                       sortedData.map((stock, index) => (
                         <tr key={index}>
-                          <td className="py-3 text-left text-sm font-semibold">
+                          <td className="py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold whitespace-nowrap">
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=D`}
@@ -180,7 +180,7 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                               {stock?.stockSymbol}
                             </a>
                           </td>
-                          <td className="text-lg text-center">
+                          <td className="text-base sm:text-lg text-center whitespace-nowrap">
                             <a
                               target="_blank"
                               href={`https://in.tradingview.com/chart/?symbol=NSE%3A${stock?.stockSymbol}&interval=D`}
@@ -189,24 +189,24 @@ const AIChannelBreakers = ({ data, loading, error, isSubscribed }) => {
                               <FcCandleSticks />
                             </a>
                           </td>
-                          <td className="text-center">
+                          <td className="text-center whitespace-nowrap">
                             <span
                               className={`${
                                 stock?.percentageChange >= 0
                                   ? "bg-green-600"
                                   : "bg-red-600"
-                              } px-2 py-1 text-xs rounded-full text-white`}
+                              } px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full text-white`}
                             >
                               {Number(stock?.percentageChange).toFixed(2)}
                               {/* {Number(stock?.percentageChange=0)?.toFixed(2)} */}
                             </span>
                           </td>
-                          <td className="text-xs text-center ">
+                          <td className="text-[10px] sm:text-xs text-center whitespace-nowrap">
                             {stock?.timestamp.split("T")[0]}
                           </td>
-                          <td className="text-right text-sm">
+                          <td className="text-right text-xs sm:text-sm whitespace-nowrap">
                             <span
-                              className={`px-2 py-[2px] rounded-3xl text-white ${
+                              className={`px-1.5 sm:px-2 py-[2px] rounded-3xl text-white ${
                                 stock?.type === "BEARISH"
                                   ? "bg-red-600"
                                   : "bg-green-600"

@@ -122,10 +122,21 @@ const TradingJournal = () => {
 
   const handleAddTradeSubmit = async () => {
     setShowAddTrade(false);
-    if (!tradeData.symbol) {
-      tradeData.symbol = tickerSymbol[0].proName;
-    }
-    await fetchData("auth/add-trade", "POST", tradeData);
+    
+    // Prepare data for API - convert Date objects to ISO strings
+    const tradeDataToSend = {
+      ...tradeData,
+      symbol: tradeData.symbol || (tickerSymbol && tickerSymbol[0]?.proName) || "",
+      entryDate: tradeData.entryDate instanceof Date 
+        ? tradeData.entryDate.toISOString() 
+        : tradeData.entryDate,
+      exitDate: tradeData.exitDate instanceof Date 
+        ? tradeData.exitDate.toISOString() 
+        : tradeData.exitDate,
+      dateRange: dateRangeType, // Use the state variable instead of tradeData.dateRange
+    };
+    
+    await fetchData("auth/add-trade", "POST", tradeDataToSend);
     setReload(!reload);
   };
 

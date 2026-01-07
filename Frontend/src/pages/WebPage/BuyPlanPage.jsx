@@ -52,11 +52,11 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     theme === "dark"
       ? "bg-[#000A2D] text-white placeholder-gray-400"
       : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-  } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
+  } w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
 
   const selectClass = `${
     theme === "dark" ? "bg-[#000A2D] text-white" : "bg-[#F3F6F9] text-gray-800"
-  } w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
+  } w-full py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#0256F5]`;
 
   const themeClass = (darkCls, lightCls) =>
     theme === "dark" ? darkCls : lightCls;
@@ -235,18 +235,18 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
     <div
       className={`flex flex-col lg:flex-row ${
         theme === "dark"
-          ? "bg-[#020417] min-h-screen py-8"
-          : "bg-gray-50 min-h-screen py-8"
-      } max-w-6xl mx-auto px-8 rounded-2xl`}
+          ? "bg-[#020417] min-h-screen py-4 sm:py-6 md:py-8"
+          : "bg-gray-50 min-h-screen py-4 sm:py-6 md:py-8"
+      } max-w-6xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 rounded-xl sm:rounded-2xl`}
     >
       {/* LEFT: FORM */}
-      <div className="lg:w-3/5 p-6 lg:p-8">
-        <div className="mb-8">
+      <div className="lg:w-3/5 p-4 sm:p-5 md:p-6 lg:p-8">
+        <div className="mb-5 sm:mb-6 md:mb-8">
           <h3
             className={`${themeClass(
               "text-white",
               "text-gray-900"
-            )} text-2xl font-medium mb-2`}
+            )} text-xl sm:text-xl md:text-2xl font-medium mb-2`}
           >
             Don&apos;t Just Trade, Dominate
           </h3>
@@ -254,10 +254,10 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             className={`${themeClass(
               "bg-primary",
               "bg-[#F0F6FF] border"
-            )} rounded-lg text-2xl font-thin px-4 py-3 inline-block`}
+            )} rounded-lg text-lg sm:text-lg md:text-xl lg:text-2xl font-thin px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 inline-block`}
           >
             <span
-              className={theme === "dark" ? "text-white" : "text-[#012A6E]"}
+              className={`${theme === "dark" ? "text-white" : "text-[#012A6E]"} text-base sm:text-base md:text-lg lg:text-xl`}
             >
               CRYSTAL (Rs. 1999)
             </span>
@@ -266,14 +266,14 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             className={`${themeClass(
               "text-white",
               "text-gray-800"
-            )} text-xl font-bold mt-4`}
+            )} text-base sm:text-base md:text-lg lg:text-xl font-bold mt-3 sm:mt-4`}
           >
             Duration: 6 months + 6 Months Free
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 md:gap-4">
             {/* First Name */}
             <div className="space-y-1">
               <input
@@ -285,7 +285,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                 className={inputClass}
               />
               {formErrors.firstName && (
-                <span className="text-red-400 text-sm">
+                <span className="text-red-400 text-xs sm:text-sm">
                   {formErrors.firstName}
                 </span>
               )}
@@ -302,7 +302,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                 className={inputClass}
               />
               {formErrors.lastName && (
-                <span className="text-red-400 text-sm">
+                <span className="text-red-400 text-xs sm:text-sm">
                   {formErrors.lastName}
                 </span>
               )}
@@ -360,7 +360,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                     theme === "dark"
                       ? "bg-[#000A2D] text-white"
                       : "bg-[#F3F6F9] text-gray-800"
-                  } py-3 px-4 rounded-lg w-24 text-center`}
+                  } py-2.5 sm:py-3 px-2 sm:px-4 rounded-lg w-18 sm:w-20 md:w-24 text-center text-sm sm:text-base flex-shrink-0`}
                 >
                   {countryCode || "+91"}
                 </div>
@@ -374,11 +374,11 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                     theme === "dark"
                       ? "bg-[#000A2D] text-white placeholder-gray-400"
                       : "bg-[#F3F6F9] text-gray-800 placeholder-gray-500"
-                  } flex-1 py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
+                  } flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#0256F5]`}
                 />
               </div>
               {formErrors.phoneNumber && (
-                <span className="text-red-400 text-sm">
+                <span className="text-red-400 text-xs sm:text-sm">
                   {formErrors.phoneNumber}
                 </span>
               )}
@@ -418,29 +418,29 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
           </div>
 
           {/* Terms */}
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-2 sm:space-x-3">
             <input
               type="checkbox"
               checked={isChecked}
               onChange={handleCheck}
-              className="mt-1 w-5 h-5 cursor-pointer"
+              className="mt-1 w-4 h-4 sm:w-5 sm:h-5 cursor-pointer flex-shrink-0"
             />
-            <div>
+            <div className="flex-1">
               <label
-                className={`cursor-pointer ${theme === "dark" ? "text-white" : "text-gray-800"}`}
+                className={`cursor-pointer text-sm sm:text-base ${theme === "dark" ? "text-white" : "text-gray-800"}`}
                 onClick={() => handleCheck({target: {checked: !isChecked}})}
               >
                 I agree with terms & Condition
               </label>
               {formErrors.isAgreed && (
-                <span className="block text-red-400 text-sm mt-1">
+                <span className="block text-red-400 text-xs sm:text-sm mt-1">
                   {formErrors.isAgreed}
                 </span>
               )}
             </div>
           </div>
 
-          <button type="submit" className="w-full mt-6">
+          <button type="submit" className="w-full mt-4 sm:mt-5 md:mt-6">
             <img
               src={pay}
               alt="Pay Now"
@@ -452,7 +452,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
 
       {/* RIGHT: PAYMENT INFO + COUPON */}
       <div
-        className={`lg:w-2/5 p-6 lg:p-8 rounded-r-xl ${
+        className={`lg:w-2/5 p-4 sm:p-5 md:p-6 lg:p-8 rounded-xl lg:rounded-r-xl mt-5 sm:mt-6 lg:mt-0 ${
           theme === "dark" ? "bg-[#72A3FD]" : "bg-[#E6F6FF]"
         }`}
       >
@@ -460,23 +460,23 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
           <h5
             className={`${
               theme === "dark" ? "text-[#01071C]" : "text-[#012A6E]"
-            } font-bold text-2xl mb-6`}
+            } font-bold text-xl sm:text-xl md:text-2xl mb-4 sm:mb-5 md:mb-6`}
           >
             Payment Information
           </h5>
 
           {/* Amounts */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-3 sm:space-y-3.5 md:space-y-4 mb-4 sm:mb-5 md:mb-6">
             <div className="flex justify-between items-center">
               <p
-                className={`${
+                className={`text-sm sm:text-sm md:text-base ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-700"
                 }`}
               >
                 Plan Amount
               </p>
               <p
-                className={`${
+                className={`text-sm sm:text-sm md:text-base ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
                 } font-medium`}
               >
@@ -486,14 +486,14 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
 
             <div className="flex justify-between items-center">
               <p
-                className={`${
+                className={`text-sm sm:text-sm md:text-base ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-700"
                 }`}
               >
                 GST @18%
               </p>
               <p
-                className={`${
+                className={`text-sm sm:text-sm md:text-base ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
                 } font-medium`}
               >
@@ -504,39 +504,39 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             {couponPercent > 0 && (
               <div className="flex justify-between items-center">
                 <p
-                  className={`${
+                  className={`text-sm sm:text-sm md:text-base ${
                     theme === "dark" ? "text-[#01071C]" : "text-gray-700"
                   }`}
                 >
                   Coupon Discount ({couponPercent}%)
                 </p>
-                <p className="text-green-700 font-medium">
+                <p className="text-green-700 font-medium text-sm sm:text-sm md:text-base">
                   - ₹{((TOTAL_AMOUNT * couponPercent) / 100).toFixed(2)}
                 </p>
               </div>
             )}
 
-            <div className="flex justify-between items-center border-t border-[#01071C] pt-4 mt-2">
+            <div className="flex justify-between items-center border-t border-[#01071C] pt-3 sm:pt-3.5 md:pt-4 mt-2">
               <p
-                className={`${
+                className={`text-base sm:text-base md:text-lg ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
-                } font-bold text-lg`}
+                } font-bold`}
               >
                 Total Payable
               </p>
               <p
-                className={`${
+                className={`text-base sm:text-base md:text-lg ${
                   theme === "dark" ? "text-[#01071C]" : "text-gray-900"
-                } font-bold text-lg`}
+                } font-bold`}
               >
                 ₹{payableTotal.toFixed(2)}
               </p>
             </div>
           </div>
           {/* Coupon */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6">
             <p
-              className={`mb-2 text-sm ${
+              className={`mb-2 text-xs sm:text-sm ${
                 theme === "dark" ? "text-[#01071C]" : "text-gray-700"
               }`}
             >
@@ -552,7 +552,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
                   setCouponMsg("");
                 }}
                 placeholder="Enter coupon code"
-                className={`flex-1 py-2 px-3 rounded-lg text-sm outline-none ${
+                className={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm outline-none ${
                   theme === "dark"
                     ? "bg-[#BCD4FF] text-[#01071C] placeholder-gray-600"
                     : "bg-white text-gray-800 placeholder-gray-500"
@@ -561,7 +561,7 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               <button
                 type="button"
                 onClick={handleApplyCoupon}
-                className="px-4 py-2 rounded-lg bg-[rgb(2,86,245)] text-white text-sm font-semibold hover:opacity-90"
+                className="px-3 sm:px-4 py-2 rounded-lg bg-[rgb(2,86,245)] text-white text-xs sm:text-sm font-semibold hover:opacity-90 whitespace-nowrap"
               >
                 Apply
               </button>
@@ -574,11 +574,11 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
             )}
           </div>
           {/* Plan Includes (same as pehle) */}
-          <div className="space-y-4 mt-4">
+          <div className="space-y-2.5 sm:space-y-3 md:space-y-4 mt-4">
             <h6
               className={`${
                 theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-              } font-semibold text-lg`}
+              } font-semibold text-base sm:text-base md:text-lg`}
             >
               Plan Includes:
             </h6>
@@ -592,12 +592,12 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               [shild, "Priority customer support"],
               [lock, "Market trend alerts"],
             ].map(([icon, text], i) => (
-              <div key={i} className="flex items-center space-x-3">
-                <img src={icon} alt="" className="w-5 h-5" />
+              <div key={i} className="flex items-center space-x-2 sm:space-x-2.5 md:space-x-3">
+                <img src={icon} alt="" className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 flex-shrink-0" />
                 <p
-                  className={`${
+                  className={`text-xs sm:text-xs md:text-sm ${
                     theme === "dark" ? "text-[#01071C]" : "text-gray-800"
-                  }`}
+                  } leading-tight`}
                 >
                   {text}
                 </p>

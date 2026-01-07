@@ -33,3 +33,4 @@ export const isMarketOpen = () => {
   return currentTime >= openTime && currentTime <= closeTime;
 };
 
+

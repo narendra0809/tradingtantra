@@ -50,6 +50,13 @@ router.post(
   ],
   logIn
 );
+// Lightweight endpoint for heartbeat - returns only status code, no user data
+// This endpoint is used for session validation without exposing user information
+router.get("/verify", verifyUser, async (req, res) => {
+  // Return only status 200 with minimal response - no user data exposed
+  return res.status(200).send();
+});
+
 router.get("/me", verifyUser, async (req, res) => {
   // Return a sanitized user object to avoid leaking sensitive fields
   const u = req.user;

@@ -19,9 +19,26 @@ const addTrade = async (req, res) => {
   const loggedInUser = req.user;
 
   try {
+    // Validate user
+    if (!loggedInUser || !loggedInUser._id) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
     const entryPriceNum = parseFloat(entryPrice);
     const exitPriceNum = parseFloat(exitPrice);
-    if (entryPriceNum <= 0 || exitPriceNum <= 0 || quantity <= 0) {
+    const quantityNum = parseInt(quantity);
+    
+    if (isNaN(entryPriceNum) || isNaN(exitPriceNum) || isNaN(quantityNum)) {
+      return res.status(400).json({
+        success: false,
+        message: "Entry price, exit price, and quantity must be valid numbers",
+      });
+    }
+
+    if (entryPriceNum <= 0 || exitPriceNum <= 0 || quantityNum <= 0) {
       return res.status(400).json({
         success: false,
         message:
@@ -29,21 +46,32 @@ const addTrade = async (req, res) => {
       });
     }
 
+    // Convert dates to Date objects if they're strings
+    const entryDateObj = entryDate instanceof Date ? entryDate : new Date(entryDate);
+    const exitDateObj = exitDate instanceof Date ? exitDate : new Date(exitDate);
+
+    if (isNaN(entryDateObj.getTime()) || isNaN(exitDateObj.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format",
+      });
+    }
+
     const profitLossPercentage =
       ((exitPriceNum - entryPriceNum) / entryPriceNum) * 100;
-    const totalProfitOrLoss = (exitPriceNum - entryPriceNum) * quantity;
+    const totalProfitOrLoss = (exitPriceNum - entryPriceNum) * quantityNum;
 
     const newTrade = new TradDate({
       dateRange,
-      entryDate,
-      exitDate,
+      entryDate: entryDateObj,
+      exitDate: exitDateObj,
       symbol,
       entryPrice: entryPriceNum,
       exitPrice: exitPriceNum,
-      quantity,
+      quantity: quantityNum,
       profitLossPercentage,
       totalProfitOrLoss,
-      userID: loggedInUser.userId,
+      userID: loggedInUser._id, // Fixed: Use _id instead of userId
     });
 
     const savedTrade = await newTrade.save();
@@ -72,6 +100,14 @@ const getAddedTrade = async (req, res) => {
   const loggedInUser = req.user;
 
   try {
+    // Validate user
+    if (!loggedInUser || !loggedInUser._id) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
     const startOfDay = new Date(fromDate);
     startOfDay.setUTCHours(0, 0, 0, 0); // Start time: 00:00:00.000Z
 
@@ -87,7 +123,7 @@ const getAddedTrade = async (req, res) => {
 
     const trades = await TradDate.find(
       {
-        userID: loggedInUser.userId,
+        userID: loggedInUser._id, // Fixed: Use _id instead of userId
         entryDate: { $gte: startOfDay },
         exitDate: { $lte: endOfDay },
       },

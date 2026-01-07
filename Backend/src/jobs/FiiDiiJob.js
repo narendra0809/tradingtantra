@@ -14,10 +14,11 @@ const runFIIDIIJob = async () => {
 
 // Cron expression: Minute Hour * * *
 // This runs at 08:00 AM every day
-const FiiDiiJob = cron.schedule("00 09 * * *", runFIIDIIJob, {
+const FiiDiiJob = cron.schedule("0 9,21 * * *", runFIIDIIJob, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
+
 
 console.log("📅 Scheduled FII/DII scraping job: 9:00 AM IST every day ✅");
 

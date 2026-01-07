@@ -164,7 +164,7 @@ const MoneyActionPage = () => {
 
   return (
     <>
-      <section className="grid lg:grid-cols-2 grid-cols-1 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-10">
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mt-6 sm:mt-8 md:mt-10">
         <AIMomentumCatcherFiveMins
           data={
             MomentumCatherFiveMinRes.updatedData ||

@@ -577,59 +577,60 @@ input[type="reset"] {
     grid-row: span 1;
     grid-row-start: 5;
   }
-}
-
-/* Small screens (e.g., phones, up to 480px) */
-@media (max-width: 480px) {
-  .homeParent {
-    grid-template-columns: 1fr;
-    /* grid-template-rows: repeat(27, 1fr); */
-  }
-
-  .div1 {
+  .div10 {
     grid-column-start: 1;
-    grid-row: span 3;
-    grid-row-start: 1;
+    grid-row: span 1;
+    grid-row-start: 6;
   }
-  .div2 {
-    grid-column-start: 1;
-    grid-row: span 3;
-    grid-row-start: 4;
+  .div11 {
+    grid-column-start: 2;
+    grid-row: span 1;
+    grid-row-start: 6;
   }
-  .div3 {
+  .div12 {
     grid-column-start: 1;
-    grid-row: span 3;
+    grid-row: span 1;
     grid-row-start: 7;
   }
-  .div4 {
-    grid-column-start: 1;
-    grid-row: span 3;
-    grid-row-start: 10;
+  .div13 {
+    grid-column-start: 2;
+    grid-row: span 1;
+    grid-row-start: 7;
   }
-  .div5 {
+  .div14 {
     grid-column-start: 1;
-    grid-row: span 3;
-    grid-row-start: 13;
+    grid-row: span 1;
+    grid-row-start: 8;
   }
-  .div6 {
-    grid-column-start: 1;
-    grid-row: span 3;
-    grid-row-start: 16;
+}
+
+/* Small screens (e.g., phones, up to 640px) */
+@media (max-width: 640px) {
+  .homeParent {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    gap: 12px;
   }
-  .div7 {
-    grid-column-start: 1;
-    grid-row: span 5;
-    grid-row-start: 19;
-  }
-  .div8 {
-    grid-column-start: 1;
-    grid-row: span 2;
-    grid-row-start: 24;
-  }
-  .div9 {
-    grid-column-start: 1;
-    grid-row: span 2;
-    grid-row-start: 26;
+
+  /* All cards stack vertically one by one on mobile in the order they appear in the array */
+  .div1,
+  .div2,
+  .div3,
+  .div4,
+  .div5,
+  .div6,
+  .div7,
+  .div8,
+  .div9,
+  .div10,
+  .div11,
+  .div12,
+  .div13,
+  .div14 {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    min-height: auto;
   }
 }
 

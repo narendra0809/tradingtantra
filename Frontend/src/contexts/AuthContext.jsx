@@ -91,15 +91,17 @@ export const AuthProvider = ({ children }) => {
     };
   }, [navigate]);
 
-  // 🔥 5. HEARTBEAT: Poll every 5 seconds to check if session is valid
+  // 🔥 5. HEARTBEAT: Poll every 60 seconds to check if session is valid
   // This ensures auto-logout happens even if the user is idle (not clicking anything)
+  // Uses /auth/verify endpoint which returns minimal data (no user info exposed)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
-      // Just a lightweight check. If verifyUser fails, the Interceptor above catches it.
-      axios.get(`${SERVER_URI}/auth/me`).catch(() => {}); 
-    }, 500000); // 5 Seconds
+      // Lightweight check using /auth/verify - returns only { authenticated: true }
+      // No user data is exposed in Network tab
+      axios.get(`${SERVER_URI}/auth/verify`).catch(() => {}); 
+    }, 60000); // 60 Seconds (1 minute)
 
     return () => clearInterval(interval);
   }, [user]);

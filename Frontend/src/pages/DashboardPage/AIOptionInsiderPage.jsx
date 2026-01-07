@@ -9,6 +9,17 @@ import StrategyCard from "../../Components/StrategyCard";
 import { isMarketOpen } from "../../utils/marketUtils";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
+// Extract base URL for Socket.io (remove any path to avoid namespace issues)
+const getBaseUrl = (url) => {
+  if (!url) return "";
+  try {
+    const urlObj = new URL(url);
+    return `${urlObj.protocol}//${urlObj.host}`;
+  } catch {
+    return url;
+  }
+};
+const SOCKET_URI = import.meta.env.VITE_SOCKET_URI || getBaseUrl(SERVER_URI);
 
 const AIOptionInsiderPage = () => {
   const [optionChainData, setOptionChainData] = useState();
@@ -111,7 +122,7 @@ const AIOptionInsiderPage = () => {
       setLoading(true);
       setError(null);
 
-      const newSocket = io(SERVER_URI, {
+      const newSocket = io(SOCKET_URI, {
         transports: ["websocket"],
         withCredentials: true,
       });

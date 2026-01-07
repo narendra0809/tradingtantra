@@ -538,6 +538,17 @@ import StrategyCard from "../../Components/StrategyCard";
 import { marketHours } from "../../utils/utils";
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "";
+// Extract base URL for Socket.io (remove any path to avoid namespace issues)
+const getBaseUrl = (url) => {
+  if (!url) return "";
+  try {
+    const urlObj = new URL(url);
+    return `${urlObj.protocol}//${urlObj.host}`;
+  } catch {
+    return url;
+  }
+};
+const SOCKET_URI = import.meta.env.VITE_SOCKET_URI || getBaseUrl(SERVER_URI);
 
 const OptionClockPage = () => {
   const [optionClockData, setOptionClockData] = useState(null);
@@ -688,7 +699,7 @@ const OptionClockPage = () => {
       return;
     }
 
-    const newSocket = io(SERVER_URI, {
+    const newSocket = io(SOCKET_URI, {
       transports: ["websocket"],
       withCredentials: true,
     });
