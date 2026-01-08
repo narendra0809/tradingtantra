@@ -561,7 +561,8 @@ const BuyPlanPage = ({ onPaymentSuccess }) => {
               <button
                 type="button"
                 onClick={handleApplyCoupon}
-                className="px-3 sm:px-4 py-2 rounded-lg bg-[rgb(2,86,245)] text-white text-xs sm:text-sm font-semibold hover:opacity-90 whitespace-nowrap"
+                className="px-3 sm:px-4 py-2 rounded-lg bg-[rgb(2,86,245)] text-white text-xs sm:text-sm font-semibold hover:opacity-90 whitespace-nowrap cursor-pointer relative z-10 transition-opacity"
+                style={{ pointerEvents: "auto" }}
               >
                 Apply
               </button>

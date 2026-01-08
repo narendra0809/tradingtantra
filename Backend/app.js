@@ -30,6 +30,9 @@ import updatesRoutes from "./src/routes/admin_routes/adminUpdates.route.js";
 import transactionsRoutes from "./src/routes/admin_routes/transactions.route.js";
 import userDetailsRoutes from "./src/routes/admin_routes/usersDetails.route.js";
 import adminCouponRoutes from "./src/routes/admin_routes/adminCoupon.route.js";
+import maintenanceRoutes from "./src/routes/admin_routes/maintenance.route.js";
+import maintenancePublicRoutes from "./src/routes/maintenance.routes.js";
+import checkMaintenance from "./src/middlewares/checkMaintenance.middleware.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import feedbackRoute from "./src/routes/feedback.route.js";
 import holidaysRoutes from "./src/routes/holidays.route.js";
@@ -88,6 +91,10 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 app.use(compression());
+
+// Maintenance mode check (before all routes except admin routes)
+app.use("/api", checkMaintenance);
+app.use("/api", maintenancePublicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use(
@@ -119,7 +126,8 @@ app.use(
   adminTickerRoutes,
   adminServerRoutes,
   adminStockRoutes,
-  adminCouponRoutes
+  adminCouponRoutes,
+  maintenanceRoutes
 );
 
 app.get("/api/option-chain/trigger", async (req, res) => {

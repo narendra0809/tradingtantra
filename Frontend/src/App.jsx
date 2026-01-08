@@ -64,6 +64,7 @@ import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
 import Coupon from "./pages/AdminPages/Coupon";
 import { Toaster } from "react-hot-toast";
 import AIOptionDataPage from "./pages/DashboardPage/AiOptionDataPage";
+import MaintenancePage from "./pages/WebPage/MaintenancePage";
 
 const App = () => {
   return (
@@ -79,6 +80,7 @@ const App = () => {
             <RiskProvider>
               <ScrollToTop />
               <Routes>
+                <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<RegisterPage />} />
                 <Route path="forget-password" element={<ForgetPassword />} />

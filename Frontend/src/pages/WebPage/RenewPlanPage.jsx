@@ -170,7 +170,8 @@ const RenewPlanPage = ({ setShowRenewModal, onPaymentSuccess }) => {
             type="button"
             onClick={handleApplyCoupon}
             disabled={isCouponApplied}
-            className="px-3 sm:px-3.5 md:px-4 py-2.5 sm:py-2 bg-primary text-white text-sm sm:text-sm md:text-base rounded disabled:opacity-60 whitespace-nowrap"
+            className="px-3 sm:px-3.5 md:px-4 py-2.5 sm:py-2 bg-primary text-white text-sm sm:text-sm md:text-base rounded disabled:opacity-60 whitespace-nowrap hover:opacity-90 transition-opacity cursor-pointer relative z-10"
+            style={{ pointerEvents: isCouponApplied ? "none" : "auto" }}
           >
             Apply
           </button>
