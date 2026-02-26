@@ -6,18 +6,54 @@ import Settings from "../models/adminModels/settings.model.js";
  */
 const checkMaintenance = async (req, res, next) => {
   try {
-    // Allow admin routes to bypass maintenance
-    if (req.path.startsWith("/api/admin")) {
+    // Get the full path (req.path might not include /api prefix when routes are mounted)
+    const fullPath = req.originalUrl || req.path;
+    const path = req.path;
+    const baseUrl = req.baseUrl || "";
+    
+    // Debug logging for maintenance toggle issue
+    if (fullPath.includes("maintenance/toggle")) {
+      console.log("🔍 Maintenance toggle request:", { 
+        path, 
+        fullPath, 
+        baseUrl,
+        method: req.method,
+        url: req.url 
+      });
+    }
+    
+    // Allow admin routes to bypass maintenance (check both path and originalUrl)
+    // req.path will be like "/admin/maintenance/toggle" when mounted at /api/admin
+    // req.originalUrl will be like "/api/admin/maintenance/toggle"
+    // req.url will be like "/admin/maintenance/toggle" (without query)
+    const isAdminRoute = 
+      path.startsWith("/admin") ||
+      fullPath.startsWith("/api/admin") ||
+      fullPath.includes("/admin/") ||
+      req.url?.startsWith("/admin");
+    
+    if (isAdminRoute) {
+      // Admin routes always bypass maintenance
+      if (fullPath.includes("maintenance/toggle")) {
+        console.log("✅ Admin maintenance route bypassed");
+      }
       return next();
     }
 
     // Allow auth routes to bypass maintenance (users need to login)
-    if (req.path.startsWith("/api/auth")) {
+    if (
+      path.startsWith("/auth") ||
+      fullPath.startsWith("/api/auth") ||
+      fullPath.includes("/auth/")
+    ) {
       return next();
     }
 
     // Allow public maintenance status check endpoint
-    if (req.path === "/api/maintenance/status" && req.method === "GET") {
+    if (
+      (path === "/maintenance/status" || fullPath === "/api/maintenance/status") &&
+      req.method === "GET"
+    ) {
       return next();
     }
 
@@ -37,7 +73,7 @@ const checkMaintenance = async (req, res, next) => {
     // Maintenance mode is OFF, continue normally
     next();
   } catch (error) {
-    console.error("Error checking maintenance mode:", error);
+    console.error("❌ Error checking maintenance mode:", error);
     // On error, allow request to proceed (fail open)
     next();
   }

@@ -33,37 +33,43 @@ const ForgetPassword = () => {
     <WrapperPage>
       <WrapperHeader
         title="Forget Password"
-        discription="Enter your email for the verification process, we will send 4 digits code to your email."
+        discription="Enter your email for the verification process, we will send 6 digits code to your email."
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-lg font-medium mb-1">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium mb-1 text-white">
+            Email
+          </label>
           <input
             type="email"
+            id="email"
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg"
+            className="w-full text-white px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400"
             placeholder="Enter your email"
             required
           />
         </div>
 
         {errorMsg && (
-          <p className="text-red-400 text-sm">{errorMsg}</p>
+          <div className="p-3 bg-[#1F0000] border border-[#FF4242] rounded-lg">
+            <p className="text-sm text-[#FF4242]">{errorMsg}</p>
+          </div>
         )}
 
         <button
           type="submit"
-          className="w-full py-3 bg-[#0256F5] rounded-lg"
+          className="text-white w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200"
         >
           Send OTP
         </button>
       </form>
 
       <div className="mt-5 text-center">
-        <p className="text-[#C7C7C7]">
+        <p className="text-white">
           Remember Password?{" "}
-          <NavLink className="underline text-[#6290FF]" to="/login">
+          <NavLink className="underline text-[#6290FF] hover:text-[#6290FF] font-medium" to="/login">
             Log In
           </NavLink>
         </p>

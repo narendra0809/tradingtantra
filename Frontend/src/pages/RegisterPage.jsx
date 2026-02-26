@@ -7,6 +7,8 @@ import WrapperHeader from "./WrapperHeader";
 import { useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import GoogleButton from "../Components/OAuth";
+import { checkMaintenanceMode } from "../utils/checkMaintenance";
+import MaintenancePage from "./WebPage/MaintenancePage";
 
 const RegisterPage = () => {
   const [FormData, setFormData] = useState({
@@ -23,44 +25,86 @@ const RegisterPage = () => {
   });
 
   const [formErrors, setFormErrors] = useState({});
+  const [isMaintenance, setIsMaintenance] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
 
   const navigate = useNavigate();
 
   const { data, error, fetchData } = useFetchData();
-  const handleChange = (e) => {
-    let { name, value } = e.target;
-    setFormData({ ...FormData, [name]: value });
-    if (name === "confirmPassword") {
-      name = "passNoMatch";
-    }
-    setFormErrors({ ...formErrors, [name]: "" });
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Check maintenance mode on mount
+  useEffect(() => {
+    const checkMaintenance = async () => {
+      try {
+        const { isMaintenance: maintenanceStatus } = await checkMaintenanceMode();
+        setIsMaintenance(maintenanceStatus);
+      } catch (error) {
+        console.error("Error checking maintenance mode:", error);
+        setIsMaintenance(false);
+      } finally {
+        setCheckingMaintenance(false);
+      }
+    };
 
-    if (FormData.password !== FormData.confirmPassword) {
-      setFormErrors({ ...formErrors, passNoMatch: "Password does not match" });
-    }
+    checkMaintenance();
+  }, []);
 
-    await fetchData("auth/signup", "POST", FormData);
-  };
-
+  // Handle signup success
   useEffect(() => {
     if (data?.success) {
       navigate("/login");
     }
-  }, [data]);
+  }, [data, navigate]);
 
+  // Handle signup errors
   useEffect(() => {
     if (error.data) {
       const newErrors = {};
       error.data.errors.forEach((err) => {
         newErrors[err.path] = err.msg;
       });
-      setFormErrors({ ...formErrors, ...newErrors });
+      setFormErrors((prev) => ({ ...prev, ...newErrors }));
     }
   }, [error]);
+
+  // All hooks must be called before any conditional returns
+  const handleChange = (e) => {
+    let { name, value } = e.target;
+    setFormData({ ...FormData, [name]: value });
+    if (name === "confirmPassword") {
+      name = "passNoMatch";
+    }
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (FormData.password !== FormData.confirmPassword) {
+      setFormErrors((prev) => ({ ...prev, passNoMatch: "Password does not match" }));
+      return;
+    }
+
+    await fetchData("auth/signup", "POST", FormData);
+  };
+
+  // Now conditional returns after all hooks
+  // If checking maintenance, show loading
+  if (checkingMaintenance) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#02000E] via-[#01071C] to-[#000517] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If maintenance is ON, show maintenance page
+  if (isMaintenance) {
+    return <MaintenancePage />;
+  }
 
   return (
     <WrapperPage>

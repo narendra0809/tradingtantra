@@ -8,11 +8,15 @@ import GoogleButton from "../Components/OAuth";
 import { useDispatch } from "react-redux";
 import { setTheme } from "../contexts/Redux/Slices/themeSlice";
 import { toast } from "react-hot-toast";
+import { checkMaintenanceMode } from "../utils/checkMaintenance";
+import MaintenancePage from "./WebPage/MaintenancePage";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMaintenance, setIsMaintenance] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
   
   // 🔥 State for the Custom Popup
   const [showConflictModal, setShowConflictModal] = useState(false);
@@ -21,10 +25,48 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login, user } = useAuth(); 
 
-  // Redirect if already logged in
+  // Check maintenance mode on mount
   useEffect(() => {
-    if (user) navigate("/dashboard");
-  }, [user, navigate]);
+    const checkMaintenance = async () => {
+      try {
+        const { isMaintenance: maintenanceStatus } = await checkMaintenanceMode();
+        setIsMaintenance(maintenanceStatus);
+        if (maintenanceStatus) {
+          // If maintenance is ON, show maintenance page
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking maintenance mode:", error);
+        // On error, allow login (fail open)
+        setIsMaintenance(false);
+      } finally {
+        setCheckingMaintenance(false);
+      }
+    };
+
+    checkMaintenance();
+  }, []);
+
+  // Redirect if already logged in (only if not in maintenance)
+  useEffect(() => {
+    if (user && !isMaintenance) navigate("/dashboard");
+  }, [user, navigate, isMaintenance]);
+
+  // If maintenance is ON, show maintenance page
+  if (checkingMaintenance) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#02000E] via-[#01071C] to-[#000517] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isMaintenance) {
+    return <MaintenancePage />;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -65,17 +65,21 @@ localStorage.removeItem("resetEmail");
         discription="Enter new password and confirm new password."
       />
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* PASSWORD */}
-        <div className="mb-4">
-          <label className="text-[#C7C7C7]">Password</label>
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium mb-1 text-white">
+            Password
+          </label>
           <div className="relative">
             <input
               type={showPasswords.password ? "text" : "password"}
               name="password"
+              id="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-[#151B2D] border rounded-lg"
+              className="w-full text-white px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400"
+              placeholder="Enter your password"
             />
             <button
               type="button"
@@ -85,26 +89,31 @@ localStorage.removeItem("resetEmail");
                   password: !showPasswords.password,
                 })
               }
+              className="absolute right-4 top-3 text-gray-400 hover:text-white"
             >
               {showPasswords.password ? (
-                <EyeOff className="absolute right-4 top-3" />
+                <EyeOff className="w-5 h-5" />
               ) : (
-                <Eye className="absolute right-4 top-3" />
+                <Eye className="w-5 h-5" />
               )}
             </button>
           </div>
         </div>
 
         {/* CONFIRM PASSWORD */}
-        <div className="mb-4">
-          <label className="text-[#C7C7C7]">Confirm Password</label>
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1 text-white">
+            Confirm Password
+          </label>
           <div className="relative">
             <input
               type={showPasswords.confirmPassword ? "text" : "password"}
               name="confirmPassword"
+              id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-[#151B2D] border rounded-lg"
+              className="w-full text-white px-4 py-3 bg-[#151B2D] border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0256F5] placeholder:text-gray-400"
+              placeholder="Confirm your password"
             />
             <button
               type="button"
@@ -114,19 +123,27 @@ localStorage.removeItem("resetEmail");
                   confirmPassword: !showPasswords.confirmPassword,
                 })
               }
+              className="absolute right-4 top-3 text-gray-400 hover:text-white"
             >
               {showPasswords.confirmPassword ? (
-                <EyeOff className="absolute right-4 top-3" />
+                <EyeOff className="w-5 h-5" />
               ) : (
-                <Eye className="absolute right-4 top-3" />
+                <Eye className="w-5 h-5" />
               )}
             </button>
           </div>
         </div>
 
-        {error && <p className="text-red-400 mb-3">{error}</p>}
+        {error && (
+          <div className="p-3 bg-[#1F0000] border border-[#FF4242] rounded-lg">
+            <p className="text-sm text-[#FF4242]">{error}</p>
+          </div>
+        )}
 
-        <button className="bg-[#052C89] w-full py-2 rounded-lg">
+        <button
+          type="submit"
+          className="text-white w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200"
+        >
           Change Password
         </button>
       </form>

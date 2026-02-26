@@ -88,8 +88,8 @@ const OTPModal = () => {
         discription="Enter 6 digit OTP sent to your email."
       />
 
-      <form onSubmit={handleSubmit} className="flex flex-col mt-4">
-        <div className="flex justify-center gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col mt-4 space-y-6">
+        <div className="flex justify-center gap-3 sm:gap-4">
           {refArray.map((ref, index) => (
             <input
               key={index}
@@ -98,28 +98,32 @@ const OTPModal = () => {
               maxLength={1}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleBack(e, index)}
-              className="bg-[#01071C] text-xl w-[60px] h-[60px] text-center rounded-lg border border-[#001A4E]"
+              className="bg-[#151B2D] text-white text-xl sm:text-2xl w-[50px] h-[50px] sm:w-[60px] sm:h-[60px] text-center rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-[#0256F5] focus:border-[#0256F5]"
             />
           ))}
         </div>
 
         {error && (
-          <p className="text-red-400 text-center mt-3">{error}</p>
+          <div className="p-3 bg-[#1F0000] border border-[#FF4242] rounded-lg">
+            <p className="text-sm text-[#FF4242] text-center">{error}</p>
+          </div>
         )}
 
-        <span className="text-[#FF4242] mt-4 text-center">
-          {timer > 0
-            ? `00:${Math.floor(timer / 60)
-                .toString()
-                .padStart(2, "0")}:${(timer % 60)
-                .toString()
-                .padStart(2, "0")}`
-            : "OTP expired"}
-        </span>
+        <div className="text-center">
+          <span className="text-[#FF4242] text-sm sm:text-base font-medium">
+            {timer > 0
+              ? `00:${Math.floor(timer / 60)
+                  .toString()
+                  .padStart(2, "0")}:${(timer % 60)
+                  .toString()
+                  .padStart(2, "0")}`
+              : "OTP expired"}
+          </span>
+        </div>
 
         <button
           type="submit"
-          className="bg-[#052C89] mt-5 text-white rounded-lg py-2 text-lg font-semibold"
+          className="text-white w-full py-3 px-4 bg-[#0256F5] hover:bg-[#0257f5] rounded-lg font-medium transition duration-200"
         >
           Continue
         </button>
