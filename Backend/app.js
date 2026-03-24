@@ -57,7 +57,13 @@ app.use(
   express.static(path.join(import.meta.dirname, "../Frontend/src/assets"))
 );
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-app.use(morgan("dev"));
+
+// Custom morgan format that skips /api/auth/me and /api/auth/verify requests
+const skipAuthRequests = (req) => {
+  return req.url === "/auth/me" || req.url === "/auth/verify";
+};
+
+app.use(morgan("dev", { skip: skipAuthRequests }));
 app.use(express.json({ limit: "100mb" }));
 
 app.use(express.urlencoded({ limit: "100mb", extended: true }));

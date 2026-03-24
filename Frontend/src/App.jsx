@@ -28,6 +28,7 @@ import AiSwingTradesPage from "./pages/DashboardPage/AiSwingTradesPage";
 import OptionClockPage from "./pages/DashboardPage/OptionClockPage";
 import FinancialCalendar from "./pages/DashboardPage/FinancialCalendar";
 import OurStrategy from "./pages/DashboardPage/OurStrategy";
+import UpdateNotification from "./Components/AdminComponents/UpdateNotification";
 import TradingJournal from "./pages/DashboardPage/TradingJournal";
 import IndexDepthPage from "./pages/DashboardPage/IndexDepthPage";
 import FIIDIIPage from "./pages/DashboardPage/FIIDIIPage";
@@ -61,6 +62,7 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 import StockDetails from "./pages/AdminPages/StockDetails";
 import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
+import UserManagement from "./pages/AdminPages/UserManagement";
 import Coupon from "./pages/AdminPages/Coupon";
 import { Toaster } from "react-hot-toast";
 import AIOptionDataPage from "./pages/DashboardPage/AiOptionDataPage";
@@ -75,6 +77,7 @@ const App = () => {
           reverseOrder={false}
           containerStyle={{ zIndex: 9999999 }}
         />
+        <UpdateNotification />
         <AdminAuthProvider>
           <AuthProvider>
             <RiskProvider>
@@ -158,7 +161,7 @@ const App = () => {
                     <Route index element={<Dashboard />} />
                     <Route
                       path="manage-users"
-                      element={<LatestTransactions />}
+                      element={<UserManagement />}
                     />
                     <Route path="manage-orders" element={<ManageOrders />} />
                     <Route path="feedback" element={<Feedback />} />

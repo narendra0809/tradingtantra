@@ -8,18 +8,29 @@ function parseBinaryData(buffer) {
       throw new Error("Invalid data format, expected a Buffer.");
     }
 
+    // DEBUG: Log raw buffer info for diagnosis
+    console.log("📥 Buffer info - Length:", buffer.length, "bytes, First 20 bytes:", buffer.slice(0, 20).toString('hex'));
+
     // Read initial fields to determine message structure
     const responseCode = buffer.readUInt8(0);
     const messageLength = buffer.readUInt16LE(1);
 
-    // Validate responseCode (assuming valid codes are 0-255, adjust as per protocol)
-    if (responseCode === undefined || responseCode < 0 || responseCode > 255) {
-      throw new Error(`Invalid responseCode: ${responseCode}`);
-    }
+    console.log("📥 Parsing - ResponseCode:", responseCode, ", MessageLength:", messageLength);
 
-    // Validate messageLength and buffer size
-    if (messageLength < 62) {
-      throw new Error(`Message length too small: ${messageLength} bytes, expected at least 62 bytes.`);
+    // DEBUG: Handle different message types from Dhan API
+    // ResponseCode 1 = Heartbeat/ping, ResponseCode 2 = Ack, ResponseCode 3+ = Market data
+    if (responseCode === 1) {
+      console.log("💓 Received heartbeat message");
+      return { isHeartbeat: true };
+    }
+    if (responseCode === 2) {
+      console.log("✅ Received acknowledgment message");
+      return { isAcknowledgment: true, length: buffer.length };
+    }
+    if (buffer.length < 62) {
+      console.warn("⚠️ Short message received:", buffer.length, "bytes -可能是其他消息类型");
+      // Don't throw, just return null for short messages
+      return { isShortMessage: true, length: buffer.length, data: buffer.toString('hex') };
     }
 
     if (buffer.length < messageLength) {
@@ -56,8 +67,9 @@ function parseBinaryData(buffer) {
 
     return parsedData;
   } catch (error) {
-   
-    throw error; // Re-throw to allow caller to handle
+    // Log the error but don't crash - return null for graceful handling
+    console.error("❌ Error parsing binary data:", error.message);
+    return null;
   }
 }
 

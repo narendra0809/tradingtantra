@@ -1,23 +1,26 @@
-import { useState } from "react";
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../../Components/AdminComponents/Sidebar";
 import Topbar from "../../Components/AdminComponents/Topbar";
-// import MarketTicker from "../../Components/AdminComponents/MarketTicker";
+import UpdateNotification from "../../Components/AdminComponents/UpdateNotification";
 import axios from "axios";
-import { useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { TickerTape } from "react-ts-tradingview-widgets";
+
 export const ADMIN_SERVER_URI = `${import.meta.env.VITE_SERVER_URI}/admin`;
 
 const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tickers, setTickers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [admin, setAdmin] = useState({
     firstName: "",
     lastName: "",
     email: "",
   });
+  
   const [usersData, setUsersData] = useState({
     activeUsers: 0,
     inActiveUsers: 0,
@@ -25,19 +28,7 @@ const Home = () => {
     totalUsers: 0,
   });
 
-  const [transactions, setTransactions] = useState([
-    {
-      name: "",
-      email: "",
-      expiryDate: "",
-      subcriptionStatus: "",
-      orderId: "",
-      transactionId: "",
-      paymentDate: "",
-      paymentStatus: "Paid",
-      amount: "INR 1,999",
-    },
-  ]);
+  const [transactions, setTransactions] = useState([]);
 
   const [activeUsersByMonth, setActiveUsersByMonth] = useState([
     { name: "January", value: 0 },
@@ -53,6 +44,7 @@ const Home = () => {
     { name: "November", value: 0 },
     { name: "December", value: 0 },
   ]);
+
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -61,11 +53,9 @@ const Home = () => {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-admin`, {
         withCredentials: true,
       });
-      if (res.status !== 200) {
-        throw new Error("Error in fetching admin details.");
+      if (res.status === 200) {
+        setAdmin(res.data.data);
       }
-
-      setAdmin(res.data.data);
     } catch (error) {
       console.log("Error in fetching admin details : ", error);
     }
@@ -85,24 +75,22 @@ const Home = () => {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-users`, {
         withCredentials: true,
       });
-      if (res.status !== 200) {
-        throw new Error("Failed to fetch users data");
+      if (res.status === 200) {
+        setUsersData(res.data.usersData);
       }
-      setUsersData(res.data.usersData);
     } catch (error) {
       console.log(error);
     }
   };
+
   const fetchActiveUsersByMonth = async () => {
     try {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-activeusers-month`, {
         withCredentials: true,
       });
-      if (res.status !== 200) {
-        throw new Error("Failed to fetch users data");
+      if (res.status === 200) {
+        setActiveUsersByMonth(res.data.acitveUsersByMonth);
       }
-
-      setActiveUsersByMonth(res.data.acitveUsersByMonth);
     } catch (error) {
       console.log(error);
     }
@@ -113,16 +101,18 @@ const Home = () => {
       const res = await axios.get(`${ADMIN_SERVER_URI}/get-transactions`, {
         withCredentials: true,
       });
-      if (res.status !== 200) {
-        throw new Error("Error while fetching transactions !");
+      if (res.status === 200) {
+        setTransactions(res.data.transactions);
       }
-      setTransactions(res.data.transactions);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    // Fetch all data - don't block UI
     fetchAdminDetails();
     fetchTotalUsersData();
     fetchActiveUsersByMonth();
@@ -130,47 +120,55 @@ const Home = () => {
     fetchTickers();
   }, []);
 
+  // Show loading only on initial load
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen bg-gradient-to-b from-[#050816] to-[#0a101f] text-white">
+        <Toaster />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-400">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex bg-black min-h-screen relative text-white overflow-hidden">
-      {" "}
-      {/* Changed from overflow-x-hidden to overflow-hidden */}
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block border-r border-gray-800 bg-[#0c0c1d]">
+    <div className="flex min-h-screen bg-gradient-to-b from-[#050816] to-[#0a101f] text-white">
+      {/* Desktop Sidebar - Sticky on md and above */}
+      <div className="hidden md:block md:sticky md:top-0 md:h-screen">
         <Sidebar closeSidebar={closeSidebar} />
       </div>
+
       <Toaster />
-      {/* Mobile Sidebar */}
+      <UpdateNotification />
+
+      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 backdrop-blur-xl bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
             onClick={closeSidebar}
           />
           {/* Slide-in Sidebar */}
-          <div className="fixed top-0 left-0 w-64 h-full bg-[#0c0c1d] z-50 shadow-lg">
+          <div className="fixed top-0 left-0 w-72 h-full z-50 md:hidden animate-slide-in">
             <Sidebar closeSidebar={closeSidebar} />
           </div>
         </>
       )}
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {" "}
-        {/* Added min-w-0 */}
+        {/* Sticky Topbar */}
         <div className="sticky top-0 z-30">
-          {" "}
-          {/* Wrapped Topbar in sticky container */}
           <Topbar onToggleSidebar={toggleSidebar} />
-          <TickerTape
-            colorTheme="dark"
-            isTransparent={true}
-            symbols={tickers}
-          />
-          {/* <MarketTicker /> */}
         </div>
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 min-w-0">
-          {" "}
-          {/* Added min-w-0 */}
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto">
           <Outlet
             context={{
               admin: admin,

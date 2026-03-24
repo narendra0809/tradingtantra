@@ -3,6 +3,10 @@ import StockActionsModal from "../../Components/AdminComponents/StockActionsModa
 import { ADMIN_SERVER_URI } from "./Home";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { FiTrendingUp, FiPlus, FiSearch } from "react-icons/fi";
+import AdminCard from "../../Components/AdminComponents/AdminCard";
+import AdminButton from "../../Components/AdminComponents/AdminButton";
+import { AdminSearchInput } from "../../Components/AdminComponents/AdminInput";
 
 const StockDetails = () => {
   const [stockData, setStockData] = useState([]);
@@ -92,194 +96,196 @@ const StockDetails = () => {
   }, []);
 
   return (
-    <div className="p-4 bg-[#050816] min-h-screen text-white">
-      <div className="flex justify-between my-7">
-        <h1 className="text-3xl font-bold">Stock Details</h1>
-        <button
-          onClick={() => handleOpenModal("add")}
-          className="font-semibold hover:bg-blue-600 border border-blue-400 bg-blue-700 rounded-lg p-2"
-        >
-          Add Stock
-        </button>
-      </div>
+    <div className="min-h-screen text-white p-4 sm:p-8 bg-[#000A2D]">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <AdminCard gradient>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
+                <FiTrendingUp className="text-white text-xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold">Stock Details</h2>
+                <p className="text-sm text-gray-400">Manage stock information</p>
+              </div>
+            </div>
+            <AdminButton 
+              variant="primary" 
+              icon={<FiPlus />} 
+              onClick={() => handleOpenModal("add")}
+            >
+              Add Stock
+            </AdminButton>
+          </div>
+        </AdminCard>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          className="p-2 rounded bg-[#051937] text-white w-full md:w-1/3 focus:outline-none"
-          placeholder="Search stocks..."
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
-      </div>
+        {/* Search */}
+        <AdminCard padding="p-4">
+          <div className="w-full md:w-1/3">
+            <AdminSearchInput
+              placeholder="Search stocks..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              icon={<FiSearch />}
+            />
+          </div>
+        </AdminCard>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-[#050816] border border-gray-700 rounded-lg shadow-md table-auto">
-          <thead className="bg-gray-800">
-            <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Security ID
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Underlying Symbol
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Symbol Name
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Display Name
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Sector
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">Index</th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Weightage
-              </th>
-              <th className="px-4 py-2 text-left text-sm font-medium">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentStocks.length > 0 ? (
-              currentStocks.map((stock) => (
-                <tr key={stock._id} className="hover:bg-gray-700">
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    {stock.SECURITY_ID}
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    {stock.UNDERLYING_SYMBOL}
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    {stock.SYMBOL_NAME}
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    {stock.DISPLAY_NAME}
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    <ul className="list-disc list-inside">
-                      {stock.SECTOR &&
-                        stock.SECTOR.map((idx, index) => (
-                          <li key={index}>{idx}</li>
-                        ))}
-                    </ul>
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    <ul className="list-disc list-inside">
-                      {stock.INDEX &&
-                        stock.INDEX.map((idx, index) => (
-                          <li key={index}>{idx}</li>
-                        ))}
-                    </ul>
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    <ul className="list-disc list-inside">
-                      {stock.weightage &&
-                        stock.weightage.map((w, index) => (
-                          <li key={index}>
-                            {w.indexName}: {w.weightage}
-                          </li>
-                        ))}
-                    </ul>
-                  </td>
-                  <td className="px-4 py-2 text-sm border-t border-gray-700">
-                    <button
-                      onClick={() => handleOpenModal("edit", stock)}
-                      className="bg-yellow-600 text-white px-3 py-1 rounded-md mr-2 hover:bg-yellow-500 font-semibold"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteStock(stock._id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
+        {/* Table */}
+        <AdminCard padding="p-0" hoverEffect={false}>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-white/5">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Security ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Underlying Symbol
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Symbol Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Display Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Sector
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">Index</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Weightage
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-300">
+                    Actions
+                  </th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="8"
-                  className="px-4 py-2 text-center text-sm text-gray-400"
-                >
-                  No stocks found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {currentStocks.length > 0 ? (
+                  currentStocks.map((stock) => (
+                    <tr key={stock._id} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 text-sm">
+                        {stock.SECURITY_ID}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {stock.UNDERLYING_SYMBOL}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {stock.SYMBOL_NAME}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        {stock.DISPLAY_NAME}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <ul className="list-disc list-inside">
+                          {stock.SECTOR &&
+                            stock.SECTOR.map((idx, index) => (
+                              <li key={index}>{idx}</li>
+                            ))}
+                        </ul>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <ul className="list-disc list-inside">
+                          {stock.INDEX &&
+                            stock.INDEX.map((idx, index) => (
+                              <li key={index}>{idx}</li>
+                            ))}
+                        </ul>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <ul className="list-disc list-inside">
+                          {stock.weightage &&
+                            stock.weightage.map((w, index) => (
+                              <li key={index}>
+                                {w.indexName}: {w.weightage}
+                              </li>
+                            ))}
+                        </ul>
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <div className="flex gap-2">
+                          <AdminButton 
+                            variant="warning" 
+                            size="sm"
+                            onClick={() => handleOpenModal("edit", stock)}
+                          >
+                            Edit
+                          </AdminButton>
+                          <AdminButton 
+                            variant="danger" 
+                            size="sm"
+                            onClick={() => handleDeleteStock(stock._id)}
+                          >
+                            Delete
+                          </AdminButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="8"
+                      className="px-4 py-8 text-center text-sm text-gray-400"
+                    >
+                      No stocks found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 gap-2 p-4 border-t border-white/5">
+              <AdminButton 
+                variant="secondary" 
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                Prev
+              </AdminButton>
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <AdminButton
+                    key={page}
+                    variant={page === currentPage ? "primary" : "secondary"}
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </AdminButton>
+                ))}
+              </div>
+              <AdminButton 
+                variant="secondary" 
+                size="sm"
+                disabled={currentPage === totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                Next
+              </AdminButton>
+            </div>
+          )}
+        </AdminCard>
       </div>
 
-      {totalPages > 1 && (
-        <>
-          {/* Mobile Pagination (visible on small screens) */}
-          <div className="flex justify-center mt-4 gap-2 lg:hidden">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
-            >
-              Prev
-            </button>
-            <span className="px-3 py-1 rounded bg-blue-900 flex items-center">
-              {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
-            >
-              Next
-            </button>
-          </div>
-
-          {/* Desktop Pagination (visible on medium and larger screens) */}
-          <div className="hidden lg:flex justify-center mt-4 gap-2 overflow-x-auto">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
-            >
-              Prev
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded ${
-                  page === currentPage
-                    ? "bg-blue-900"
-                    : "bg-blue-700 hover:bg-blue-600"
-                } whitespace-nowrap`}
-              >
-                {page}
-              </button>
-            ))}
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-50 whitespace-nowrap"
-            >
-              Next
-            </button>
-          </div>
-        </>
-      )}
-
+      {/* Modal */}
       {openModal.value && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-2xl">
-          <div className="relative bg-[#050816] rounded-lg shadow-lg max-w-2xl w-full mx-4 p-4">
+          <div className="relative bg-gradient-to-br from-[#0f172a] to-[#1e293b] rounded-2xl shadow-2xl max-w-2xl w-full mx-4 p-6 border border-white/10">
             <button
               onClick={handleCloseModal}
-              className="absolute top-2 right-2 text-white hover:text-gray-300"
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
             >
-              <span className="text-lg">X</span>
+              <span className="text-lg">✕</span>
             </button>
             <StockActionsModal
               type={openModal.type}

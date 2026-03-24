@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { FaTrashAlt, FaEdit, FaSearch } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaSearch, FaChartLine } from "react-icons/fa";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
+import AdminCard from "../../Components/AdminComponents/AdminCard";
+import AdminButton from "../../Components/AdminComponents/AdminButton";
+import AdminInput from "../../Components/AdminComponents/AdminInput";
+import { AdminSearchInput } from "../../Components/AdminComponents/AdminInput";
 
 const Ticker = () => {
   const [tickers, setTickers] = useState([]);
@@ -100,126 +104,109 @@ const Ticker = () => {
   return (
     <div className="min-h-screen bg-[#01071C] text-white p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-semibold">Ticker Management</h2>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <div className="relative w-full sm:w-64">
-            <input
-              type="text"
+      <AdminCard className="mb-6" gradient>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <FaChartLine className="text-white text-xl" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-semibold">Ticker Management</h2>
+              <p className="text-sm text-gray-400">Manage stock tickers</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            <AdminSearchInput
               placeholder="Search ticker..."
-              className="bg-[#101B35] w-full text-white px-4 py-2 rounded-md outline-none placeholder-gray-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              className="w-full sm:w-64"
             />
-            <FaSearch className="absolute right-3 top-3 text-gray-400" />
+            <AdminButton variant="primary" icon={<FaEdit />} onClick={() => openModal()} className="w-full sm:w-auto">
+              Add Ticker
+            </AdminButton>
           </div>
-          <button
-            className="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-md text-sm font-semibold w-full sm:w-auto"
-            onClick={() => openModal()}
-          >
-            Add Ticker
-          </button>
         </div>
-      </div>
+      </AdminCard>
 
       {/* Ticker List */}
-      <div className="bg-[#0B132B] rounded-xl border border-gray-800 overflow-x-auto">
-        <div className="p-4 font-semibold text-sm text-gray-400 whitespace-nowrap">
-          Ticker List
+      <AdminCard padding="p-0" hoverEffect={false}>
+        <div className="p-4 border-b border-white/5">
+          <h3 className="font-semibold text-lg">Ticker List</h3>
+          <p className="text-sm text-gray-400">{filteredTickers.length} tickers found</p>
         </div>
 
         {filteredTickers.length === 0 ? (
-          <p className="text-center text-gray-500 p-6">No tickers found.</p>
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/5 flex items-center justify-center">
+              <FaChartLine className="text-3xl text-gray-500" />
+            </div>
+            <p className="text-gray-400">No tickers found</p>
+          </div>
         ) : (
-          filteredTickers.map((ticker, index) => (
-            <div
-              key={ticker._id || index}
-              className="px-4 py-4 border-t border-gray-800 min-w-[360px]"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center font-bold">
-                    {ticker.proName.charAt(0)}
+          <div className="divide-y divide-white/5">
+            {filteredTickers.map((ticker, index) => (
+              <div key={ticker._id || index} className="p-4 hover:bg-white/5 transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-3 min-w-0">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center font-bold">
+                      {ticker.proName.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm sm:text-base font-semibold">{ticker.proName}</p>
+                      <p className="text-sm text-gray-400">{ticker.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm sm:text-base font-semibold">
-                      {ticker.proName}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {ticker.description}
-                    </p>
+                  <div className="flex gap-2 mt-2 sm:mt-0">
+                    <AdminButton variant="outline" size="sm" icon={<FaEdit />} onClick={() => openModal(index)}>Edit</AdminButton>
+                    <AdminButton variant="danger" size="sm" icon={<FaTrashAlt />} onClick={() => deleteTicker(ticker._id)}>Delete</AdminButton>
                   </div>
-                </div>
-                <div className="flex gap-4 text-lg mt-2 sm:mt-0">
-                  <FaEdit
-                    onClick={() => openModal(index)}
-                    className="text-blue-400 hover:text-blue-300 cursor-pointer"
-                  />
-                  <FaTrashAlt
-                    onClick={() => deleteTicker(ticker._id)}
-                    className="text-red-500 hover:text-red-400 cursor-pointer"
-                  />
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
-      </div>
+      </AdminCard>
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 overflow-auto">
-          <div className="min-h-screen flex items-center justify-center px-4 py-10">
-            <div className="bg-[#071540] text-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-              <h3 className="text-2xl font-bold text-center mb-6">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white rounded-2xl p-6 w-full max-w-md shadow-2xl border border-white/10 animate-fade-in">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                <FaChartLine className="text-white text-xl" />
+              </div>
+              <h3 className="text-2xl font-bold">
                 {editingIndex !== null ? "Edit Ticker" : "Add Ticker"}
               </h3>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm text-blue-400 mb-1">
-                    Pro Name
-                  </label>
-                  <input
-                    ref={proNameRef}
-                    type="text"
-                    name="proName"
-                    placeholder="Enter pro name (e.g., SBIN)"
-                    value={formData.proName}
-                    onChange={handleInputChange}
-                    className="w-full p-3 bg-transparent border border-blue-500 rounded-lg text-white outline-none placeholder-gray-400"
-                  />
-                </div>
+            <div className="space-y-4">
+              <AdminInput
+                label="Pro Name"
+                name="proName"
+                placeholder="Enter pro name (e.g., SBIN)"
+                value={formData.proName}
+                onChange={handleInputChange}
+                required
+              />
 
-                <div>
-                  <label className="block text-sm text-blue-400 mb-1">
-                    Description
-                  </label>
-                  <input
-                    type="text"
-                    name="description"
-                    placeholder="Enter description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="w-full p-3 bg-transparent border border-blue-500 rounded-lg text-white outline-none placeholder-gray-400"
-                  />
-                </div>
-              </div>
+              <AdminInput
+                label="Description"
+                name="description"
+                placeholder="Enter description"
+                value={formData.description}
+                onChange={handleInputChange}
+              />
+            </div>
 
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={closeModal}
-                  className="flex-1 bg-gray-600 hover:bg-gray-500 py-2 rounded-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="flex-1 bg-blue-600 hover:bg-blue-500 py-2 rounded-md font-semibold"
-                >
-                  {editingIndex !== null ? "Update" : "Add"} Ticker
-                </button>
-              </div>
+            <div className="flex gap-3 mt-6">
+              <AdminButton variant="secondary" onClick={closeModal} fullWidth>
+                Cancel
+              </AdminButton>
+              <AdminButton variant="primary" onClick={handleSubmit} fullWidth>
+                {editingIndex !== null ? "Update" : "Add"} Ticker
+              </AdminButton>
             </div>
           </div>
         </div>

@@ -3,6 +3,10 @@ import { useState } from "react";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
 import { useEffect } from "react";
+import AdminCard from "../../Components/AdminComponents/AdminCard";
+import AdminButton from "../../Components/AdminComponents/AdminButton";
+import AdminInput from "../../Components/AdminComponents/AdminInput";
+import { FaCreditCard, FaEdit } from "react-icons/fa";
 const PencilIcon = ({ className, onClick }) => (
   <svg
     onClick={onClick}
@@ -85,13 +89,21 @@ const PaymentMethod = () => {
   return (
     <div className="min-h-screen text-white p-4 sm:p-8 bg-[#000A2D]">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-          Payment Method
-        </h2>
+        <AdminCard className="mb-6" gradient>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+              <FaCreditCard className="text-white text-xl" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-semibold">Payment Method</h2>
+              <p className="text-sm text-gray-400">Manage payment keys</p>
+            </div>
+          </div>
+        </AdminCard>
 
-        <div className="bg-[#0E1A40] rounded-xl shadow-lg overflow-hidden border border-[#1B2D5C]">
+        <AdminCard padding="p-0" hoverEffect={false}>
           {/* Header */}
-          <div className="grid grid-cols-12 gap-4 border-b border-[#1B2D5C] p-4 text-sm font-semibold text-gray-300">
+          <div className="grid grid-cols-12 gap-4 border-b border-white/5 p-4 text-sm font-semibold text-gray-400">
             <div className="col-span-4">Key ID</div>
             <div className="col-span-4">Key Secret</div>
             <div className="col-span-3">Webhook Secret</div>
@@ -99,109 +111,65 @@ const PaymentMethod = () => {
           </div>
 
           {/* Data Row */}
-          <div className="grid grid-cols-12 gap-4 items-center p-4 hover:bg-[#1B2D5C] transition-colors">
-            <div
-              className="col-span-4 truncate font-mono text-sm cursor-pointer"
-              onClick={() =>
-                setActiveField(activeField === "keyId" ? null : "keyId")
-              }
-            >
-              {activeField === "keyId"
-                ? keys.key_id
-                : maskSensitiveData(keys.key_id)}
+          <div className="grid grid-cols-12 gap-4 items-center p-4 hover:bg-white/5 transition-colors">
+            <div className="col-span-4 truncate font-mono text-sm cursor-pointer" onClick={() => setActiveField(activeField === "keyId" ? null : "keyId")}>
+              {activeField === "keyId" ? keys.key_id : maskSensitiveData(keys.key_id)}
             </div>
-            <div
-              className="col-span-4 truncate font-mono text-sm cursor-pointer"
-              onClick={() =>
-                setActiveField(activeField === "keySecret" ? null : "keySecret")
-              }
-            >
-              {activeField === "keySecret"
-                ? keys.key_secret
-                : maskSensitiveData(keys.key_secret)}
+            <div className="col-span-4 truncate font-mono text-sm cursor-pointer" onClick={() => setActiveField(activeField === "keySecret" ? null : "keySecret")}>
+              {activeField === "keySecret" ? keys.key_secret : maskSensitiveData(keys.key_secret)}
             </div>
-            <div
-              className="col-span-3 truncate font-mono text-sm cursor-pointer"
-              onClick={() =>
-                setActiveField(activeField === "webhook" ? null : "webhook")
-              }
-            >
-              {activeField === "webhook"
-                ? keys.webhook
-                : maskSensitiveData(keys.webhook)}
+            <div className="col-span-3 truncate font-mono text-sm cursor-pointer" onClick={() => setActiveField(activeField === "webhook" ? null : "webhook")}>
+              {activeField === "webhook" ? keys.webhook : maskSensitiveData(keys.webhook)}
             </div>
             <div className="col-span-1 flex justify-end">
-              <button
-                aria-label="Edit"
-                onClick={handleEditClick}
-                className="p-1 rounded-full hover:bg-[#2D3E6B] transition-colors"
-              >
-                <PencilIcon className="w-5 h-5 text-blue-400 hover:text-blue-300" />
-              </button>
+              <AdminButton variant="outline" size="sm" icon={<FaEdit />} onClick={handleEditClick}>
+                Edit
+              </AdminButton>
             </div>
           </div>
-        </div>
+        </AdminCard>
       </div>
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
-          <div className="bg-[#0E1A40] p-6 rounded-lg w-full max-w-md border border-[#1B2D5C] shadow-xl">
-            <h3 className="text-xl font-semibold mb-6">Edit Payment Keys</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] p-6 rounded-2xl w-full max-w-md shadow-2xl border border-white/10 animate-fade-in">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                <FaCreditCard className="text-white text-xl" />
+              </div>
+              <h3 className="text-xl font-semibold">Edit Payment Keys</h3>
+            </div>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">
-                  Key ID
-                </label>
-                <input
-                  type="text"
-                  name="key_id"
-                  placeholder="Key ID"
-                  value={editData.key_id}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-[#1B2D5C] rounded-md outline-none border border-[#2D3E6B] focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">
-                  Key Secret
-                </label>
-                <input
-                  type="text"
-                  name="key_secret"
-                  placeholder="Key Secret"
-                  value={editData.key_secret}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-[#1B2D5C] rounded-md outline-none border border-[#2D3E6B] focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">
-                  Webhook Secret
-                </label>
-                <input
-                  type="text"
-                  name="webhook"
-                  placeholder="Webhook Secret"
-                  value={editData.webhook}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-[#1B2D5C] rounded-md outline-none border border-[#2D3E6B] focus:border-blue-500 transition-colors"
-                />
-              </div>
+              <AdminInput
+                label="Key ID"
+                name="key_id"
+                placeholder="Key ID"
+                value={editData.key_id}
+                onChange={handleChange}
+              />
+              <AdminInput
+                label="Key Secret"
+                name="key_secret"
+                placeholder="Key Secret"
+                value={editData.key_secret}
+                onChange={handleChange}
+              />
+              <AdminInput
+                label="Webhook Secret"
+                name="webhook"
+                placeholder="Webhook Secret"
+                value={editData.webhook}
+                onChange={handleChange}
+              />
             </div>
             <div className="mt-8 flex justify-end gap-3">
-              <button
-                onClick={handleCancel}
-                className="px-6 py-2 rounded-md bg-[#1B2D5C] hover:bg-[#2D3E6B] text-white text-sm transition-colors"
-              >
+              <AdminButton variant="secondary" onClick={handleCancel}>
                 Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-6 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm transition-colors"
-              >
+              </AdminButton>
+              <AdminButton variant="primary" onClick={handleSave}>
                 Save Changes
-              </button>
+              </AdminButton>
             </div>
           </div>
         </div>

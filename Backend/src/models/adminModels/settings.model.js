@@ -10,6 +10,10 @@ const settingsSchema = new mongoose.Schema(
       type: String,
       default: "We are under maintenance. Please check back soon.",
     },
+    frontendVersion: {
+      type: String,
+      default: "1.0.0",
+    },
   },
   { timestamps: true }
 );

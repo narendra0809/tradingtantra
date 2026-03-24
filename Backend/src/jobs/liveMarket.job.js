@@ -1,19 +1,9 @@
 // scheduler/marketScheduler.js
 import cron from "node-cron";
-import { Queue } from "bullmq";
 import MarketHoliday from "../models/holidays.model.js";
 import { DateTime } from "luxon";
-import { getRedisConnection } from "../utils/redisConnection.js";
-
-const connection = getRedisConnection();
-
-// Only create queues if Redis is available
-const fiveMinDataQueue = connection ? new Queue("fiveMinData", { connection }) : null;
-const liveDataQueue = connection ? new Queue("liveData", { connection }) : null;
-
-if (!connection) {
-  console.warn("⚠️ Redis not available. Market scheduler queues will not work.");
-}
+import { runFiveMinDataTask } from "./workers/FiveMinData.js";
+import { runLiveDataTask } from "./workers/LiveData.js";
 
 const getISTTime = () => {
   return DateTime.now().setZone("Asia/Kolkata");
@@ -48,12 +38,8 @@ const isWithinMarketHours = () => {
   );
 };
 
-const runFiveMinDataTask = async () => {
+const runFiveMinDataJob = async () => {
   const now = getISTTime();
-  const hours = now.hour;
-  const minutes = now.minute;
-
-  console.log(`[${now.toISO()}] Running 5-minute data task`);
 
   if (
     now.weekday === 6 ||
@@ -61,33 +47,18 @@ const runFiveMinDataTask = async () => {
     (await checkHoliday()) ||
     !isWithinMarketHours()
   ) {
-    console.log(`[${now.toISO()}] Not in market hours or holiday. Skipping.`);
-    return;
-  }
-
-
-  if (!fiveMinDataQueue) {
-    console.warn(`[${now.toISO()}] Redis not available. Skipping 5-minute data queue.`);
     return;
   }
 
   try {
-    const fromDate = now.minus({ days: 1 }).toISODate();
-    const toDate = now.toISODate();
-
-    await fiveMinDataQueue.add("fiveMinData", { fromDate, toDate });
-    console.log(`[${now.toISO()}] 5-minute data job queued ✅`);
+    await runFiveMinDataTask();
   } catch (error) {
-    console.error(`[${now.toISO()}] 5-minute task error:`, error.message);
+    console.error(`[5-MIN DATA] ERROR:`, error.message);
   }
 };
 
-const runLiveDataTask = async () => {
+const runLiveDataJob = async () => {
   const now = getISTTime();
-  const hours = now.hour;
-  const minutes = now.minute;
-
-  console.log(`[${now.toISO()}] Running live data task`);
 
   if (
     now.weekday === 6 ||
@@ -95,35 +66,13 @@ const runLiveDataTask = async () => {
     (await checkHoliday()) ||
     !isWithinMarketHours()
   ) {
-    console.log(`[${now.toISO()}] Not in market hours or holiday. Skipping.`);
-    return;
-  }
-
-  if (!liveDataQueue) {
-    console.warn(`[${now.toISO()}] Redis not available. Skipping live data queue.`);
     return;
   }
 
   try {
-    const fromDate = now.minus({ days: 1 }).toISODate();
-    const toDate = now.toISODate();
-
-    await liveDataQueue.add("liveData", { fromDate, toDate });
-    console.log(`[${now.toISO()}] Live data job queued ✅`);
+    await runLiveDataTask();
   } catch (error) {
-    console.error(`[${now.toISO()}] Live data task error:`, error.message);
-  }
-};
-
-const clearQueuesOnWeekend = async () => {
-  const now = getISTTime();
-  const day = now.weekday;
-
-  if (day === 6 || day === 7) {
-    console.log(`[${now.toISO()}] Weekend. Clearing queues.`);
-    if (fiveMinDataQueue) await fiveMinDataQueue.obliterate({ force: true });
-    if (liveDataQueue) await liveDataQueue.obliterate({ force: true });
-    console.log(`[${now.toISO()}] Queues cleared.`);
+    console.error(`[LIVE DATA] ERROR:`, error.message);
   }
 };
 
@@ -135,31 +84,30 @@ const initializeTasks = async () => {
     return;
   }
 
-  await runFiveMinDataTask();
-  await runLiveDataTask();
+  await runFiveMinDataJob();
+  await runLiveDataJob();
 };
 
-cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataTask, {
+cron.schedule("*/2 9-15 * * 1-5", runFiveMinDataJob, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
 
-cron.schedule("* 9-15 * * 1-5", runLiveDataTask, {
+cron.schedule("* 9-15 * * 1-5", runLiveDataJob, {
   scheduled: true,
   timezone: "Asia/Kolkata",
 });
 
 console.log(
-  `[${new Date().toISOString()}] Schedulers initialized:
+  `[${new Date().toISOString()}] Schedulers initialized (without Redis):
    - 5-minute data: Every 5 mins, 9:15–3:40, Mon–Fri
    - Live data: Every minute, 9:15–3:40, Mon–Fri ✅`
 );
 
 const startup = async () => {
-  await clearQueuesOnWeekend();
   await initializeTasks();
 };
 
 startup();
 
-export { runFiveMinDataTask, runLiveDataTask, checkHoliday, getISTTime };
+export { runFiveMinDataJob, runLiveDataJob, checkHoliday, getISTTime };

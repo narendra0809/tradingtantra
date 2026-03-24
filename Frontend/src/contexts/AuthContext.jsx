@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
@@ -18,7 +18,9 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // 1. Check Auth on Load (via API, not localStorage, because cookies are httpOnly)
-  const checkAuth = async () => {
+  // DEBUG: Added console.trace to identify caller
+  const checkAuth = useCallback(async (caller = 'unknown') => {
+    console.log(`[DEBUG] checkAuth called from:`, caller);
     try {
       // Create a route /auth/me in your backend that uses verifyUser and returns req.user
       const res = await axios.get(`${SERVER_URI}/auth/me`);
@@ -28,14 +30,20 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [SERVER_URI]);
 
   useEffect(() => {
-    checkAuth();
+    // Don't call checkAuth on every mount to reduce API calls
+    // Auth will be checked when needed via the heartbeat or route guards
+    if (user) {
+      checkAuth('AuthContext-init');
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   // 2. Login Function
-  const login = async (email, password, forceLogin = false) => {
+  const login = useCallback(async (email, password, forceLogin = false) => {
     try {
       const res = await axios.post(`${SERVER_URI}/auth/login`, {
         email,
@@ -50,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       throw error; // Throw error so Login Page can handle 409
     }
-  };
+  }, [SERVER_URI]);
 
   // 3. Logout Function
   const logout = async (redirect = true) => {
@@ -104,7 +112,7 @@ export const AuthProvider = ({ children }) => {
     }, 60000); // 60 Seconds (1 minute)
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, SERVER_URI]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, checkAuth, loading }}>

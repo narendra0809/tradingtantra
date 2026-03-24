@@ -1,15 +1,6 @@
 // worker/fiveMinWorker.js
-import { Worker } from "bullmq";
 import { getData } from "../../controllers/liveMarketData.controller.js";
 import { DateTime } from "luxon";
-import { getRedisConnection } from "../../utils/redisConnection.js";
-
-const connection = getRedisConnection();
-
-// Only create worker if Redis is available
-if (!connection) {
-  console.warn("⚠️ Redis not available. FiveMinData worker will not start.");
-}
 
 // Function to check if current time is within 9:15 AM to 3:30 PM IST
 export const isMarketTime = () => {
@@ -26,39 +17,23 @@ export const isMarketTime = () => {
   return true;
 };
 
-if (connection) {
-  const fiveMinWorker = new Worker(
-    "fiveMinData",
-    async (job) => {
-      try {
-        console.log(`[Worker] Received job:`, job.data);
-        console.log("MARKET OURS  :", isMarketTime());
-        if (!isMarketTime()) {
-          console.log(`[Worker] Skipping job. Outside market hours.`);
-          return;
-        }
+// Function to run the 5-minute data task directly
+export const runFiveMinDataTask = async () => {
+  console.log(`[runFiveMinDataTask] Starting...`);
+  
+  if (!isMarketTime()) {
+    console.log(`[runFiveMinDataTask] Outside market hours. Skipping.`);
+    return;
+  }
 
-        const { fromDate, toDate } = job.data;
-        await getData(fromDate, toDate);
+  console.log(`[runFiveMinDataTask] Inside market hours. Calling getData...`);
+  
+  try {
+    await getData();
+    console.log(`[runFiveMinDataTask] Completed successfully ✅`);
+  } catch (error) {
+    console.error(`[runFiveMinDataTask] ERROR:`, error.message);
+  }
+};
 
-        console.log(`[Worker] Job completed successfully`);
-      } catch (error) {
-        console.error(`[Worker] Error processing job:`, error.message);
-        throw error;
-      }
-    },
-    { connection }
-  );
-
-  fiveMinWorker.on("failed", (job, err) => {
-    console.error(`Job ${job.id} failed:`, err.message);
-  });
-
-  fiveMinWorker.on("completed", (job) => {
-    console.log(`Job ${job.id} completed successfully.`);
-  });
-
-  fiveMinWorker.on("error", (error) => {
-    console.error("❌ FiveMinData Worker Error:", error.message);
-  });
-}
+console.log("✅ FiveMinData worker initialized (without Redis)");

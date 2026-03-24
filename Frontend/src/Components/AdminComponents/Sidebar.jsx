@@ -2,123 +2,132 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-import dashboardImg from "../../assets/adminImages/sidebar/dashboard.svg";
-import manageUserImg from "../../assets/adminImages/sidebar/paidUnpaid.png";
-import ordersImg from "../../assets/adminImages/sidebar/orders.png";
-import feedbackImg from "../../assets/adminImages/sidebar/feedback.png";
-import tickerImg from "../../assets/adminImages/sidebar/ticker.png";
-import paymentImg from "../../assets/adminImages/sidebar/payment.png";
-import updatesImg from "../../assets/adminImages/sidebar/update.png";
-import dataApiImg from "../../assets/adminImages/sidebar/dataApi.png";
-import strategyImg from "../../assets/adminImages/sidebar/strategy.png";
-import profileImg from "../../assets/adminImages/sidebar/profile.png";
-import settingImg from "../../assets/adminImages/sidebar/setting.png";
-import lockImg from "../../assets/adminImages/sidebar/lock.png";
-import Coupon from "../../assets/adminImages/sidebar/discount.svg";
-// import { FaThreads } from "react-icons/fa6";
+// Import icons
 import { VscThreeBars } from "react-icons/vsc";
 import { RxCross2 } from "react-icons/rx";
+import { FaHome, FaUsers, FaShoppingCart, FaTag, FaComment, FaChartLine, FaCreditCard, FaNewspaper, FaLightbulb, FaChartBar, FaUser, FaCog, FaAngleRight, FaDatabase } from "react-icons/fa";
 
 const menuItems = [
-  { name: "Dashboard", icon: dashboardImg, path: "/admin" },
-  {
-    name: "User Paid/Unpaid",
-    icon: manageUserImg,
-    path: "manage-users",
-  },
-  { name: "Manage Orders", icon: ordersImg, path: "manage-orders" },
-  { name: "Manage Coupon", icon: Coupon, path: "coupon" },
-  { name: "Feedback", icon: feedbackImg, path: "feedback" },
-  { name: "Ticker", icon: tickerImg, path: "ticker" },
-  { name: "Payment Method", icon: paymentImg, path: "payment-method" },
-  { name: "Updates", icon: updatesImg, path: "updates" },
-  { name: "Data API", icon: dataApiImg, path: "data-api" },
-  { name: "Our Strategy", icon: strategyImg, path: "our-strategy" },
-  { name: "Stock Details", icon: strategyImg, path: "stockdetails" },
-  { name: "Profile", icon: profileImg, path: "profile" },
-  { name: "Setting", icon: settingImg, path: "setting" },
+  { name: "Dashboard", icon: FaHome, path: "/admin" },
+  { name: "User Management", icon: FaUsers, path: "manage-users" },
+  { name: "Manage Orders", icon: FaShoppingCart, path: "manage-orders" },
+  { name: "Manage Coupon", icon: FaTag, path: "coupon" },
+  { name: "Feedback", icon: FaComment, path: "feedback" },
+  { name: "Ticker", icon: FaChartLine, path: "ticker" },
+  { name: "Payment Method", icon: FaCreditCard, path: "payment-method" },
+  { name: "Updates", icon: FaNewspaper, path: "updates" },
+  { name: "Data API", icon: FaDatabase, path: "data-api" },
+  { name: "Our Strategy", icon: FaLightbulb, path: "our-strategy" },
+  { name: "Stock Details", icon: FaChartBar, path: "stockdetails" },
+  { name: "Profile", icon: FaUser, path: "profile" },
+  { name: "Setting", icon: FaCog, path: "setting" },
 ];
 
 const Sidebar = ({ closeSidebar }) => {
   const [isOpen, setIsOpen] = useState(true);
+  const [hoveredItem, setHoveredItem] = useState(null);
   const location = useLocation();
+
+  const isActive = (path) => {
+    if (path === "/admin") {
+      return location.pathname === "/admin";
+    }
+    return location.pathname.includes(`/admin/${path}`);
+  };
+
   return (
     <aside
-      className={`${
-        isOpen ? "w-64" : "w-20"
-      } min-h-screen bg-[#060818] text-white p-4 flex flex-col transition-all duration-300`}
+      className={`
+        ${isOpen ? "w-64" : "w-20"} 
+        h-screen bg-gradient-to-b from-[#060818] via-[#0a0f1a] to-[#0d1424] 
+        text-white flex flex-col transition-all duration-300 ease-in-out
+        fixed md:sticky md:top-0 z-50
+      `}
     >
       {/* === Toggle Button === */}
-      <div className="flex justify-between items-center mb-8 px-2">
+      <div className="flex justify-between items-center p-4 border-b border-white/5 flex-shrink-0">
         {isOpen ? (
-          <div className="text-xl font-bold">
-            <span className="text-blue-500">T</span>
-            <span className="text-white">rading</span>
-            <span className="text-blue-500 ml-1">T</span>
-            <span className="text-white">antra</span>
-            <div className="text-xs text-gray-400">Powered by AI</div>
+          <div className="flex flex-col">
+            <div className="text-xl font-bold tracking-wide">
+              <span className="text-blue-500">T</span>
+              <span className="text-white">rading</span>
+              <span className="text-blue-500 ml-1">T</span>
+              <span className="text-white">antra</span>
+            </div>
+            <span className="text-xs text-gray-500 mt-0.5">Powered by AI</span>
           </div>
         ) : (
-          <span className="text-blue-500 text-xl font-bold">T</span>
+          <span className="text-blue-500 text-2xl font-bold mx-auto">T</span>
         )}
 
         <button
           onClick={() => {
             setIsOpen(!isOpen);
-            closeSidebar();
+            closeSidebar && closeSidebar();
           }}
-          className="text-blue-400 text-xl"
+          className="p-2 rounded-lg hover:bg-white/5 transition-all duration-200 text-gray-400 hover:text-white"
         >
           {isOpen ? (
-            // <img src={lockImg} alt="Close" className="w-6 h-6" />
-            <RxCross2 className="w-6 h-6 text-white font-bold" />
+            <RxCross2 className="w-5 h-5" />
           ) : (
-            <VscThreeBars className="w-6 h-6 text-white font-bold" />
+            <VscThreeBars className="w-5 h-5" />
           )}
         </button>
       </div>
 
       {/* === Menu Items === */}
-      <nav className="flex flex-col gap-4">
-        {menuItems.map((item, index) => (
-          <Link
-            to={item.path}
-            replace
-            key={index}
-            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
-              location.pathname ===
-              `${item.path === "/admin" ? item.path : `/admin/${item.path}`}`
-                ? "bg-[#10172a] text-blue-400"
-                : "hover:bg-[#10172a] text-white"
-            }`}
-            onClick={() => closeSidebar()}
-          >
-            <div className="flex items-center gap-3">
-              <img
-                src={item.icon}
-                alt={`${item.name} icon`}
-                className="w-5 h-5 text-blue-400" // same size as text-lg icon ~20px
-                style={{
-                  filter:
-                    "invert(58%) sepia(80%) saturate(429%) hue-rotate(180deg) brightness(85%) contrast(85%)",
-                }} // optional: color tint effect to match blue-400
-              />
-              {isOpen && <span>{item.name}</span>}
-            </div>
-            {isOpen && (
-              <img
-                src={lockImg}
-                alt="Lock icon"
-                className="w-4 h-4 text-blue-400"
-                style={{
-                  filter:
-                    "invert(58%) sepia(80%) saturate(429%) hue-rotate(180deg) brightness(85%) contrast(85%)",
-                }}
-              />
-            )}
-          </Link>
-        ))}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <ul className="space-y-1 px-3">
+          {menuItems.map((item, index) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            
+            return (
+              <li key={index}>
+                <Link
+                  to={item.path}
+                  replace
+                  onClick={() => closeSidebar && closeSidebar()}
+                  onMouseEnter={() => setHoveredItem(index)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className={`
+                    flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300
+                    ${active 
+                      ? "bg-gradient-to-r from-blue-600/20 to-blue-600/10 text-white border-l-4 border-blue-500" 
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    }
+                    ${hoveredItem === index && !active ? "translate-x-1" : ""}
+                  `}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${active ? 'bg-gradient-to-br from-blue-500 to-purple-600' : 'bg-white/5'}`}>
+                    <Icon className={`text-sm transition-transform duration-300 ${hoveredItem === index ? 'scale-110' : ''}`} />
+                  </div>
+                  
+                  {isOpen && (
+                    <>
+                      <span className="font-medium text-sm truncate">{item.name}</span>
+                      {active && (
+                        <FaAngleRight className="ml-auto text-xs animate-pulse" />
+                      )}
+                    </>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
+
+      {/* === Footer === */}
+      {isOpen && (
+        <div className="p-4 border-t border-white/5 flex-shrink-0">
+          <div className="bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-xl p-4">
+            <p className="text-xs text-gray-500 text-center">
+              Admin Panel v2.0
+            </p>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

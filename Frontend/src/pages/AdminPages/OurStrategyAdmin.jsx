@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-// import vthumb from "../../assets/adminImages/homapage/our.png";
-import { FiEdit, FiTrash2, FiXCircle } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiXCircle, FiPlus } from "react-icons/fi";
+import { FaLightbulb } from "react-icons/fa";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
+import AdminCard from "../../Components/AdminComponents/AdminCard";
+import AdminButton from "../../Components/AdminComponents/AdminButton";
+import AdminInput, { AdminTextarea } from "../../Components/AdminComponents/AdminInput";
 
 const OPTION_NAME_OPTIONS = [
   { label: "Option Insider", value: "option-insider" },
@@ -180,29 +183,38 @@ export default function OurStrategyAdmin() {
   }, []);
 
   return (
-    <div className="bg-[#000A2D] text-white min-h-screen p-6 sm:p-10">
-      <h2 className="text-2xl font-semibold mb-6">Our Strategy</h2>
+    <div className="min-h-screen text-white p-4 sm:p-8 bg-[#000A2D]">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <AdminCard gradient>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center">
+                <FaLightbulb className="text-white text-xl" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-semibold">Our Strategy</h2>
+                <p className="text-sm text-gray-400">Manage strategy videos</p>
+              </div>
+            </div>
+            <AdminButton variant="primary" icon={<FiPlus />} onClick={openAddModal}>
+              Add Video
+            </AdminButton>
+          </div>
+        </AdminCard>
 
-      <div className="bg-[#101223] rounded-xl p-5 overflow-x-auto">
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={openAddModal}
-            className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white"
-          >
-            Add Video
-          </button>
-        </div>
-
-        <table className="w-full min-w-[600px] text-left">
-          <thead>
-            <tr className="text-blue-400 border-b border-blue-900">
-              <th className="py-3 px-4">Title</th>
-              <th className="py-3 px-4">Description</th>
-              <th className="py-3 px-4">Video Url</th>
-              <th className="py-3 px-4">Thumbnail Url</th>
-              <th className="py-3 px-4">Actions</th>
-            </tr>
-          </thead>
+        {/* Table */}
+        <AdminCard padding="p-0" hoverEffect={false}>
+          <table className="w-full min-w-[600px] text-left">
+            <thead>
+              <tr className="text-blue-400 border-b border-blue-900">
+                <th className="py-3 px-4">Title</th>
+                <th className="py-3 px-4">Description</th>
+                <th className="py-3 px-4">Video Url</th>
+                <th className="py-3 px-4">Thumbnail Url</th>
+                <th className="py-3 px-4">Actions</th>
+              </tr>
+            </thead>
           <tbody>
             {videos.length === 0 ? (
               <tr>
@@ -254,7 +266,7 @@ export default function OurStrategyAdmin() {
             )}
           </tbody>
         </table>
-      </div>
+      </AdminCard>
 
       {/* Modal */}
       {/* {modalOpen && (
@@ -343,33 +355,33 @@ export default function OurStrategyAdmin() {
         </div>
       )} */}
       {modalOpen && (
-        <div className="fixed inset-0 backdrop-blur-2xl bg-opacity-60 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#030B2B] text-white p-6 rounded-2xl w-full max-w-md">
-            <div className="flex justify-end items-center gap-35">
+        <div className="fixed inset-0 backdrop-blur-2xl bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-[#0f172a] text-white p-6 rounded-2xl w-full max-w-lg border border-white/10">
+            <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-semibold">
                 {isEditing ? "Edit Video" : "Add Video"}
               </h3>
-              <FiXCircle
+              <button
                 onClick={() => setModalOpen(false)}
-                className="text-2xl hover:cursor-pointer"
-              />
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <FiXCircle size={24} />
+              </button>
             </div>
 
             <div className="space-y-5">
               {/* Name select */}
               <div>
-                <label className="text-blue-400 text-sm">Name</label>
+                <label className="block text-sm text-gray-300 mb-2">Name</label>
                 <select
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 text-white outline-none"
+                  className="w-full bg-gradient-to-r from-[#0f172a] to-[#1e293b] text-white rounded-xl outline-none transition-all duration-300 border border-white/10 focus:border-blue-500 focus:shadow-lg focus:shadow-blue-500/20 py-3 px-4 hover:border-white/20"
                 >
-                  <option value="" className="bg-[#030B2B]">
-                    Select option
-                  </option>
+                  <option value="" className="bg-[#0f172a]">Select option</option>
                   {OPTION_NAME_OPTIONS.map(({ label, value }) => (
-                    <option key={value} value={value} className="bg-[#030B2B]">
+                    <option key={value} value={value} className="bg-[#0f172a]">
                       {label}
                     </option>
                   ))}
@@ -377,30 +389,24 @@ export default function OurStrategyAdmin() {
               </div>
 
               {/* Title */}
-              <div>
-                <label className="text-blue-400 text-sm">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="Enter Video Title"
-                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
-                />
-              </div>
+              <AdminInput
+                label="Title"
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Enter Video Title"
+              />
 
               {/* Description */}
-              <div>
-                <label className="text-blue-400 text-sm">Description</label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Enter Video Description"
-                  className="w-full mt-1 px-4 py-2 rounded-md bg-transparent border border-blue-400 placeholder-blue-300 outline-none"
-                />
-              </div>
+              <AdminTextarea
+                label="Description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="Enter Video Description"
+                rows={3}
+              />
 
               {/* Video: toggle URL / file */}
               <div className="space-y-2">
@@ -480,6 +486,7 @@ export default function OurStrategyAdmin() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
+      </div>
+      </div>
+    );
+  }

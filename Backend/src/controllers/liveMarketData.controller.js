@@ -26,6 +26,8 @@ let receivedSecurityIds = new Set();
 let totalSecurityIds = 0;
 let isProcessingSave = false;
 let reconnectAttempts = 0;
+let isReconnecting = false; // DEBUG: Track reconnection state
+let currentWs = null; // DEBUG: Track current WebSocket instance
 const maxReconnectAttempts = 5;
 const baseDelay = 4000;
 
@@ -89,6 +91,12 @@ const fetchSecurityIds = async () => {
 };
 
 async function startWebSocket() {
+  // DEBUG: Prevent multiple simultaneous reconnection attempts
+  if (isReconnecting) {
+    console.log("⚠️ Reconnection already in progress, skipping...");
+    return;
+  }
+  
   if (reconnectAttempts >= maxReconnectAttempts) {
     console.error("❌ Max reconnection attempts reached. Stopping.");
     return;
@@ -106,10 +114,14 @@ async function startWebSocket() {
   const securityIdBatches = splitIntoBatches(securityIdList, batchSize);
   console.log(`📋 Total batches: ${securityIdBatches.length}`);
 
+  isReconnecting = true; // DEBUG: Mark as reconnecting
+  
   const ws = new WebSocket(WS_URL, {
     perMessageDeflate: false,
     maxPayload: 1024 * 1024,
   });
+  
+  currentWs = ws; // DEBUG: Track current WebSocket
 
   ws.on("open", () => {
     console.log("✅ Connected to WebSocket");
@@ -140,8 +152,31 @@ async function startWebSocket() {
     if (isProcessingSave) return;
 
     try {
-      // console.log("📥 Received message:", data.toString());
+      // DEBUG: Log raw message size
+      console.log("📥 Received message, size:", data.length, "bytes");
+      
       const marketData = parseBinaryData(data);
+
+      // DEBUG: Handle different message types
+      if (!marketData) {
+        console.log("⚠️ parseBinaryData returned null/undefined");
+        return;
+      }
+      
+      if (marketData.isHeartbeat) {
+        console.log("💓 Heartbeat received, skipping");
+        return;
+      }
+      
+      if (marketData.isAcknowledgment) {
+        console.log("✅ Subscription acknowledgment received");
+        return;
+      }
+      
+      if (marketData.isShortMessage) {
+        console.log("⚠️ Short message received, skipping:", marketData.length);
+        return;
+      }
 
       if (marketData && marketData.securityId) {
         const securityId = marketData.securityId;
@@ -179,12 +214,19 @@ async function startWebSocket() {
 
   ws.on("close", () => {
     console.log("🔄 WebSocket disconnected. Closing connection...");
-    ws.close();
+    
+    // DEBUG: Clear references
+    currentWs = null;
     isProcessingSave = false;
     receivedSecurityIds.clear();
+    marketDataBuffer.clear(); // DEBUG: Clear buffer on disconnect
+    
+    // DEBUG: Reset reconnection flag to allow next connection
+    isReconnecting = false;
+    
     reconnectAttempts++;
     const delay = baseDelay * Math.pow(2, reconnectAttempts);
-    console.log(`🔄 Reconnecting in ${delay / 1000} seconds...`);
+    console.log(`🔄 Reconnecting in ${delay / 1000} seconds... (Attempt ${reconnectAttempts}/${maxReconnectAttempts})`);
     setTimeout(startWebSocket, delay);
   });
 }

@@ -9,7 +9,7 @@ const ProtectedRoute = () => {
 
   useEffect(() => {
     (async () => {
-      await checkAuth();
+      await checkAuth('ProtectedRoute');
       setLoading(false);
     })();
   }, []);

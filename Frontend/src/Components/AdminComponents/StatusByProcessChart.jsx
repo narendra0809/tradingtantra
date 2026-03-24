@@ -1,126 +1,3 @@
-// /* eslint-disable react/prop-types */
-// import {
-//   RadialBarChart,
-//   RadialBar,
-//   Tooltip,
-//   ResponsiveContainer,
-// } from "recharts";
-
-// const StatusByProcessChart = ({ statData }) => {
-//   const data = [
-//     {
-//       name: "Total Users",
-//       value: statData?.totalUsers || 0,
-//       fill: "#00C49F",
-//     },
-//     {
-//       name: "Active Users",
-//       value: statData?.activeUsers || 0,
-//       fill: "#F4C542",
-//     },
-//     {
-//       name: "Total Amount",
-//       value: statData?.totalAmount ? Math.min(statData.totalAmount, 1000) : 0,
-//       fill: "#F2523C",
-//     },
-//   ];
-
-//   const totalValue = data.reduce((sum, item) => sum + item.value, 0);
-
-//   const CustomTooltip = ({ active, payload }) => {
-//     if (active && payload && payload.length) {
-//       return (
-//         <div className="bg-[#1B2135] text-white p-2 rounded text-xs sm:text-sm shadow-lg">
-//           <p className="font-medium">{payload[0].payload.name}</p>
-//           <p>{payload[0].value.toLocaleString()}</p>
-//         </div>
-//       );
-//     }
-//     return null;
-//   };
-
-//   return (
-//     <div className="w-full h-full p-2 sm:p-4">
-//       <div className="bg-[#0f172a] rounded-xl p-3 sm:p-4 w-full h-full flex flex-col">
-//         <div className="flex-1 min-h-[200px] sm:min-h-[250px]">
-//           <ResponsiveContainer width="100%" height="100%">
-//             <RadialBarChart
-//               cx="50%"
-//               cy="50%"
-//               innerRadius="30%"
-//               outerRadius="90%"
-//               barSize={window.innerWidth < 640 ? 8 : 10}
-//               data={data}
-//               startAngle={180}
-//               endAngle={-180}
-//               margin={{
-//                 top: 10,
-//                 right: 10,
-//                 bottom: 10,
-//                 left: 10,
-//               }}
-//             >
-//               <RadialBar
-//                 minAngle={15}
-//                 clockWise
-//                 background
-//                 dataKey="value"
-//                 cornerRadius={window.innerWidth < 640 ? 6 : 10}
-//               />
-//               <Tooltip content={<CustomTooltip />} />
-//               <text
-//                 x="50%"
-//                 y="50%"
-//                 textAnchor="middle"
-//                 dominantBaseline="middle"
-//                 className="text-white"
-//                 fill="#fff"
-//               >
-//                 <tspan fontSize={window.innerWidth < 640 ? "12px" : "14px"}>
-//                   Total
-//                 </tspan>
-//                 <tspan
-//                   x="50%"
-//                   dy={window.innerWidth < 640 ? "16" : "18"}
-//                   fontSize={window.innerWidth < 640 ? "12px" : "14px"}
-//                   fontWeight="600"
-//                 >
-//                   {totalValue.toLocaleString()}
-//                 </tspan>
-//               </text>
-//             </RadialBarChart>
-//           </ResponsiveContainer>
-//         </div>
-
-//         {/* Responsive Legend */}
-//         <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-2 sm:mt-4 text-[#B0B3C0]">
-//           {data.map((item) => (
-//             <div
-//               key={item.name}
-//               className="flex items-center gap-1 text-xs sm:text-sm"
-//             >
-//               <span
-//                 className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full flex-shrink-0"
-//                 style={{ backgroundColor: item.fill }}
-//               ></span>
-//               <span>
-//                 {window.innerWidth < 640
-//                   ? item.name
-//                       .replace("Users", "")
-//                       .replace("Total", "")
-//                       .trim() || "Users"
-//                   : item.name}
-//               </span>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default StatusByProcessChart;
-
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import {
@@ -130,6 +7,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+// Custom theme colors - vibrant and matching the admin theme
+const COLORS = {
+  total: ["#3B82F6", "#60A5FA"],
+  active: ["#10B981", "#34D399"],
+  revenue: ["#8B5CF6", "#A78BFA"],
+};
+
+const CustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-gradient-to-br from-[#1E293B] to-[#0F172A] border border-white/10 text-white px-4 py-3 rounded-xl shadow-2xl">
+        <p className="font-bold text-sm">{data.name}</p>
+        <p className="text-2xl font-bold" style={{ color: data.fill }}>
+          {data.value.toLocaleString()}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const StatusByProcessChart = ({ statData }) => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -137,14 +36,8 @@ const StatusByProcessChart = ({ statData }) => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
     };
-
-    // Set initial value
     handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Clean up
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -152,106 +45,114 @@ const StatusByProcessChart = ({ statData }) => {
     {
       name: "Total Users",
       value: statData?.totalUsers || 0,
-      fill: "#00C49F",
+      fill: COLORS.total[0],
+      icon: "👥",
+      description: "All registered users",
     },
     {
       name: "Active Users",
       value: statData?.activeUsers || 0,
-      fill: "#F4C542",
+      fill: COLORS.active[0],
+      icon: "✅",
+      description: "With active subscription",
     },
     {
-      name: "Total Amount",
-      value: statData?.totalAmount ? Math.min(statData.totalAmount, 1000) : 0,
-      fill: "#F2523C",
+      name: "Revenue",
+      value: statData?.totalAmount || 0,
+      fill: COLORS.revenue[0],
+      icon: "💰",
+      description: "Total earnings",
     },
   ];
 
-  const totalValue = data.reduce((sum, item) => sum + item.value, 0);
+  const totalUsers = statData?.totalUsers || 0;
+  const activeUsers = statData?.activeUsers || 0;
+  const inactiveUsers = totalUsers - activeUsers;
+  const activePercentage = totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100) : 0;
 
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-[#1B2135] text-white p-2 rounded text-xs sm:text-sm shadow-lg">
-          <p className="font-medium">{payload[0].payload.name}</p>
-          <p>{payload[0].value.toLocaleString()}</p>
-        </div>
-      );
-    }
-    return null;
-  };
+  // Calculate segment angles for custom pie chart
+  const pieData = [
+    { name: "Active", value: activeUsers, fill: COLORS.active[0] },
+    { name: "Inactive", value: inactiveUsers, fill: "#374151" },
+  ];
 
   return (
     <div className="w-full h-full p-2 sm:p-4">
-      <div className="bg-[#0f172a] rounded-xl p-3 sm:p-4 w-full h-full flex flex-col">
-        <div className="flex-1 min-h-[200px] sm:min-h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <RadialBarChart
-              cx="50%"
-              cy="50%"
-              innerRadius={isMobile ? "20%" : "30%"}
-              outerRadius={isMobile ? "80%" : "90%"}
-              barSize={isMobile ? 6 : 10}
-              data={data}
-              startAngle={180}
-              endAngle={-180}
-              margin={{
-                top: isMobile ? 5 : 10,
-                right: isMobile ? 5 : 10,
-                bottom: isMobile ? 5 : 10,
-                left: isMobile ? 5 : 10,
-              }}
-            >
-              <RadialBar
-                minAngle={15}
-                clockWise
-                background
-                dataKey="value"
-                cornerRadius={isMobile ? 4 : 10}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <text
-                x="50%"
-                y="50%"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="text-white"
-                fill="#fff"
+      <div className="bg-[#0F172A] rounded-xl p-3 sm:p-4 w-full h-full flex flex-col">
+        {/* Infographic-style display */}
+        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          
+          {/* Donut Chart */}
+          <div className="relative w-40 h-40 sm:w-48 sm:h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                cx="50%"
+                cy="50%"
+                innerRadius="60%"
+                outerRadius="90%"
+                barSize={isMobile ? 15 : 20}
+                data={pieData}
+                startAngle={90}
+                endAngle={-270}
               >
-                <tspan fontSize={isMobile ? "10px" : "14px"}>Total</tspan>
-                <tspan
-                  x="50%"
-                  dy={isMobile ? "14" : "18"}
-                  fontSize={isMobile ? "10px" : "14px"}
-                  fontWeight="600"
-                >
-                  {totalValue.toLocaleString()}
-                </tspan>
-              </text>
-            </RadialBarChart>
-          </ResponsiveContainer>
+                <RadialBar
+                  minAngle={15}
+                  background
+                  clockWise
+                  dataKey="value"
+                  cornerRadius={10}
+                  animationDuration={1500}
+                />
+                <Tooltip content={<CustomTooltip />} />
+              </RadialBarChart>
+            </ResponsiveContainer>
+            
+            {/* Center text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-3xl sm:text-4xl font-bold text-white">{activePercentage}%</div>
+              <div className="text-xs sm:text-sm text-gray-400">Active</div>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="flex flex-col gap-3 flex-1">
+            {data.map((item, index) => (
+              <div
+                key={index}
+                className="relative overflow-hidden rounded-xl p-3 bg-gradient-to-r from-[#1E293B] to-[#0F172A] border border-white/5 hover:border-white/20 transition-all"
+              >
+                <div 
+                  className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl"
+                  style={{ backgroundColor: item.fill }}
+                />
+                <div className="flex items-center justify-between ml-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="text-gray-400 text-xs">{item.name}</span>
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-white mt-0.5">
+                      {item.isCurrency ? "₹" : ""}{item.value.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Responsive Legend */}
-        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-2 sm:mt-4 text-[#B0B3C0]">
-          {data.map((item) => (
-            <div
-              key={item.name}
-              className="flex items-center gap-1 text-xs sm:text-sm"
-            >
-              <span
-                className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full flex-shrink-0"
-                style={{ backgroundColor: item.fill }}
-              ></span>
-              <span>
-                {isMobile
-                  ? item.name
-                      .replace("Users", "")
-                      .replace("Total", "")
-                      .trim() || "Users"
-                  : item.name}
-              </span>
-            </div>
-          ))}
+        {/* Progress bar for active users */}
+        <div className="mt-4">
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>Subscription Rate</span>
+            <span>{activePercentage}%</span>
+          </div>
+          <div className="h-2 bg-[#1E293B] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-blue-500 to-green-500 rounded-full transition-all duration-1000"
+              style={{ width: `${activePercentage}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>

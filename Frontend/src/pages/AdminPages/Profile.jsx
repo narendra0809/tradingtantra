@@ -8,6 +8,10 @@ import { useEffect } from "react";
 import { adminSchema } from "../../../validators/validator";
 import axios from "axios";
 import { ADMIN_SERVER_URI } from "./Home";
+import AdminCard from "../../Components/AdminComponents/AdminCard";
+import AdminButton from "../../Components/AdminComponents/AdminButton";
+import AdminInput from "../../Components/AdminComponents/AdminInput";
+
 export default function Profile() {
   const { admin } = useOutletContext();
   const [loading, setLoading] = useState(false);
@@ -59,117 +63,99 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-[#0D0F1C] min-h-screen text-white px-4 sm:px-6 md:px-10 py-6">
-      {/* Header */}
-      <div
-        className="relative w-full h-24 sm:h-28 md:h-32 rounded-b-xl"
-        style={{
-          backgroundImage: `url(${bgImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute bottom-[-30px] left-4 sm:left-6 flex items-center gap-4">
-          <h2 className="text-xl relative bottom-4 sm:text-2xl font-semibold">
-            {`${formData.firstName}${formData.lastName}`}
-          </h2>
-        </div>
-        <button
-          onClick={handleChangePassword}
-          className="absolute right-4 top-[90px] sm:top-[100px] bg-[#1A1D2E] border border-blue-500 text-blue-400 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-md text-sm flex items-center gap-2"
+    <div className="min-h-screen text-white p-4 sm:p-8 bg-[#000A2D]">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header with Background */}
+        <div
+          className="relative w-full h-32 sm:h-40 rounded-2xl overflow-hidden"
+          style={{
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         >
-          <FiLock /> Change Password
-        </button>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000A2D] to-transparent"></div>
+          <div className="absolute bottom-4 left-6 flex items-end gap-4">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <FiUser className="text-white text-2xl" />
+            </div>
+            <div className="pb-2">
+              <h2 className="text-2xl font-semibold">
+                {`${formData.firstName} ${formData.lastName}`}
+              </h2>
+              <p className="text-gray-400 text-sm">{formData.email}</p>
+            </div>
+          </div>
+          <AdminButton 
+            variant="outline" 
+            size="sm"
+            icon={<FiLock />}
+            onClick={handleChangePassword}
+            className="absolute right-4 bottom-4"
+          >
+            Change Password
+          </AdminButton>
+        </div>
+
+        {showResetModal && (
+          <ResetPasswordModal onClose={() => setShowResetModal(false)} />
+        )}
+
+        {/* Form */}
+        <AdminCard>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <FiUser className="text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Account Settings</h3>
+                <p className="text-sm text-gray-400">Update your profile information</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <AdminInput
+                label="First Name"
+                name="firstName"
+                type="text"
+                value={formData.firstName}
+                onChange={handleChange}
+                error={formErrors?.firstName}
+                icon={<FiUser />}
+              />
+              <AdminInput
+                label="Last Name"
+                name="lastName"
+                type="text"
+                value={formData.lastName}
+                onChange={handleChange}
+                error={formErrors?.lastName}
+                icon={<FiUser />}
+              />
+            </div>
+
+            <AdminInput
+              label="Email Address"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={formErrors?.email}
+              icon={<FiMail />}
+            />
+
+            <AdminButton 
+              type="submit" 
+              variant="primary" 
+              loading={loading}
+              className="w-full"
+            >
+              {loading ? <FiLoader className="animate-spin" /> : "Save Changes"}
+            </AdminButton>
+          </form>
+        </AdminCard>
       </div>
-
-      {showResetModal && (
-        <ResetPasswordModal onClose={() => setShowResetModal(false)} />
-      )}
-
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-[#101223] mt-20 mx-auto rounded-xl p-4 sm:p-6 md:p-8 max-w-4xl"
-      >
-        <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
-          <FiUser /> Account
-        </h2>
-        <p className="text-sm text-gray-400 mb-6">
-          Lorem ipsum dolor sit amet consectetur sit mauris nec morbi nisi.
-        </p>
-
-        <p className="text-sm text-gray-400 mb-4">
-          Lorem ipsum dolor sit amet consectetur quisque nisi eget mi libero leo
-          vel claim in.
-        </p>
-
-        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="relative">
-            <label className="block text-sm mb-1" htmlFor="firstName">
-              First name
-            </label>
-            <FiUser className="absolute top-10 left-3 text-gray-400" />
-            <input
-              id="firstName"
-              name="firstName"
-              type="text"
-              value={formData.firstName}
-              onChange={handleChange}
-              className="w-full bg-[#1A1D2E] border-none rounded-md pl-10 pr-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            />
-            {formErrors?.firstName && (
-              <span className="text-sm text-red-400">
-                {formErrors.firstName}
-              </span>
-            )}
-          </div>
-          <div className="relative">
-            <label className="block text-sm mb-1" htmlFor="lastName">
-              Last name
-            </label>
-            <FiUser className="absolute top-10 left-3 text-gray-400" />
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              value={formData.lastName}
-              onChange={handleChange}
-              className="w-full bg-[#1A1D2E] border-none rounded-md pl-10 pr-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            />
-            {formErrors?.lastName && (
-              <span className="text-sm text-red-400">
-                {formErrors.lastName}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="mb-6 relative">
-          <label className="block text-sm mb-1" htmlFor="email">
-            Email address
-          </label>
-          <FiMail className="absolute top-10 left-3 text-gray-400" />
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full bg-[#1A1D2E] border-none rounded-md pl-10 pr-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          {formErrors?.email && (
-            <span className="text-sm text-red-400">{formErrors.email}</span>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 w-full py-2 rounded-md text-white font-semibold"
-        >
-          {loading ? <FiLoader className="text-center" /> : "Submit"}
-        </button>
-      </form>
     </div>
   );
 }

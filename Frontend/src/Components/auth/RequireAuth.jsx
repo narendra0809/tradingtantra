@@ -14,12 +14,17 @@ const RequireAuth = () => {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      await checkAuth();
+    // Only call checkAuth if we don't have a user yet
+    if (!user) {
+      const verifyAuth = async () => {
+        await checkAuth('RequireAuth');
+        setChecking(false);
+      };
+      verifyAuth();
+    } else {
       setChecking(false);
-    };
-    verifyAuth();
-  }, [checkAuth]);
+    }
+  }, []); // Empty deps - run only once on mount
 
   if (loading || checking) {
     return (
