@@ -62,6 +62,7 @@ import Dashboard from "./pages/AdminPages/Dashboard";
 import { AdminAuthProvider } from "./contexts/adminContext/AdminAuthContext";
 import StockDetails from "./pages/AdminPages/StockDetails";
 import AIOptionInsiderPage from "./pages/DashboardPage/AIOptionInsiderPage";
+import CryptoAIOptionInsiderPage from "./pages/DashboardPage/CryptoAIOptionInsiderPage";
 import UserManagement from "./pages/AdminPages/UserManagement";
 import Coupon from "./pages/AdminPages/Coupon";
 import { Toaster } from "react-hot-toast";
@@ -132,6 +133,10 @@ const App = () => {
                       <Route
                         path="option-insider"
                         element={<AIOptionInsiderPage />}
+                      />
+                      <Route
+                        path="crypto-option-insider"
+                        element={<CryptoAIOptionInsiderPage />}
                       />
                       <Route path="index-depth" element={<IndexDepthPage />} />
                       <Route path="fii-dii" element={<FIIDIIPage />} />

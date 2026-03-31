@@ -3,6 +3,31 @@ import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 import Lock from "./Lock";
 import { useSelector } from "react-redux";
 
+function formatTime(timeStr) {
+  if (!timeStr) return "";
+  const hasAmPm = /AM|PM/i.test(timeStr);
+  const cleanTime = timeStr.replace(/ AM| PM| am| pm/gi, "").trim();
+  const parts = cleanTime.split(":");
+  if (parts.length < 2) return timeStr;
+
+  let hours = parseInt(parts[0], 10);
+  const minutes = parts[1];
+
+  let ampm = "";
+  if (hasAmPm) {
+    ampm = /PM/i.test(timeStr) ? "PM" : "AM";
+  } else {
+    ampm = hours >= 12 ? "PM" : "AM";
+  }
+
+  if (hours >= 12) {
+    hours = hours % 12;
+  }
+  hours = hours ? hours : 12; 
+
+  return `${hours}:${minutes} ${ampm}`;
+}
+
 function OverallSentiments({ data, theme }) {
   if (!data) return null;
   const put = data.put;
@@ -331,7 +356,7 @@ const OptionInsiderTable = ({ data = [], isSubscribed }) => {
               {data.map((r, idx) => (
                 <tr key={idx}>
                   <td className="p-2 text-[10px] xs:text-[11px] sm:text-[12px] md:text-[14px] dark:text-white whitespace-nowrap">
-                    {r.prevTimestamp} - {r.nowTimestamp}
+                    {formatTime(r.prevTimestamp)} - {formatTime(r.nowTimestamp)}
                   </td>
                   <td className="p-2 text-center text-[#0256F5] text-[10px] xs:text-[11px] sm:text-[12px] md:text-[14px] whitespace-nowrap">
                     {r.strikePrice}

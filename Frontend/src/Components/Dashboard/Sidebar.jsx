@@ -44,6 +44,16 @@ const Sidebar = () => {
 
   const dispatch = useDispatch();
   const NAV_SECTIONS = [
+    // {
+    //   label: "CRYPTO AI OPTION",
+    //   items: [
+    //     {
+    //       icon: AiOptionInsider,
+    //       label: "Crypto AI Option Insider",
+    //       path: "/dashboard/crypto-option-insider",
+    //     },
+    //   ],
+    // },
     {
       label: "OPTIONS",
       items: [

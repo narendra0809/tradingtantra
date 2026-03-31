@@ -5,6 +5,7 @@ import { server } from "./app.js";
 import connectDB from "./src/config/db.js";
 import smartMoneyActionJob from "./src/jobs/SmartMoneyAction.job.js";
 import optionChainJob from "./src/jobs/optionChain.job.js";
+import cryptoOptionChainJob from "./src/jobs/cryptoOptionChain.job.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -16,6 +17,7 @@ connectDB()
       // Start all background jobs
       smartMoneyActionJob.start();
       optionChainJob.start();
+      cryptoOptionChainJob.start();
       
       console.log("✅ All background jobs initialized");
     });
@@ -29,6 +31,7 @@ process.on("SIGINT", () => {
   console.log("\n🛑 Shutting down gracefully...");
   smartMoneyActionJob.stop();
   optionChainJob.stop();
+  cryptoOptionChainJob.stop();
   server.close(() => {
     console.log("✅ Server closed");
     process.exit(0);

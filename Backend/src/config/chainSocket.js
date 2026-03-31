@@ -1,5 +1,6 @@
 import { buildOptionInsiderPayload } from "../services/optionInsider.service.js";
 import { buildOptionClockPayload } from "../services/optionClock.service.js";
+import { buildCryptoOptionInsiderPayload } from "../services/cryptoOptionInsider.service.js";
 
 let mainIo = null;
 
@@ -81,6 +82,37 @@ export function initializeChainSocket(io) {
         socket.emit("optionClockError", { message: "Internal server error" });
       }
     });
+
+    socket.on("subscribeCryptoOptionInsider", async ({ index, expiry, interval }) => {
+      try {
+        if (!index || !interval || !expiry) {
+          socket.emit("cryptoOptionInsiderError", {
+            message: "index, interval and expiry are required",
+          });
+          return;
+        }
+
+        if (currentRoom) {
+          socket.leave(currentRoom);
+        }
+
+        socket.cryptoOptionInsiderSubscription = { index, expiry, interval };
+
+        currentRoom = `cryptoOptionInsider_${index}_${expiry || "all"}_${interval}`;
+
+        socket.join(currentRoom);
+
+        const payload = await buildCryptoOptionInsiderPayload({
+          index,
+          expiry,
+          interval,
+        });
+        socket.emit("cryptoOptionInsiderUpdate", payload);
+      } catch (error) {
+        console.error("Error handling subscribeCryptoOptionInsider:", error);
+        socket.emit("cryptoOptionInsiderError", { message: "Internal server error" });
+      }
+    });
   });
 
   console.log("✅ Chain Socket handlers initialized on main Socket.IO server");
@@ -143,6 +175,38 @@ export async function broadcastChainOptionInsider({ index, expiry }) {
         `Error sending optionInsider to socket ${socket.id}:`,
         err
       );
+    }
+  }
+}
+
+/**
+ * Broadcast crypto option insider updates to all subscribed sockets
+ */
+export async function broadcastChainCryptoOptionInsider() {
+  if (!mainIo) {
+    console.warn("⚠️ Main socket not available for cryptoOptionInsider broadcast");
+    return;
+  }
+
+  const sockets = await mainIo.fetchSockets();
+  console.log(`📡 Broadcasting cryptoOptionInsider to ${sockets.length} sockets`);
+
+  const processedRooms = new Set();
+
+  for (const socket of sockets) {
+    const sub = socket.cryptoOptionInsiderSubscription;
+    if (!sub) continue;
+
+    const room = `cryptoOptionInsider_${sub.index}_${sub.expiry || "all"}_${sub.interval}`;
+    
+    if (processedRooms.has(room)) continue;
+    processedRooms.add(room);
+
+    try {
+      const payload = await buildCryptoOptionInsiderPayload(sub);
+      mainIo.to(room).emit("cryptoOptionInsiderUpdate", payload);
+    } catch (err) {
+      console.error(`Error sending cryptoOptionInsider to room ${room}:`, err);
     }
   }
 }

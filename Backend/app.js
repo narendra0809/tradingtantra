@@ -39,6 +39,7 @@ import holidaysRoutes from "./src/routes/holidays.route.js";
 import isSubscribedRoute from "./src/routes/isSubscribed.js";
 import optionClockRoutes from "./src/routes/optionClock.js";
 import { optionInsiderRoute } from "./src/routes/optionInsider.route.js";
+import { cryptoOptionInsiderRoute } from "./src/routes/cryptoOptionInsider.route.js";
 import paymentRoutes from "./src/routes/payment.routes.js";
 import stocksRoutes from "./src/routes/stock.routes.js";
 import GetCoupon from "./src/routes/Coupon.route.js";
@@ -113,6 +114,7 @@ app.use(
   optionClockRoutes,
   holidaysRoutes,
   optionInsiderRoute,
+  cryptoOptionInsiderRoute,
   optionClockRouter,
   GetCoupon
 );

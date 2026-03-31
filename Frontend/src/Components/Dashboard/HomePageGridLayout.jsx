@@ -192,6 +192,20 @@ const HOME_CARDS = [
   // },
 ];
 
+const CRYPTO_CARDS = [
+  {
+    id: "crypto-ai-option-insider",
+    gridClass: "div1",
+    img: optionInsiderImg,
+    imgAlt: "Crypto Option Insider",
+    title: "AI Crypto Option Insider",
+    description:
+      "Gives in depth INSIGHTS of options in live market Keep a watch on what BIG PLAYERS are doing in LIVE MARKET in INDEX Advanced OPTIONS analysis using AI",
+    buttonLabel: "AI Crypto Option Insider",
+    to: "/dashboard/crypto-option-insider",
+  },
+];
+
 const HomePageGridLayout = () => {
   const navigate = useNavigate();
 
@@ -243,6 +257,52 @@ const HomePageGridLayout = () => {
           )
         )}
       </div>
+      {/* <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-8 sm:mt-12 mb-4 sm:mb-6">Crypto Options</h1> */}
+
+      {/* <div className="homeParent">
+        {CRYPTO_CARDS.map(
+          ({
+            id,
+            gridClass,
+            img,
+            imgAlt,
+            title,
+            description,
+            buttonLabel,
+            to,
+            extraButtonClasses = "",
+          }) => (
+            <div
+              key={id}
+              className={`${gridClass} dark:bg-gradient-to-br from-[#0009B2] to-[#02000E] p-px rounded-lg`}
+            >
+              <div className="bg-db-primary not-dark:bg-[#ffffff] border border-transparent rounded-xl p-3 sm:p-4 relative shadow-lg w-full h-full flex flex-col justify-between">
+                <div className="flex flex-col items-start space-x-3">
+                  <div className={title ? "flex items-center gap-2 sm:gap-3" : ""}>
+                    <div>
+                      <img className="w-10 h-10 sm:w-12 sm:h-12" src={img} alt={imgAlt} />
+                    </div>
+                    {title && (
+                      <h2 className="font-semibold text-base sm:text-lg">{title}</h2>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[#FFFFFF] not-dark:text-black font-light text-xs sm:text-sm mt-3 sm:mt-5">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate(to)}
+                  className={`w-full bg-[#0256F5] text-white py-1.5 sm:py-2 rounded-md font-medium text-sm sm:text-base mt-3 sm:mt-4 ${extraButtonClasses}`}
+                >
+                  {buttonLabel}
+                </button>
+              </div>
+            </div>
+          )
+        )}
+      </div> */}
     </div>
   );
 };

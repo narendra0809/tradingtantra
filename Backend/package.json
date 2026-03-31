@@ -40,6 +40,7 @@
     "lightweight-charts": "^5.0.9",
     "luxon": "^3.6.1",
     "moment-timezone": "^0.5.48",
+    "mongodb": "^7.1.0",
     "mongoose": "^8.11.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
@@ -55,8 +56,6 @@
     "puppeteer": "^24.4.0",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "razorpay": "^2.9.6",
-
-
     "socket.io": "^4.8.1",
     "tough-cookie": "^5.1.2",
     "websocket": "^1.0.35",
